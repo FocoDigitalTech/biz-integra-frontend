@@ -1,6 +1,7 @@
 package br.com.onetec.application.views;
 
 import br.com.onetec.application.views.clientes.ClientesView;
+import br.com.onetec.application.views.home.HomeView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -34,14 +35,14 @@ public class MainLayout extends AppLayout {
         toggle.setAriaLabel("Menu toggle");
         toggle.setTooltipText("Menu toggle");
 
-        viewTitle = new H2();
+        viewTitle = new H2("Nagazaki");
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE,
                 LumoUtility.Flex.GROW);
 
         var logout = new Button("Logout " + authenticationContext.getPrincipalName().orElse(""),
                 event -> authenticationContext.logout());
-
-        var header = new Header(toggle, viewTitle, logout);
+        H2 titulo = new H2("Nagazaki App");
+        var header = new Header(toggle,titulo, viewTitle, logout);
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
 
@@ -50,7 +51,7 @@ public class MainLayout extends AppLayout {
 
 
     private void addDrawerContent() {
-        var appName = new Span("Vaadin Chat");
+        var appName = new Span("Menu Principal");
         appName.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.FontSize.LARGE, LumoUtility.FontWeight.SEMIBOLD,
                 LumoUtility.Height.XLARGE, LumoUtility.Padding.Horizontal.MEDIUM);
@@ -62,10 +63,10 @@ public class MainLayout extends AppLayout {
         SideNav nav = new SideNav();
         nav.addItem(new SideNavItem("Home", HomeView.class,
                 VaadinIcon.HOME.create()));
-        nav.addItem(new SideNavItem("Lobby", LobbyView.class,
-                VaadinIcon.BUILDING.create()));
         nav.addItem(new SideNavItem("Clientes", ClientesView.class,
-                VaadinIcon.BUILDING.create()));
+                VaadinIcon.GROUP.create()));
+        nav.addItem(new SideNavItem("Administrativo", AdministrativoView.class,
+                VaadinIcon.BOOK.create()));
 
 
 

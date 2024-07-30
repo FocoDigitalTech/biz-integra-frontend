@@ -1,20 +1,16 @@
 package br.com.onetec.application.views.clientes;
 
-import br.com.onetec.application.data.SamplePerson;
+import br.com.onetec.application.data.Clientes;
+import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.router.RoutePrefix;
 import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -25,14 +21,8 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.Menu;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -50,13 +40,13 @@ import org.springframework.data.jpa.domain.Specification;
 @Uses(Icon.class)
 public class ClientesView extends Div {
 
-    private Grid<SamplePerson> grid;
+    private Grid<Clientes> grid;
 
     private Filters filters;
-    private final br.com.onetec.application.services.SamplePersonService samplePersonService;
+    private final ClientesService clientesService;
 
-    public ClientesView(br.com.onetec.application.services.SamplePersonService SamplePersonService) {
-        this.samplePersonService = SamplePersonService;
+    public ClientesView(ClientesService clientesService) {
+        this.clientesService = clientesService;
         setSizeFull();
         addClassNames("telarelatorios-view");
 
@@ -92,7 +82,17 @@ public class ClientesView extends Div {
         return mobileFilters;
     }
 
-    public static class Filters extends Div implements Specification<SamplePerson> {
+    private static Button createCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private static void openCadastroModal() {
+        CadastroClientesModal cadastroModal = new CadastroClientesModal();
+        cadastroModal.open();
+    }
+
+    public static class Filters extends Div implements Specification<Clientes> {
 
         /*
         *
@@ -139,11 +139,12 @@ Usuário
                 roles.clear();
                 onSearch.run();
             });
+            Button createBtn = createCadastroButton();
             Button searchBtn = new Button("Buscar");
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
 
-            Div actions = new Div(resetBtn, searchBtn);
+            Div actions = new Div(resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
@@ -167,7 +168,7 @@ Usuário
         }
 
         @Override
-        public Predicate toPredicate(Root<SamplePerson> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<Clientes> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
             if (!name.isEmpty()) {
@@ -240,7 +241,7 @@ Usuário
     }
 
     private Component createGrid() {
-        grid = new Grid<>(SamplePerson.class, false);
+        grid = new Grid<>(Clientes.class, false);
         grid.addColumn("ultimoOrcamento").setAutoWidth(true);
         grid.addColumn("nome").setAutoWidth(true);
         grid.addColumn("contato").setAutoWidth(true);
@@ -252,7 +253,11 @@ Usuário
 //        grid.addColumn("fax").setAutoWidth(true);
 //        grid.addColumn("usuário").setAutoWidth(true);
 
-        grid.setItems(query -> samplePersonService.list(
+        // Adiciona o listener de clique nos itens da grade
+        grid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
+
+
+        grid.setItems(query -> clientesService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filters).stream());
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -263,6 +268,11 @@ Usuário
 
     private void refreshGrid() {
         grid.getDataProvider().refreshAll();
+    }
+
+    private void openDetalhesClienteModal(Clientes cliente) {
+        DetalhesClienteModal detalhesClienteModal = new DetalhesClienteModal(cliente);
+        detalhesClienteModal.open();
     }
 }
 
