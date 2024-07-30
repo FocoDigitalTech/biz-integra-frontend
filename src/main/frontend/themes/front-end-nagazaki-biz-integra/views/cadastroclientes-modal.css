@@ -1,0 +1,43 @@
+.cadastro-modal {
+    width: 1000px;
+    padding: 0px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cadastro-modal .form-layout {
+    display: grid;
+    grid-template-columns: 2fr;
+    gap: 10px;
+}
+
+.cadastro-modal .form-layout vaadin-button {
+    margin-top: 20px;
+}
+
+.cadastro-modal .form-layout .buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+.error-border {
+    border: 1px solid red !important;
+    position: relative; /* Necessário para o posicionamento do ::after */
+}
+
+.error-border::after {
+    content: "*Campo obrigatório";
+    color: red;
+    font-size: 12px;
+    position: absolute;
+    top: 15%; /* Posiciona abaixo do TextField */
+    left: 100px;
+    margin-top: 2px; /* Espaçamento entre o TextField e a mensagem */
+}
+.cadastro-modal .form-layout vaadin-text-field,
+.cadastro-modal .form-layout vaadin-date-picker,
+.cadastro-modal .form-layout vaadin-time-picker {
+    width: 100%;
+
+}
