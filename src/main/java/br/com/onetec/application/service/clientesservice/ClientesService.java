@@ -1,8 +1,7 @@
 package br.com.onetec.application.service.clientesservice;
 
 import br.com.onetec.application.data.Clientes;
-import br.com.onetec.application.views.clientes.ClientesView;
-import com.github.javaparser.ast.Node;
+import br.com.onetec.application.views.principal.clientes.ClientesView;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
