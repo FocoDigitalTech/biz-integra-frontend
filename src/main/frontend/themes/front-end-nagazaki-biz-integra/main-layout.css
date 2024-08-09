@@ -1,4 +1,5 @@
 vaadin-scroller[slot="drawer"] {
+  background-color: #f7f7f7;
   padding: var(--lumo-space-s);
 }
 
@@ -6,7 +7,7 @@ vaadin-side-nav-item vaadin-icon {
   padding: 0;
 }
 
-[slot="drawer"]:is(header, footer) {
+[slot="drawer"]:is(header, footer) { v v v
   display: flex;
   align-items: center;
   gap: var(--lumo-space-s);

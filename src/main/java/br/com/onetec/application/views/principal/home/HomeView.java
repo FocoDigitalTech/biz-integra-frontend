@@ -1,4 +1,4 @@
-package br.com.onetec.application.views.home;
+package br.com.onetec.application.views.principal.home;
 
 import br.com.onetec.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;

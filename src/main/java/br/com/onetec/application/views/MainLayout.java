@@ -1,13 +1,23 @@
 package br.com.onetec.application.views;
 
-import br.com.onetec.application.views.clientes.ClientesView;
-import br.com.onetec.application.views.home.HomeView;
+import br.com.onetec.application.views.principal.administrativo.AdministrativoView;
+import br.com.onetec.application.views.principal.clientes.ClientesView;
+import br.com.onetec.application.views.principal.configuracoes.ConfiguracoesView;
+import br.com.onetec.application.views.principal.estoque.EstoqueView;
+import br.com.onetec.application.views.principal.financeiro.FinanceiroView;
+import br.com.onetec.application.views.principal.home.HomeView;
+import br.com.onetec.application.views.principal.relatorios.RelatoriosView;
+import br.com.onetec.cross.utilities.ViewsTitleConst;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -22,6 +32,7 @@ public class MainLayout extends AppLayout {
     private final AuthenticationContext authenticationContext;
 
     private H2 viewTitle;
+    private H2 titulo;
 
     public MainLayout(AuthenticationContext authenticationContext) {
         this.authenticationContext = authenticationContext;
@@ -35,13 +46,13 @@ public class MainLayout extends AppLayout {
         toggle.setAriaLabel("Menu toggle");
         toggle.setTooltipText("Menu toggle");
 
-        viewTitle = new H2("Nagazaki");
+        viewTitle = new H2("");
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE,
                 LumoUtility.Flex.GROW);
 
         var logout = new Button("Logout " + authenticationContext.getPrincipalName().orElse(""),
                 event -> authenticationContext.logout());
-        H2 titulo = new H2("Nagazaki App");
+        titulo = new H2("Nagazaki App");
         var header = new Header(toggle,titulo, viewTitle, logout);
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
@@ -67,6 +78,14 @@ public class MainLayout extends AppLayout {
                 VaadinIcon.GROUP.create()));
         nav.addItem(new SideNavItem("Administrativo", AdministrativoView.class,
                 VaadinIcon.BOOK.create()));
+        nav.addItem(new SideNavItem("Financeiro", FinanceiroView.class,
+                VaadinIcon.MONEY.create()));
+        nav.addItem(new SideNavItem("Estoque", EstoqueView.class,
+                VaadinIcon.STORAGE.create()));
+        nav.addItem(new SideNavItem("Relatórios", RelatoriosView.class,
+                VaadinIcon.PAPERPLANE.create()));
+        nav.addItem(new SideNavItem("Configurações", ConfiguracoesView.class,
+                VaadinIcon.HAMMER.create()));
 
 
 
@@ -86,7 +105,39 @@ public class MainLayout extends AppLayout {
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
-        viewTitle.setText(getCurrentPageTitle());
+        //viewTitle.setText(getCurrentPageTitle());
+        updateTitulo();
     }
+
+    private void updateTitulo() {
+        String route = getCurrentPageTitle();
+        switch (route) {
+            case "Home":
+                titulo.setText("Nagazaki App");
+                break;
+            case ViewsTitleConst.CLIENTES_NAV_TITLE:
+                titulo.setText(ViewsTitleConst.CLIENTES_NAV_TITLE);
+                break;
+            case ViewsTitleConst.ADMINISTRATIVO_NAV_TITLE:
+                titulo.setText(ViewsTitleConst.ADMINISTRATIVO_NAV_TITLE);
+                break;
+            case ViewsTitleConst.FINANCEIRO_NAV_TITLE:
+                titulo.setText(ViewsTitleConst.FINANCEIRO_NAV_TITLE);
+                break;
+            case ViewsTitleConst.ESTOQUE_NAV_TITLE:
+                titulo.setText(ViewsTitleConst.ESTOQUE_NAV_TITLE);
+                break;
+            case ViewsTitleConst.REPORT_NAV_TITLE:
+                titulo.setText(ViewsTitleConst.REPORT_NAV_TITLE);
+                break;
+            case ViewsTitleConst.CONFIGURATION_NAV_TITLE:
+                titulo.setText(ViewsTitleConst.CONFIGURATION_NAV_TITLE);
+                break;
+            default:
+                titulo.setText(ViewsTitleConst.MAIN_NAV_TITLE);
+                break;
+        }
+    }
+
 
 }
