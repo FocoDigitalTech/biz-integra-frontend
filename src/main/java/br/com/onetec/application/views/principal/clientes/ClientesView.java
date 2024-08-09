@@ -1,11 +1,15 @@
-package br.com.onetec.application.views.clientes;
+package br.com.onetec.application.views.principal.clientes;
 
 import br.com.onetec.application.data.Clientes;
 import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.principal.clientes.modal.CadastroClientesModal;
+import br.com.onetec.application.views.principal.clientes.modal.DadosClienteModal;
+import br.com.onetec.cross.utilities.ViewsTitleConst;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import jakarta.annotation.security.PermitAll;
@@ -38,6 +42,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Route(value = "clientes",layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
+@PageTitle(ViewsTitleConst.CLIENTES_NAV_TITLE)
 public class ClientesView extends Div {
 
     private Grid<Clientes> grid;
@@ -271,7 +276,7 @@ Usuário
     }
 
     private void openDetalhesClienteModal(Clientes cliente) {
-        DetalhesClienteModal detalhesClienteModal = new DetalhesClienteModal(cliente);
+        DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente);
         detalhesClienteModal.open();
     }
 }

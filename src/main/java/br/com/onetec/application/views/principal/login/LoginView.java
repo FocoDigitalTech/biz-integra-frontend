@@ -1,11 +1,7 @@
-package br.com.onetec.application.views.login;
+package br.com.onetec.application.views.principal.login;
 
-import br.com.onetec.application.views.login.CustomLoginForm;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -14,13 +10,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route("login")
-@PageTitle("Chat Login")
+@PageTitle("Login Sistema")
 @AnonymousAllowed
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final CustomLoginForm loginForm;
 
     public LoginView() {
+        addClassName("login-view");
         Image logo = new Image("https://nagasakidedetizacao.com.br/wp-content/uploads/2020/08/Logo-Nagasaki.png", "Logo");
         loginForm = new CustomLoginForm();
         setSizeFull();

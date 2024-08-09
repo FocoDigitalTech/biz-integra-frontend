@@ -1,4 +1,4 @@
-package br.com.onetec.application.views.login;
+package br.com.onetec.application.views.principal.login;
 
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
