@@ -2,7 +2,7 @@ package br.com.onetec.application.security;
 
 
 import br.com.onetec.application.service.securityservice.ISecurityService;
-import br.com.onetec.application.views.principal.login.LoginView;
+import br.com.onetec.application.views.main.login.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
