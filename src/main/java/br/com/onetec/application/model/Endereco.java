@@ -1,8 +1,10 @@
-package br.com.onetec.application.data;
+package br.com.onetec.application.model;
+
+import br.com.onetec.infra.db.model.SetEstado;
 
 public class Endereco {
 
-    public Endereco(String fieldEnderecosCEP, String comboEnderecosTipoImovel, String fieldEnderecosArea, String fieldEnderecosEndereço, String fieldEnderecosNumero, String fieldEnderecosComplemento, String fieldEnderecosBairro, String fieldEnderecosCidade, String comboEnderecosUF, String fieldEnderecosTelefone, String fieldEnderecosPagGuia, String fieldEnderecosReponsavel, String comboEnderecosRegiao, String fieldEnderecosPontodeReferencia) {
+    public Endereco(String fieldEnderecosCEP, String comboEnderecosTipoImovel, String fieldEnderecosArea, String fieldEnderecosEndereço, String fieldEnderecosNumero, String fieldEnderecosComplemento, String fieldEnderecosBairro, String fieldEnderecosCidade, SetEstado comboEnderecosUF, String fieldEnderecosTelefone, String fieldEnderecosPagGuia, String fieldEnderecosReponsavel, String comboEnderecosRegiao, String fieldEnderecosPontodeReferencia) {
         this.fieldEnderecosCEP = fieldEnderecosCEP;
         this.comboEnderecosTipoImovel = comboEnderecosTipoImovel;
         this.fieldEnderecosArea = fieldEnderecosArea;
@@ -83,11 +85,11 @@ public class Endereco {
         this.fieldEnderecosCidade = fieldEnderecosCidade;
     }
 
-    public String getComboEnderecosUF() {
+    public SetEstado getComboEnderecosUF() {
         return comboEnderecosUF;
     }
 
-    public void setComboEnderecosUF(String comboEnderecosUF) {
+    public void setComboEnderecosUF(SetEstado comboEnderecosUF) {
         this.comboEnderecosUF = comboEnderecosUF;
     }
 
@@ -139,7 +141,7 @@ public class Endereco {
     private String fieldEnderecosComplemento;
     private String fieldEnderecosBairro;
     private String fieldEnderecosCidade;
-    private String comboEnderecosUF;
+    private SetEstado comboEnderecosUF;
     private String fieldEnderecosTelefone;
     private String fieldEnderecosPagGuia;
     private String fieldEnderecosReponsavel;

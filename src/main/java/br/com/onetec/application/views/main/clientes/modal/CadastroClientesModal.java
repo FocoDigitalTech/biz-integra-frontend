@@ -1,6 +1,13 @@
 package br.com.onetec.application.views.main.clientes.modal;
 
-import br.com.onetec.application.data.Endereco;
+import br.com.onetec.application.model.Cliente;
+import br.com.onetec.application.model.Endereco;
+import br.com.onetec.application.service.clientesservice.ClientesService;
+import br.com.onetec.application.service.clientesservice.EstadoService;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
+import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.infra.db.model.SetEstado;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,6 +28,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class CadastroClientesModal extends Dialog {
 
@@ -79,7 +87,7 @@ public class CadastroClientesModal extends Dialog {
     private TextField fieldEnderecosComplemento;
     private TextField fieldEnderecosBairro;
     private TextField fieldEnderecosCidade;
-    private ComboBox comboEnderecosUF;
+    private ComboBox<SetEstado> comboEnderecosUF;
     private TextField fieldEnderecosTelefone;
     private TextField fieldEnderecosPagGuia;
     private TextField fieldEnderecosReponsavel;
@@ -89,40 +97,57 @@ public class CadastroClientesModal extends Dialog {
     private Tabs tabs;
     private Div cadastroEmpresa;
     private Div cadastroAgendamento;
-    private Div cadastroAprovacaoeCobranca;
+    private Div cadastroAprovacao;
+    private Div cadastroCobranca;
     private Div cadastroEnderecos;
     private Button saveButton;
     private Button cancelButton;
 
+    private final ClientesService clientesService;
+    private final EstadoService estadoService;
+    private final UsuarioService usuarioService;
+    private final EnderecoService enderecoService;
 
-    public CadastroClientesModal() {
+    public CadastroClientesModal(ClientesService clientesService,
+                                 EstadoService estadoService,
+                                 UsuarioService usuarioService,
+                                 EnderecoService enderecoService) {
+        this.clientesService = clientesService;
+        this.estadoService = estadoService;
+        this.usuarioService = usuarioService;
+        this.enderecoService =  enderecoService;
+
         addClassName("cadastro-modal");
         saveButton = new Button("Salvar", eventbe -> save());
         cancelButton = new Button("Cancelar", event -> close());
         tabs = new Tabs();
         Tab tab1 = new Tab("Cadastro Empresa");
         Tab tab2 = new Tab("Agendamento");
-        Tab tab3 = new Tab("Aprovação e Cobrança");
-        Tab tab4 = new Tab("Endereços");
+        Tab tab3 = new Tab("Aprovação");
+        Tab tab4 = new Tab("Cobrança");
+        Tab tab5 = new Tab("Endereços");
 
-        tabs.add(tab1, tab2, tab3, tab4);
+        tabs.add(tab1, tab2, tab3, tab4, tab5);
         cadastroEmpresa = createFormCadastroEmpresa();
         cadastroAgendamento = createFormCadastroAgendamento();
-        cadastroAprovacaoeCobranca = createFormCadastroAprovacaoeCobranca();
+        cadastroAprovacao = createFormCadastroAprovacao();
         cadastroEnderecos = createFormEnderecos();
+        cadastroCobranca = createFormCadastroCobranca();
 
-        Div content = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacaoeCobranca,cadastroEnderecos);
+        Div content = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao,cadastroEnderecos);
         content.setSizeFull();
         cadastroEmpresa.setVisible(true);
         cadastroAgendamento.setVisible(false);
-        cadastroAprovacaoeCobranca.setVisible(false);
+        cadastroAprovacao.setVisible(false);
         cadastroEnderecos.setVisible(false);
+        cadastroCobranca.setVisible(false);
 
         tabs.addSelectedChangeListener(event -> {
             cadastroEmpresa.setVisible(false);
             cadastroAgendamento.setVisible(false);
-            cadastroAprovacaoeCobranca.setVisible(false);
+            cadastroAprovacao.setVisible(false);
             cadastroEnderecos.setVisible(false);
+            cadastroCobranca.setVisible(false);
 
             Tab selectedTab = tabs.getSelectedTab();
             if (selectedTab.equals(tab1)) {
@@ -130,13 +155,15 @@ public class CadastroClientesModal extends Dialog {
             } else if (selectedTab.equals(tab2)) {
                 cadastroAgendamento.setVisible(true);
             } else if (selectedTab.equals(tab3)) {
-                cadastroAprovacaoeCobranca.setVisible(true);
+                cadastroAprovacao.setVisible(true);
             }   else if (selectedTab.equals(tab4)) {
+                cadastroCobranca.setVisible(true);
+            }   else if (selectedTab.equals(tab5)) {
                 cadastroEnderecos.setVisible(true);
             }
-        });
+        });VerticalLayout section2 = createSectionCobranca("Cadastro Cobrança");
 
-        Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacaoeCobranca,cadastroEnderecos);
+        Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao,cadastroEnderecos,cadastroCobranca);
         contentTabs.setSizeFull();
 
         VerticalLayout layout = new VerticalLayout(tabs,contentTabs, saveButton, cancelButton);
@@ -162,7 +189,8 @@ public class CadastroClientesModal extends Dialog {
         fieldEnderecosBairro = new TextField("Bairro");
         fieldEnderecosCidade = new TextField("Cidade");
         comboEnderecosUF  = new ComboBox("UF");;
-        comboEnderecosUF.setItems(getItemsAdministradora());
+        comboEnderecosUF.setItems(getUFList());
+        comboEnderecosUF.setItemLabelGenerator(SetEstado::getNome_estado);
         fieldEnderecosTelefone = new TextField("Telefone do Local");
         fieldEnderecosPagGuia = new TextField("Pag. Guia");
         fieldEnderecosReponsavel = new TextField("Responsável");
@@ -214,7 +242,7 @@ public class CadastroClientesModal extends Dialog {
             String Complemento = fieldEnderecosComplemento.getValue();
             String Bairro = fieldEnderecosBairro.getValue();
             String Cidade = fieldEnderecosCidade.getValue();
-            String UF = comboEnderecosUF.toString();
+            SetEstado UF = comboEnderecosUF.getValue();
             String Telefone = fieldEnderecosTelefone.getValue();
             String PagGuia = fieldEnderecosPagGuia.getValue();
             String Reponsavel = fieldEnderecosReponsavel.getValue();
@@ -264,6 +292,10 @@ public class CadastroClientesModal extends Dialog {
         div.add(layout);
 
         return div;
+    }
+
+    private List<SetEstado> getUFList() {
+       return estadoService.listAll();
     }
 
     private Div createFormCadastroEmpresa() {
@@ -321,15 +353,27 @@ public class CadastroClientesModal extends Dialog {
         return div;
     }
 
-    private Div createFormCadastroAprovacaoeCobranca() {
+    private Div createFormCadastroAprovacao() {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
 
         // Create two separate sections with a border and title
         VerticalLayout section1 = createSectionAprovacao("Cadastro Aprovador");
-        VerticalLayout section2 = createSectionCobranca("Cadastro Cobrança");
 
-        verticalLayout.add(section1, section2);
+        verticalLayout.add(section1);
+        Div div = new Div(verticalLayout);
+        div.setSizeFull();
+        return div;
+    }
+
+    private Div createFormCadastroCobranca() {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setSizeFull();
+
+        // Create two separate sections with a border and title
+        VerticalLayout section1 = createSectionCobranca("Cadastro Cobrança");
+
+        verticalLayout.add(section1);
         Div div = new Div(verticalLayout);
         div.setSizeFull();
         return div;
@@ -423,8 +467,31 @@ public class CadastroClientesModal extends Dialog {
     }
 
     private void save() {
-        // Lógica para salvar o cadastro
+        Cliente dto = newCliente();
+        SetCliente cliente = clientesService.save(dto);
+        enderecoService.save(enderecos,cliente.getId_cliente(),1);
         close();
+    }
+
+    private Cliente newCliente() {
+        Cliente cliente = new Cliente();
+
+        cliente.setNomeField(nomeField.getValue());
+        cliente.setTelefoneField(telefoneField.getValue());
+        cliente.setCelularField(celularField.getValue());
+        cliente.setDataField(dataField.getValue());
+        cliente.setHoraField(horaField.getValue());
+        cliente.setContatoField(contatoField.getValue());
+        cliente.setAdministradora("Teste");
+        cliente.setTipoMidia("Teste");
+        cliente.setNomeIndicacaoField(nomeIndicacaoField.getValue());
+        cliente.setFaxField(faxField.getValue());
+        cliente.setInternetEmailField(internetEmailField.getValue());
+        cliente.setFJField(FJField.getValue());
+        cliente.setCGCCPFField(CGCCPFField.getValue());
+        cliente.setInscEstatualField(inscEstatualField.getValue());
+        cliente.setObservacaoField(observacaoField.getValue());
+        return cliente;
     }
 }
 

@@ -1,34 +1,65 @@
 package br.com.onetec.application.service.clientesservice;
 
-import br.com.onetec.application.data.Clientes;
-import br.com.onetec.application.views.main.clientes.ClientesView;
-import org.springframework.data.domain.PageRequest;
+import br.com.onetec.application.model.Cliente;
+import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.infra.db.repository.IClienteRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ClientesService {
 
-    public List<Clientes> list(PageRequest of, ClientesView.Filters filters) {
-        List<Clientes> lista = new ArrayList<>();
-        lista.add(novoCliente());
-        lista.add(novoCliente());
-        lista.add(novoCliente());
-        lista.add(novoCliente());
+    @Autowired
+    IClienteRepository repository;
 
-        return lista;
+    public Page<SetCliente> list(Pageable pageable, Specification<SetCliente> filter) {
+        return repository.findAll(filter, pageable);
     }
 
-    private Clientes novoCliente() {
-        Clientes cliente = new Clientes();
-        cliente.setFone("12");
-        cliente.setAprovação("Aprovado");
-        cliente.setContato("1233");
-        cliente.setEndereço("abc");
-        cliente.setNome("Teste");
-        cliente.setUltimoOrcamento("22/07/2024");
-        return cliente;
+
+    public SetCliente save(Cliente dto) {
+        SetCliente entity = new SetCliente();
+        entity.setAtivo("S");
+        entity.setNome_cliente(dto.getNomeField());
+        entity.setNome_fantasia_cliente(dto.getNomeField());
+        entity.setTelefone_cliente(dto.getTelefoneField());
+        entity.setFax_cliente(dto.getFaxField());
+        entity.setEmail_cliente(dto.getInternetEmailField());
+        entity.setNome_contato_cliente(dto.getContatoField());
+        entity.setCargo_contato_cliente("");
+        entity.setId_anuncio(1);
+        entity.setId_indicacao(1);
+        entity.setCpf_cgc_cliente(dto.getCGCCPFField());
+        entity.setIest_cliente("AG");
+        entity.setPf_pj_cliente(dto.getFJField());
+        entity.setObservacoes_cliente(dto.getObservacaoField());
+        entity.setMarca_cliente("Marca Ltda");
+        entity.setAdministradora_cliente("Concecionaria");
+        entity.setCelular_cliente(dto.getCelularField());
+        entity.setHora_ligacao_cliente(dto.getHoraField());
+        entity.setId_tipo_imovel(1);
+        entity.setEndereco_cliente("Rua 1");
+        entity.setNumero_res_cliente("655");
+        entity.setComplemento_cliente("Complemento");
+        entity.setBairro_cliente("Teste");
+        entity.setCep_cliente("000000");
+        entity.setCidade_cliente("Teste");
+        entity.setId_estado(1);
+        entity.setResponsavel_cliente("Carlos");
+        entity.setPonto_referencia_cliente("Teste");
+        entity.setData_inclusao(LocalDateTime.now());
+        entity.setId_usuario(1);
+        log.info("Salvando novo cliente :" + entity.toString());
+        repository.save(entity);
+        return entity;
     }
 }

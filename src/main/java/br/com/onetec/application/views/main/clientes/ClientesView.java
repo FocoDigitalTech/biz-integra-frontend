@@ -1,11 +1,15 @@
 package br.com.onetec.application.views.main.clientes;
 
-import br.com.onetec.application.data.Clientes;
 import br.com.onetec.application.service.clientesservice.ClientesService;
+import br.com.onetec.application.service.clientesservice.EstadoService;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
+import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.main.clientes.modal.CadastroClientesModal;
 import br.com.onetec.application.views.main.clientes.modal.DadosClienteModal;
 import br.com.onetec.cross.utilities.ViewsTitleConst;
+import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.infra.db.model.SetDepartamento;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -36,6 +40,8 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -43,15 +49,26 @@ import org.springframework.data.jpa.domain.Specification;
 @PermitAll
 @Uses(Icon.class)
 @PageTitle(ViewsTitleConst.CLIENTES_NAV_TITLE)
+@org.springframework.stereotype.Component
 public class ClientesView extends Div {
 
-    private Grid<Clientes> grid;
+    private Grid<SetCliente> grid;
 
     private Filters filters;
-    private final ClientesService clientesService;
 
-    public ClientesView(ClientesService clientesService) {
-        this.clientesService = clientesService;
+    @Autowired
+    ClientesService clientesService;
+
+    @Autowired
+    EstadoService estadoService;
+
+    @Autowired
+    UsuarioService usuarioService;
+
+    @Autowired
+    EnderecoService enderecoService;
+
+    public ClientesView() {
         setSizeFull();
         addClassNames("telarelatorios-view");
 
@@ -87,17 +104,14 @@ public class ClientesView extends Div {
         return mobileFilters;
     }
 
-    private static Button createCadastroButton() {
+    private Button createCadastroButton() {
         Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
         return cadastroButton;
     }
 
-    private static void openCadastroModal() {
-        CadastroClientesModal cadastroModal = new CadastroClientesModal();
-        cadastroModal.open();
-    }
 
-    public static class Filters extends Div implements Specification<Clientes> {
+
+    public class Filters extends Div implements Specification<SetCliente> {
 
         /*
         *
@@ -173,7 +187,7 @@ Usuário
         }
 
         @Override
-        public Predicate toPredicate(Root<Clientes> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetCliente> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
             if (!name.isEmpty()) {
@@ -246,14 +260,31 @@ Usuário
     }
 
     private Component createGrid() {
-        grid = new Grid<>(Clientes.class, false);
-        grid.addColumn("ultimoOrcamento").setAutoWidth(true);
-        grid.addColumn("nome").setAutoWidth(true);
-        grid.addColumn("contato").setAutoWidth(true);
-        grid.addColumn("fone").setAutoWidth(true);
-        grid.addColumn("endereço").setAutoWidth(true);
-        grid.addColumn("internet").setAutoWidth(true);
-        grid.addColumn("aprovação").setAutoWidth(true);
+        grid = new Grid<>(SetCliente.class, false);
+        grid.addColumn(SetCliente::getData_inclusao)
+                .setHeader("Ult. Orçamento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getNome_cliente)
+                .setHeader("Nome")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getCelular_cliente)
+                .setHeader("Contato")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getEmail_cliente)
+                .setHeader("E-mail")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getNome_fantasia_cliente)
+                .setHeader("Nome Fantasia")
+                .setSortable(true)
+                .setAutoWidth(true);
+        //grid.addColumn("fone").setAutoWidth(true);
+//        grid.addColumn("endereço").setAutoWidth(true);
+//        grid.addColumn("internet").setAutoWidth(true);
+//        grid.addColumn("aprovação").setAutoWidth(true);
 //        grid.addColumn("cobrança").setAutoWidth(true);
 //        grid.addColumn("fax").setAutoWidth(true);
 //        grid.addColumn("usuário").setAutoWidth(true);
@@ -275,9 +306,18 @@ Usuário
         grid.getDataProvider().refreshAll();
     }
 
-    private void openDetalhesClienteModal(Clientes cliente) {
-        DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente);
-        detalhesClienteModal.open();
+    private void openDetalhesClienteModal(SetCliente cliente) {
+//        DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente);
+//        detalhesClienteModal.open();
+    }
+
+
+
+    private void openCadastroModal() {
+        CadastroClientesModal cadastroModal = new CadastroClientesModal(clientesService,
+                estadoService,
+                usuarioService,enderecoService);
+        cadastroModal.open();
     }
 }
 

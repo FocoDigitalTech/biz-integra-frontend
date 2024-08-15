@@ -1,4 +1,4 @@
-package br.com.onetec.application.data;
+package br.com.onetec.application.model;
 
 public class Departamento {
 
@@ -24,13 +24,13 @@ public class Departamento {
 
     String descricao;
 
-    public String getResponsavel() {
+    public Integer getResponsavel() {
         return responsavel;
     }
 
-    public void setResponsavel(String responsavel) {
+    public void setResponsavel(Integer responsavel) {
         this.responsavel = responsavel;
     }
 
-    String responsavel;
+    Integer responsavel;
 }

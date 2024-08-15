@@ -1,7 +1,8 @@
 package br.com.onetec.application.views.main.clientes.modal;
 
-import br.com.onetec.application.data.Clientes;
-import br.com.onetec.application.data.Endereco;
+import br.com.onetec.application.model.Endereco;
+import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.infra.db.model.SetEstado;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.charts.model.Title;
@@ -99,7 +100,7 @@ public class DadosClienteModal extends Dialog {
     private Div dadosEnderecos;
     private Div dadosHistoricoAtendimento;
 
-    public DadosClienteModal(Clientes cliente) {
+    public DadosClienteModal(SetCliente cliente) {
         new Title("Detalhes do Cliente");
 
         saveButton = new Button("Salvar", eventbe -> save());
@@ -161,7 +162,7 @@ public class DadosClienteModal extends Dialog {
         add(layout);
     }
 
-    private void atendimentoAbrir(Clientes cliente) {
+    private void atendimentoAbrir(SetCliente cliente) {
         close();
         // Armazena o cliente na sessão do usuário
         UI.getCurrent().getSession().setAttribute("cliente", cliente);
@@ -250,7 +251,7 @@ public class DadosClienteModal extends Dialog {
             String Complemento = fieldEnderecosComplemento.getValue();
             String Bairro = fieldEnderecosBairro.getValue();
             String Cidade = fieldEnderecosCidade.getValue();
-            String UF = comboEnderecosUF.toString();
+            //SetEstado UF = comboEnderecosUF.getValue();
             String Telefone = fieldEnderecosTelefone.getValue();
             String PagGuia = fieldEnderecosPagGuia.getValue();
             String Reponsavel = fieldEnderecosReponsavel.getValue();
@@ -261,7 +262,7 @@ public class DadosClienteModal extends Dialog {
 
             if (!fieldEnderecosCEP.isEmpty()) {
                 Endereco endereco =
-                        new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,UF,Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
+                    new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,new SetEstado(),Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
                 enderecos.add(endereco);
                 grid.setItems(enderecos);
                 Notification.show("Endereço Adicionado!");

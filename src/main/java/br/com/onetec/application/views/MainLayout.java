@@ -10,9 +10,13 @@ import br.com.onetec.application.views.main.relatorios.RelatoriosView;
 import br.com.onetec.cross.utilities.ViewsTitleConst;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -46,10 +50,22 @@ public class MainLayout extends AppLayout {
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE,
                 LumoUtility.Flex.GROW);
 
-        var logout = new Button("Logout " + authenticationContext.getPrincipalName().orElse(""),
-                event -> authenticationContext.logout());
+/*        var logout = new Button("Logout " + authenticationContext.getPrincipalName().orElse(""),
+                event -> authenticationContext.logout());*/
+
+        String userName = authenticationContext.getPrincipalName().orElse("");
+        Avatar avatar = new Avatar(userName);
+        MenuBar menuBar = new MenuBar();
+        MenuItem avatarMenu = menuBar.addItem(avatar);
+        SubMenu subMenu = avatarMenu.getSubMenu();
+        subMenu.addItem("Logout", event -> authenticationContext.logout());
+        subMenu.addItem("Perfil", event -> {
+            // Código para abrir o perfil do usuário
+        });
+
+
         titulo = new H2("Nagazaki App");
-        var header = new Header(toggle,titulo, viewTitle, logout);
+        var header = new Header(toggle,titulo, viewTitle, menuBar);
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
 

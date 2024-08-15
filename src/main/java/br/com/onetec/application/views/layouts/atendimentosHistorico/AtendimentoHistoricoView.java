@@ -1,7 +1,7 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
-import br.com.onetec.application.data.Clientes;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.infra.db.model.SetCliente;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -26,7 +26,7 @@ import jakarta.annotation.security.PermitAll;
 @Uses(Icon.class)
 public class AtendimentoHistoricoView extends Div {
 
-    private Clientes cliente;
+    private SetCliente cliente;
 
 
     private Tabs tabs;
@@ -55,14 +55,14 @@ public class AtendimentoHistoricoView extends Div {
     private Button buttonImprimir;
     private final CheckboxGroup<String> servicoOrcamentoChekBox = new CheckboxGroup<>("Serviço");
 
-        private void loadClienteData(Clientes cliente) {
+        private void loadClienteData(SetCliente cliente) {
             // Lógica para carregar os dados do cliente usando o objeto cliente
         }
 
         public AtendimentoHistoricoView() {
             addClassName(LumoUtility.Gap.SMALL);
             // Recupera o objeto Cliente da sessão
-            cliente = (Clientes) UI.getCurrent().getSession().getAttribute("cliente");
+            cliente = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
 
             if (cliente != null) {
                 loadClienteData(cliente);
