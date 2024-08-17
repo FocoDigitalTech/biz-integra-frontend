@@ -1,8 +1,10 @@
 package br.com.onetec.application.views.main.clientes.modal;
 
 import br.com.onetec.application.model.Endereco;
-import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.application.service.clientesservice.*;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
+import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.charts.model.Title;
@@ -96,12 +98,29 @@ public class DadosClienteModal extends Dialog {
     private Tabs tabs;
     private Div dadosEmpresa;
     private Div dadosAgendamento;
-    private Div dadosAprovacaoeCobranca;
+    private Div dadosCobranca;
+    private Div dadosAprovacao;
     private Div dadosEnderecos;
     private Div dadosHistoricoAtendimento;
 
-    public DadosClienteModal(SetCliente cliente) {
+    private final ClientesService clientesService;
+    private final EstadoService estadoService;
+    private final UsuarioService usuarioService;
+    private final EnderecoService enderecoService;
+
+    private final ResponsavelCobrancaService responsavelCobrancaService;
+    private final ResponsavelAgendamentoService responsavelAgendamentoService;
+    private final ResponsavelAprovacaoService responsavelAprovacaoService;
+
+    public DadosClienteModal(SetCliente cliente, ClientesService clientesService, EstadoService estadoService, UsuarioService usuarioService, EnderecoService enderecoService, ResponsavelCobrancaService responsavelCobrancaService, ResponsavelAgendamentoService responsavelAgendamentoService, ResponsavelAprovacaoService responsavelAprovacaoService) {
         new Title("Detalhes do Cliente");
+        this.clientesService = clientesService;
+        this.estadoService = estadoService;
+        this.usuarioService = usuarioService;
+        this.enderecoService =  enderecoService;
+        this.responsavelCobrancaService = responsavelCobrancaService;
+        this.responsavelAgendamentoService = responsavelAgendamentoService;
+        this.responsavelAprovacaoService = responsavelAprovacaoService;
 
         saveButton = new Button("Salvar", eventbe -> save());
         cancelButton = new Button("Cancelar", event -> close());
@@ -110,32 +129,37 @@ public class DadosClienteModal extends Dialog {
         tabs = new Tabs();
         Tab tab1 = new Tab("Dados Empresa");
         Tab tab2 = new Tab("Dados Agendamento");
-        Tab tab3 = new Tab("Aprovação e Cobrança");
-        Tab tab4 = new Tab("Dados Endereços");
+        Tab tab3 = new Tab("Aprovação");
+        Tab tab4 = new Tab("Cobrança");
+        Tab tab5 = new Tab("Dados Endereços");
 
-        tabs.add(tab1, tab2, tab3, tab4);
-        dadosEmpresa = createFormCadastroEmpresa();
-        dadosAgendamento = createFormCadastroAgendamento();
-        dadosAprovacaoeCobranca = createFormCadastroAprovacaoeCobranca();
-        dadosEnderecos = createFormEnderecos();
+        tabs.add(tab1, tab2, tab3, tab4,tab5);
+        dadosEmpresa = createFormCadastroEmpresa(cliente);
+        dadosAgendamento = createFormCadastroAgendamento(cliente);
+        dadosCobranca = createFormCadastroCobranca(cliente);
+        dadosAprovacao = createFormCadastroAprovacao(cliente);
+        dadosEnderecos = createFormEnderecos(cliente);
         dadosHistoricoAtendimento = createFormHistoricoAtendimento();
 
         Div content = new Div(dadosEmpresa,
                 dadosAgendamento,
-                dadosAprovacaoeCobranca,
+                dadosCobranca,
+                dadosAprovacao,
                 dadosEnderecos,
                 dadosHistoricoAtendimento);
         content.setSizeFull();
         dadosEmpresa.setVisible(true);
         dadosAgendamento.setVisible(false);
-        dadosAprovacaoeCobranca.setVisible(false);
+        dadosCobranca.setVisible(false);
+        dadosAprovacao.setVisible(false);
         dadosEnderecos.setVisible(false);
         dadosHistoricoAtendimento.setVisible(false);
 
         tabs.addSelectedChangeListener(event -> {
             dadosEmpresa.setVisible(false);
             dadosAgendamento.setVisible(false);
-            dadosAprovacaoeCobranca.setVisible(false);
+            dadosCobranca.setVisible(false);
+            dadosAprovacao.setVisible(false);
             dadosEnderecos.setVisible(false);
             dadosHistoricoAtendimento.setVisible(false);
 
@@ -145,15 +169,18 @@ public class DadosClienteModal extends Dialog {
             } else if (selectedTab.equals(tab2)) {
                 dadosAgendamento.setVisible(true);
             } else if (selectedTab.equals(tab3)) {
-                dadosAprovacaoeCobranca.setVisible(true);
+                dadosAprovacao.setVisible(true);
             }   else if (selectedTab.equals(tab4)) {
+                dadosCobranca.setVisible(true);
+            }   else if (selectedTab.equals(tab5)) {
                 dadosEnderecos.setVisible(true);
             }
         });
 
         Div contentTabs = new Div(dadosEmpresa,
                 dadosAgendamento,
-                dadosAprovacaoeCobranca,
+                dadosAprovacao,
+                dadosCobranca,
                 dadosEnderecos,
                 dadosHistoricoAtendimento);
         contentTabs.setSizeFull();
@@ -161,6 +188,8 @@ public class DadosClienteModal extends Dialog {
         VerticalLayout layout = new VerticalLayout(tabs,contentTabs, saveButton, cancelButton, atendimentoButton);
         add(layout);
     }
+
+
 
     private void atendimentoAbrir(SetCliente cliente) {
         close();
@@ -181,12 +210,12 @@ public class DadosClienteModal extends Dialog {
         return div;
     }
 
-    private List<Endereco> enderecos = new ArrayList<>();
-    private Grid<Endereco> grid = new Grid<>(Endereco.class, false);
+    private List<SetEnderecos> enderecos = new ArrayList<>();
+    private Grid<SetEnderecos> grid = new Grid<>(SetEnderecos.class, false);
 
 
 
-    private Div createFormEnderecos() {
+    private Div createFormEnderecos(SetCliente cliente) {
         Div div = new Div();
 
         fieldEnderecosCEP = new TextField("CEP");
@@ -207,18 +236,23 @@ public class DadosClienteModal extends Dialog {
         comboEnderecosRegiao.setItems(getItemsAdministradora());
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
+        enderecos = enderecoService.findAllClienteId(cliente.getId_cliente());
         // Configurar o Grid
         //grid.setColumns("Tipo de Imóvel","Endereço","N°","Bairro","CEP","Cidade","Estado","Fone");
         grid.setItems(enderecos);
 
-        grid.addColumn("comboEnderecosTipoImovel").setHeader("TipoImovel").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosEndereço").setHeader("Endereço").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosNumero").setHeader("Numero").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosBairro").setHeader("Bairro").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosCEP").setHeader("CEP").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosCidade").setHeader("Cidade").setAutoWidth(true);
-        grid.addColumn("comboEnderecosUF").setHeader("UF").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosTelefone").setHeader("Telefone").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getArea_imovel).setHeader("TipoImovel").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getEndereco_imovel).setHeader("Endereço").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getNumero_imovel).setHeader("Numero").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getBairro_imovel).setHeader("Bairro").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getCep_imovel).setHeader("CEP").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getCidade_imovel).setHeader("Cidade").setAutoWidth(true);
+        grid.addColumn(e -> {
+            SetEstado estado = estadoService.findById(1);
+            return estado != null ? estado.getUf_estado() : "N/A";
+
+        }).setHeader("UF").setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getTelefone_local).setHeader("Telefone").setAutoWidth(true);
 
         // Campos de texto para entrada de dados
         fieldEnderecosCEP.setPlaceholder("Digite");
@@ -263,7 +297,14 @@ public class DadosClienteModal extends Dialog {
             if (!fieldEnderecosCEP.isEmpty()) {
                 Endereco endereco =
                     new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,new SetEstado(),Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
-                enderecos.add(endereco);
+                SetEnderecos ed = new SetEnderecos();
+                ed.setTelefone_local(endereco.getFieldEnderecosTelefone());
+                ed.setNumero_imovel(endereco.getFieldEnderecosNumero());
+                ed.setNome_responsavel(endereco.getFieldEnderecosReponsavel());
+                ed.setPonto_referencia(endereco.getFieldEnderecosPontodeReferencia());
+                ed.setBairro_imovel(endereco.getFieldEnderecosBairro());
+                ed.setEndereco_imovel(endereco.getFieldEnderecosEndereço());
+                enderecos.add(ed);
                 grid.setItems(enderecos);
                 Notification.show("Endereço Adicionado!");
                 fieldEnderecosCEP.clear();
@@ -303,7 +344,7 @@ public class DadosClienteModal extends Dialog {
         return div;
     }
 
-    private Div createFormCadastroEmpresa() {
+    private Div createFormCadastroEmpresa(SetCliente cliente) {
         dataField = new DatePicker("Data Cadastro");
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
@@ -322,6 +363,20 @@ public class DadosClienteModal extends Dialog {
         inscEstatualField = new TextField("Insc. Estatual");
         observacaoField = new TextField("Observação");
 
+        dataField.setValue(cliente.getData_inclusao().toLocalDate());
+        nomeField.setValue(cliente.getNome_cliente());
+        administradora.setValue(cliente.getAdministradora_cliente());
+        contatoField.setValue(cliente.getCargo_contato_cliente());
+        horaField.setValue(cliente.getHora_ligacao_cliente());
+        telefoneField.setValue(cliente.getTelefone_cliente());
+        faxField.setValue(cliente.getFax_cliente());
+        celularField.setValue(cliente.getCelular_cliente());
+        internetEmailField.setValue(cliente.getEmail_cliente());
+        FJField.setValue(cliente.getPf_pj_cliente());
+        CGCCPFField.setValue(cliente.getCpf_cgc_cliente());
+        inscEstatualField.setValue(cliente.getIest_cliente());
+        observacaoField.setValue(cliente.getObservacoes_cliente());
+
         configureCelularField();
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
@@ -333,7 +388,7 @@ public class DadosClienteModal extends Dialog {
         return div;
     }
 
-    private Div createFormCadastroAgendamento() {
+    private Div createFormCadastroAgendamento(SetCliente cliente) {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         Div div = new Div(formLayout);
@@ -348,6 +403,17 @@ public class DadosClienteModal extends Dialog {
         inscEstatualAgendamentoField = new TextField("Insc. Estatual");
         observacaoAgendamentoField = new TextField("Observação");
 
+        SetResponsavelAgendamento agendamento = responsavelAgendamentoService.find(cliente.getId_cliente());
+        if (agendamento != null) {
+            nomeAgendamentoField.setValue(agendamento.getNome_agendamento());
+            telefoneAgendamentoField.setValue(agendamento.getTelefone_fixo());
+            faxAgendamentoField.setValue(agendamento.getFax());
+            celularAgendamentoField.setValue(agendamento.getTelefone_celular());
+            internetEmailAgendamentoField.setValue(agendamento.getEmail());
+            CGCCPFAgendamentoField.setValue(agendamento.getCgc_cpf());
+            inscEstatualAgendamentoField.setValue(agendamento.getInscricao_estatual());
+            observacaoAgendamentoField.setValue(agendamento.getObservacao());
+        }
         configureCelularField();
         formLayout.setWidthFull();
         formLayout.add(nomeAgendamentoField,contatoAgendamentoField,telefoneAgendamentoField,faxAgendamentoField,celularAgendamentoField,internetEmailAgendamentoField,CGCCPFAgendamentoField,inscEstatualAgendamentoField,observacaoAgendamentoField);
@@ -358,21 +424,33 @@ public class DadosClienteModal extends Dialog {
         return div;
     }
 
-    private Div createFormCadastroAprovacaoeCobranca() {
+    private Div createFormCadastroAprovacao(SetCliente cliente) {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
 
         // Create two separate sections with a border and title
-        VerticalLayout section1 = createSectionAprovacao("Cadastro Aprovador");
-        VerticalLayout section2 = createSectionCobranca("Cadastro Cobrança");
+        VerticalLayout section1 = createSectionAprovacao("Cadastro Aprovador",cliente);
 
-        verticalLayout.add(section1, section2);
+        verticalLayout.add(section1);
         Div div = new Div(verticalLayout);
         div.setSizeFull();
         return div;
     }
 
-    private VerticalLayout createSectionAprovacao(String title) {
+    private Div createFormCadastroCobranca(SetCliente cliente) {
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setSizeFull();
+
+        // Create two separate sections with a border and title
+        VerticalLayout section2 = createSectionCobranca("Cadastro Cobrança", cliente);
+
+        verticalLayout.add(section2);
+        Div div = new Div(verticalLayout);
+        div.setSizeFull();
+        return div;
+    }
+
+    private VerticalLayout createSectionAprovacao(String title, SetCliente cliente) {
         VerticalLayout section = new VerticalLayout();
         section.setWidthFull();
         section.addClassName("section-border");
@@ -396,6 +474,20 @@ public class DadosClienteModal extends Dialog {
         CGCCPFAprovacaoField = new TextField("CGC/CPF Aprovador");
         inscEstatualAprovacaoField = new TextField("Insc. Estatual Aprovador");
         observacaoAprovacaoField = new TextField("Observação Aprovador");
+
+        SetResponsavelAprovacao aprovacao = responsavelAprovacaoService.find(cliente.getId_cliente());
+        if (aprovacao != null) {
+            nomeAprovacaoField.setValue(aprovacao.getNome_aprovacao());
+            telefoneAprovacaoField.setValue(aprovacao.getTelefone_fixo());
+            faxAprovacaoField.setValue(aprovacao.getFax());
+            celularAprovacaoField.setValue(aprovacao.getTelefone_celular());
+            internetEmailAprovacaoField.setValue(aprovacao.getEmail());
+            CGCCPFAprovacaoField.setValue(aprovacao.getCgc_cpf());
+            inscEstatualAprovacaoField.setValue(aprovacao.getInscricao_estatual());
+            observacaoAprovacaoField.setValue(aprovacao.getObservacao());
+        }
+
+
         formLayout.setWidthFull();
         formLayout.add(nomeAprovacaoField,contatoAprovacaoField,telefoneAprovacaoField,faxAprovacaoField,celularAprovacaoField,internetEmailAprovacaoField,CGCCPFAprovacaoField,inscEstatualAprovacaoField,observacaoAprovacaoField);
 
@@ -404,7 +496,7 @@ public class DadosClienteModal extends Dialog {
         return section;
     }
 
-    private VerticalLayout createSectionCobranca(String title) {
+    private VerticalLayout createSectionCobranca(String title,SetCliente cliente) {
         VerticalLayout section = new VerticalLayout();
         section.setWidthFull();
         section.addClassName("section-border");
@@ -428,6 +520,19 @@ public class DadosClienteModal extends Dialog {
         CGCCPFCobrancaField = new TextField("CGC/CPF Cobrança");
         inscEstatualCobrancaField = new TextField("Insc. Estatual Cobrança");
         observacaoCobrancaField = new TextField("Observação Cobrança");
+
+        SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
+        if (cobranca != null) {
+            nomeCobrancaField.setValue(cobranca.getNome_cobranca());
+            telefoneCobrancaField.setValue(cobranca.getTelefone_fixo());
+            faxCobrancaField.setValue(cobranca.getFax());
+            celularCobrancaField.setValue(cobranca.getTelefone_celular());
+            internetEmailCobrancaField.setValue(cobranca.getEmail());
+            CGCCPFCobrancaField.setValue(cobranca.getCgc_cpf());
+            inscEstatualCobrancaField.setValue(cobranca.getInscricao_estatual());
+            observacaoCobrancaField.setValue(cobranca.getObservacao());
+        }
+
         formLayout.setWidthFull();
         formLayout.add(nomeCobrancaField,contatoCobrancaField,telefoneCobrancaField,faxCobrancaField,celularCobrancaField,internetEmailCobrancaField,CGCCPFCobrancaField,inscEstatualCobrancaField,observacaoCobrancaField);
 

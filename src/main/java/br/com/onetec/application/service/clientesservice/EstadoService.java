@@ -17,4 +17,8 @@ public class EstadoService {
     public List<SetEstado> listAll() {
         return repository.findAll();
     }
+
+    public SetEstado findById(Integer id_estado) {
+        return repository.findById(id_estado).get();
+    }
 }

@@ -2,12 +2,10 @@ package br.com.onetec.application.views.main.clientes.modal;
 
 import br.com.onetec.application.model.Cliente;
 import br.com.onetec.application.model.Endereco;
-import br.com.onetec.application.service.clientesservice.ClientesService;
-import br.com.onetec.application.service.clientesservice.EstadoService;
+import br.com.onetec.application.service.clientesservice.*;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -25,6 +23,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,14 +107,24 @@ public class CadastroClientesModal extends Dialog {
     private final UsuarioService usuarioService;
     private final EnderecoService enderecoService;
 
+    private final ResponsavelCobrancaService responsavelCobrancaService;
+    private final ResponsavelAgendamentoService responsavelAgendamentoService;
+    private final ResponsavelAprovacaoService responsavelAprovacaoService;
+
     public CadastroClientesModal(ClientesService clientesService,
                                  EstadoService estadoService,
                                  UsuarioService usuarioService,
-                                 EnderecoService enderecoService) {
+                                 EnderecoService enderecoService,
+                                 ResponsavelCobrancaService responsavelCobrancaService,
+                                 ResponsavelAgendamentoService responsavelAgendamentoService,
+                                 ResponsavelAprovacaoService responsavelAprovacaoService) {
         this.clientesService = clientesService;
         this.estadoService = estadoService;
         this.usuarioService = usuarioService;
         this.enderecoService =  enderecoService;
+        this.responsavelCobrancaService = responsavelCobrancaService;
+        this.responsavelAgendamentoService = responsavelAgendamentoService;
+        this.responsavelAprovacaoService = responsavelAprovacaoService;
 
         addClassName("cadastro-modal");
         saveButton = new Button("Salvar", eventbe -> save());
@@ -469,13 +478,64 @@ public class CadastroClientesModal extends Dialog {
     private void save() {
         Cliente dto = newCliente();
         SetCliente cliente = clientesService.save(dto);
-        enderecoService.save(enderecos,cliente.getId_cliente(),1);
+        SetResponsavelAgendamento agendamento = newPessoaAgendamento(cliente.getId_cliente());
+        SetResponsavelAprovacao aprovacao = newPessoaAprovacao(cliente.getId_cliente());
+        SetResponsavelCobranca cobranca = newPessoaCobranca(cliente.getId_cliente());
+        responsavelCobrancaService.save(cobranca);
+        responsavelAgendamentoService.save(agendamento);
+        responsavelAprovacaoService.save(aprovacao);
+        if (enderecos.size() > 0) {
+            enderecoService.save(enderecos, cliente.getId_cliente(), 1);
+        }
         close();
+    }
+
+    private SetResponsavelCobranca newPessoaCobranca(Integer id_cliente) {
+        SetResponsavelCobranca cobranca = new SetResponsavelCobranca();
+        cobranca.setNome_cobranca(nomeCobrancaField.getValue());
+        cobranca.setTelefone_fixo(telefoneCobrancaField.getValue());
+        cobranca.setTelefone_celular(celularCobrancaField.getValue());
+        cobranca.setFax(faxCobrancaField.getValue());
+        cobranca.setEmail(internetEmailCobrancaField.getValue());
+        cobranca.setCgc_cpf(CGCCPFCobrancaField.getValue());
+        cobranca.setInscricao_estatual(inscEstatualCobrancaField.getValue());
+        cobranca.setObservacao(observacaoCobrancaField.getValue());
+        cobranca.setValor_cobranca(BigDecimal.TEN);
+        cobranca.setId_cliente(id_cliente);
+        return cobranca;
+    }
+
+    private SetResponsavelAprovacao newPessoaAprovacao(Integer id_cliente) {
+        SetResponsavelAprovacao aprovacao = new SetResponsavelAprovacao();
+        aprovacao.setNome_aprovacao(nomeAprovacaoField.getValue());
+        aprovacao.setTelefone_fixo(telefoneAprovacaoField.getValue());
+        aprovacao.setFax(faxAprovacaoField.getValue());
+        aprovacao.setTelefone_celular(celularAprovacaoField.getValue());
+        aprovacao.setEmail(internetEmailAprovacaoField.getValue());
+        aprovacao.setCgc_cpf(CGCCPFAprovacaoField.getValue());
+        aprovacao.setInscricao_estatual(inscEstatualAprovacaoField.getValue());
+        aprovacao.setObservacao(observacaoAprovacaoField.getValue());
+        aprovacao.setId_cliente(id_cliente);
+        return aprovacao;
+    }
+
+    private SetResponsavelAgendamento newPessoaAgendamento(Integer id_cliente) {
+        SetResponsavelAgendamento agendamento = new SetResponsavelAgendamento();
+        agendamento.setNome_agendamento(nomeAgendamentoField.getValue());
+        agendamento.setTelefone_fixo(contatoAgendamentoField.getValue());
+        agendamento.setTelefone_celular(telefoneAgendamentoField.getValue());
+        agendamento.setFax(faxAgendamentoField.getValue());
+        agendamento.setEmail(internetEmailAgendamentoField.getValue());
+        agendamento.setCgc_cpf(CGCCPFAgendamentoField.getValue());
+        agendamento.setInscricao_estatual(inscEstatualAgendamentoField.getValue());
+        agendamento.setObservacao(observacaoAgendamentoField.getValue());
+        agendamento.setData_agendamento(LocalDate.now());
+        agendamento.setId_cliente(id_cliente);
+        return agendamento;
     }
 
     private Cliente newCliente() {
         Cliente cliente = new Cliente();
-
         cliente.setNomeField(nomeField.getValue());
         cliente.setTelefoneField(telefoneField.getValue());
         cliente.setCelularField(celularField.getValue());
@@ -493,6 +553,10 @@ public class CadastroClientesModal extends Dialog {
         cliente.setObservacaoField(observacaoField.getValue());
         return cliente;
     }
+
+
+
+
 }
 
 

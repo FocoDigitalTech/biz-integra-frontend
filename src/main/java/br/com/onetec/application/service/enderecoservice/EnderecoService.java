@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -39,5 +40,15 @@ public class EnderecoService {
             log.info("Salvando novo endereço :" + et.toString());
             repository.save(et);
         });
+    }
+
+    public List<SetEnderecos> findAllClienteId(Integer id_cliente) {
+        List<SetEnderecos> lista = repository.findAllByCliente(id_cliente);
+        if (lista != null && lista.size() > 0){
+            return lista;
+        } else {
+            return new ArrayList<>();
+        }
+
     }
 }

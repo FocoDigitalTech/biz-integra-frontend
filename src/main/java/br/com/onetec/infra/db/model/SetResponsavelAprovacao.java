@@ -3,6 +3,8 @@ package br.com.onetec.infra.db.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @Table(name = "tb_responsavelaprovacao")
@@ -12,14 +14,14 @@ public class SetResponsavelAprovacao{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_responsavelaprovacao;
     private Integer id_cliente;
-    private Integer nome_aprovacao;
-    private Integer telefone_fixo;
-    private Integer telefone_celular;
-    private Integer fax;
-    private Integer email;
-    private Integer cgc_cpf;
-    private Integer inscricao_estatual;
-    private Integer observacao;
-    private Integer valor_aprovado;
+    private String nome_aprovacao;
+    private String telefone_fixo;
+    private String telefone_celular;
+    private String fax;
+    private String email;
+    private String cgc_cpf;
+    private String inscricao_estatual;
+    private String observacao;
+    private BigDecimal valor_aprovado;
 
 }

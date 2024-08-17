@@ -1,7 +1,6 @@
 package br.com.onetec.application.views.main.clientes;
 
-import br.com.onetec.application.service.clientesservice.ClientesService;
-import br.com.onetec.application.service.clientesservice.EstadoService;
+import br.com.onetec.application.service.clientesservice.*;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.MainLayout;
@@ -67,6 +66,15 @@ public class ClientesView extends Div {
 
     @Autowired
     EnderecoService enderecoService;
+
+    @Autowired
+    ResponsavelCobrancaService responsavelCobrancaService;
+
+    @Autowired
+    ResponsavelAgendamentoService responsavelAgendamentoService;
+
+    @Autowired
+    ResponsavelAprovacaoService responsavelAprovacaoService;
 
     public ClientesView() {
         setSizeFull();
@@ -171,13 +179,13 @@ Usuário
         }
 
         private Component createDateRangeFilter() {
-            startDate.setPlaceholder("From");
+            startDate.setPlaceholder("De");
 
-            endDate.setPlaceholder("To");
+            endDate.setPlaceholder("Até");
 
             // For screen readers
-            startDate.setAriaLabel("From date");
-            endDate.setAriaLabel("To date");
+            startDate.setAriaLabel("Data Inicio");
+            endDate.setAriaLabel("Data Fim");
 
             FlexLayout dateRangeComponent = new FlexLayout(startDate, new Text(" – "), endDate);
             dateRangeComponent.setAlignItems(FlexComponent.Alignment.BASELINE);
@@ -192,14 +200,14 @@ Usuário
 
             if (!name.isEmpty()) {
                 String lowerCaseFilter = name.getValue().toLowerCase();
-                Predicate firstNameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")),
-                        lowerCaseFilter + "%");
-                Predicate lastNameMatch = criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")),
-                        lowerCaseFilter + "%");
-                predicates.add(criteriaBuilder.or(firstNameMatch, lastNameMatch));
+                String ignore = "- ()";
+                Predicate firstNameMatch = criteriaBuilder.like(
+                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get("nome_cliente"))),
+                        "%" + lowerCaseFilter + "%");
+                predicates.add(criteriaBuilder.or(firstNameMatch));
             }
             if (!phone.isEmpty()) {
-                String databaseColumn = "phone";
+                String databaseColumn = "celular_cliente";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, phone.getValue().toLowerCase());
@@ -210,17 +218,17 @@ Usuário
 
             }
             if (startDate.getValue() != null) {
-                String databaseColumn = "dateOfBirth";
+                String databaseColumn = "data_inclusao";
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
                         criteriaBuilder.literal(startDate.getValue())));
             }
             if (endDate.getValue() != null) {
-                String databaseColumn = "dateOfBirth";
+                String databaseColumn = "data_inclusao";
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
                         root.get(databaseColumn)));
             }
             if (!occupations.isEmpty()) {
-                String databaseColumn = "occupation";
+                String databaseColumn = "complemento_cliente";
                 List<Predicate> occupationPredicates = new ArrayList<>();
                 for (String occupation : occupations.getValue()) {
                     occupationPredicates
@@ -229,7 +237,7 @@ Usuário
                 predicates.add(criteriaBuilder.or(occupationPredicates.toArray(Predicate[]::new)));
             }
             if (!roles.isEmpty()) {
-                String databaseColumn = "role";
+                String databaseColumn = "ativo";
                 List<Predicate> rolePredicates = new ArrayList<>();
                 for (String role : roles.getValue()) {
                     rolePredicates.add(criteriaBuilder.equal(criteriaBuilder.literal(role), root.get(databaseColumn)));
@@ -281,13 +289,6 @@ Usuário
                 .setHeader("Nome Fantasia")
                 .setSortable(true)
                 .setAutoWidth(true);
-        //grid.addColumn("fone").setAutoWidth(true);
-//        grid.addColumn("endereço").setAutoWidth(true);
-//        grid.addColumn("internet").setAutoWidth(true);
-//        grid.addColumn("aprovação").setAutoWidth(true);
-//        grid.addColumn("cobrança").setAutoWidth(true);
-//        grid.addColumn("fax").setAutoWidth(true);
-//        grid.addColumn("usuário").setAutoWidth(true);
 
         // Adiciona o listener de clique nos itens da grade
         grid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
@@ -307,8 +308,15 @@ Usuário
     }
 
     private void openDetalhesClienteModal(SetCliente cliente) {
-//        DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente);
-//        detalhesClienteModal.open();
+        DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente,
+                                                                        clientesService,
+                                                                        estadoService,
+                                                                        usuarioService,
+                                                                        enderecoService,
+                                                                        responsavelCobrancaService,
+                                                                        responsavelAgendamentoService,
+                                                                        responsavelAprovacaoService);
+        detalhesClienteModal.open();
     }
 
 
@@ -316,7 +324,11 @@ Usuário
     private void openCadastroModal() {
         CadastroClientesModal cadastroModal = new CadastroClientesModal(clientesService,
                 estadoService,
-                usuarioService,enderecoService);
+                usuarioService,
+                enderecoService,
+                responsavelCobrancaService,
+                responsavelAgendamentoService,
+                responsavelAprovacaoService);
         cadastroModal.open();
     }
 }
