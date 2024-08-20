@@ -32,7 +32,7 @@ public class SetFuncionario {
     private String serie_ctps;
     private String pis_funcionario;
     private String cnh_funcionario;
-    private String vencimento_cnh;
+    private LocalDate vencimento_cnh;
     private LocalDate data_admissao;
     private LocalDate data_desligamento;
     private LocalDateTime data_inclusao;

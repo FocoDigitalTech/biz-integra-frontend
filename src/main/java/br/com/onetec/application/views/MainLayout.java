@@ -7,11 +7,10 @@ import br.com.onetec.application.views.main.estoque.EstoqueView;
 import br.com.onetec.application.views.main.financeiro.FinanceiroView;
 import br.com.onetec.application.views.main.home.HomeView;
 import br.com.onetec.application.views.main.relatorios.RelatoriosView;
-import br.com.onetec.cross.utilities.ViewsTitleConst;
+import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.*;
@@ -64,7 +63,7 @@ public class MainLayout extends AppLayout {
         });
 
 
-        titulo = new H2("Nagazaki App");
+        titulo = new H2("Nagasaki App");
         var header = new Header(toggle,titulo, viewTitle, menuBar);
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
@@ -125,7 +124,7 @@ public class MainLayout extends AppLayout {
         String route = getCurrentPageTitle();
         switch (route) {
             case "Home":
-                titulo.setText("Nagazaki App");
+                titulo.setText("Nagasaki App");
                 break;
             case ViewsTitleConst.CLIENTES_NAV_TITLE:
                 titulo.setText(ViewsTitleConst.CLIENTES_NAV_TITLE);

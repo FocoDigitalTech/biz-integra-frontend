@@ -2,7 +2,7 @@ package br.com.onetec.application.views.main.configuracoes;
 
 
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.cross.utilities.ViewsTitleConst;
+import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

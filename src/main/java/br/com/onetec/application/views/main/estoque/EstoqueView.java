@@ -1,7 +1,7 @@
 package br.com.onetec.application.views.main.estoque;
 
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.cross.utilities.ViewsTitleConst;
+import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -21,7 +21,7 @@ public class EstoqueView extends VerticalLayout {
         public EstoqueView() {
             TabSheet tabSheet = new TabSheet();
             tabSheet.add("Movimento",
-                    new Div(new Text("This is the Payment tab content")));
+                    new Div());
             tabSheet.add("Produtos e Materiais",
                     new Div(new Text("This is the Payment tab content")));
             tabSheet.add("Veiculos",
@@ -30,4 +30,6 @@ public class EstoqueView extends VerticalLayout {
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
             add(tabSheet);
         }
+
+
 }

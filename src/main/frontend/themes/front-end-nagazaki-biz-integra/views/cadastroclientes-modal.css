@@ -26,6 +26,13 @@
     position: relative; /* Necessário para o posicionamento do ::after */
 }
 
+.success-notification {
+    background-color: #28a745;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .error-border::after {
     content: "*Campo obrigatório";
     color: red;

@@ -61,4 +61,9 @@ public class DepartamentoService {
     public List<SetFuncionario> findAllFuncionarios() {
         return repositoryFuncionario.findAll();
     }
+
+    public List<SetDepartamento> findAllDepartamento() {
+
+        return repository.findAll();
+    }
 }

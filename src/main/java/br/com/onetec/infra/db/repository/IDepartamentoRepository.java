@@ -12,4 +12,5 @@ import java.util.List;
 public interface IDepartamentoRepository extends CrudRepository<SetDepartamento, Integer>
         , JpaSpecificationExecutor<SetDepartamento>{
 
+    List<SetDepartamento> findAll();
 }

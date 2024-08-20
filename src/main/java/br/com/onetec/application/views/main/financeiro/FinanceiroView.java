@@ -1,7 +1,7 @@
 package br.com.onetec.application.views.main.financeiro;
 
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.cross.utilities.ViewsTitleConst;
+import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

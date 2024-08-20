@@ -1,16 +1,12 @@
-package br.com.onetec.application.views.main.administrativo;
-
+package br.com.onetec.application.views.main.administrativo.div;
 
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
-import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
-import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
-import br.com.onetec.cross.constants.ViewsTitleConst;
+import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,14 +16,9 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.TabSheet;
-import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -36,60 +27,43 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route(value = "administrativo", layout = MainLayout.class)
-@PageTitle(ViewsTitleConst.ADMINISTRATIVO_NAV_TITLE)
-@PermitAll
 @org.springframework.stereotype.Component
-public class AdministrativoView extends Div {
+public class FuncionarioDiv extends Div {
+
+    private Grid<SetFuncionario> funcionarioGrid;
+
+    private FiltersFuncionario filtersFuncionario;
 
 
-    @Autowired
-    private  FuncionarioDiv funcionarioDiv;
-
-    private Grid<SetDepartamento> departamentoGrid;
+    private final FuncionarioService funcionarioService;
 
 
-    private FiltersDepartamento filtersDepartamento;
-
-    @Autowired
-    DepartamentoService departamentoService;
+    private final DepartamentoService departamentoService;
 
     @Autowired
-    FuncionarioService funcionarioService;
+    private final FuncionarioCadastroModal funcionarioCadastroModal;
+
+    Button btnExcluir;
 
     @Autowired
-    DepartamentoCadastroModal departamentoCadastroModal;
+    public FuncionarioDiv(FuncionarioService funcionarioService, DepartamentoService departamentoService, FuncionarioService funcionarioService1, DepartamentoService departamentoService1, FuncionarioCadastroModal funcionarioCadastroModal) {
+        this.funcionarioService = funcionarioService1;
+        this.departamentoService = departamentoService1;
+        this.funcionarioCadastroModal = funcionarioCadastroModal;
+        add(telaDiv());
 
-    @Autowired
-    public AdministrativoView(FuncionarioDiv funcionarioDiv1) {
-        this.funcionarioDiv = funcionarioDiv1;
-
-        TabSheet tabSheet = new TabSheet();
-        tabSheet.add("Departamentos",
-                departamentosDiv());
-        tabSheet.add("Funcionarios",
-                funcionarioDiv);
-        tabSheet.add("Compras",
-                new Div(new Text("This is the Shipping tab content")));
-        tabSheet.add("Fornecedores",
-                new Div(new Text("This is the Shipping tab content")));
-        tabSheet.add("Tabelas de Serviço",
-                new Div(new Text("This is the Shipping tab content")));
-        tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-        add(tabSheet);
     }
 
-
-
-    private Div departamentosDiv() {
+    private Div telaDiv() {
+        /* constuir a tela funcionarios*/
         setSizeFull();
         addClassNames("telarelatorios-view");
 
         setSizeFull();
         addClassNames("telarelatorios-view");
 
-        filtersDepartamento = new FiltersDepartamento(() -> refreshGrid());
-        VerticalLayout layout = new VerticalLayout(createMobileFilters(), filtersDepartamento, createGrid());
+        filtersFuncionario = new FuncionarioDiv.FiltersFuncionario(() -> refreshGridFuncionario());
+        VerticalLayout layout = new VerticalLayout(createMobileFiltersFuncionario(), filtersFuncionario, createGridFuncionario());
         layout.setSizeFull();
         layout.setPadding(false);
         layout.setSpacing(false);
@@ -102,13 +76,11 @@ public class AdministrativoView extends Div {
 
     }
 
-    public void refreshGrid() {
-        departamentoGrid.getDataProvider().refreshAll();
+    public void refreshGridFuncionario() {
+        funcionarioGrid.getDataProvider().refreshAll();
     }
 
-
-
-    private HorizontalLayout createMobileFilters() {
+    private HorizontalLayout createMobileFiltersFuncionario() {
         // Mobile version
         HorizontalLayout mobileFilters = new HorizontalLayout();
         mobileFilters.setWidthFull();
@@ -121,73 +93,86 @@ public class AdministrativoView extends Div {
         mobileFilters.add(mobileIcon, filtersHeading);
         mobileFilters.setFlexGrow(1, filtersHeading);
         mobileFilters.addClickListener(e -> {
-            if (filtersDepartamento.getClassNames().contains("visible")) {
-                filtersDepartamento.removeClassName("visible");
+            if (filtersFuncionario.getClassNames().contains("visible")) {
+                filtersFuncionario.removeClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:plus");
             } else {
-                filtersDepartamento.addClassName("visible");
+                filtersFuncionario.addClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:minus");
             }
         });
         return mobileFilters;
     }
 
-
-
-
-    private Component createGrid() {
+    private Component createGridFuncionario() {
         //departamentoService.list(null,null);
-        departamentoGrid = new Grid<>(SetDepartamento.class, false);
-        departamentoGrid.addColumn(SetDepartamento::getId_departamento)
+        funcionarioGrid = new Grid<>(SetFuncionario.class, false);
+        funcionarioGrid.addColumn(SetFuncionario::getId_funcionario)
                 .setHeader("ID")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        departamentoGrid.addColumn(SetDepartamento::getDescricao_departamento)
-                .setHeader("Descrição")
+        funcionarioGrid.addColumn(SetFuncionario::getNome_funcionario)
+                .setHeader("Nome")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-
-        departamentoGrid.addColumn(departamento -> {
-            SetFuncionario funcionario = funcionarioService.findById(departamento.getId_funcionario());
-            return funcionario != null ? funcionario.getNome_funcionario() : "N/A";
-
-        })
-                .setHeader("Responsável")
+        funcionarioGrid.addColumn(SetFuncionario::getData_admissao)
+                .setHeader("Data de Admissão")
                 .setSortable(true)
                 .setAutoWidth(true);
+
+        funcionarioGrid.addColumn(SetFuncionario::getEndereco_funcionario)
+                .setHeader("Endereço")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+        funcionarioGrid.addColumn(SetFuncionario::getBairro_funcionario)
+                .setHeader("Bairro")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+        funcionarioGrid.addColumn(SetFuncionario::getCep_funcionario)
+                .setHeader("CEP")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+//        funcionarioGrid.addColumn(funcionario -> {
+//            SetDepartamento departamento = departamentoService.findById(funcionario.getId_departamento());
+//            return departamento != null ? departamento.getDescricao_departamento() : "N/A";
+//        })
+//                .setHeader("Departamento")
+//                .setSortable(true)
+//                .setAutoWidth(true);
 
 
 
         // Adiciona o listener de clique nos itens da grade
-        departamentoGrid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
+        funcionarioGrid.addItemClickListener(event -> openDetalhesFuncionarioModal(event.getItem()));
 
 
-        departamentoGrid.setItems(query -> departamentoService.list(
+        funcionarioGrid.setItems(query -> funcionarioService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filtersDepartamento).stream());
+                filtersFuncionario).stream());
 
-        departamentoGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        departamentoGrid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+        funcionarioGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        funcionarioGrid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
-        return departamentoGrid;
+        return funcionarioGrid;
+    }
+    private void openDetalhesFuncionarioModal(SetFuncionario item) {
+        btnExcluir = new Button();
+        btnExcluir.setVisible(true);
+        btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR);
     }
 
-    private void openDetalhesClienteModal(SetDepartamento item) {
-
-    }
-
-
-
-
-    public class FiltersDepartamento extends Div implements Specification<SetDepartamento> {
+    public class FiltersFuncionario extends Div implements Specification<SetFuncionario> {
 
         private final com.vaadin.flow.component.textfield.TextField name = new com.vaadin.flow.component.textfield.TextField("Código");
         private final com.vaadin.flow.component.textfield.TextField phone = new TextField("Descrição");
         private final MultiSelectComboBox<String> occupations = new MultiSelectComboBox<>("Responsável");
 
-        public FiltersDepartamento(Runnable onSearch) {
+        public FiltersFuncionario(Runnable onSearch) {
 
             setWidthFull();
             addClassName("filter-layout");
@@ -208,10 +193,12 @@ public class AdministrativoView extends Div {
                 occupations.clear();
                 onSearch.run();
             });
-            com.vaadin.flow.component.button.Button createBtn = createCadastroButton();
+            com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
             com.vaadin.flow.component.button.Button searchBtn = new com.vaadin.flow.component.button.Button("Buscar");
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
+
+
 
             Div actions = new Div(resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
@@ -223,18 +210,18 @@ public class AdministrativoView extends Div {
 
 
         @Override
-        public Predicate toPredicate(Root<SetDepartamento> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetFuncionario> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             java.util.List<Predicate> predicates = new ArrayList<>();
 
 
             if (!name.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(name.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_departamento"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_funcionario"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!phone.isEmpty()) {
-                String databaseColumn = "descricao_departamento";
+                String databaseColumn = "nome_funcionario";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, phone.getValue().toLowerCase());
@@ -247,7 +234,7 @@ public class AdministrativoView extends Div {
 
 
             if (!occupations.isEmpty()) {
-                String databaseColumn = "id_funcionario";
+                String databaseColumn = "bairro_funcionario";
                 List<Predicate> occupationPredicates = new ArrayList<>();
                 for (String occupation : occupations.getValue()) {
                     occupationPredicates
@@ -279,15 +266,13 @@ public class AdministrativoView extends Div {
 
     }
 
-    private com.vaadin.flow.component.button.Button createCadastroButton() {
-        com.vaadin.flow.component.button.Button cadastroButton = new com.vaadin.flow.component.button.Button("Cadastrar", event -> openCadastroModal());
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
         return cadastroButton;
     }
 
 
-    private void openCadastroModal() {
-        departamentoCadastroModal.open();
+    private void openCadastroFuncionarioModal() {
+        funcionarioCadastroModal.open();
     }
 }
-
-

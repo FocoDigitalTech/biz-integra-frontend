@@ -1,4 +1,4 @@
-package br.com.onetec.cross.utilities;
+package br.com.onetec.cross.constants;
 
 public class ViewsTitleConst {
     public static final String CONFIGURATION_NAV_TITLE = "Configurações";

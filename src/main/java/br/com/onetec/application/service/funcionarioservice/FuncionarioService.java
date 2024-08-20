@@ -44,4 +44,8 @@ public class FuncionarioService {
         }
         return entity;
     }
+
+    public void save(SetFuncionario funcionario) {
+        repository.save(funcionario);
+    }
 }

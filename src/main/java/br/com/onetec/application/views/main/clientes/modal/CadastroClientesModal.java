@@ -284,7 +284,6 @@ public class CadastroClientesModal extends Dialog {
             } else {
                 fieldEnderecosPagGuia.addClassName("error-border");
                 //estadoError.setVisible(true);
-                Notification.show("Por favor, preencha todos os campos.");
             }
         });
         FormLayout formLayout =  new FormLayout(fieldEnderecosCEP,
