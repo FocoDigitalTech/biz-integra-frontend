@@ -1,11 +1,15 @@
 package br.com.onetec.application.service.departamentoservice;
 
 import br.com.onetec.application.model.Departamento;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
+import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.repository.IDepartamentoRepository;
 import br.com.onetec.infra.db.repository.IFuncionarioRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,14 +23,21 @@ import java.util.Optional;
 @Service
 public class DepartamentoService {
 
-    private final IDepartamentoRepository repository;
+    private  IDepartamentoRepository repository;
 
-    private final IFuncionarioRepository repositoryFuncionario;
+    private  IFuncionarioRepository repositoryFuncionario;
 
-    public DepartamentoService(IDepartamentoRepository repository, IFuncionarioRepository repositoryFuncionario) {
-        this.repository = repository;
-        this.repositoryFuncionario = repositoryFuncionario;
+    @Autowired
+    public void initServices(IDepartamentoRepository repository1,
+                             IFuncionarioRepository repositoryFuncionario1) {
+        this.repository = repository1;
+        this.repositoryFuncionario = repositoryFuncionario1;
     }
+
+//    public DepartamentoService(IDepartamentoRepository repository, IFuncionarioRepository repositoryFuncionario) {
+//        this.repository = repository;
+//        this.repositoryFuncionario = repositoryFuncionario;
+//    }
 
     public void cadastrar(Departamento dto) {
         log.info("tentando cadastrar ....");
@@ -54,8 +65,12 @@ public class DepartamentoService {
     }
 
     public SetDepartamento findById(Integer id_departamento) {
-        Optional<SetDepartamento> optionalEntity = repository.findById(id_departamento);
-        return optionalEntity.get();
+        if (id_departamento != null) {
+            Optional<SetDepartamento> optionalEntity = repository.findById(id_departamento);
+            return optionalEntity.get();
+        } else {
+            return null;
+        }
     }
 
     public List<SetFuncionario> findAllFuncionarios() {

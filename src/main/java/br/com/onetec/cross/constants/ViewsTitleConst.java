@@ -7,5 +7,5 @@ public class ViewsTitleConst {
     public static final String FINANCEIRO_NAV_TITLE = "Financeiro";
     public static final String ADMINISTRATIVO_NAV_TITLE = "Administrativo";
     public static final String CLIENTES_NAV_TITLE = "Clientes";
-    public static final String MAIN_NAV_TITLE = "Nagazaki App";
+    public static final String MAIN_NAV_TITLE = "Nagasaki App";
 }

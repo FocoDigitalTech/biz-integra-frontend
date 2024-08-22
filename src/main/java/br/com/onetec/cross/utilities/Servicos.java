@@ -80,7 +80,8 @@ public class Servicos {
     }
    public void notificaSucesso (){
        Notification notification = Notification.show(ModalMessageConst.CREATE_SUCCESS);
-       notification.addThemeName("success-notification");
+       notification.addClassName("success-notification");
+       //notification.addThemeName("success-notification");
    }
 
     public void notificaErro (){

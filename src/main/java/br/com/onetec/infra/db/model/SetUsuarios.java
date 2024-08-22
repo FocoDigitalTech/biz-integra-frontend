@@ -15,6 +15,7 @@ public class SetUsuarios{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_usuario;
     private Integer id_funcionario;
+    private String email_usuario;
     private String nome_usuario;
     private String senha_usuario;
     private LocalDateTime data_inclusao;

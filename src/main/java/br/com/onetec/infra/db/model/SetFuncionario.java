@@ -18,6 +18,7 @@ public class SetFuncionario {
     private String nome_funcionario;
     private String nome_carteira;
     private String endereco_funcionario;
+    private String numeroimovel_funcionario;
     private String complemento_funcionario;
     private String bairro_funcionario;
     private String cep_funcionario;

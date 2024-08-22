@@ -1,5 +1,6 @@
 package br.com.onetec.application.service.enderecoservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Endereco;
 import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.repository.IEnderecosRepository;
@@ -31,7 +32,7 @@ public class EnderecoService {
             et.setData_inclusao(LocalDateTime.now());
             et.setId_cliente(idCliente);
             //et.setId_estado(e.getComboEnderecosUF());
-            et.setId_usuario(idUsuario);
+            et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             et.setNome_responsavel(e.getFieldEnderecosReponsavel());
             et.setNumero_imovel(e.getFieldEnderecosNumero());
             et.setPonto_referencia(e.getFieldEnderecosPontodeReferencia());

@@ -1,9 +1,12 @@
 package br.com.onetec.application.views.main.administrativo.div;
 
+
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
-import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
+import br.com.onetec.cross.utilities.Servicos;
 import br.com.onetec.infra.db.model.SetDepartamento;
+import br.com.onetec.infra.db.model.SetFornecedor;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -19,29 +22,29 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @org.springframework.stereotype.Component
-public class FuncionarioDiv extends Div {
+public class FornecedorDiv extends Div {
 
     List<SetDepartamento> departamentoLista = new ArrayList<>();
-    private Grid<SetFuncionario> funcionarioGrid;
+    private Grid<SetFornecedor> gridFornecedor;
 
-    private FiltersFuncionario filtersFuncionario;
+    private FiltersFornecedor filtersFornecedor;
 
-    private  FuncionarioService funcionarioService;
+    private FornecedorService fornecedorService;
 
-    private  DepartamentoService departamentoService;
+    private Servicos service;
 
-    private  FuncionarioCadastroModal funcionarioCadastroModal;
+    private DepartamentoService departamentoService;
+
+    private FuncionarioCadastroModal funcionarioCadastroModal;
 
     Button btnExcluir;
 
@@ -49,10 +52,12 @@ public class FuncionarioDiv extends Div {
     @Autowired
     public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
                              DepartamentoService departamentoService1,
-                             FuncionarioService funcionarioService) {
+                             FornecedorService funcionarioService,
+                             Servicos service1) {
         this.funcionarioCadastroModal = funcionarioCadastroModal;
         this.departamentoService = departamentoService1;
-        this.funcionarioService = funcionarioService;
+        this.fornecedorService = funcionarioService;
+        this.service = service1;
         funcionarioCadastroModal.addDialogCloseActionListener(event -> {
             // Código para atualizar a AdministrativoView
             refreshGridFuncionario();
@@ -61,7 +66,7 @@ public class FuncionarioDiv extends Div {
 
 
     @Autowired
-    public FuncionarioDiv( ) {
+    public FornecedorDiv( ) {
         add(telaDiv());
 
     }
@@ -74,11 +79,11 @@ public class FuncionarioDiv extends Div {
         setSizeFull();
         addClassNames("telarelatorios-view");
 
-        Component gridFuncionario = createGridFuncionario();
-        filtersFuncionario = new FuncionarioDiv.FiltersFuncionario(() -> refreshGridFuncionario());
+        Component gridFuncionario = createGridFornecedor();
+        filtersFornecedor = new FornecedorDiv.FiltersFornecedor(() -> refreshGridFuncionario());
         HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
-        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filtersFuncionario, gridFuncionario);
+        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filtersFornecedor, gridFuncionario);
         layout.setSizeFull();
         layout.setPadding(false);
         layout.setSpacing(false);
@@ -92,7 +97,7 @@ public class FuncionarioDiv extends Div {
     }
 
     public void refreshGridFuncionario() {
-        funcionarioGrid.getDataProvider().refreshAll();
+        gridFornecedor.getDataProvider().refreshAll();
     }
 
     private HorizontalLayout createMobileFiltersFuncionario() {
@@ -108,78 +113,78 @@ public class FuncionarioDiv extends Div {
         mobileFilters.add(mobileIcon, filtersHeading);
         mobileFilters.setFlexGrow(1, filtersHeading);
         mobileFilters.addClickListener(e -> {
-            if (filtersFuncionario.getClassNames().contains("visible")) {
-                filtersFuncionario.removeClassName("visible");
+            if (filtersFornecedor.getClassNames().contains("visible")) {
+                filtersFornecedor.removeClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:plus");
             } else {
-                filtersFuncionario.addClassName("visible");
+                filtersFornecedor.addClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:minus");
             }
         });
         return mobileFilters;
     }
 
-    private Component createGridFuncionario() {
+    private Component createGridFornecedor() {
 
         //departamentoService.list(null,null);
-        funcionarioGrid = new Grid<>(SetFuncionario.class, false);
-        funcionarioGrid.addColumn(SetFuncionario::getId_funcionario)
+        gridFornecedor = new Grid<>(SetFornecedor.class, false);
+        gridFornecedor.addColumn(SetFornecedor::getId_fornecedor)
                 .setHeader("ID")
                 //.setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getNome_funcionario)
-                .setHeader("Nome")
+        gridFornecedor.addColumn(SetFornecedor::getRazaosocial_fornecedor)
+                .setHeader("Razão Social")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getData_admissao)
-                .setHeader("Data de Admissão")
+        gridFornecedor.addColumn(SetFornecedor::getNomefantasia_fornecedor)
+                .setHeader("Nome Fantasia")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getEndereco_funcionario)
+        gridFornecedor.addColumn(SetFornecedor::getEndereco_fornecedor)
                 .setHeader("Endereço")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getBairro_funcionario)
+        gridFornecedor.addColumn(SetFornecedor::getBairro_fornecedor)
                 .setHeader("Bairro")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getCep_funcionario)
+        gridFornecedor.addColumn(SetFornecedor::getCep_fornecedor)
                 .setHeader("CEP")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(funcionario -> {
-            SetDepartamento departamento = departamentoService.findById(funcionario.getId_departamento());
-            return departamento == null ? "N/A" : departamento.getDescricao_departamento();
-        })
-                .setHeader("Departamento")
-                .setSortable(true)
-                .setAutoWidth(true);
+//        gridFornecedor.addColumn(funcionario -> {
+//            Set departamento = departamentoService.findById(funcionario.getId_departamento());
+//            return departamento == null ? "N/A" : departamento.getDescricao_departamento();
+//        })
+//                .setHeader("Setor de Atuação")
+//                .setSortable(true)
+//                .setAutoWidth(true);
 
 
 
 
 
         // Adiciona o listener de clique nos itens da grade
-        funcionarioGrid.addItemClickListener(event -> openDetalhesFuncionarioModal(event.getItem()));
+        gridFornecedor.addItemClickListener(event -> openDetalhesFornecedorModal(event.getItem()));
 
 
-        funcionarioGrid.setItems(query -> funcionarioService.list(
+        gridFornecedor.setItems(query -> fornecedorService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filtersFuncionario).stream());
+                filtersFornecedor).stream());
 
 
-        funcionarioGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        funcionarioGrid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+        gridFornecedor.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        gridFornecedor.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
-        return funcionarioGrid;
+        return gridFornecedor;
     }
-    private void openDetalhesFuncionarioModal(SetFuncionario item) {
+    private void openDetalhesFornecedorModal(SetFornecedor item) {
         btnExcluir = new Button();
         btnExcluir.setVisible(true);
         btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -187,7 +192,7 @@ public class FuncionarioDiv extends Div {
 
 
 
-    public class FiltersFuncionario extends Div implements Specification<SetFuncionario> {
+    public class FiltersFornecedor extends Div implements Specification<SetFornecedor> {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
@@ -195,7 +200,7 @@ public class FuncionarioDiv extends Div {
         private final MultiSelectComboBox<SetDepartamento> departamento = new MultiSelectComboBox<>("Departamento");
 
 
-        public FiltersFuncionario(Runnable onSearch) {
+        public FiltersFornecedor(Runnable onSearch) {
 
             setWidthFull();
             addClassName("filter-layout");
@@ -235,7 +240,7 @@ public class FuncionarioDiv extends Div {
 
 
         @Override
-        public Predicate toPredicate(Root<SetFuncionario> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetFornecedor> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
@@ -298,6 +303,7 @@ public class FuncionarioDiv extends Div {
 
 
     private void openCadastroFuncionarioModal() {
-        funcionarioCadastroModal.open();
+        //funcionarioCadastroModal.open();
+        service.notificaSucesso();
     }
 }

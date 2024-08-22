@@ -1,8 +1,10 @@
 package br.com.onetec.application.security;
 
 
-import br.com.onetec.application.service.securityservice.ISecurityService;
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.securityservice.SecurityServiceImp;
 import br.com.onetec.application.views.main.login.LoginView;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 @EnableWebSecurity
@@ -17,8 +20,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 class SecurityConfig extends VaadinWebSecurity {
 
+    private SecurityServiceImp service;
+
+
     @Autowired
-    ISecurityService service;
+    public void initServices(SecurityServiceImp service1) {
+        this.service = service1;
+    }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -28,25 +37,6 @@ class SecurityConfig extends VaadinWebSecurity {
 
     @Bean
     public UserDetailsService users() {
-//        var alice = User.builder()
-//                .username("alice")
-//                // password = password with this hash, don't tell anybody :-)
-//                .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
-//                .roles(Roles.USER)
-//                .build();
-//        var bob = User.builder()
-//                .username("bob")
-//                // password = password with this hash, don't tell anybody :-)
-//                .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
-//                .roles(Roles.USER)
-//                .build();
-//        var admin = User.builder()
-//                .username("admin")
-//                // password = password with this hash, don't tell anybody :-)
-//                .password("{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
-//                .roles(Roles.ADMIN, Roles.USER)
-//                .build();
-       // return new InMemoryUserDetailsManager(alice, bob, admin);
         return service.configSecuriry();
     }
 }

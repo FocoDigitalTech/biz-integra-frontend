@@ -53,6 +53,7 @@ public class FuncionarioCadastroModal extends Dialog {
     private TextField serie_ctps;
     private TextField pis_funcionario;
     private TextField cnh_funcionario;
+    private TextField numero_imovel;
     private DatePicker vencimento_cnh;
     private DatePicker data_admissao;
 
@@ -109,7 +110,7 @@ public class FuncionarioCadastroModal extends Dialog {
 
             SetDepartamento departamento = id_departamento.getValue();
             if (departamento != null) {
-                funcionario.setId_funcionario(departamento.getId_departamento());
+                funcionario.setId_departamento(departamento.getId_departamento());
             }
             if (id_estado.getValue() != null) {
                 funcionario.setId_estado(id_estado.getValue().getId_estado());
@@ -134,9 +135,10 @@ public class FuncionarioCadastroModal extends Dialog {
             funcionario.setCnh_funcionario(cnh_funcionario.getValue());
             funcionario.setVencimento_cnh(vencimento_cnh.getValue());
             funcionario.setData_admissao(data_admissao.getValue());
-
+            funcionario.setNumeroimovel_funcionario(numero_imovel.getValue());
             funcionarioService.save(funcionario);
             Notification.show("Salvo com sucesso");
+            close();
         } catch (Exception e){
             Notification.show("Erro ao Salvar");
         }
@@ -178,6 +180,7 @@ public class FuncionarioCadastroModal extends Dialog {
         cep_funcionario.addBlurListener(event -> buscarCep());
 
         cidade_funcionario = new TextField("Cidade");
+        numero_imovel = new TextField("N° Residencia");
 
 
 
@@ -189,8 +192,8 @@ public class FuncionarioCadastroModal extends Dialog {
         formLayout.add(id_departamento,nome_funcionario,
                 nome_carteira,celular_funcionario,rg_funcionario,
                 cpf_funcionario,titulo_eleitor,reservista_militar,numero_ctps,serie_ctps,
-                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,endereco_funcionario,complemento_funcionario,bairro_funcionario,
-                cep_funcionario,cidade_funcionario,id_estado);
+                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,cep_funcionario,endereco_funcionario,numero_imovel,complemento_funcionario,bairro_funcionario,
+                cidade_funcionario,id_estado);
 
         Div div = new Div(formLayout);
         div.setSizeFull();

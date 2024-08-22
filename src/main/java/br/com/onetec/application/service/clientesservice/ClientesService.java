@@ -1,5 +1,6 @@
 package br.com.onetec.application.service.clientesservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Cliente;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.repository.IClienteRepository;
@@ -57,7 +58,7 @@ public class ClientesService {
         entity.setResponsavel_cliente("Carlos");
         entity.setPonto_referencia_cliente("Teste");
         entity.setData_inclusao(LocalDateTime.now());
-        entity.setId_usuario(1);
+        entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         log.info("Salvando novo cliente :" + entity.toString());
         repository.save(entity);
         return entity;

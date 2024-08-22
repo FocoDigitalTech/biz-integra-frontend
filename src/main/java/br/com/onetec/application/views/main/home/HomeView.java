@@ -1,5 +1,6 @@
 package br.com.onetec.application.views.main.home;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -19,7 +20,7 @@ public class HomeView extends VerticalLayout {
         logo.setHeight("100px");
 
         // Título
-        H1 title = new H1("Bem-vindo à Nagazaki!");
+        H1 title = new H1("Bem-vindo à Nagasaki! "+ UsuarioAutenticadoConfig.getUser().getNome_usuario());
 
         // Botões de navegação
         Button button1 = new Button("Funcionalidade 1");

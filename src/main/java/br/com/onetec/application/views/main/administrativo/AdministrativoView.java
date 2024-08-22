@@ -1,12 +1,15 @@
 package br.com.onetec.application.views.main.administrativo;
 
 
+import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
 import br.com.onetec.cross.constants.ViewsTitleConst;
+import br.com.onetec.cross.utilities.Servicos;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
@@ -43,35 +46,53 @@ import java.util.List;
 public class AdministrativoView extends Div {
 
 
-    @Autowired
+
     private  FuncionarioDiv funcionarioDiv;
+
+    private FornecedorDiv fornecedorDiv;
 
     private Grid<SetDepartamento> departamentoGrid;
 
 
     private FiltersDepartamento filtersDepartamento;
 
-    @Autowired
-    DepartamentoService departamentoService;
+
+    private DepartamentoService departamentoService;
+
+
+    private FuncionarioService funcionarioService;
+
+
+    private DepartamentoCadastroModal departamentoCadastroModal;
 
     @Autowired
-    FuncionarioService funcionarioService;
+    public void initServices(FuncionarioDiv funcionarioDiv,
+                             FornecedorDiv fornecedorDiv1,
+                             DepartamentoService departamentoService,
+                             FuncionarioService funcionarioService,
+                             DepartamentoCadastroModal departamentoCadastroModal) {
+        this.fornecedorDiv = fornecedorDiv1;
+        this.funcionarioDiv = funcionarioDiv;
+        this.departamentoService = departamentoService;
+        this.funcionarioService = funcionarioService;
+        this.departamentoCadastroModal = departamentoCadastroModal;
+    }
+
 
     @Autowired
-    DepartamentoCadastroModal departamentoCadastroModal;
-
-    @Autowired
-    public AdministrativoView(FuncionarioDiv funcionarioDiv1) {
+    public AdministrativoView(FuncionarioDiv funcionarioDiv1,
+                                FornecedorDiv fornecedorDiv1) {
         this.funcionarioDiv = funcionarioDiv1;
+        this.fornecedorDiv = fornecedorDiv1;
 
         TabSheet tabSheet = new TabSheet();
         tabSheet.add("Departamentos",
                 departamentosDiv());
         tabSheet.add("Funcionarios",
                 funcionarioDiv);
-        tabSheet.add("Compras",
-                new Div(new Text("This is the Shipping tab content")));
         tabSheet.add("Fornecedores",
+                fornecedorDiv);
+        tabSheet.add("Compras",
                 new Div(new Text("This is the Shipping tab content")));
         tabSheet.add("Tabelas de Serviço",
                 new Div(new Text("This is the Shipping tab content")));

@@ -1,5 +1,6 @@
 package br.com.onetec.application.views;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.application.views.main.clientes.ClientesView;
 import br.com.onetec.application.views.main.configuracoes.ConfiguracoesView;
@@ -8,6 +9,8 @@ import br.com.onetec.application.views.main.financeiro.FinanceiroView;
 import br.com.onetec.application.views.main.home.HomeView;
 import br.com.onetec.application.views.main.relatorios.RelatoriosView;
 import br.com.onetec.cross.constants.ViewsTitleConst;
+import br.com.onetec.infra.db.model.SetUsuarios;
+import br.com.onetec.infra.db.repository.IUsuariosRepository;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -24,17 +27,22 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
+import java.util.Optional;
+
 /**
  * The main view is a top-level placeholder for other views.
  */
+
 public class MainLayout extends AppLayout {
     private final AuthenticationContext authenticationContext;
+
 
     private H2 viewTitle;
     private H2 titulo;
 
-    public MainLayout(AuthenticationContext authenticationContext) {
+    public MainLayout(AuthenticationContext authenticationContext, IUsuariosRepository repository) {
         this.authenticationContext = authenticationContext;
+        this.repository = repository;
         setPrimarySection(Section.DRAWER);
         addNavbarContent();
         addDrawerContent();
@@ -53,8 +61,11 @@ public class MainLayout extends AppLayout {
                 event -> authenticationContext.logout());*/
 
         String userName = authenticationContext.getPrincipalName().orElse("");
+        configuraUsuarioCorrente(authenticationContext.getPrincipalName());
         Avatar avatar = new Avatar(userName);
         MenuBar menuBar = new MenuBar();
+        //<theme-editor-local-classname>
+        menuBar.addClassName("main-layout-menu-bar-1");
         MenuItem avatarMenu = menuBar.addItem(avatar);
         SubMenu subMenu = avatarMenu.getSubMenu();
         subMenu.addItem("Logout", event -> authenticationContext.logout());
@@ -65,10 +76,18 @@ public class MainLayout extends AppLayout {
 
         titulo = new H2("Nagasaki App");
         var header = new Header(toggle,titulo, viewTitle, menuBar);
+        //<theme-editor-local-classname>
+        header.addClassName("main-layout-header-1");
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
 
         addToNavbar(false, header);
+    }
+
+    private final IUsuariosRepository repository;
+    private void configuraUsuarioCorrente(Optional<String> principalName) {
+        SetUsuarios user = repository.findByusername(principalName.get());
+        UsuarioAutenticadoConfig.setUser(user);
     }
 
 
