@@ -1,5 +1,6 @@
 package br.com.onetec.application.service.departamentoservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
@@ -34,10 +35,6 @@ public class DepartamentoService {
         this.repositoryFuncionario = repositoryFuncionario1;
     }
 
-//    public DepartamentoService(IDepartamentoRepository repository, IFuncionarioRepository repositoryFuncionario) {
-//        this.repository = repository;
-//        this.repositoryFuncionario = repositoryFuncionario;
-//    }
 
     public void cadastrar(Departamento dto) {
         log.info("tentando cadastrar ....");
@@ -46,6 +43,7 @@ public class DepartamentoService {
         entity.setDescricao_departamento(dto.getDescricao());
         entity.setId_funcionario(dto.getResponsavel());
         entity.setData_inclusao(LocalDateTime.now());
+        entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         repository.save(entity);
     }
 

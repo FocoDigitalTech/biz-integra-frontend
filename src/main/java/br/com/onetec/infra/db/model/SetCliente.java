@@ -18,7 +18,6 @@ public class SetCliente {
     private String nome_cliente;
     private String nome_fantasia_cliente;
     private String telefone_cliente;
-    private String fax_cliente;
     private String email_cliente;
     private String nome_contato_cliente;
     private String cargo_contato_cliente;
@@ -26,7 +25,8 @@ public class SetCliente {
     private Integer id_indicacao;
     private String cpf_cgc_cliente;
     private String iest_cliente;
-    private String pf_pj_cliente;
+    private String tipo_naturezajuridica;
+    private String numero_naturezajuridica;
     private String observacoes_cliente;
     private String marca_cliente;
     private String administradora_cliente;

@@ -19,7 +19,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
@@ -54,27 +53,41 @@ public class ClientesView extends Div {
 
     private Filters filters;
 
+    private ClientesService clientesService;
+
+    private EstadoService estadoService;
+
+    private UsuarioService usuarioService;
+
+    private EnderecoService enderecoService;
+
+    private ResponsavelCobrancaService responsavelCobrancaService;
+
+    private ResponsavelAgendamentoService responsavelAgendamentoService;
+
+    private ResponsavelAprovacaoService responsavelAprovacaoService;
+
+    private CadastroClientesModal cadastroModal;
     @Autowired
-    ClientesService clientesService;
+    public void initServices(ClientesService clientesService1,
+                             EstadoService estadoService1,
+                             UsuarioService usuarioService1,
+                             EnderecoService enderecoService1,
+                             ResponsavelCobrancaService responsavelCobrancaService1,
+                             ResponsavelAgendamentoService responsavelAgendamentoService1,
+                             ResponsavelAprovacaoService responsavelAprovacaoService1,
+                             CadastroClientesModal cadastroModal1) {
+        this.estadoService = estadoService1;
+        this.clientesService = clientesService1;
+        this.usuarioService = usuarioService1;
+        this.enderecoService = enderecoService1;
+        this.responsavelAprovacaoService = responsavelAprovacaoService1;
+        this.responsavelCobrancaService = responsavelCobrancaService1;
+        this.responsavelAgendamentoService = responsavelAgendamentoService1;
+        this.cadastroModal = cadastroModal1;
+    }
 
     @Autowired
-    EstadoService estadoService;
-
-    @Autowired
-    UsuarioService usuarioService;
-
-    @Autowired
-    EnderecoService enderecoService;
-
-    @Autowired
-    ResponsavelCobrancaService responsavelCobrancaService;
-
-    @Autowired
-    ResponsavelAgendamentoService responsavelAgendamentoService;
-
-    @Autowired
-    ResponsavelAprovacaoService responsavelAprovacaoService;
-
     public ClientesView() {
         setSizeFull();
         addClassNames("telarelatorios-view");
@@ -120,24 +133,9 @@ public class ClientesView extends Div {
 
     public class Filters extends Div implements Specification<SetCliente> {
 
-        /*
-        *
-
-Contato
-Fone
-Endereço
-Internet
-Contato
-Aprovação
-Cobrança
-Fax
-Usuário
-* */
-        private final TextField name = new TextField("Nome");
-        private final TextField phone = new TextField("Telefone");
-        private final DatePicker startDate = new DatePicker("Ultimo Orçamento");
-        private final DatePicker endDate = new DatePicker();
-        private final MultiSelectComboBox<String> occupations = new MultiSelectComboBox<>("Occupation");
+        private final TextField name = new TextField("N° Contrato");
+        private final TextField orcamento = new TextField("N° do Orçamento");
+        private final TextField endereco = new TextField("Endereço");
         private final CheckboxGroup<String> roles = new CheckboxGroup<>("Situação");
 
         public Filters(Runnable onSearch) {
@@ -146,11 +144,10 @@ Usuário
             addClassName("filter-layout");
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
-            name.setPlaceholder("First or last name");
+            name.setPlaceholder("Numero do Contrato");
 
-            occupations.setItems("Insurance Clerk", "Mortarman", "Beer Coil Cleaner", "Scale Attendant");
 
-            roles.setItems("Pendente", "Aprovado");
+            roles.setItems("Monitoramento", "Executado", "Cancelado");
             roles.addClassName("double-width");
 
             // Action buttons
@@ -158,10 +155,8 @@ Usuário
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             resetBtn.addClickListener(e -> {
                 name.clear();
-                phone.clear();
-                startDate.clear();
-                endDate.clear();
-                occupations.clear();
+                orcamento.clear();
+                endereco.clear();
                 roles.clear();
                 onSearch.run();
             });
@@ -174,24 +169,10 @@ Usuário
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
-            add(name, phone, createDateRangeFilter(), occupations, roles, actions);
+            add(name, orcamento, endereco,  roles, actions);
         }
 
-        private Component createDateRangeFilter() {
-            startDate.setPlaceholder("De");
 
-            endDate.setPlaceholder("Até");
-
-            // For screen readers
-            startDate.setAriaLabel("Data Inicio");
-            endDate.setAriaLabel("Data Fim");
-
-            FlexLayout dateRangeComponent = new FlexLayout(startDate, new Text(" – "), endDate);
-            dateRangeComponent.setAlignItems(FlexComponent.Alignment.BASELINE);
-            dateRangeComponent.addClassName(LumoUtility.Gap.XSMALL);
-
-            return dateRangeComponent;
-        }
 
         @Override
         public Predicate toPredicate(Root<SetCliente> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
@@ -205,36 +186,19 @@ Usuário
                         "%" + lowerCaseFilter + "%");
                 predicates.add(criteriaBuilder.or(firstNameMatch));
             }
-            if (!phone.isEmpty()) {
+            if (!orcamento.isEmpty()) {
                 String databaseColumn = "celular_cliente";
                 String ignore = "- ()";
 
-                String lowerCaseFilter = ignoreCharacters(ignore, phone.getValue().toLowerCase());
+                String lowerCaseFilter = ignoreCharacters(ignore, orcamento.getValue().toLowerCase());
                 Predicate phoneMatch = criteriaBuilder.like(
                         ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
                         "%" + lowerCaseFilter + "%");
                 predicates.add(phoneMatch);
 
             }
-            if (startDate.getValue() != null) {
-                String databaseColumn = "data_inclusao";
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
-                        criteriaBuilder.literal(startDate.getValue())));
-            }
-            if (endDate.getValue() != null) {
-                String databaseColumn = "data_inclusao";
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
-                        root.get(databaseColumn)));
-            }
-            if (!occupations.isEmpty()) {
-                String databaseColumn = "complemento_cliente";
-                List<Predicate> occupationPredicates = new ArrayList<>();
-                for (String occupation : occupations.getValue()) {
-                    occupationPredicates
-                            .add(criteriaBuilder.equal(criteriaBuilder.literal(occupation), root.get(databaseColumn)));
-                }
-                predicates.add(criteriaBuilder.or(occupationPredicates.toArray(Predicate[]::new)));
-            }
+
+
             if (!roles.isEmpty()) {
                 String databaseColumn = "ativo";
                 List<Predicate> rolePredicates = new ArrayList<>();
@@ -321,13 +285,13 @@ Usuário
 
 
     private void openCadastroModal() {
-        CadastroClientesModal cadastroModal = new CadastroClientesModal(clientesService,
-                estadoService,
-                usuarioService,
-                enderecoService,
-                responsavelCobrancaService,
-                responsavelAgendamentoService,
-                responsavelAprovacaoService);
+//        CadastroClientesModal cadastroModal = new CadastroClientesModal(clientesService,
+//                estadoService,
+//                usuarioService,
+//                enderecoService,
+//                responsavelCobrancaService,
+//                responsavelAgendamentoService,
+//                responsavelAprovacaoService);
         cadastroModal.open();
     }
 }

@@ -14,6 +14,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -363,16 +365,30 @@ public class DadosClienteModal extends Dialog {
         inscEstatualField = new TextField("Insc. Estatual");
         observacaoField = new TextField("Observação");
 
+        Icon whatsappIcon = VaadinIcon.PHONE.create();
+        whatsappIcon.setColor("green");
+
+        // Torna o ícone clicável com um Button
+        Button whatsappButton = new Button(whatsappIcon);
+        whatsappButton.addClickListener(event -> {
+            // Ação ao clicar no ícone
+            String phoneNumber = celularField.getValue();
+
+            // Você pode abrir o WhatsApp Web com o número do telefone, por exemplo:
+            getUI().ifPresent(ui -> ui.getPage().open("https://wa.me/" + phoneNumber));
+        });
+
+        // Adiciona o botão com o ícone como sufixo no TextField
+        celularField.setSuffixComponent(whatsappButton);
+
         dataField.setValue(cliente.getData_inclusao().toLocalDate());
         nomeField.setValue(cliente.getNome_cliente());
         administradora.setValue(cliente.getAdministradora_cliente());
         contatoField.setValue(cliente.getCargo_contato_cliente());
         horaField.setValue(cliente.getHora_ligacao_cliente());
         telefoneField.setValue(cliente.getTelefone_cliente());
-        faxField.setValue(cliente.getFax_cliente());
         celularField.setValue(cliente.getCelular_cliente());
         internetEmailField.setValue(cliente.getEmail_cliente());
-        FJField.setValue(cliente.getPf_pj_cliente());
         CGCCPFField.setValue(cliente.getCpf_cgc_cliente());
         inscEstatualField.setValue(cliente.getIest_cliente());
         observacaoField.setValue(cliente.getObservacoes_cliente());
@@ -407,11 +423,9 @@ public class DadosClienteModal extends Dialog {
         if (agendamento != null) {
             nomeAgendamentoField.setValue(agendamento.getNome_agendamento());
             telefoneAgendamentoField.setValue(agendamento.getTelefone_fixo());
-            faxAgendamentoField.setValue(agendamento.getFax());
             celularAgendamentoField.setValue(agendamento.getTelefone_celular());
             internetEmailAgendamentoField.setValue(agendamento.getEmail());
             CGCCPFAgendamentoField.setValue(agendamento.getCgc_cpf());
-            inscEstatualAgendamentoField.setValue(agendamento.getInscricao_estatual());
             observacaoAgendamentoField.setValue(agendamento.getObservacao());
         }
         configureCelularField();
@@ -479,11 +493,9 @@ public class DadosClienteModal extends Dialog {
         if (aprovacao != null) {
             nomeAprovacaoField.setValue(aprovacao.getNome_aprovacao());
             telefoneAprovacaoField.setValue(aprovacao.getTelefone_fixo());
-            faxAprovacaoField.setValue(aprovacao.getFax());
             celularAprovacaoField.setValue(aprovacao.getTelefone_celular());
             internetEmailAprovacaoField.setValue(aprovacao.getEmail());
             CGCCPFAprovacaoField.setValue(aprovacao.getCgc_cpf());
-            inscEstatualAprovacaoField.setValue(aprovacao.getInscricao_estatual());
             observacaoAprovacaoField.setValue(aprovacao.getObservacao());
         }
 
@@ -525,11 +537,9 @@ public class DadosClienteModal extends Dialog {
         if (cobranca != null) {
             nomeCobrancaField.setValue(cobranca.getNome_cobranca());
             telefoneCobrancaField.setValue(cobranca.getTelefone_fixo());
-            faxCobrancaField.setValue(cobranca.getFax());
             celularCobrancaField.setValue(cobranca.getTelefone_celular());
             internetEmailCobrancaField.setValue(cobranca.getEmail());
             CGCCPFCobrancaField.setValue(cobranca.getCgc_cpf());
-            inscEstatualCobrancaField.setValue(cobranca.getInscricao_estatual());
             observacaoCobrancaField.setValue(cobranca.getObservacao());
         }
 

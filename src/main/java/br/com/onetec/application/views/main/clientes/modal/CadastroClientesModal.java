@@ -1,10 +1,17 @@
 package br.com.onetec.application.views.main.clientes.modal;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Cliente;
 import br.com.onetec.application.model.Endereco;
 import br.com.onetec.application.service.clientesservice.*;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
+import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
+import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -18,17 +25,22 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 
+@Component
 public class CadastroClientesModal extends Dialog {
 
     //cadastro empresa
@@ -39,47 +51,37 @@ public class CadastroClientesModal extends Dialog {
     private TimePicker horaField;
     private TextField contatoField;
     private ComboBox administradora;
-    private ComboBox tipoMidia;
-    private TextField nomeIndicacaoField;
-    private TextField faxField;
+    private ComboBox <SetTipoMidia>tipoMidia;
+    private TextField midiaAntigaField;
     private TextField internetEmailField;
-    private TextField FJField;
+    private ComboBox<String> FJField;
     private TextField CGCCPFField;
     private TextField inscEstatualField;
-    private TextField observacaoField;
+    private TextArea observacaoField;
     //Agendamento
     private TextField nomeAgendamentoField;
-    private TextField contatoAgendamentoField;
+    private TextField nomesocialAgendamentoField;
     private TextField telefoneAgendamentoField;
-    private TextField faxAgendamentoField;
     private TextField celularAgendamentoField;
     private TextField internetEmailAgendamentoField;
-    private TextField CGCCPFAgendamentoField;
-    private TextField inscEstatualAgendamentoField;
-    private TextField observacaoAgendamentoField;
+    private TextArea observacaoAgendamentoField;
     //Aprovacao
     private TextField nomeAprovacaoField;
-    private TextField contatoAprovacaoField;
+    private TextField nomesocialAprovacaoField;
     private TextField telefoneAprovacaoField;
-    private TextField faxAprovacaoField;
     private TextField celularAprovacaoField;
     private TextField internetEmailAprovacaoField;
-    private TextField CGCCPFAprovacaoField;
-    private TextField inscEstatualAprovacaoField;
-    private TextField observacaoAprovacaoField;
+    private TextArea observacaoAprovacaoField;
     //Cobranca
     private TextField nomeCobrancaField;
-    private TextField contatoCobrancaField;
+    private TextField nomesocialCobrancaField;
     private TextField telefoneCobrancaField;
-    private TextField faxCobrancaField;
     private TextField celularCobrancaField;
     private TextField internetEmailCobrancaField;
-    private TextField CGCCPFCobrancaField;
-    private TextField inscEstatualCobrancaField;
-    private TextField observacaoCobrancaField;
+    private TextArea observacaoCobrancaField;
     //Enderecos
     private TextField fieldEnderecosCEP;
-    private ComboBox comboEnderecosTipoImovel;
+    private ComboBox <SetTipoImovel> comboEnderecosTipoImovel;
     private TextField fieldEnderecosArea;
     private TextField fieldEnderecosEndereço;
     private TextField fieldEnderecosNumero;
@@ -90,7 +92,7 @@ public class CadastroClientesModal extends Dialog {
     private TextField fieldEnderecosTelefone;
     private TextField fieldEnderecosPagGuia;
     private TextField fieldEnderecosReponsavel;
-    private ComboBox comboEnderecosRegiao;
+    private ComboBox <SetRegiao> comboEnderecosRegiao;
     private TextField fieldEnderecosPontodeReferencia;
 
     private Tabs tabs;
@@ -102,29 +104,90 @@ public class CadastroClientesModal extends Dialog {
     private Button saveButton;
     private Button cancelButton;
 
-    private final ClientesService clientesService;
-    private final EstadoService estadoService;
-    private final UsuarioService usuarioService;
-    private final EnderecoService enderecoService;
+    private ClientesService clientesService;
+    private EstadoService estadoService;
+    private UsuarioService usuarioService;
+    private EnderecoService enderecoService;
+    private Servicos service;
 
-    private final ResponsavelCobrancaService responsavelCobrancaService;
-    private final ResponsavelAgendamentoService responsavelAgendamentoService;
-    private final ResponsavelAprovacaoService responsavelAprovacaoService;
+    private ResponsavelCobrancaService responsavelCobrancaService;
+    private ResponsavelAgendamentoService responsavelAgendamentoService;
+    private ResponsavelAprovacaoService responsavelAprovacaoService;
 
-    public CadastroClientesModal(ClientesService clientesService,
-                                 EstadoService estadoService,
-                                 UsuarioService usuarioService,
-                                 EnderecoService enderecoService,
-                                 ResponsavelCobrancaService responsavelCobrancaService,
-                                 ResponsavelAgendamentoService responsavelAgendamentoService,
-                                 ResponsavelAprovacaoService responsavelAprovacaoService) {
+    private TipoMidiaService tipomidiaService;
+
+    private TipoImovelService tipoimovelService;
+    private RegiaoService regiaoService;
+    private ApiEnderecoService apiEnderecoService;
+    private List<SetEstado> estadoList = new ArrayList<>();
+
+    @Autowired
+    public void initServices (ClientesService clientesService,
+                              EstadoService estadoService,
+                              UsuarioService usuarioService,
+                              EnderecoService enderecoService,
+                              ResponsavelCobrancaService responsavelCobrancaService,
+                              ResponsavelAgendamentoService responsavelAgendamentoService,
+                              ResponsavelAprovacaoService responsavelAprovacaoService,
+                              Servicos service1, TipoMidiaService tipomidiaService1,
+                              TipoImovelService tipoimovelService1,
+                              RegiaoService regiaoService1,
+                              ApiEnderecoService enderecoService1) {
         this.clientesService = clientesService;
         this.estadoService = estadoService;
         this.usuarioService = usuarioService;
-        this.enderecoService =  enderecoService;
+        this.enderecoService = enderecoService;
         this.responsavelCobrancaService = responsavelCobrancaService;
         this.responsavelAgendamentoService = responsavelAgendamentoService;
         this.responsavelAprovacaoService = responsavelAprovacaoService;
+        this.service = service1;
+        this.tipomidiaService = tipomidiaService1;
+        this.tipoimovelService = tipoimovelService1;
+        this.regiaoService = regiaoService1;
+        this.apiEnderecoService = enderecoService1;
+
+        service.configureCEPField(fieldEnderecosCEP);
+        service.configureCelularField(celularField);
+        service.configureCPFField(CGCCPFField);
+        service.configuraCalendario(dataField);
+
+        fieldEnderecosCEP.addBlurListener(event -> buscarCep());
+        fieldEnderecosCEP.addValueChangeListener(event -> {
+            String value = event.getValue().replaceAll("[^0-9]", "");
+            if (value.length() >= 8) {
+                String cep = value;
+                buscarCep();
+            } if (value.length() <= 7){
+                fieldEnderecosEndereço.clear();
+                //complemento_funcionario.setValue(response.get);
+                fieldEnderecosBairro.clear();
+                fieldEnderecosCidade.clear();
+                comboEnderecosUF.clear();
+            }
+        });
+
+
+        estadoList = estadoService.listAll();
+        tipoMidia.setItems(tipomidiaService.findAllMidia());
+        tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
+        comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
+        comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
+        comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
+        comboEnderecosRegiao.setItemLabelGenerator(SetRegiao::getDescricao_regiao);
+        comboEnderecosUF.setItemLabelGenerator(SetEstado::getUf_estado);
+    }
+
+    private void buscarCep() {
+        EApiEnderecoResponse response = service.buscarCep(fieldEnderecosCEP);
+        fieldEnderecosEndereço.setValue(response.getLogradouro());
+        //complemento_funcionario.setValue(response.get);
+        fieldEnderecosBairro.setValue(response.getBairro());
+        fieldEnderecosCidade.setValue(response.getLocalidade());
+        comboEnderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
+    }
+
+    @Autowired
+    public CadastroClientesModal() {
 
         addClassName("cadastro-modal");
         saveButton = new Button("Salvar", eventbe -> save());
@@ -189,22 +252,19 @@ public class CadastroClientesModal extends Dialog {
         Div div = new Div();
 
         fieldEnderecosCEP = new TextField("CEP");
-        comboEnderecosTipoImovel  = new ComboBox("Tipo de Imóvel");;
-        comboEnderecosTipoImovel.setItems(getItemsAdministradora());
+        comboEnderecosTipoImovel  = new ComboBox("Tipo de Imóvel");
         fieldEnderecosArea = new TextField("Area");
         fieldEnderecosEndereço = new TextField("Endereço");
         fieldEnderecosNumero = new TextField("Número");
         fieldEnderecosComplemento = new TextField("Complemento");
         fieldEnderecosBairro = new TextField("Bairro");
         fieldEnderecosCidade = new TextField("Cidade");
-        comboEnderecosUF  = new ComboBox("UF");;
-        comboEnderecosUF.setItems(getUFList());
-        comboEnderecosUF.setItemLabelGenerator(SetEstado::getNome_estado);
+        comboEnderecosUF  = new ComboBox("UF");
+        //comboEnderecosUF.setItems(getUFList());
         fieldEnderecosTelefone = new TextField("Telefone do Local");
         fieldEnderecosPagGuia = new TextField("Pag. Guia");
         fieldEnderecosReponsavel = new TextField("Responsável");
-        comboEnderecosRegiao  = new ComboBox("Região");;
-        comboEnderecosRegiao.setItems(getItemsAdministradora());
+        comboEnderecosRegiao  = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
         // Configurar o Grid
@@ -302,9 +362,7 @@ public class CadastroClientesModal extends Dialog {
         return div;
     }
 
-    private List<SetEstado> getUFList() {
-       return estadoService.listAll();
-    }
+
 
     private Div createFormCadastroEmpresa() {
         dataField = new DatePicker("Data Cadastro");
@@ -313,22 +371,36 @@ public class CadastroClientesModal extends Dialog {
         administradora = new ComboBox("Administradora");
         administradora.setItems(getItemsAdministradora());
         contatoField = new TextField("Contato");
-        tipoMidia = new ComboBox("Tipo de Midia");
+        tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
-        nomeIndicacaoField = new TextField("Nome Indicação");
+        midiaAntigaField = new TextField("Midia Antiga");
         telefoneField = new TextField("Telefone de Contato");
-        faxField = new TextField("Fax");
         celularField = new TextField("Celular");
-        internetEmailField = new TextField("Internet/E-mail");
-        FJField = new TextField("F/J");
-        CGCCPFField = new TextField("CGC/CPF");
+        internetEmailField = new TextField("E-mail");
+        FJField = new ComboBox<>("Natureza Juridica");
+        FJField.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
+        FJField.addValueChangeListener(event -> {
+            if ("Pessoa Fisica".equals(event.getValue())) {
+                CGCCPFField.clear();
+                CGCCPFField.setLabel("Número CPF");
+                service.configureCPFField(CGCCPFField);
+
+            } else if ("Pessoa Juridica".equals(event.getValue())) {
+                CGCCPFField.clear();
+                CGCCPFField.setLabel("Número CNPJ");
+                service.configureCNPJTextField(CGCCPFField);
+            }
+        });
+        CGCCPFField = new TextField("Número CPF");
+
         inscEstatualField = new TextField("Insc. Estatual");
-        observacaoField = new TextField("Observação");
+        observacaoField = new TextArea("Observação");
+
 
         configureCelularField();
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(dataField,nomeField,administradora,contatoField,tipoMidia,horaField,nomeIndicacaoField,telefoneField,faxField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
+        formLayout.add(dataField,nomeField,administradora,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -342,18 +414,15 @@ public class CadastroClientesModal extends Dialog {
         Div div = new Div(formLayout);
         div.setSizeFull();
         nomeAgendamentoField = new TextField("Nome");
-        contatoAgendamentoField = new TextField("Contato");
+        nomesocialAgendamentoField = new TextField("Nome Social");
         telefoneAgendamentoField = new TextField("Telefone de Contato");
-        faxAgendamentoField = new TextField("Fax");
         celularAgendamentoField = new TextField("Celular");
-        internetEmailAgendamentoField = new TextField("Internet/E-mail");
-        CGCCPFAgendamentoField = new TextField("CGC/CPF");
-        inscEstatualAgendamentoField = new TextField("Insc. Estatual");
-        observacaoAgendamentoField = new TextField("Observação");
+        internetEmailAgendamentoField = new TextField("E-mail");
+        observacaoAgendamentoField = new TextArea("Observação");
 
         configureCelularField();
         formLayout.setWidthFull();
-        formLayout.add(nomeAgendamentoField,contatoAgendamentoField,telefoneAgendamentoField,faxAgendamentoField,celularAgendamentoField,internetEmailAgendamentoField,CGCCPFAgendamentoField,inscEstatualAgendamentoField,observacaoAgendamentoField);
+        formLayout.add(nomeAgendamentoField, nomesocialAgendamentoField,telefoneAgendamentoField,celularAgendamentoField,internetEmailAgendamentoField,observacaoAgendamentoField);
 
 
         div.setSizeFull();
@@ -403,16 +472,13 @@ public class CadastroClientesModal extends Dialog {
         formLayout.setWidthFull();
         // Create fields
         nomeAprovacaoField = new TextField("Nome Aprovador");
-        contatoAprovacaoField = new TextField("Contato Aprovador");
+        nomesocialAprovacaoField = new TextField("Nome Social");
         telefoneAprovacaoField = new TextField("Telefone de Contato Aprovador");
-        faxAprovacaoField = new TextField("Fax Aprovador");
         celularAprovacaoField = new TextField("Celular Aprovador");
-        internetEmailAprovacaoField = new TextField("Internet/E-mail Aprovador");
-        CGCCPFAprovacaoField = new TextField("CGC/CPF Aprovador");
-        inscEstatualAprovacaoField = new TextField("Insc. Estatual Aprovador");
-        observacaoAprovacaoField = new TextField("Observação Aprovador");
+        internetEmailAprovacaoField = new TextField("E-mail Aprovador");
+        observacaoAprovacaoField = new TextArea("Observação Aprovador");
         formLayout.setWidthFull();
-        formLayout.add(nomeAprovacaoField,contatoAprovacaoField,telefoneAprovacaoField,faxAprovacaoField,celularAprovacaoField,internetEmailAprovacaoField,CGCCPFAprovacaoField,inscEstatualAprovacaoField,observacaoAprovacaoField);
+        formLayout.add(nomeAprovacaoField, nomesocialAprovacaoField,telefoneAprovacaoField,celularAprovacaoField,internetEmailAprovacaoField,observacaoAprovacaoField);
 
         section.add(titleLayout, formLayout);
 
@@ -435,16 +501,13 @@ public class CadastroClientesModal extends Dialog {
         formLayout.setWidthFull();
         // Create fields
         nomeCobrancaField = new TextField("Nome Cobrança");
-        contatoCobrancaField = new TextField("Contato Cobrança");
+        nomesocialCobrancaField = new TextField("Nome Social");
         telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
-        faxCobrancaField = new TextField("Fax Cobrança");
         celularCobrancaField = new TextField("Celular Cobrança");
-        internetEmailCobrancaField = new TextField("Internet/E-mail Cobrança");
-        CGCCPFCobrancaField = new TextField("CGC/CPF Cobrança");
-        inscEstatualCobrancaField = new TextField("Insc. Estatual Cobrança");
-        observacaoCobrancaField = new TextField("Observação Cobrança");
+        internetEmailCobrancaField = new TextField("E-mail Cobrança");
+        observacaoCobrancaField = new TextArea("Observação Cobrança");
         formLayout.setWidthFull();
-        formLayout.add(nomeCobrancaField,contatoCobrancaField,telefoneCobrancaField,faxCobrancaField,celularCobrancaField,internetEmailCobrancaField,CGCCPFCobrancaField,inscEstatualCobrancaField,observacaoCobrancaField);
+        formLayout.add(nomeCobrancaField, nomesocialCobrancaField,telefoneCobrancaField,celularCobrancaField,internetEmailCobrancaField,observacaoCobrancaField);
 
         section.add(titleLayout, formLayout);
 
@@ -452,9 +515,9 @@ public class CadastroClientesModal extends Dialog {
     }
     private List<String> getItemsAdministradora() {
         List<String> lista = new ArrayList<>();
-        lista.add("1");
-        lista.add("2");
-        lista.add("3");
+        lista.add("N/D");
+        lista.add("Empresa");
+        lista.add("Condominio");
         return lista;
     }
 
@@ -494,13 +557,14 @@ public class CadastroClientesModal extends Dialog {
         cobranca.setNome_cobranca(nomeCobrancaField.getValue());
         cobranca.setTelefone_fixo(telefoneCobrancaField.getValue());
         cobranca.setTelefone_celular(celularCobrancaField.getValue());
-        cobranca.setFax(faxCobrancaField.getValue());
+        cobranca.setNome_social(nomesocialCobrancaField.getValue());
         cobranca.setEmail(internetEmailCobrancaField.getValue());
-        cobranca.setCgc_cpf(CGCCPFCobrancaField.getValue());
-        cobranca.setInscricao_estatual(inscEstatualCobrancaField.getValue());
         cobranca.setObservacao(observacaoCobrancaField.getValue());
         cobranca.setValor_cobranca(BigDecimal.TEN);
         cobranca.setId_cliente(id_cliente);
+        cobranca.setData_inclusao(LocalDateTime.now());
+        cobranca.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        cobranca.setAtivo("S");
         return cobranca;
     }
 
@@ -508,28 +572,30 @@ public class CadastroClientesModal extends Dialog {
         SetResponsavelAprovacao aprovacao = new SetResponsavelAprovacao();
         aprovacao.setNome_aprovacao(nomeAprovacaoField.getValue());
         aprovacao.setTelefone_fixo(telefoneAprovacaoField.getValue());
-        aprovacao.setFax(faxAprovacaoField.getValue());
+        aprovacao.setNome_social(nomesocialAprovacaoField.getValue());
         aprovacao.setTelefone_celular(celularAprovacaoField.getValue());
         aprovacao.setEmail(internetEmailAprovacaoField.getValue());
-        aprovacao.setCgc_cpf(CGCCPFAprovacaoField.getValue());
-        aprovacao.setInscricao_estatual(inscEstatualAprovacaoField.getValue());
         aprovacao.setObservacao(observacaoAprovacaoField.getValue());
         aprovacao.setId_cliente(id_cliente);
+        aprovacao.setData_inclusao(LocalDateTime.now());
+        aprovacao.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        aprovacao.setAtivo("S");
         return aprovacao;
     }
 
     private SetResponsavelAgendamento newPessoaAgendamento(Integer id_cliente) {
         SetResponsavelAgendamento agendamento = new SetResponsavelAgendamento();
         agendamento.setNome_agendamento(nomeAgendamentoField.getValue());
-        agendamento.setTelefone_fixo(contatoAgendamentoField.getValue());
-        agendamento.setTelefone_celular(telefoneAgendamentoField.getValue());
-        agendamento.setFax(faxAgendamentoField.getValue());
+        agendamento.setNome_social(nomesocialAgendamentoField.getValue());
+        agendamento.setTelefone_fixo(telefoneAgendamentoField.getValue());
+        agendamento.setTelefone_celular(celularAgendamentoField.getValue());
         agendamento.setEmail(internetEmailAgendamentoField.getValue());
-        agendamento.setCgc_cpf(CGCCPFAgendamentoField.getValue());
-        agendamento.setInscricao_estatual(inscEstatualAgendamentoField.getValue());
         agendamento.setObservacao(observacaoAgendamentoField.getValue());
         agendamento.setData_agendamento(LocalDate.now());
         agendamento.setId_cliente(id_cliente);
+        agendamento.setData_inclusao(LocalDateTime.now());
+        agendamento.setAtivo("S");
+        agendamento.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         return agendamento;
     }
 
@@ -543,8 +609,7 @@ public class CadastroClientesModal extends Dialog {
         cliente.setContatoField(contatoField.getValue());
         cliente.setAdministradora("Teste");
         cliente.setTipoMidia("Teste");
-        cliente.setNomeIndicacaoField(nomeIndicacaoField.getValue());
-        cliente.setFaxField(faxField.getValue());
+        cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());
         cliente.setFJField(FJField.getValue());
         cliente.setCGCCPFField(CGCCPFField.getValue());

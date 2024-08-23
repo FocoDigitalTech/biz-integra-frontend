@@ -40,4 +40,5 @@ public class SetFuncionario {
     private LocalDateTime data_alteracao;
     private LocalDateTime data_exclusao;
     private String ativo;
+    private Integer id_usuario;
 }

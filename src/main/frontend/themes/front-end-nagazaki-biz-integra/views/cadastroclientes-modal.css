@@ -26,11 +26,24 @@
     position: relative; /* Necessário para o posicionamento do ::after */
 }
 
-.success-notification {
+
+/* Estiliza todos os elementos dentro da notificação */
+.success-notification * {
+    background-color: inherit;
+    color: inherit;
+}
+.success-notification::part(content) {
     background-color: #28a745;
     color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.error-notification * {
+   background-color: inherit;
+   color: inherit;
+}
+.error-notification::part(content) {
+   background-color: #ff2300;
+   color: white;
 }
 
 .error-border::after {

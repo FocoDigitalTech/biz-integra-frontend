@@ -33,7 +33,6 @@ public class ClientesService {
         entity.setNome_cliente(dto.getNomeField());
         entity.setNome_fantasia_cliente(dto.getNomeField());
         entity.setTelefone_cliente(dto.getTelefoneField());
-        entity.setFax_cliente(dto.getFaxField());
         entity.setEmail_cliente(dto.getInternetEmailField());
         entity.setNome_contato_cliente(dto.getContatoField());
         entity.setCargo_contato_cliente("");
@@ -41,7 +40,8 @@ public class ClientesService {
         entity.setId_indicacao(1);
         entity.setCpf_cgc_cliente(dto.getCGCCPFField());
         entity.setIest_cliente("AG");
-        entity.setPf_pj_cliente(dto.getFJField());
+        entity.setTipo_naturezajuridica(dto.getFJField());
+        entity.setNumero_naturezajuridica(dto.getCnpjField());
         entity.setObservacoes_cliente(dto.getObservacaoField());
         entity.setMarca_cliente("Marca Ltda");
         entity.setAdministradora_cliente("Concecionaria");

@@ -3,7 +3,7 @@ package br.com.onetec.application.views;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.application.views.main.clientes.ClientesView;
-import br.com.onetec.application.views.main.configuracoes.ConfiguracoesView;
+import br.com.onetec.application.views.main.configuracoessistema.ConfiguracoesSistemaView;
 import br.com.onetec.application.views.main.estoque.EstoqueView;
 import br.com.onetec.application.views.main.financeiro.FinanceiroView;
 import br.com.onetec.application.views.main.home.HomeView;
@@ -114,7 +114,7 @@ public class MainLayout extends AppLayout {
                 VaadinIcon.STORAGE.create()));
         nav.addItem(new SideNavItem("Relatórios", RelatoriosView.class,
                 VaadinIcon.PAPERPLANE.create()));
-        nav.addItem(new SideNavItem("Configurações", ConfiguracoesView.class,
+        nav.addItem(new SideNavItem("Configurações Sistema", ConfiguracoesSistemaView.class,
                 VaadinIcon.HAMMER.create()));
 
 

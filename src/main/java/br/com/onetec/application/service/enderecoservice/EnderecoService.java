@@ -31,13 +31,15 @@ public class EnderecoService {
             et.setComplemento_imovel(e.getFieldEnderecosComplemento());
             et.setData_inclusao(LocalDateTime.now());
             et.setId_cliente(idCliente);
-            //et.setId_estado(e.getComboEnderecosUF());
+            et.setId_estado(e.getComboEnderecosUF().getId_estado());
             et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             et.setNome_responsavel(e.getFieldEnderecosReponsavel());
             et.setNumero_imovel(e.getFieldEnderecosNumero());
             et.setPonto_referencia(e.getFieldEnderecosPontodeReferencia());
             et.setPagina_guia(e.getFieldEnderecosPagGuia());
             et.setTelefone_local(e.getFieldEnderecosTelefone());
+            et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            et.setAtivo("S");
             log.info("Salvando novo endereço :" + et.toString());
             repository.save(et);
         });

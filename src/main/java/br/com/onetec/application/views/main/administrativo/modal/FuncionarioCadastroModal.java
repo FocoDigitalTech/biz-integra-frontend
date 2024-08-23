@@ -1,5 +1,6 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
@@ -20,6 +21,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -136,6 +139,10 @@ public class FuncionarioCadastroModal extends Dialog {
             funcionario.setVencimento_cnh(vencimento_cnh.getValue());
             funcionario.setData_admissao(data_admissao.getValue());
             funcionario.setNumeroimovel_funcionario(numero_imovel.getValue());
+            funcionario.setData_inclusao(LocalDateTime.now());
+            funcionario.setId_funcionario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            funcionario.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            funcionario.setAtivo("S");
             funcionarioService.save(funcionario);
             Notification.show("Salvo com sucesso");
             close();

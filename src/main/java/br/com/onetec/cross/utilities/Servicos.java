@@ -78,19 +78,18 @@ public class Servicos {
             return null;
         }
     }
-   public void notificaSucesso (){
-       Notification notification = Notification.show(ModalMessageConst.CREATE_SUCCESS);
+   public void notificaSucesso (String MESSAGE){
+       Notification notification = Notification.show(MESSAGE);
        notification.addClassName("success-notification");
-       //notification.addThemeName("success-notification");
    }
 
-    public void notificaErro (){
-        Notification notification = Notification.show(ModalMessageConst.ERROR_CREATE);
-        notification.addThemeName("success-notification");
+    public void notificaErro (String MESSAGE){
+        Notification notification = Notification.show(MESSAGE);
+        notification.addClassName("error-notification");
     }
 
 
-    public static TextField configureCNPJTextField(TextField textField) {
+    public TextField configureCNPJTextField(TextField textField) {
         textField.setMaxLength(18); // Limita ao formato "00.000.000/0000-00"
         textField.setPlaceholder("00.000.000/0000-00");
 

@@ -21,6 +21,7 @@ public class Cliente {
     private String internetEmailField;
     private String FJField;
     private String CGCCPFField;
+    private String cnpjField;
     private String inscEstatualField;
     private String observacaoField;
 }

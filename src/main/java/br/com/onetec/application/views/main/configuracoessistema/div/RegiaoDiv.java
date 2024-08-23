@@ -1,18 +1,17 @@
-package br.com.onetec.application.views.main.administrativo.div;
+package br.com.onetec.application.views.main.configuracoessistema.div;
 
-
-import br.com.onetec.application.service.departamentoservice.DepartamentoService;
-import br.com.onetec.application.service.fornecedorservice.FornecedorService;
-import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
+import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
+import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.views.main.configuracoessistema.modal.RegiaoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.TipoImovelCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.Servicos;
-import br.com.onetec.infra.db.model.SetDepartamento;
-import br.com.onetec.infra.db.model.SetFornecedor;
-import br.com.onetec.infra.db.model.SetFuncionario;
-import com.vaadin.flow.component.Component;
+import br.com.onetec.infra.db.model.SetRegiao;
+import br.com.onetec.infra.db.model.SetTipoImovel;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -27,47 +26,48 @@ import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@org.springframework.stereotype.Component
-public class FornecedorDiv extends Div {
+@Component
+public class RegiaoDiv extends Div {
 
-    List<SetDepartamento> departamentoLista = new ArrayList<>();
-    private Grid<SetFornecedor> gridFornecedor;
+    List<SetRegiao> list = new ArrayList<>();
+    private Grid<SetRegiao> grid;
 
-    private FiltersFornecedor filtersFornecedor;
-
-    private FornecedorService fornecedorService;
+    private RegiaoDiv.Filter filter;
 
     private Servicos service;
 
-    private DepartamentoService departamentoService;
+    private RegiaoService regiaoService;
 
-    private FuncionarioCadastroModal funcionarioCadastroModal;
+    private UsuarioService usuarioService;
 
-    Button btnExcluir;
+    private Button btnExcluir;
+
+    private RegiaoCadastroModal regiaoCadastroModal;
 
 
     @Autowired
-    public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
-                             DepartamentoService departamentoService1,
-                             FornecedorService funcionarioService,
-                             Servicos service1) {
-        this.funcionarioCadastroModal = funcionarioCadastroModal;
-        this.departamentoService = departamentoService1;
-        this.fornecedorService = funcionarioService;
+    public void initServices(RegiaoService regiaoService1,
+                             Servicos service1,
+                             UsuarioService usuarioService1,
+                             RegiaoCadastroModal regiaoCadastroModal1) {
+        this.regiaoService = regiaoService1;
         this.service = service1;
-        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
-            // Código para atualizar a AdministrativoView
-            refreshGridFuncionario();
-        });
+        this.usuarioService = usuarioService1;
+        this.regiaoCadastroModal = regiaoCadastroModal1;
+//        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
+//            // Código para atualizar a AdministrativoView
+//            refreshGridFuncionario();
+//        });
     }
 
 
     @Autowired
-    public FornecedorDiv( ) {
+    public RegiaoDiv( ) {
         add(telaDiv());
 
     }
@@ -80,11 +80,11 @@ public class FornecedorDiv extends Div {
         setSizeFull();
         addClassNames("telarelatorios-view");
 
-        Component gridFuncionario = createGridFornecedor();
-        filtersFornecedor = new FornecedorDiv.FiltersFornecedor(() -> refreshGridFuncionario());
+        com.vaadin.flow.component.Component gridFuncionario = createGrid();
+        filter = new RegiaoDiv.Filter(() -> refreshGrid());
         HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
-        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filtersFornecedor, gridFuncionario);
+        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
         layout.setSizeFull();
         layout.setPadding(false);
         layout.setSpacing(false);
@@ -97,8 +97,8 @@ public class FornecedorDiv extends Div {
 
     }
 
-    public void refreshGridFuncionario() {
-        gridFornecedor.getDataProvider().refreshAll();
+    public void refreshGrid() {
+        grid.getDataProvider().refreshAll();
     }
 
     private HorizontalLayout createMobileFiltersFuncionario() {
@@ -114,94 +114,84 @@ public class FornecedorDiv extends Div {
         mobileFilters.add(mobileIcon, filtersHeading);
         mobileFilters.setFlexGrow(1, filtersHeading);
         mobileFilters.addClickListener(e -> {
-            if (filtersFornecedor.getClassNames().contains("visible")) {
-                filtersFornecedor.removeClassName("visible");
+            if (filter.getClassNames().contains("visible")) {
+                filter.removeClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:plus");
             } else {
-                filtersFornecedor.addClassName("visible");
+                filter.addClassName("visible");
                 mobileIcon.getElement().setAttribute("icon", "lumo:minus");
             }
         });
         return mobileFilters;
     }
 
-    private Component createGridFornecedor() {
+    private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
-        gridFornecedor = new Grid<>(SetFornecedor.class, false);
-        gridFornecedor.addColumn(SetFornecedor::getId_fornecedor)
+        grid = new Grid<>(SetRegiao.class, false);
+        grid.addColumn(SetRegiao::getId_regiao)
                 .setHeader("ID")
                 //.setSortable(true)
                 .setAutoWidth(true);
 
-        gridFornecedor.addColumn(SetFornecedor::getRazaosocial_fornecedor)
-                .setHeader("Razão Social")
+        grid.addColumn(SetRegiao::getDescricao_regiao)
+                .setHeader("Descrição")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        gridFornecedor.addColumn(SetFornecedor::getNomefantasia_fornecedor)
-                .setHeader("Nome Fantasia")
+        grid.addColumn(SetRegiao::getData_inclusao)
+                .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        gridFornecedor.addColumn(SetFornecedor::getEndereco_fornecedor)
-                .setHeader("Endereço")
+        grid.addColumn(midia -> {
+            SetUsuarios usuarios = usuarioService.findById(midia.getId_usuario());
+            return usuarios == null ? "N/A" : usuarios.getNome_usuario();
+        })
+                .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        gridFornecedor.addColumn(SetFornecedor::getBairro_fornecedor)
-                .setHeader("Bairro")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        gridFornecedor.addColumn(SetFornecedor::getCep_fornecedor)
-                .setHeader("CEP")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-//        gridFornecedor.addColumn(funcionario -> {
-//            Set departamento = departamentoService.findById(funcionario.getId_departamento());
-//            return departamento == null ? "N/A" : departamento.getDescricao_departamento();
-//        })
-//                .setHeader("Setor de Atuação")
-//                .setSortable(true)
-//                .setAutoWidth(true);
 
 
-
-
-
-        // Adiciona o listener de clique nos itens da grade
-        gridFornecedor.addItemClickListener(event -> openDetalhesFornecedorModal(event.getItem()));
-
-
-        gridFornecedor.setItems(query -> fornecedorService.list(
+        grid.setItems(query -> regiaoService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filtersFornecedor).stream());
+                filter).stream());
 
+        grid.addItemClickListener(event -> {
+            // Configura o botão "Deletar" para deletar o item clicado
+            btnExcluir.addClickListener(event1 -> deleta(event.getItem()));
 
-        gridFornecedor.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        gridFornecedor.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+            // Torna o botão "Deletar" visível
+            btnExcluir.setVisible(true);
+        });
 
-        return gridFornecedor;
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+
+        return grid;
     }
-    private void openDetalhesFornecedorModal(SetFornecedor item) {
-        btnExcluir = new Button();
-        btnExcluir.setVisible(true);
-        btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+    private void deleta(SetRegiao item) {
+        try {
+            regiaoService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            refreshGrid();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
     }
 
 
-
-    public class FiltersFornecedor extends Div implements Specification<SetFornecedor> {
+    public class Filter extends Div implements Specification<SetRegiao> {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
-        private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Nome");
-        private final MultiSelectComboBox<SetDepartamento> departamento = new MultiSelectComboBox<>("Departamento");
+        private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Descrição");
 
 
-        public FiltersFornecedor(Runnable onSearch) {
+        public Filter(Runnable onSearch) {
 
             setWidthFull();
             addClassName("filter-layout");
@@ -209,9 +199,6 @@ public class FornecedorDiv extends Div {
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
 
-            //adcionar lista de funcionarios abaixo
-            departamento.setItems(departamentoLista);
-            departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
 
 
 
@@ -221,7 +208,6 @@ public class FornecedorDiv extends Div {
             resetBtn.addClickListener(e -> {
                 id.clear();
                 nome.clear();
-                departamento.clear();
                 onSearch.run();
             });
             com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
@@ -230,29 +216,34 @@ public class FornecedorDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            btnExcluir = new Button("Excluir");
+            btnExcluir.setVisible(false);
+            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_ERROR);
+            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
-            add(id, nome, departamento, actions);
+
+
+            add(id, nome, actions);
         }
 
 
 
         @Override
-        public Predicate toPredicate(Root<SetFornecedor> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetRegiao> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_funcionario"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_regiao"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "nome_funcionario";
+                String databaseColumn = "descricao_regiao";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
@@ -261,17 +252,6 @@ public class FornecedorDiv extends Div {
                         "%" + lowerCaseFilter + "%");
                 predicates.add(phoneMatch);
 
-            }
-
-
-            if (!departamento.isEmpty()) {
-                String databaseColumn = "id_departamento";
-                List<Predicate> occupationPredicates = new ArrayList<>();
-                for (SetDepartamento occupation : departamento.getValue()) {
-                    occupationPredicates
-                            .add(criteriaBuilder.equal(criteriaBuilder.literal(occupation.getId_departamento()), root.get(databaseColumn)));
-                }
-                predicates.add(criteriaBuilder.or(occupationPredicates.toArray(Predicate[]::new)));
             }
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
@@ -298,13 +278,14 @@ public class FornecedorDiv extends Div {
     }
 
     private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
         return cadastroButton;
     }
 
 
-    private void openCadastroFuncionarioModal() {
-        //funcionarioCadastroModal.open();
-        service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+    private void openCadastroModal() {
+        regiaoCadastroModal.open();
     }
+
+
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -17,11 +18,15 @@ public class SetResponsavelCobranca{
     private String nome_cobranca;
     private String telefone_fixo;
     private String telefone_celular;
-    private String fax;
     private String email;
     private String cgc_cpf;
-    private String inscricao_estatual;
+    private String nome_social;
     private String observacao;
     private BigDecimal valor_cobranca;
+    private LocalDateTime data_inclusao;
+    private LocalDateTime data_alteracao;
+    private LocalDateTime data_exclusao;
+    private String ativo;
+    private Integer id_usuario;
 
 }
