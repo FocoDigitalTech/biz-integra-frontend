@@ -146,6 +146,17 @@ CREATE TABLE `tb_funcionario` (
   PRIMARY KEY (`id_funcionario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `tb_regiao` (
+  `id_regiao` int NOT NULL AUTO_INCREMENT,
+  `descricao_regiao` varchar(255) DEFAULT NULL,
+  `data_inclusao` datetime DEFAULT NULL,
+  `data_alteracao` datetime DEFAULT NULL,
+  `data_exclusao` datetime DEFAULT NULL,
+  `ativo` varchar(1) DEFAULT NULL,
+  `id_usuario` int DEFAULT NULL,
+  PRIMARY KEY (`id_regiao`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `tb_responsavelagendamento` (
   `id_responsavelagendamento` int NOT NULL AUTO_INCREMENT,
   `id_cliente` int DEFAULT NULL,
@@ -154,7 +165,7 @@ CREATE TABLE `tb_responsavelagendamento` (
   `telefone_celular` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `cgc_cpf` varchar(255) DEFAULT NULL,
-  `inscricao_estatual` varchar(255) DEFAULT NULL,
+  `nome_social` varchar(255) DEFAULT NULL,
   `observacao` varchar(255) DEFAULT NULL,
   `data_agendamento` datetime DEFAULT NULL,
   `data_inclusao` datetime DEFAULT NULL,
@@ -175,7 +186,7 @@ CREATE TABLE `tb_responsavelaprovacao` (
   `telefone_celular` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `cgc_cpf` varchar(255) DEFAULT NULL,
-  `inscricao_estatual` varchar(255) DEFAULT NULL,
+  `nome_social` varchar(255) DEFAULT NULL,
   `observacao` varchar(255) DEFAULT NULL,
   `valor_aprovado` int DEFAULT NULL,
   `data_inclusao` datetime DEFAULT NULL,
@@ -196,7 +207,7 @@ CREATE TABLE `tb_responsavelcobranca` (
   `telefone_celular` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `cgc_cpf` varchar(255) DEFAULT NULL,
-  `inscricao_estatual` varchar(255) DEFAULT NULL,
+  `nome_social` varchar(255) DEFAULT NULL,
   `observacao` varchar(255) DEFAULT NULL,
   `valor_cobranca` float DEFAULT NULL,
   `data_inclusao` datetime DEFAULT NULL,
@@ -218,7 +229,18 @@ CREATE TABLE `tb_tipoimovel` (
   `ativo` varchar(1) DEFAULT NULL,
   `id_usuario` int DEFAULT NULL,
   PRIMARY KEY (`id_tipoimovel`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `tb_tipomidia` (
+  `id_tipomidia` int NOT NULL AUTO_INCREMENT,
+  `descricao_tipomidia` varchar(255) DEFAULT NULL,
+  `data_inclusao` datetime DEFAULT NULL,
+  `data_alteracao` datetime DEFAULT NULL,
+  `data_exclusao` datetime DEFAULT NULL,
+  `ativo` varchar(1) DEFAULT NULL,
+  `id_usuario` int DEFAULT NULL,
+  PRIMARY KEY (`id_tipomidia`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `tb_usuarios` (
   `id_usuario` int NOT NULL AUTO_INCREMENT,
@@ -232,6 +254,7 @@ CREATE TABLE `tb_usuarios` (
   `ativo` varchar(1) DEFAULT NULL,
   PRIMARY KEY (`id_usuario`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 
 
