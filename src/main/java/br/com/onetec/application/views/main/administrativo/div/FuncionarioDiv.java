@@ -6,6 +6,7 @@ import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCada
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.PostConstruct;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @org.springframework.stereotype.Component
+@UIScope
 public class FuncionarioDiv extends Div {
 
     List<SetDepartamento> departamentoLista = new ArrayList<>();
@@ -62,7 +65,9 @@ public class FuncionarioDiv extends Div {
 
     @Autowired
     public FuncionarioDiv( ) {
+        UI.getCurrent().access(() -> {
         add(telaDiv());
+        });
 
     }
 

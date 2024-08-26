@@ -10,6 +10,7 @@ import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetFuncionario;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,14 +32,15 @@ import java.util.Locale;
 
 
 @Component
+@UIScope
 public class FuncionarioCadastroModal extends Dialog {
 
 
     private final FuncionarioService funcionarioService;
     private final DepartamentoService departamentoService;
 
-    private final Button saveButton;
-    private final Button cancelButton;
+    private  Button saveButton;
+    private  Button cancelButton;
     private ComboBox<SetDepartamento> id_departamento;
     private TextField nome_funcionario;
     private TextField nome_carteira;
@@ -86,24 +89,24 @@ public class FuncionarioCadastroModal extends Dialog {
         this.funcionarioService = funcionarioService;
         this.departamentoService = departamentoService;
         this.estadoService = estadoService;
-        id_estado = new ComboBox<>("UF");
-        id_estado.setItems(getUFList());
-        id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
+        UI.getCurrent().access(() -> {
+            id_estado = new ComboBox<>("UF");
+            id_estado.setItems(getUFList());
+            id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
 
+            addClassName("cadastro-modal");
+            saveButton = new Button("Salvar", eventbe -> save());
+            cancelButton = new Button("Cancelar", event -> close());
+
+            Div contentTabs = new Div(createFormCadastroFuncionario());
 
 
-        addClassName("cadastro-modal");
-        saveButton = new Button("Salvar", eventbe -> save());
-        cancelButton = new Button("Cancelar", event -> close());
+            contentTabs.setSizeFull();
 
-        Div contentTabs = new Div(createFormCadastroFuncionario());
-
-
-        contentTabs.setSizeFull();
-
-        VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton);
-        add(layout);
+            VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton);
+            add(layout);
+        });
     }
 
     private void save() {

@@ -14,6 +14,7 @@ import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -28,6 +29,7 @@ import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
@@ -43,6 +45,7 @@ import java.util.List;
 @PageTitle(ViewsTitleConst.ADMINISTRATIVO_NAV_TITLE)
 @PermitAll
 @org.springframework.stereotype.Component
+@UIScope
 public class AdministrativoView extends Div {
 
 
@@ -82,9 +85,10 @@ public class AdministrativoView extends Div {
     @Autowired
     public AdministrativoView(FuncionarioDiv funcionarioDiv1,
                                 FornecedorDiv fornecedorDiv1) {
+
         this.funcionarioDiv = funcionarioDiv1;
         this.fornecedorDiv = fornecedorDiv1;
-
+        UI.getCurrent().access(() -> {
         TabSheet tabSheet = new TabSheet();
         tabSheet.add("Departamentos",
                 departamentosDiv());
@@ -98,6 +102,7 @@ public class AdministrativoView extends Div {
                 new Div(new Text("This is the Shipping tab content")));
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         add(tabSheet);
+        });
     }
 
 

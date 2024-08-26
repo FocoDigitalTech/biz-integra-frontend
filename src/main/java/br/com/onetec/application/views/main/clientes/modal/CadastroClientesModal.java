@@ -13,6 +13,7 @@ import br.com.onetec.application.service.utilservices.ApiEnderecoService;
 import br.com.onetec.cross.utilities.Servicos;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -30,6 +31,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +43,7 @@ import java.util.List;
 
 
 @Component
+@UIScope
 public class CadastroClientesModal extends Dialog {
 
     //cadastro empresa
@@ -145,36 +148,40 @@ public class CadastroClientesModal extends Dialog {
         this.tipoimovelService = tipoimovelService1;
         this.regiaoService = regiaoService1;
         this.apiEnderecoService = enderecoService1;
+        UI.getCurrent().access(() -> {
 
-        service.configureCEPField(fieldEnderecosCEP);
-        service.configureCelularField(celularField);
-        service.configureCPFField(CGCCPFField);
-        service.configuraCalendario(dataField);
+            service.configureCEPField(fieldEnderecosCEP);
+            service.configureCelularField(celularField);
+            service.configureCPFField(CGCCPFField);
+            service.configuraCalendario(dataField);
 
-        fieldEnderecosCEP.addBlurListener(event -> buscarCep());
-        fieldEnderecosCEP.addValueChangeListener(event -> {
-            String value = event.getValue().replaceAll("[^0-9]", "");
-            if (value.length() >= 8) {
-                String cep = value;
-                buscarCep();
-            } if (value.length() <= 7){
-                fieldEnderecosEndereço.clear();
-                //complemento_funcionario.setValue(response.get);
-                fieldEnderecosBairro.clear();
-                fieldEnderecosCidade.clear();
-                comboEnderecosUF.clear();
-            }
+            fieldEnderecosCEP.addBlurListener(event -> buscarCep());
+            fieldEnderecosCEP.addValueChangeListener(event -> {
+                String value = event.getValue().replaceAll("[^0-9]", "");
+                if (value.length() >= 8) {
+                    String cep = value;
+                    buscarCep();
+                }
+                if (value.length() <= 7) {
+                    fieldEnderecosEndereço.clear();
+                    //complemento_funcionario.setValue(response.get);
+                    fieldEnderecosBairro.clear();
+                    fieldEnderecosCidade.clear();
+                    comboEnderecosUF.clear();
+                }
+            });
+
+
+            estadoList = estadoService.listAll();
+            tipoMidia.setItems(tipomidiaService.findAllMidia());
+            tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
+            comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
+            comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
+            comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
+            comboEnderecosRegiao.setItemLabelGenerator(SetRegiao::getDescricao_regiao);
+            comboEnderecosUF.setItems(estadoList);
+            comboEnderecosUF.setItemLabelGenerator(SetEstado::getUf_estado);
         });
-
-
-        estadoList = estadoService.listAll();
-        tipoMidia.setItems(tipomidiaService.findAllMidia());
-        tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
-        comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
-        comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
-        comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
-        comboEnderecosRegiao.setItemLabelGenerator(SetRegiao::getDescricao_regiao);
-        comboEnderecosUF.setItemLabelGenerator(SetEstado::getUf_estado);
     }
 
     private void buscarCep() {
@@ -189,57 +196,60 @@ public class CadastroClientesModal extends Dialog {
     @Autowired
     public CadastroClientesModal() {
 
-        addClassName("cadastro-modal");
-        saveButton = new Button("Salvar", eventbe -> save());
-        cancelButton = new Button("Cancelar", event -> close());
-        tabs = new Tabs();
-        Tab tab1 = new Tab("Cadastro Empresa");
-        Tab tab2 = new Tab("Agendamento");
-        Tab tab3 = new Tab("Aprovação");
-        Tab tab4 = new Tab("Cobrança");
-        Tab tab5 = new Tab("Endereços");
+        UI.getCurrent().access(() -> {
+            addClassName("cadastro-modal");
+            saveButton = new Button("Salvar", eventbe -> save());
+            cancelButton = new Button("Cancelar", event -> close());
+            tabs = new Tabs();
+            Tab tab1 = new Tab("Cadastro Empresa");
+            Tab tab2 = new Tab("Agendamento");
+            Tab tab3 = new Tab("Aprovação");
+            Tab tab4 = new Tab("Cobrança");
+            Tab tab5 = new Tab("Endereços");
 
-        tabs.add(tab1, tab2, tab3, tab4, tab5);
-        cadastroEmpresa = createFormCadastroEmpresa();
-        cadastroAgendamento = createFormCadastroAgendamento();
-        cadastroAprovacao = createFormCadastroAprovacao();
-        cadastroEnderecos = createFormEnderecos();
-        cadastroCobranca = createFormCadastroCobranca();
+            tabs.add(tab1, tab2, tab3, tab4, tab5);
+            cadastroEmpresa = createFormCadastroEmpresa();
+            cadastroAgendamento = createFormCadastroAgendamento();
+            cadastroAprovacao = createFormCadastroAprovacao();
+            cadastroEnderecos = createFormEnderecos();
+            cadastroCobranca = createFormCadastroCobranca();
 
-        Div content = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao,cadastroEnderecos);
-        content.setSizeFull();
-        cadastroEmpresa.setVisible(true);
-        cadastroAgendamento.setVisible(false);
-        cadastroAprovacao.setVisible(false);
-        cadastroEnderecos.setVisible(false);
-        cadastroCobranca.setVisible(false);
-
-        tabs.addSelectedChangeListener(event -> {
-            cadastroEmpresa.setVisible(false);
+            Div content = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos);
+            content.setSizeFull();
+            cadastroEmpresa.setVisible(true);
             cadastroAgendamento.setVisible(false);
             cadastroAprovacao.setVisible(false);
             cadastroEnderecos.setVisible(false);
             cadastroCobranca.setVisible(false);
 
-            Tab selectedTab = tabs.getSelectedTab();
-            if (selectedTab.equals(tab1)) {
-                cadastroEmpresa.setVisible(true);
-            } else if (selectedTab.equals(tab2)) {
-                cadastroAgendamento.setVisible(true);
-            } else if (selectedTab.equals(tab3)) {
-                cadastroAprovacao.setVisible(true);
-            }   else if (selectedTab.equals(tab4)) {
-                cadastroCobranca.setVisible(true);
-            }   else if (selectedTab.equals(tab5)) {
-                cadastroEnderecos.setVisible(true);
-            }
-        });VerticalLayout section2 = createSectionCobranca("Cadastro Cobrança");
+            tabs.addSelectedChangeListener(event -> {
+                cadastroEmpresa.setVisible(false);
+                cadastroAgendamento.setVisible(false);
+                cadastroAprovacao.setVisible(false);
+                cadastroEnderecos.setVisible(false);
+                cadastroCobranca.setVisible(false);
 
-        Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao,cadastroEnderecos,cadastroCobranca);
-        contentTabs.setSizeFull();
+                Tab selectedTab = tabs.getSelectedTab();
+                if (selectedTab.equals(tab1)) {
+                    cadastroEmpresa.setVisible(true);
+                } else if (selectedTab.equals(tab2)) {
+                    cadastroAgendamento.setVisible(true);
+                } else if (selectedTab.equals(tab3)) {
+                    cadastroAprovacao.setVisible(true);
+                } else if (selectedTab.equals(tab4)) {
+                    cadastroCobranca.setVisible(true);
+                } else if (selectedTab.equals(tab5)) {
+                    cadastroEnderecos.setVisible(true);
+                }
+            });
+            VerticalLayout section2 = createSectionCobranca("Cadastro Cobrança");
 
-        VerticalLayout layout = new VerticalLayout(tabs,contentTabs, saveButton, cancelButton);
-        add(layout);
+            Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos, cadastroCobranca);
+            contentTabs.setSizeFull();
+
+            VerticalLayout layout = new VerticalLayout(tabs, contentTabs, saveButton, cancelButton);
+            add(layout);
+        });
 
     }
 
@@ -268,16 +278,25 @@ public class CadastroClientesModal extends Dialog {
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
         // Configurar o Grid
-        //grid.setColumns("Tipo de Imóvel","Endereço","N°","Bairro","CEP","Cidade","Estado","Fone");
         grid.setItems(enderecos);
-
-        grid.addColumn("comboEnderecosTipoImovel").setHeader("TipoImovel").setAutoWidth(true);
+        grid.addColumn(endereco -> {
+            String descricao_tipoimovel = endereco.getComboEnderecosTipoImovel().getDescricao_tipoimovel();
+            return descricao_tipoimovel != null ? descricao_tipoimovel : "N/A";
+        })
+                .setHeader("TipoImovel")
+                .setAutoWidth(true);
         grid.addColumn("fieldEnderecosEndereço").setHeader("Endereço").setAutoWidth(true);
         grid.addColumn("fieldEnderecosNumero").setHeader("Numero").setAutoWidth(true);
         grid.addColumn("fieldEnderecosBairro").setHeader("Bairro").setAutoWidth(true);
         grid.addColumn("fieldEnderecosCEP").setHeader("CEP").setAutoWidth(true);
         grid.addColumn("fieldEnderecosCidade").setHeader("Cidade").setAutoWidth(true);
-        grid.addColumn("comboEnderecosUF").setHeader("UF").setAutoWidth(true);
+        //grid.addColumn("comboEnderecosUF").setHeader("UF").setAutoWidth(true);
+        grid.addColumn(endereco -> {
+            String uf_estado = endereco.getComboEnderecosUF().getUf_estado();
+            return uf_estado != null ? uf_estado : "N/A";
+        })
+                .setHeader("UF")
+                .setAutoWidth(true);
         grid.addColumn("fieldEnderecosTelefone").setHeader("Telefone").setAutoWidth(true);
 
         // Campos de texto para entrada de dados
@@ -304,7 +323,7 @@ public class CadastroClientesModal extends Dialog {
         // Botão para salvar o endereço
         Button saveButton = new Button("Adicionar Endereço", event -> {
             String CEP = fieldEnderecosCEP.getValue();
-            String TipoImovel = comboEnderecosTipoImovel.toString();
+            SetTipoImovel TipoImovel = comboEnderecosTipoImovel.getValue();
             String Area = fieldEnderecosArea.getValue();
             String Endereço = fieldEnderecosEndereço.getValue();
             String Numero = fieldEnderecosNumero.getValue();
@@ -315,7 +334,7 @@ public class CadastroClientesModal extends Dialog {
             String Telefone = fieldEnderecosTelefone.getValue();
             String PagGuia = fieldEnderecosPagGuia.getValue();
             String Reponsavel = fieldEnderecosReponsavel.getValue();
-            String Regiao = comboEnderecosRegiao.toString();
+            SetRegiao Regiao = comboEnderecosRegiao.getValue();
             String PontodeReferencia = fieldEnderecosPontodeReferencia.getValue();
 
 

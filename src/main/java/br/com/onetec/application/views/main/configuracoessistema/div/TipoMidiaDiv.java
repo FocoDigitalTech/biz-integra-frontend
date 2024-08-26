@@ -9,6 +9,7 @@ import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFornecedor;
 import br.com.onetec.infra.db.model.SetTipoMidia;
 import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -20,6 +21,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.persistence.criteria.*;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@UIScope
 public class TipoMidiaDiv extends Div{
 
     List<SetTipoMidia> list = new ArrayList<>();
@@ -69,7 +72,9 @@ public class TipoMidiaDiv extends Div{
 
     @Autowired
     public TipoMidiaDiv( ) {
-        add(telaDiv());
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
 
     }
 
@@ -285,7 +290,9 @@ public class TipoMidiaDiv extends Div{
 
 
     private void openCadastroModal() {
-        tipoMidiaCadastroModal.open();
+        UI.getCurrent().access(() -> {
+            tipoMidiaCadastroModal.open();
+        });
     }
 
 

@@ -25,11 +25,13 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@UIScope
 public class DadosClienteModal extends Dialog {
 
     //cadastro empresa
@@ -124,71 +126,74 @@ public class DadosClienteModal extends Dialog {
         this.responsavelAgendamentoService = responsavelAgendamentoService;
         this.responsavelAprovacaoService = responsavelAprovacaoService;
 
-        saveButton = new Button("Salvar", eventbe -> save());
-        cancelButton = new Button("Cancelar", event -> close());
-        atendimentoButton = new Button("Atendimento e Histórico", event -> atendimentoAbrir(cliente
-        ));
-        tabs = new Tabs();
-        Tab tab1 = new Tab("Dados Empresa");
-        Tab tab2 = new Tab("Dados Agendamento");
-        Tab tab3 = new Tab("Aprovação");
-        Tab tab4 = new Tab("Cobrança");
-        Tab tab5 = new Tab("Dados Endereços");
+        UI.getCurrent().access(() -> {
 
-        tabs.add(tab1, tab2, tab3, tab4,tab5);
-        dadosEmpresa = createFormCadastroEmpresa(cliente);
-        dadosAgendamento = createFormCadastroAgendamento(cliente);
-        dadosCobranca = createFormCadastroCobranca(cliente);
-        dadosAprovacao = createFormCadastroAprovacao(cliente);
-        dadosEnderecos = createFormEnderecos(cliente);
-        dadosHistoricoAtendimento = createFormHistoricoAtendimento();
+            saveButton = new Button("Salvar", eventbe -> save());
+            cancelButton = new Button("Cancelar", event -> close());
+            atendimentoButton = new Button("Atendimento e Histórico", event -> atendimentoAbrir(cliente
+            ));
+            tabs = new Tabs();
+            Tab tab1 = new Tab("Dados Empresa");
+            Tab tab2 = new Tab("Dados Agendamento");
+            Tab tab3 = new Tab("Aprovação");
+            Tab tab4 = new Tab("Cobrança");
+            Tab tab5 = new Tab("Dados Endereços");
 
-        Div content = new Div(dadosEmpresa,
-                dadosAgendamento,
-                dadosCobranca,
-                dadosAprovacao,
-                dadosEnderecos,
-                dadosHistoricoAtendimento);
-        content.setSizeFull();
-        dadosEmpresa.setVisible(true);
-        dadosAgendamento.setVisible(false);
-        dadosCobranca.setVisible(false);
-        dadosAprovacao.setVisible(false);
-        dadosEnderecos.setVisible(false);
-        dadosHistoricoAtendimento.setVisible(false);
+            tabs.add(tab1, tab2, tab3, tab4, tab5);
+            dadosEmpresa = createFormCadastroEmpresa(cliente);
+            dadosAgendamento = createFormCadastroAgendamento(cliente);
+            dadosCobranca = createFormCadastroCobranca(cliente);
+            dadosAprovacao = createFormCadastroAprovacao(cliente);
+            dadosEnderecos = createFormEnderecos(cliente);
+            dadosHistoricoAtendimento = createFormHistoricoAtendimento();
 
-        tabs.addSelectedChangeListener(event -> {
-            dadosEmpresa.setVisible(false);
+            Div content = new Div(dadosEmpresa,
+                    dadosAgendamento,
+                    dadosCobranca,
+                    dadosAprovacao,
+                    dadosEnderecos,
+                    dadosHistoricoAtendimento);
+            content.setSizeFull();
+            dadosEmpresa.setVisible(true);
             dadosAgendamento.setVisible(false);
             dadosCobranca.setVisible(false);
             dadosAprovacao.setVisible(false);
             dadosEnderecos.setVisible(false);
             dadosHistoricoAtendimento.setVisible(false);
 
-            Tab selectedTab = tabs.getSelectedTab();
-            if (selectedTab.equals(tab1)) {
-                dadosEmpresa.setVisible(true);
-            } else if (selectedTab.equals(tab2)) {
-                dadosAgendamento.setVisible(true);
-            } else if (selectedTab.equals(tab3)) {
-                dadosAprovacao.setVisible(true);
-            }   else if (selectedTab.equals(tab4)) {
-                dadosCobranca.setVisible(true);
-            }   else if (selectedTab.equals(tab5)) {
-                dadosEnderecos.setVisible(true);
-            }
+            tabs.addSelectedChangeListener(event -> {
+                dadosEmpresa.setVisible(false);
+                dadosAgendamento.setVisible(false);
+                dadosCobranca.setVisible(false);
+                dadosAprovacao.setVisible(false);
+                dadosEnderecos.setVisible(false);
+                dadosHistoricoAtendimento.setVisible(false);
+
+                Tab selectedTab = tabs.getSelectedTab();
+                if (selectedTab.equals(tab1)) {
+                    dadosEmpresa.setVisible(true);
+                } else if (selectedTab.equals(tab2)) {
+                    dadosAgendamento.setVisible(true);
+                } else if (selectedTab.equals(tab3)) {
+                    dadosAprovacao.setVisible(true);
+                } else if (selectedTab.equals(tab4)) {
+                    dadosCobranca.setVisible(true);
+                } else if (selectedTab.equals(tab5)) {
+                    dadosEnderecos.setVisible(true);
+                }
+            });
+
+            Div contentTabs = new Div(dadosEmpresa,
+                    dadosAgendamento,
+                    dadosAprovacao,
+                    dadosCobranca,
+                    dadosEnderecos,
+                    dadosHistoricoAtendimento);
+            contentTabs.setSizeFull();
+
+            VerticalLayout layout = new VerticalLayout(tabs, contentTabs, saveButton, cancelButton, atendimentoButton);
+            add(layout);
         });
-
-        Div contentTabs = new Div(dadosEmpresa,
-                dadosAgendamento,
-                dadosAprovacao,
-                dadosCobranca,
-                dadosEnderecos,
-                dadosHistoricoAtendimento);
-        contentTabs.setSizeFull();
-
-        VerticalLayout layout = new VerticalLayout(tabs,contentTabs, saveButton, cancelButton, atendimentoButton);
-        add(layout);
     }
 
 
@@ -280,7 +285,7 @@ public class DadosClienteModal extends Dialog {
         // Botão para salvar o endereço
         Button saveButton = new Button("Adicionar Endereço", event -> {
             String CEP = fieldEnderecosCEP.getValue();
-            String TipoImovel = comboEnderecosTipoImovel.toString();
+            //SetTipoImovel TipoImovel = comboEnderecosTipoImovel.toString();
             String Area = fieldEnderecosArea.getValue();
             String Endereço = fieldEnderecosEndereço.getValue();
             String Numero = fieldEnderecosNumero.getValue();
@@ -297,8 +302,10 @@ public class DadosClienteModal extends Dialog {
 
 
             if (!fieldEnderecosCEP.isEmpty()) {
-                Endereco endereco =
-                    new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,new SetEstado(),Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
+               Endereco endereco = null;
+                  //  new Endereco(
+                           // CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,new SetEstado(),Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia
+                  //  );
                 SetEnderecos ed = new SetEnderecos();
                 ed.setTelefone_local(endereco.getFieldEnderecosTelefone());
                 ed.setNumero_imovel(endereco.getFieldEnderecosNumero());

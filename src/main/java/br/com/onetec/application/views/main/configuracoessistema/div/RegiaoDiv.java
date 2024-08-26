@@ -10,6 +10,7 @@ import br.com.onetec.cross.utilities.Servicos;
 import br.com.onetec.infra.db.model.SetRegiao;
 import br.com.onetec.infra.db.model.SetTipoImovel;
 import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,6 +21,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.persistence.criteria.*;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@UIScope
 public class RegiaoDiv extends Div {
 
     List<SetRegiao> list = new ArrayList<>();
@@ -68,7 +71,9 @@ public class RegiaoDiv extends Div {
 
     @Autowired
     public RegiaoDiv( ) {
-        add(telaDiv());
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
 
     }
 
@@ -284,7 +289,9 @@ public class RegiaoDiv extends Div {
 
 
     private void openCadastroModal() {
-        regiaoCadastroModal.open();
+        UI.getCurrent().access(() -> {
+            regiaoCadastroModal.open();
+        });
     }
 
 

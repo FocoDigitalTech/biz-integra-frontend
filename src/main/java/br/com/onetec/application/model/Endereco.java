@@ -1,10 +1,12 @@
 package br.com.onetec.application.model;
 
 import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.infra.db.model.SetRegiao;
+import br.com.onetec.infra.db.model.SetTipoImovel;
 
 public class Endereco {
 
-    public Endereco(String fieldEnderecosCEP, String comboEnderecosTipoImovel, String fieldEnderecosArea, String fieldEnderecosEndereço, String fieldEnderecosNumero, String fieldEnderecosComplemento, String fieldEnderecosBairro, String fieldEnderecosCidade, SetEstado comboEnderecosUF, String fieldEnderecosTelefone, String fieldEnderecosPagGuia, String fieldEnderecosReponsavel, String comboEnderecosRegiao, String fieldEnderecosPontodeReferencia) {
+    public Endereco(String fieldEnderecosCEP, SetTipoImovel comboEnderecosTipoImovel, String fieldEnderecosArea, String fieldEnderecosEndereço, String fieldEnderecosNumero, String fieldEnderecosComplemento, String fieldEnderecosBairro, String fieldEnderecosCidade, SetEstado comboEnderecosUF, String fieldEnderecosTelefone, String fieldEnderecosPagGuia, String fieldEnderecosReponsavel, SetRegiao comboEnderecosRegiao, String fieldEnderecosPontodeReferencia) {
         this.fieldEnderecosCEP = fieldEnderecosCEP;
         this.comboEnderecosTipoImovel = comboEnderecosTipoImovel;
         this.fieldEnderecosArea = fieldEnderecosArea;
@@ -29,11 +31,11 @@ public class Endereco {
         this.fieldEnderecosCEP = fieldEnderecosCEP;
     }
 
-    public String getComboEnderecosTipoImovel() {
+    public SetTipoImovel getComboEnderecosTipoImovel() {
         return comboEnderecosTipoImovel;
     }
 
-    public void setComboEnderecosTipoImovel(String comboEnderecosTipoImovel) {
+    public void setComboEnderecosTipoImovel(SetTipoImovel comboEnderecosTipoImovel) {
         this.comboEnderecosTipoImovel = comboEnderecosTipoImovel;
     }
 
@@ -117,11 +119,11 @@ public class Endereco {
         this.fieldEnderecosReponsavel = fieldEnderecosReponsavel;
     }
 
-    public String getComboEnderecosRegiao() {
+    public SetRegiao getComboEnderecosRegiao() {
         return comboEnderecosRegiao;
     }
 
-    public void setComboEnderecosRegiao(String comboEnderecosRegiao) {
+    public void setComboEnderecosRegiao(SetRegiao comboEnderecosRegiao) {
         this.comboEnderecosRegiao = comboEnderecosRegiao;
     }
 
@@ -134,7 +136,7 @@ public class Endereco {
     }
 
     private String fieldEnderecosCEP;
-    private String comboEnderecosTipoImovel;
+    private SetTipoImovel comboEnderecosTipoImovel;
     private String fieldEnderecosArea;
     private String fieldEnderecosEndereço;
     private String fieldEnderecosNumero;
@@ -145,7 +147,7 @@ public class Endereco {
     private String fieldEnderecosTelefone;
     private String fieldEnderecosPagGuia;
     private String fieldEnderecosReponsavel;
-    private String comboEnderecosRegiao;
+    private SetRegiao comboEnderecosRegiao;
     private String fieldEnderecosPontodeReferencia;
 }
 

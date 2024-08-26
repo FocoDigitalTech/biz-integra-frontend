@@ -1,5 +1,6 @@
 package br.com.onetec.application.views.main.clientes;
 
+import br.com.onetec.application.model.Cliente;
 import br.com.onetec.application.service.clientesservice.*;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
@@ -8,12 +9,14 @@ import br.com.onetec.application.views.main.clientes.modal.CadastroClientesModal
 import br.com.onetec.application.views.main.clientes.modal.DadosClienteModal;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import br.com.onetec.infra.db.model.SetCliente;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -37,6 +40,8 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +52,7 @@ import org.springframework.data.jpa.domain.Specification;
 @Uses(Icon.class)
 @PageTitle(ViewsTitleConst.CLIENTES_NAV_TITLE)
 @org.springframework.stereotype.Component
+@UIScope
 public class ClientesView extends Div {
 
     private Grid<SetCliente> grid;
@@ -89,16 +95,21 @@ public class ClientesView extends Div {
 
     @Autowired
     public ClientesView() {
-        setSizeFull();
-        addClassNames("telarelatorios-view");
 
-        filters = new Filters(() -> refreshGrid());
-        VerticalLayout layout = new VerticalLayout(createMobileFilters(), filters, createGrid());
-        layout.setSizeFull();
-        layout.setPadding(false);
-        layout.setSpacing(false);
-        add(layout);
+        UI.getCurrent().access(() -> {
+            setSizeFull();
+            addClassNames("telarelatorios-view");
+            filters = new Filters(() -> refreshGrid());
+            VerticalLayout layout = new VerticalLayout(createMobileFilters(), filters, createGrid());
+            layout.setSizeFull();
+            layout.setPadding(false);
+            layout.setSpacing(false);
+            add(layout);
+        });
+
     }
+
+
 
     private HorizontalLayout createMobileFilters() {
         // Mobile version
@@ -254,9 +265,11 @@ public class ClientesView extends Div {
                 .setAutoWidth(true);
 
         // Adiciona o listener de clique nos itens da grade
-        grid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
-
-
+       // grid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
+        grid.addItemClickListener(event ->
+                UI.getCurrent().access(() -> openDetalhesClienteModal(event.getItem()))
+        );
+        // Atualiza a UI (precisa ser feito na thread do Vaadin)
         grid.setItems(query -> clientesService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filters).stream());
@@ -266,33 +279,35 @@ public class ClientesView extends Div {
         return grid;
     }
 
+
+
     private void refreshGrid() {
-        grid.getDataProvider().refreshAll();
+        if (UI.getCurrent().isAttached()) {
+            UI.getCurrent().access(() -> grid.getDataProvider().refreshAll());
+        }
     }
 
     private void openDetalhesClienteModal(SetCliente cliente) {
-        DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente,
-                                                                        clientesService,
-                                                                        estadoService,
-                                                                        usuarioService,
-                                                                        enderecoService,
-                                                                        responsavelCobrancaService,
-                                                                        responsavelAgendamentoService,
-                                                                        responsavelAprovacaoService);
-        detalhesClienteModal.open();
+        UI.getCurrent().access(() -> {
+            DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente,
+                    clientesService,
+                    estadoService,
+                    usuarioService,
+                    enderecoService,
+                    responsavelCobrancaService,
+                    responsavelAgendamentoService,
+                    responsavelAprovacaoService);
+            detalhesClienteModal.open();
+        });
     }
 
 
 
     private void openCadastroModal() {
-//        CadastroClientesModal cadastroModal = new CadastroClientesModal(clientesService,
-//                estadoService,
-//                usuarioService,
-//                enderecoService,
-//                responsavelCobrancaService,
-//                responsavelAgendamentoService,
-//                responsavelAprovacaoService);
-        cadastroModal.open();
+        UI.getCurrent().access(() -> {
+            cadastroModal.open();
+        });
+
     }
 }
 

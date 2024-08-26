@@ -6,6 +6,7 @@ import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.layouts.notificationAlert.NotificationForm;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+@UIScope
 public class DepartamentoDetalhesModal extends Dialog {
 
     //campos
@@ -49,20 +51,20 @@ public class DepartamentoDetalhesModal extends Dialog {
 
 
     public DepartamentoDetalhesModal() {
-        SetDepartamento departamento = new SetDepartamento();
-        addClassName("cadastro-modal");
-        saveButton = new Button("Atualizar", eventbe -> update());
-        cancelButton = new Button("Cancelar", event -> close());
-        deleteButton = new Button("Excluir", event -> delete(departamento));
+        UI.getCurrent().access(() -> {
+            SetDepartamento departamento = new SetDepartamento();
+            addClassName("cadastro-modal");
+            saveButton = new Button("Atualizar", eventbe -> update());
+            cancelButton = new Button("Cancelar", event -> close());
+            deleteButton = new Button("Excluir", event -> delete(departamento));
 
 
+            Div contentTabs = new Div(createForm(departamento));
+            contentTabs.setSizeFull();
 
-
-        Div contentTabs = new Div(createForm(departamento));
-        contentTabs.setSizeFull();
-
-        VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton, deleteButton);
-        add(layout);
+            VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton, deleteButton);
+            add(layout);
+        });
 
     }
 

@@ -69,11 +69,11 @@ public class Servicos {
                     return response;
             } else {
                 // Handle case where address is not found
-                Notification.show("Endereço não encontrado !");
+                notificaErro("Endereço não encontrado !");
                 return null;
             }
         } else {
-            Notification.show("Cep deve conter 8 digitos !");
+            notificaErro("Cep deve conter 8 digitos !");
             // Handle invalid CEP length
             return null;
         }
