@@ -11,7 +11,6 @@ import br.com.onetec.application.views.main.relatorios.RelatoriosView;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import br.com.onetec.infra.db.repository.IUsuariosRepository;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -28,15 +27,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
-
 
 @UIScope
 public class MainLayout extends AppLayout {
@@ -141,8 +137,8 @@ public class MainLayout extends AppLayout {
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
-        // Atualize o título na thread do Vaadin
-        UI.getCurrent().access(() -> updateTitulo());
+        //viewTitle.setText(getCurrentPageTitle());
+        updateTitulo();
     }
 
     private void updateTitulo() {

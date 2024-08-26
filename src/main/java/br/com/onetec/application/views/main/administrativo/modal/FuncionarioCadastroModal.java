@@ -75,11 +75,13 @@ public class FuncionarioCadastroModal extends Dialog {
         this.estadoService = serviceEstado;
         this.service = service;
         //configurações dos fields:
-        service.configureCEPField(cep_funcionario);
-        service.configureCelularField(celular_funcionario);
-        service.configureCPFField(cpf_funcionario);
-        service.configuraCalendario(data_admissao);
-        service.configuraCalendario(vencimento_cnh);
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_funcionario);
+            service.configureCelularField(celular_funcionario);
+            service.configureCPFField(cpf_funcionario);
+            service.configuraCalendario(data_admissao);
+            service.configuraCalendario(vencimento_cnh);
+        });
     }
 
 
