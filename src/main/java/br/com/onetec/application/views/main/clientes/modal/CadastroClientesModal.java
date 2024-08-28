@@ -10,7 +10,7 @@ import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
@@ -111,7 +111,7 @@ public class CadastroClientesModal extends Dialog {
     private EstadoService estadoService;
     private UsuarioService usuarioService;
     private EnderecoService enderecoService;
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private ResponsavelCobrancaService responsavelCobrancaService;
     private ResponsavelAgendamentoService responsavelAgendamentoService;
@@ -132,7 +132,7 @@ public class CadastroClientesModal extends Dialog {
                               ResponsavelCobrancaService responsavelCobrancaService,
                               ResponsavelAgendamentoService responsavelAgendamentoService,
                               ResponsavelAprovacaoService responsavelAprovacaoService,
-                              Servicos service1, TipoMidiaService tipomidiaService1,
+                              UtilitySystemConfigService service1, TipoMidiaService tipomidiaService1,
                               TipoImovelService tipoimovelService1,
                               RegiaoService regiaoService1,
                               ApiEnderecoService enderecoService1) {

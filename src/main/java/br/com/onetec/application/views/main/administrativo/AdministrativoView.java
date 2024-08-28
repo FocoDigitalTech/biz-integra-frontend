@@ -1,7 +1,6 @@
 package br.com.onetec.application.views.main.administrativo;
 
 
-import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
@@ -9,7 +8,6 @@ import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
 import br.com.onetec.cross.constants.ViewsTitleConst;
-import br.com.onetec.cross.utilities.Servicos;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;

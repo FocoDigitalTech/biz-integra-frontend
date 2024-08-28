@@ -1,11 +1,11 @@
 package br.com.onetec.application.views.main.configuracoessistema.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
-import br.com.onetec.application.views.main.configuracoessistema.div.TipoImovelDiv;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
+import br.com.onetec.application.views.main.configuracoessistema.div.SituacaoCadastroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetTipoImovel;
+import br.com.onetec.infra.db.model.SetSituacaoCadastro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -22,22 +22,22 @@ import java.time.LocalDateTime;
 
 @Component
 @UIScope
-public class TipoImovelCadastroModal extends Dialog {
+public class SituacaoCadastroModal extends Dialog {
 
-    private com.vaadin.flow.component.textfield.TextField decricaoField;
+    private TextField decricaoField;
 
     @Autowired
-    TipoImovelService tipoImovelService;
+    SituacaoCadastroService situacaoCadastroService;
 
     @Autowired
     @Lazy
-    TipoImovelDiv tipoMidiaDiv;
-    private com.vaadin.flow.component.button.Button saveButton;
-    private com.vaadin.flow.component.button.Button cancelButton;
+    SituacaoCadastroDiv situacaoCadastroDiv;
 
+    private Button saveButton;
 
+    private Button cancelButton;
 
-    public TipoImovelCadastroModal() {
+    public SituacaoCadastroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
                 try {
@@ -52,7 +52,6 @@ public class TipoImovelCadastroModal extends Dialog {
             add(layout);
         });
     }
-
 
     private Div createFormCadastroEmpresa() {
         decricaoField = new TextField("Nome ou Descrição");
@@ -69,15 +68,15 @@ public class TipoImovelCadastroModal extends Dialog {
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
-        SetTipoImovel dto = new SetTipoImovel();
-        dto.setDescricao_tipoimovel(decricaoField.getValue());
+        SetSituacaoCadastro dto = new SetSituacaoCadastro();
+        dto.setDescricao_situacaocadastro(decricaoField.getValue());
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         service = new UtilitySystemConfigService();
         try {
-            tipoImovelService.save(dto);
-            tipoMidiaDiv.refreshGrid();
+            situacaoCadastroService.save(dto);
+            situacaoCadastroDiv.refreshGrid();
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();

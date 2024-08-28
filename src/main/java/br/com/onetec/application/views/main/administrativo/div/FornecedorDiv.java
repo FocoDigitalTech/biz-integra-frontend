@@ -5,10 +5,9 @@ import br.com.onetec.application.service.departamentoservice.DepartamentoService
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFornecedor;
-import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -44,7 +43,7 @@ public class FornecedorDiv extends Div {
 
     private FornecedorService fornecedorService;
 
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private DepartamentoService departamentoService;
 
@@ -57,7 +56,7 @@ public class FornecedorDiv extends Div {
     public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
                              DepartamentoService departamentoService1,
                              FornecedorService funcionarioService,
-                             Servicos service1) {
+                             UtilitySystemConfigService service1) {
         this.funcionarioCadastroModal = funcionarioCadastroModal;
         this.departamentoService = departamentoService1;
         this.fornecedorService = funcionarioService;

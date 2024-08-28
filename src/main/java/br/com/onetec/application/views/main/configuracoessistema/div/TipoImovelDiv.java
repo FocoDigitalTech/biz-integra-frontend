@@ -1,14 +1,11 @@
 package br.com.onetec.application.views.main.configuracoessistema.div;
 
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
-import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.TipoImovelCadastroModal;
-import br.com.onetec.application.views.main.configuracoessistema.modal.TipoMidiaCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoImovel;
-import br.com.onetec.infra.db.model.SetTipoMidia;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -42,7 +39,7 @@ public class TipoImovelDiv extends Div {
 
     private TipoImovelDiv.Filter filter;
 
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private TipoImovelService tipoMidiaService;
 
@@ -55,7 +52,7 @@ public class TipoImovelDiv extends Div {
 
     @Autowired
     public void initServices(TipoImovelService tipoImovelService1,
-                             Servicos service1,
+                             UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              TipoImovelCadastroModal tipoImovelCadastroModal1) {
         this.tipoMidiaService = tipoImovelService1;

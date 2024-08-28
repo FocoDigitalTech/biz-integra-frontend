@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class Servicos {
+public class UtilitySystemConfigService {
 
     private EstadoService estadoService ;
 

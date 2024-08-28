@@ -1,11 +1,12 @@
 package br.com.onetec.application.views.main.configuracoessistema.div;
 
-import br.com.onetec.application.service.regiaoservice.RegiaoService;
+import br.com.onetec.application.service.pragaservice.PragaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.views.main.configuracoessistema.modal.PragaCadastroModal;
 import br.com.onetec.application.views.main.configuracoessistema.modal.RegiaoCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetRegiao;
+import br.com.onetec.infra.db.model.SetPraga;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -32,42 +33,37 @@ import java.util.List;
 
 @Component
 @UIScope
-public class RegiaoDiv extends Div {
+public class PragasDiv extends Div {
 
-    List<SetRegiao> list = new ArrayList<>();
-    private Grid<SetRegiao> grid;
+    List<SetPraga> list = new ArrayList<>();
+    private Grid<SetPraga> grid;
 
-    private RegiaoDiv.Filter filter;
+    private PragasDiv.Filter filter;
 
     private UtilitySystemConfigService service;
 
-    private RegiaoService regiaoService;
+    private PragaService pragaService;
 
     private UsuarioService usuarioService;
 
     private Button btnExcluir;
 
-    private RegiaoCadastroModal regiaoCadastroModal;
-
+    private PragaCadastroModal pragaCadastroModal;
 
     @Autowired
-    public void initServices(RegiaoService regiaoService1,
+    public void initServices(PragaService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             RegiaoCadastroModal regiaoCadastroModal1) {
-        this.regiaoService = regiaoService1;
+                             PragaCadastroModal pragaCadastroModal1) {
+        this.pragaService = pragaService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
-        this.regiaoCadastroModal = regiaoCadastroModal1;
-//        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
-//            // Código para atualizar a AdministrativoView
-//            refreshGridFuncionario();
-//        });
+        this.pragaCadastroModal = pragaCadastroModal1;
     }
 
 
     @Autowired
-    public RegiaoDiv( ) {
+    public PragasDiv( ) {
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -83,7 +79,7 @@ public class RegiaoDiv extends Div {
         addClassNames("telarelatorios-view");
 
         com.vaadin.flow.component.Component gridFuncionario = createGrid();
-        filter = new RegiaoDiv.Filter(() -> refreshGrid());
+        filter = new PragasDiv.Filter(() -> refreshGrid());
         HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
         VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
@@ -130,18 +126,18 @@ public class RegiaoDiv extends Div {
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
-        grid = new Grid<>(SetRegiao.class, false);
-        grid.addColumn(SetRegiao::getId_regiao)
+        grid = new Grid<>(SetPraga.class, false);
+        grid.addColumn(SetPraga::getId_praga)
                 .setHeader("ID")
                 //.setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetRegiao::getDescricao_regiao)
+        grid.addColumn(SetPraga::getDescricao_praga)
                 .setHeader("Descrição")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetRegiao::getData_inclusao)
+        grid.addColumn(SetPraga::getData_inclusao)
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -156,7 +152,7 @@ public class RegiaoDiv extends Div {
 
 
 
-        grid.setItems(query -> regiaoService.list(
+        grid.setItems(query -> pragaService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
@@ -174,9 +170,9 @@ public class RegiaoDiv extends Div {
         return grid;
     }
 
-    private void deleta(SetRegiao item) {
+    private void deleta(SetPraga item) {
         try {
-            regiaoService.delete(item);
+            pragaService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
@@ -186,7 +182,7 @@ public class RegiaoDiv extends Div {
     }
 
 
-    public class Filter extends Div implements Specification<SetRegiao> {
+    public class Filter extends Div implements Specification<SetPraga> {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
@@ -234,18 +230,18 @@ public class RegiaoDiv extends Div {
 
 
         @Override
-        public Predicate toPredicate(Root<SetRegiao> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetPraga> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_regiao"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_praga"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "descricao_regiao";
+                String databaseColumn = "descricao_praga";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
@@ -287,9 +283,7 @@ public class RegiaoDiv extends Div {
 
     private void openCadastroModal() {
         UI.getCurrent().access(() -> {
-            regiaoCadastroModal.open();
+            pragaCadastroModal.open();
         });
     }
-
-
 }

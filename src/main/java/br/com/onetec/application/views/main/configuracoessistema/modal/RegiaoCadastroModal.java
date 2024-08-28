@@ -4,9 +4,8 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.views.main.configuracoessistema.div.RegiaoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetRegiao;
-import br.com.onetec.infra.db.model.SetTipoImovel;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -40,7 +39,6 @@ public class RegiaoCadastroModal extends Dialog {
 
     public RegiaoCadastroModal() {
         UI.getCurrent().access(() -> {
-            addClassName("cadastro-modal");
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
                 try {
                     save();
@@ -67,7 +65,7 @@ public class RegiaoCadastroModal extends Dialog {
     }
 
 
-    Servicos service;
+    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -76,7 +74,7 @@ public class RegiaoCadastroModal extends Dialog {
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-        service = new Servicos();
+        service = new UtilitySystemConfigService();
         try {
             regiaoService.save(dto);
             regiaoDiv.refreshGrid();

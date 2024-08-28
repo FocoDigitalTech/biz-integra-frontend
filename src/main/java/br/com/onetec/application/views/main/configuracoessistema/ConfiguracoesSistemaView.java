@@ -7,9 +7,7 @@ import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
-import br.com.onetec.application.views.main.configuracoessistema.div.RegiaoDiv;
-import br.com.onetec.application.views.main.configuracoessistema.div.TipoImovelDiv;
-import br.com.onetec.application.views.main.configuracoessistema.div.TipoMidiaDiv;
+import br.com.onetec.application.views.main.configuracoessistema.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -36,15 +34,30 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
         private TipoMidiaDiv tipomidiaDiv;
         private TipoImovelDiv tipoimovelDiv;
         private RegiaoDiv regiaoDiv;
+        private TipoAtendimentoDiv tipoAtendimentoDiv;
+        private SituacaoCadastroDiv situacaoCadastroDiv;
+        private SetorAtuacaoDiv setorAtuacaoDiv;
+        private ServicoDiv servicoDiv;
+        private PragasDiv pragasDiv;
 
 
         @Autowired
         public void initServices(TipoMidiaDiv tipomidiaDiv1,
                                  TipoImovelDiv tipoimovelDiv1,
-                                 RegiaoDiv regiaoDiv1) {
+                                 RegiaoDiv regiaoDiv1,
+                                 TipoAtendimentoDiv tipoAtendimentoDiv1,
+                                 SituacaoCadastroDiv situacaoCadastroDiv1,
+                                 SetorAtuacaoDiv setorAtuacaoDiv1,
+                                 ServicoDiv servicoDiv1,
+                                 PragasDiv pragasDiv) {
             this.tipomidiaDiv = tipomidiaDiv1;
             this.tipoimovelDiv = tipoimovelDiv1;
             this.regiaoDiv = regiaoDiv1;
+            this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
+            this.situacaoCadastroDiv = situacaoCadastroDiv1;
+            this.setorAtuacaoDiv = setorAtuacaoDiv1;
+            this.servicoDiv = servicoDiv1;
+            this.pragasDiv = pragasDiv;
         }
 
 
@@ -64,9 +77,17 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
                         tipoimovelDiv);
                 tabSheet.add("Regiões",
                         regiaoDiv);
-                tabSheet.add("Administradora",
-                        new Div(new Text("This is the Shipping tab content")));
-                tabSheet.add("Tabelas de Serviço",
+                tabSheet.add("Tipo de Atendimento",
+                        tipoAtendimentoDiv);
+                tabSheet.add("Situação Cadastro",
+                        situacaoCadastroDiv);
+                tabSheet.add("Ramo Atividade",
+                        setorAtuacaoDiv);
+                tabSheet.add("Serviços",
+                        servicoDiv);
+                tabSheet.add("Pragas",
+                        pragasDiv);
+                tabSheet.add("Tecnicos e Assistentes",
                         new Div(new Text("This is the Shipping tab content")));
                 tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
                 add(tabSheet);

@@ -4,7 +4,7 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.views.main.configuracoessistema.div.TipoMidiaDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoMidia;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -39,7 +39,6 @@ public class TipoMidiaCadastroModal extends Dialog {
 
     public TipoMidiaCadastroModal() {
         UI.getCurrent().access(() -> {
-            addClassName("cadastro-modal");
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
                 try {
                     save();
@@ -66,7 +65,7 @@ public class TipoMidiaCadastroModal extends Dialog {
     }
 
 
-    Servicos service;
+    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -75,7 +74,7 @@ public class TipoMidiaCadastroModal extends Dialog {
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-        service = new Servicos();
+        service = new UtilitySystemConfigService();
         try {
             tipoMidiaService.save(dto);
             tipoMidiaDiv.refreshGrid();

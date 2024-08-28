@@ -1,11 +1,13 @@
 package br.com.onetec.application.views.main.configuracoessistema.div;
 
-import br.com.onetec.application.service.regiaoservice.RegiaoService;
+import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.configuracoessistema.modal.RegiaoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.SetorAtuacaoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.SituacaoCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetRegiao;
+import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -32,42 +34,36 @@ import java.util.List;
 
 @Component
 @UIScope
-public class RegiaoDiv extends Div {
+public class SetorAtuacaoDiv extends Div {
 
-    List<SetRegiao> list = new ArrayList<>();
-    private Grid<SetRegiao> grid;
+    List<SetSetorAtuacao> list = new ArrayList<>();
+    private Grid<SetSetorAtuacao> grid;
 
-    private RegiaoDiv.Filter filter;
+    private SetorAtuacaoDiv.Filter filter;
 
     private UtilitySystemConfigService service;
 
-    private RegiaoService regiaoService;
+    private SetorAtuacaoService setorAtuacaoService;
 
     private UsuarioService usuarioService;
 
     private Button btnExcluir;
 
-    private RegiaoCadastroModal regiaoCadastroModal;
-
+    private SetorAtuacaoCadastroModal setorAtuacaoCadastroModal;
 
     @Autowired
-    public void initServices(RegiaoService regiaoService1,
+    public void initServices(SetorAtuacaoService setorAtuacaoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             RegiaoCadastroModal regiaoCadastroModal1) {
-        this.regiaoService = regiaoService1;
+                             SetorAtuacaoCadastroModal setorAtuacaoCadastroModal1) {
+        this.setorAtuacaoService = setorAtuacaoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
-        this.regiaoCadastroModal = regiaoCadastroModal1;
-//        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
-//            // Código para atualizar a AdministrativoView
-//            refreshGridFuncionario();
-//        });
+        this.setorAtuacaoCadastroModal = setorAtuacaoCadastroModal1;
     }
 
-
     @Autowired
-    public RegiaoDiv( ) {
+    public SetorAtuacaoDiv( ) {
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -75,18 +71,15 @@ public class RegiaoDiv extends Div {
     }
 
     private Div telaDiv() {
-        /* constuir a tela funcionarios*/
-        setSizeFull();
-        addClassNames("telarelatorios-view");
 
         setSizeFull();
         addClassNames("telarelatorios-view");
 
-        com.vaadin.flow.component.Component gridFuncionario = createGrid();
-        filter = new RegiaoDiv.Filter(() -> refreshGrid());
-        HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
+        com.vaadin.flow.component.Component grid = createGrid();
+        filter = new SetorAtuacaoDiv.Filter(() -> refreshGrid());
+        HorizontalLayout mobileFilters = createMobileFilters();
 
-        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
+        VerticalLayout layout = new VerticalLayout(mobileFilters, filter, grid);
         layout.setSizeFull();
         layout.setPadding(false);
         layout.setSpacing(false);
@@ -103,7 +96,7 @@ public class RegiaoDiv extends Div {
         grid.getDataProvider().refreshAll();
     }
 
-    private HorizontalLayout createMobileFiltersFuncionario() {
+    private HorizontalLayout createMobileFilters() {
         // Mobile version
         HorizontalLayout mobileFilters = new HorizontalLayout();
         mobileFilters.setWidthFull();
@@ -129,19 +122,18 @@ public class RegiaoDiv extends Div {
 
     private com.vaadin.flow.component.Component createGrid() {
 
-        //departamentoService.list(null,null);
-        grid = new Grid<>(SetRegiao.class, false);
-        grid.addColumn(SetRegiao::getId_regiao)
+        grid = new Grid<>(SetSetorAtuacao.class, false);
+        grid.addColumn(SetSetorAtuacao::getId_setoratuacao)
                 .setHeader("ID")
                 //.setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetRegiao::getDescricao_regiao)
+        grid.addColumn(SetSetorAtuacao::getDescricao_setoratuacao)
                 .setHeader("Descrição")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetRegiao::getData_inclusao)
+        grid.addColumn(SetSetorAtuacao::getData_inclusao)
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -156,7 +148,7 @@ public class RegiaoDiv extends Div {
 
 
 
-        grid.setItems(query -> regiaoService.list(
+        grid.setItems(query -> setorAtuacaoService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
@@ -174,9 +166,9 @@ public class RegiaoDiv extends Div {
         return grid;
     }
 
-    private void deleta(SetRegiao item) {
+    private void deleta(SetSetorAtuacao item) {
         try {
-            regiaoService.delete(item);
+            setorAtuacaoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
@@ -186,7 +178,7 @@ public class RegiaoDiv extends Div {
     }
 
 
-    public class Filter extends Div implements Specification<SetRegiao> {
+    public class Filter extends Div implements Specification<SetSetorAtuacao> {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
@@ -234,18 +226,18 @@ public class RegiaoDiv extends Div {
 
 
         @Override
-        public Predicate toPredicate(Root<SetRegiao> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetSetorAtuacao> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_regiao"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_situacaocadastro"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "descricao_regiao";
+                String databaseColumn = "descricao_situacaocadastro";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
@@ -287,9 +279,7 @@ public class RegiaoDiv extends Div {
 
     private void openCadastroModal() {
         UI.getCurrent().access(() -> {
-            regiaoCadastroModal.open();
+            setorAtuacaoCadastroModal.open();
         });
     }
-
-
 }

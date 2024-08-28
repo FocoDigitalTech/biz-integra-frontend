@@ -4,15 +4,12 @@ import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.TipoMidiaCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
-import br.com.onetec.infra.db.model.SetDepartamento;
-import br.com.onetec.infra.db.model.SetFornecedor;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoMidia;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -42,7 +39,7 @@ public class TipoMidiaDiv extends Div{
 
     private TipoMidiaDiv.Filter filter;
 
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private TipoMidiaService tipoMidiaService;
 
@@ -56,7 +53,7 @@ public class TipoMidiaDiv extends Div{
 
     @Autowired
     public void initServices(TipoMidiaService tipoMidiaService1,
-                             Servicos service1,
+                             UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              TipoMidiaCadastroModal tipoMidiaCadastroModal1) {
         this.tipoMidiaService = tipoMidiaService1;

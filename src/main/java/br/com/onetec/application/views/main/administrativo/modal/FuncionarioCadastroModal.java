@@ -1,11 +1,10 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetEstado;
@@ -25,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 
 @Component
@@ -66,12 +62,12 @@ public class FuncionarioCadastroModal extends Dialog {
 
     private EstadoService estadoService ;
 
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private static List<SetEstado> estadoList;
 
     @Autowired
-    public void initServices(EstadoService serviceEstado, Servicos service) {
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
         this.estadoService = serviceEstado;
         this.service = service;
         //configurações dos fields:

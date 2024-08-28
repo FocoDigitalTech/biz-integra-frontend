@@ -1,11 +1,14 @@
 package br.com.onetec.application.views.main.configuracoessistema.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
-import br.com.onetec.application.views.main.configuracoessistema.div.TipoImovelDiv;
+import br.com.onetec.application.service.pragaservice.PragaService;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
+import br.com.onetec.application.views.main.configuracoessistema.div.PragasDiv;
+import br.com.onetec.application.views.main.configuracoessistema.div.RegiaoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetTipoImovel;
+import br.com.onetec.infra.db.model.SetPraga;
+import br.com.onetec.infra.db.model.SetRegiao;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -22,22 +25,22 @@ import java.time.LocalDateTime;
 
 @Component
 @UIScope
-public class TipoImovelCadastroModal extends Dialog {
+public class PragaCadastroModal extends Dialog {
 
     private com.vaadin.flow.component.textfield.TextField decricaoField;
 
     @Autowired
-    TipoImovelService tipoImovelService;
+    PragaService regiaoService;
 
     @Autowired
     @Lazy
-    TipoImovelDiv tipoMidiaDiv;
+    PragasDiv regiaoDiv;
     private com.vaadin.flow.component.button.Button saveButton;
     private com.vaadin.flow.component.button.Button cancelButton;
 
 
 
-    public TipoImovelCadastroModal() {
+    public PragaCadastroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
                 try {
@@ -69,15 +72,15 @@ public class TipoImovelCadastroModal extends Dialog {
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
-        SetTipoImovel dto = new SetTipoImovel();
-        dto.setDescricao_tipoimovel(decricaoField.getValue());
+        SetPraga dto = new SetPraga();
+        dto.setDescricao_praga(decricaoField.getValue());
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         service = new UtilitySystemConfigService();
         try {
-            tipoImovelService.save(dto);
-            tipoMidiaDiv.refreshGrid();
+            regiaoService.save(dto);
+            regiaoDiv.refreshGrid();
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
