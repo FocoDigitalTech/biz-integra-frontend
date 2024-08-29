@@ -87,7 +87,9 @@ public class AdministrativoView extends Div {
         this.funcionarioDiv = funcionarioDiv1;
         this.fornecedorDiv = fornecedorDiv1;
         UI.getCurrent().access(() -> {
+        setSizeFull();
         TabSheet tabSheet = new TabSheet();
+        tabSheet.setSizeFull();
         tabSheet.add("Departamentos",
                 departamentosDiv());
         tabSheet.add("Funcionarios",

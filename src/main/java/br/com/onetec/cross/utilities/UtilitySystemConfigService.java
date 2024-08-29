@@ -12,8 +12,12 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class UtilitySystemConfigService {
@@ -179,6 +183,32 @@ public class UtilitySystemConfigService {
         return cepField;
     }
 
+    private static final Locale LOCALE_BR = new Locale("pt", "BR");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(LOCALE_BR));
 
 
+    public TextField formataMoedaBrasileira(TextField valor_item) {
+        String value = valor_item.getValue().replaceAll("[^\\d]", ""); // Remove caracteres não numéricos
+
+        if (!value.isEmpty()) {
+            double valorNumerico = Double.parseDouble(value) / 100;
+            valor_item.setValue("R$ " + DECIMAL_FORMAT.format(valorNumerico));
+        } else {
+            valor_item.setValue("");
+        }
+        return valor_item;
+    }
+
+    public BigDecimal getValorBigDecimal(String valueField) {
+        String value = valueField.replaceAll("[^\\d,]", ""); // Remove caracteres exceto dígitos e vírgula
+
+        if (value.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        // Substitui vírgula por ponto para criar o BigDecimal
+        value = value.replace(",", ".");
+
+        return new BigDecimal(value);
+    }
 }

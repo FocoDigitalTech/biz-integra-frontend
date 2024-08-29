@@ -116,8 +116,10 @@ public class MainLayout extends AppLayout {
                 VaadinIcon.STORAGE.create()));
         nav.addItem(new SideNavItem("Relatórios", RelatoriosView.class,
                 VaadinIcon.PAPERPLANE.create()));
-        nav.addItem(new SideNavItem("Configurações Sistema", ConfiguracoesSistemaView.class,
-                VaadinIcon.HAMMER.create()));
+        nav.addItem(new SideNavItem("Sistema", ConfiguracoesSistemaView.class,
+                VaadinIcon.COG_O.create()));
+//        nav.addItem(new SideNavItem("Configurações de acesso", ConfiguracoesSistemaView.class,
+//                VaadinIcon.COG_O.create()));
 
 
 

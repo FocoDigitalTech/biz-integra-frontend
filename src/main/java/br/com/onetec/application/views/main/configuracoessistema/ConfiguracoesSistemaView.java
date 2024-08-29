@@ -69,8 +69,9 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
             this.tipoimovelDiv = tipoimovelDiv1;
             this.regiaoDiv = regiaoDiv1;
             UI.getCurrent().access(() -> {
-
+                setSizeFull();
                 TabSheet tabSheet = new TabSheet();
+                tabSheet.setSizeFull();
                 tabSheet.add("Tipos de Midia",
                         tipomidiaDiv);
                 tabSheet.add("Tipos de Imóvel",
