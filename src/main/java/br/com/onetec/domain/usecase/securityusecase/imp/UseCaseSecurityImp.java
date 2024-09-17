@@ -31,7 +31,7 @@ public class UseCaseSecurityImp  {
         usuarios.forEach(u -> {
             lista.add((User) User.builder()
                     .username(u.getNome_usuario())
-                    .password(passwordEncoder().encode(u.getSenha_usuario()))
+                    //.password(passwordEncoder().encode(u.getSenha_usuario()))
                     .roles(Roles.ADMIN)
                     .build());
         });
@@ -39,12 +39,19 @@ public class UseCaseSecurityImp  {
         return lista;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+
+    public User getUserByUserName(String username) {
+        SetUsuarios u = repository.findByusername(username);
+       return (User) User.builder()
+                .username(u.getNome_usuario())
+               // .password(passwordEncoder().encode(u.getSenha_usuario()))
+                .roles(Roles.ADMIN)
+                .build();
     }
 
-    public SetUsuarios getUserByUserName(String username) {
-       return repository.findByusername(username);
-    }
+
 }

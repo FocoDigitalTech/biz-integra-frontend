@@ -25,12 +25,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.NotFoundException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AccessDeniedErrorRouter;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +50,8 @@ import java.util.List;
 public class AdministrativoView extends Div {
 
 
+//    @RolesAllowed("USER")
+//    @AccessDeniedErrorRouter(rerouteToError = NotFoundException.class)
 
     private  FuncionarioDiv funcionarioDiv;
 

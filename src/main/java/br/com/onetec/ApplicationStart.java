@@ -10,6 +10,7 @@ import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
@@ -20,6 +21,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  *
  */
 @SpringBootApplication
+@EnableAspectJAutoProxy
 @Theme(value = "front-end-nagazaki-biz-integra")
 @Push(PushMode.AUTOMATIC)
 public class ApplicationStart implements AppShellConfigurator {

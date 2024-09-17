@@ -1,16 +1,17 @@
-package br.com.onetec.application.views.main.configuracoessistema.div;
+package br.com.onetec.application.views.main.seguranca.div;
 
-import br.com.onetec.application.service.pragaservice.PragaService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.service.grupousuarioservice.GrupoUsuarioService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.configuracoessistema.modal.PragaCadastroModal;
-import br.com.onetec.application.views.main.configuracoessistema.modal.RegiaoCadastroModal;
+import br.com.onetec.application.views.main.seguranca.modal.GrupoUsuarioCadastroModal;
+import br.com.onetec.application.views.main.seguranca.modal.UsuarioCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetPraga;
-import br.com.onetec.infra.db.model.SetUsuarios;
+import br.com.onetec.infra.db.model.SetGrupoUsuario;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -33,41 +34,43 @@ import java.util.List;
 
 @Component
 @UIScope
-public class PragasDiv extends Div {
+public class GrupoUsuariosDiv extends Div{
 
-    List<SetPraga> list = new ArrayList<>();
-    private Grid<SetPraga> grid;
+    private Grid<SetGrupoUsuario> grid;
 
-    private PragasDiv.Filter filter;
+    private GrupoUsuariosDiv.Filter filter;
 
     private UtilitySystemConfigService service;
-
-    private PragaService pragaService;
 
     private UsuarioService usuarioService;
 
     private Button btnExcluir;
 
-    private PragaCadastroModal pragaCadastroModal;
+    private GrupoUsuarioCadastroModal grupoUsuarioCadastroModal;
+
+    private FuncionarioService funcionarioService;
+
+    private GrupoUsuarioService grupoUsuarioService;
 
     @Autowired
-    public void initServices(PragaService pragaService1,
-                             UtilitySystemConfigService service1,
+    public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             PragaCadastroModal pragaCadastroModal1) {
-        this.pragaService = pragaService1;
+                             GrupoUsuarioCadastroModal grupoUsuarioCadastroModal1,
+                             FuncionarioService funcionarioService1,
+                             GrupoUsuarioService grupoUsuarioService1) {
+        ;
         this.service = service1;
         this.usuarioService = usuarioService1;
-        this.pragaCadastroModal = pragaCadastroModal1;
+        this.grupoUsuarioCadastroModal = grupoUsuarioCadastroModal1;
+        this.funcionarioService = funcionarioService1;
+        this.grupoUsuarioService = grupoUsuarioService1;
     }
 
-
     @Autowired
-    public PragasDiv( ) {
+    public GrupoUsuariosDiv() {
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
-
     }
 
     private Div telaDiv() {
@@ -79,7 +82,7 @@ public class PragasDiv extends Div {
         addClassNames("telarelatorios-view");
 
         com.vaadin.flow.component.Component gridFuncionario = createGrid();
-        filter = new PragasDiv.Filter(() -> refreshGrid());
+        filter = new GrupoUsuariosDiv.Filter(() -> refreshGrid());
         HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
         VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
@@ -92,84 +95,58 @@ public class PragasDiv extends Div {
         div.setSizeFull();
 
         return div;
-
     }
 
-    public void refreshGrid() {
-        grid.getDataProvider().refreshAll();
-    }
 
-    private HorizontalLayout createMobileFiltersFuncionario() {
-        // Mobile version
-        HorizontalLayout mobileFilters = new HorizontalLayout();
-        mobileFilters.setWidthFull();
-        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
-                LumoUtility.AlignItems.CENTER);
-        mobileFilters.addClassName("mobile-filters");
-
-        Icon mobileIcon = new Icon("lumo", "plus");
-        Span filtersHeading = new Span("Filters");
-        mobileFilters.add(mobileIcon, filtersHeading);
-        mobileFilters.setFlexGrow(1, filtersHeading);
-        mobileFilters.addClickListener(e -> {
-            if (filter.getClassNames().contains("visible")) {
-                filter.removeClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
-            } else {
-                filter.addClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
-            }
-        });
-        return mobileFilters;
-    }
-
-    private void deleta(SetPraga item) {
-        try {
-            pragaService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
 
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
-        grid = new Grid<>(SetPraga.class, false);
-        grid.addColumn(SetPraga::getId_praga)
+        grid = new Grid<>(SetGrupoUsuario.class, false);
+        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        grid.addColumn(SetGrupoUsuario::getId_grupousuario)
                 .setHeader("ID")
                 //.setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetPraga::getDescricao_praga)
-                .setHeader("Descrição")
+        grid.addColumn(SetGrupoUsuario::getDescricao_grupousuario)
+                .setHeader("Nome Grupo")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetPraga::getData_inclusao)
+        grid.addColumn(SetGrupoUsuario::getData_inclusao)
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(midia -> {
-            SetUsuarios usuarios = usuarioService.findById(midia.getId_usuario());
-            return usuarios == null ? "N/A" : usuarios.getNome_usuario();
-        })
-                .setHeader("Usuario")
-                .setSortable(true)
-                .setAutoWidth(true);
 
-
-
-        grid.setItems(query -> pragaService.list(
+        grid.setItems(query -> grupoUsuarioService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
+
+
         grid.addItemClickListener(event -> {
+
+            Dialog dialog = new Dialog();
+
+            dialog.setHeaderTitle(
+                    String.format("Delete user \"%s\"?", event.getItem().getDescricao_grupousuario()));
+            dialog.add("Are you sure you want to delete this user permanently?");
+
+            // tag::snippet1[]
+            Button deleteButton = new Button("Delete", (e) -> deleta(event.getItem(),dialog));
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_ERROR);
+            deleteButton.getStyle().set("margin-right", "auto");
+            dialog.getFooter().add(deleteButton);
+
+            Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            dialog.getFooter().add(cancelButton);
+
             // Configura o botão "Deletar" para deletar o item clicado
-            btnExcluir.addClickListener(event1 -> deleta(event.getItem()));
+            btnExcluir.addClickListener(event1 -> dialog.open());
 
             // Torna o botão "Deletar" visível
             btnExcluir.setVisible(true);
@@ -181,8 +158,7 @@ public class PragasDiv extends Div {
         return grid;
     }
 
-
-    public class Filter extends Div implements Specification<SetPraga> {
+    public class Filter extends Div implements Specification<SetGrupoUsuario> {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
@@ -198,8 +174,6 @@ public class PragasDiv extends Div {
             id.setPlaceholder("Código");
 
 
-
-
             // Action buttons
             com.vaadin.flow.component.button.Button resetBtn = new com.vaadin.flow.component.button.Button("Limpar");
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -208,7 +182,7 @@ public class PragasDiv extends Div {
                 nome.clear();
                 onSearch.run();
             });
-            com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
+            com.vaadin.flow.component.button.Button createBtn = createUsuarioCadastroButton();
             com.vaadin.flow.component.button.Button searchBtn = new com.vaadin.flow.component.button.Button("Buscar");
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
@@ -218,30 +192,28 @@ public class PragasDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
-
 
 
             add(id, nome, actions);
         }
 
 
-
         @Override
-        public Predicate toPredicate(Root<SetPraga> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetGrupoUsuario> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_praga"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_grupousuario"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "descricao_praga";
+                String databaseColumn = "descricao_grupousuario";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
@@ -275,7 +247,47 @@ public class PragasDiv extends Div {
 
     }
 
-    private Button createFuncionarioCadastroButton() {
+    public void refreshGrid() {
+        grid.getDataProvider().refreshAll();
+    }
+
+    private HorizontalLayout createMobileFiltersFuncionario() {
+        // Mobile version
+        HorizontalLayout mobileFilters = new HorizontalLayout();
+        mobileFilters.setWidthFull();
+        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
+                LumoUtility.AlignItems.CENTER);
+        mobileFilters.addClassName("mobile-filters");
+
+        Icon mobileIcon = new Icon("lumo", "plus");
+        Span filtersHeading = new Span("Filters");
+        mobileFilters.add(mobileIcon, filtersHeading);
+        mobileFilters.setFlexGrow(1, filtersHeading);
+        mobileFilters.addClickListener(e -> {
+            if (filter.getClassNames().contains("visible")) {
+                filter.removeClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
+            } else {
+                filter.addClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
+            }
+        });
+        return mobileFilters;
+    }
+
+    private void deleta(SetGrupoUsuario item, Dialog dialog) {
+        try {
+            grupoUsuarioService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            dialog.close();
+            refreshGrid();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
+    private Button createUsuarioCadastroButton() {
         Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
         return cadastroButton;
     }
@@ -283,7 +295,7 @@ public class PragasDiv extends Div {
 
     private void openCadastroModal() {
         UI.getCurrent().access(() -> {
-            pragaCadastroModal.open();
+            grupoUsuarioCadastroModal.open();
         });
     }
 }

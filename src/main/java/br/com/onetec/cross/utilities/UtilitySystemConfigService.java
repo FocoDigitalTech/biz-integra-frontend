@@ -5,6 +5,8 @@ import br.com.onetec.application.service.utilservices.ApiEnderecoService;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextField;
@@ -210,5 +212,12 @@ public class UtilitySystemConfigService {
         value = value.replace(",", ".");
 
         return new BigDecimal(value);
+    }
+
+    public void validateSecurityAccessView(SetUsuarios user) {
+        if (user.getNome_usuario().startsWith("V")) {
+            UI.getCurrent().navigate("access-denied"); // Redireciona para uma página de acesso negado
+            return;
+        }
     }
 }

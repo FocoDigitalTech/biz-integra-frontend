@@ -48,4 +48,6 @@ public class FuncionarioService {
     public void save(SetFuncionario funcionario) {
         repository.save(funcionario);
     }
+
+
 }

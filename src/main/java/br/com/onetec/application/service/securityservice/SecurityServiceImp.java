@@ -4,11 +4,15 @@ import br.com.onetec.domain.usecase.securityusecase.imp.UseCaseSecurityImp;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SecurityServiceImp  {
+
 
     private UseCaseSecurityImp useCase;
 
@@ -25,7 +29,4 @@ public class SecurityServiceImp  {
         return memory;
     }
 
-    public SetUsuarios loadUserByUsername(String username) {
-        return useCase.getUserByUserName(username);
-    }
 }
