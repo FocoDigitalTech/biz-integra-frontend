@@ -34,6 +34,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.HighlightCondition;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;

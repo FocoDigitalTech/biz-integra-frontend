@@ -9,6 +9,7 @@ import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,7 +211,7 @@ public class UtilitySystemConfigService {
 
         // Substitui vírgula por ponto para criar o BigDecimal
         value = value.replace(",", ".");
-
+        BigDecimal valor = new BigDecimal(value);
         return new BigDecimal(value);
     }
 
@@ -220,4 +221,23 @@ public class UtilitySystemConfigService {
             return;
         }
     }
+
+
+    public NumberField formataMoedaBrasileiraNumberField(NumberField valorItem) {
+        // Obtém o valor como um número
+        Double valorNumerico = valorItem.getValue();
+
+        if (valorNumerico != null) {
+            // Formata o valor para o formato monetário brasileiro
+            String formattedValue = "R$ " + DECIMAL_FORMAT.format(valorNumerico);
+            valorItem.setPlaceholder(formattedValue);
+
+            valorItem.setValue(Double.valueOf(DECIMAL_FORMAT.format(valorNumerico))); // Exibe o valor formatado como label
+        } else {
+            valorItem.setValue(valorNumerico); // Limpa o label se não houver valor
+        }
+
+        return valorItem;
+    }
+
 }

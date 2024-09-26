@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class FornecedorService {
@@ -23,5 +25,9 @@ public class FornecedorService {
         log.info("Pageable: {}", pageable);
         Page<SetFornecedor> page = repository.findAll(filter, pageable);
         return repository.findAll(filter, pageable);
+    }
+
+    public List<SetFornecedor> findAll() {
+        return repository.listAll();
     }
 }

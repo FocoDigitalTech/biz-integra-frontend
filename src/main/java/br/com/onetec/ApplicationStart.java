@@ -24,6 +24,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableAspectJAutoProxy
 @Theme(value = "front-end-nagazaki-biz-integra")
 @Push(PushMode.AUTOMATIC)
+@PWA(name = "Nagasaki", shortName = "App", iconPath  = "https://cdn.iconscout.com/icon/premium/png-256-thumb/html-2752158-2284975.png") // Defina o caminho para o favicon
 public class ApplicationStart implements AppShellConfigurator {
 
     public static void main(String[] args) {
