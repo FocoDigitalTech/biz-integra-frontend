@@ -9,6 +9,7 @@ import java.time.LocalTime;
 public class Cliente {
 
     private String nomeField;
+    private String teste;
     private String telefoneField;
     private String celularField;
     private LocalDate dataField;
