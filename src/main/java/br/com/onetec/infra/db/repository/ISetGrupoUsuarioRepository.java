@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ISetGrupoUsuarioRepository  extends CrudRepository<SetGrupoUsuario, Integer>
-        , JpaSpecificationExecutor<SetGrupoUsuario> {
+    public interface ISetGrupoUsuarioRepository  extends CrudRepository<SetGrupoUsuario, Integer>
+            , JpaSpecificationExecutor<SetGrupoUsuario> {
 
-    @Query(value = "SELECT * FROM tb_grupousuario where ativo = 'S'", nativeQuery = true)
-    List<SetGrupoUsuario> listAll();
+        @Query(value = "SELECT * FROM tb_grupousuario where ativo = 'S'", nativeQuery = true)
+        List<SetGrupoUsuario> listAll();
 }

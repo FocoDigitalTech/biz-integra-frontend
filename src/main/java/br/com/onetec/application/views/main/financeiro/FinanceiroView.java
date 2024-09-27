@@ -4,6 +4,7 @@ import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.main.financeiro.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -57,24 +58,27 @@ public class FinanceiroView extends VerticalLayout {
             this.contaCorrenteDiv = contaCorrenteDiv1;
             this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
 
-            TabSheet tabSheet = new TabSheet();
-            tabSheet.add("Lançamentos Financeiros",
-                    lancamentoFinanceiro);
-            tabSheet.add("Condição de Pagamento",
-                    condicaoPagamentoDiv);
-            tabSheet.add("Contas (Tipos Evento Financeiro)",
-                    tipoEventoFinanceiroDiv);
-            tabSheet.add("Grupos",
-                    grupoFinanceiroDiv);
-            tabSheet.add("Tipo Pagamento",
-                    new Div(new Text("This is the Shipping tab content")));
-            tabSheet.add("Sub-Contas (Evento Financeiro)",
-                    eventoFinanceiroDiv);
+            UI.getCurrent().access(() -> {
+                setSizeFull();
+                TabSheet tabSheet = new TabSheet();
+                tabSheet.add("Lançamentos Financeiros",
+                        lancamentoFinanceiro);
+                tabSheet.add("Condição de Pagamento",
+                        condicaoPagamentoDiv);
+                tabSheet.add("Contas (Tipos Evento Financeiro)",
+                        tipoEventoFinanceiroDiv);
+                tabSheet.add("Grupos",
+                        grupoFinanceiroDiv);
+                tabSheet.add("Tipo Pagamento",
+                        new Div(new Text("This is the Shipping tab content")));
+                tabSheet.add("Sub-Contas (Evento Financeiro)",
+                        eventoFinanceiroDiv);
 //            tabSheet.add("Novo Plano de Contas",
 //                    new Div(new Text("This is the Shipping tab content")));
-            tabSheet.add("Conta Corrente",
-                    contaCorrenteDiv);
-            tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-            add(tabSheet);
+                tabSheet.add("Conta Corrente",
+                        contaCorrenteDiv);
+                tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+                add(tabSheet);
+            });
         }
 }

@@ -3,6 +3,7 @@ package br.com.onetec.application.views.layouts.atendimentosHistorico;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
@@ -37,6 +38,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
@@ -50,26 +52,29 @@ import java.util.List;
 
 @Route(value = "atendimentos_historico",layout = MainLayout.class)
 @PermitAll
-@Uses(Icon.class)
-public class AtendimentoHistoricoView extends VerticalLayout {
+@UIScope
+public class AtendimentoHistoricoView extends  Div {
 
-    private LancamentoFinanceiroDiv lancamentoFinanceiro;
+    private OrcamentoDiv orcamentoDiv;
     private CondicaoPagamentoDiv condicaoPagamentoDiv;
     private TipoEventoFinanceiroDiv tipoEventoFinanceiroDiv;
     
 
     @Autowired
-    public void initServices(){
+    public void initServices(OrcamentoDiv orcamentoDiv1){
+        this.orcamentoDiv = orcamentoDiv1;
     }
 
     @Autowired
-    public AtendimentoHistoricoView() {
+    public AtendimentoHistoricoView(OrcamentoDiv orcamentoDiv1){
+        this.orcamentoDiv = orcamentoDiv1;
         UI.getCurrent().access(() -> {
+            setSizeFull();
             SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
 
             TabSheet tabSheet = new TabSheet();
             tabSheet.add("Orçamento e Dados Financeiros",
-                    new Div());
+                    orcamentoDiv);
             tabSheet.add("Serviços Executados",
                     new Div());
             tabSheet.add("Outros",
