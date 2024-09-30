@@ -18,7 +18,6 @@ import java.util.List;
 
 @Route(value = "",layout = MainLayout.class)
 @PermitAll
-@CssImport("/themes/front-end-nagazaki-biz-integra/views/home.css")
 public class HomeView extends VerticalLayout {
 
     public HomeView() {

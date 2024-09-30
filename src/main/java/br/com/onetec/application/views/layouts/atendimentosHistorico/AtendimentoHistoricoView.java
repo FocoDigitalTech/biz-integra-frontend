@@ -4,6 +4,7 @@ import br.com.onetec.application.service.departamentoservice.DepartamentoService
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.div.ServicosExecutadosDiv;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
@@ -56,7 +57,7 @@ import java.util.List;
 public class AtendimentoHistoricoView extends  Div {
 
     private OrcamentoDiv orcamentoDiv;
-    private CondicaoPagamentoDiv condicaoPagamentoDiv;
+    private ServicosExecutadosDiv servicosExecutadosDiv;
     private TipoEventoFinanceiroDiv tipoEventoFinanceiroDiv;
     
 
@@ -77,8 +78,8 @@ public class AtendimentoHistoricoView extends  Div {
                     orcamentoDiv);
             tabSheet.add("Serviços Executados",
                     new Div());
-            tabSheet.add("Outros",
-                    new Div());
+           // tabSheet.add("Outros",
+             //       new Div());
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
             add(tabSheet);
         });

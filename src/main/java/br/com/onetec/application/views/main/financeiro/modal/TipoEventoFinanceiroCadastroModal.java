@@ -8,6 +8,7 @@ import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -50,7 +51,10 @@ public class TipoEventoFinanceiroCadastroModal extends Dialog {
             cancelButton = new Button("Cancelar", event -> close());
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
-            VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton);
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
+            VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
     }

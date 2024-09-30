@@ -15,6 +15,7 @@ import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -246,8 +247,11 @@ public class CadastroClientesModal extends Dialog {
 
             Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos, cadastroCobranca);
             contentTabs.setSizeFull();
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
 
-            VerticalLayout layout = new VerticalLayout(tabs, contentTabs, saveButton, cancelButton);
+            VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
 

@@ -13,6 +13,7 @@ import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.model.SetTecnicoAssistente;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -75,7 +76,10 @@ public class EstoqueCadastroModal extends Dialog {
             cancelButton = new Button("Cancelar", event -> close());
             Div contentTabs = new Div(createFormCadastro());
             contentTabs.setSizeFull();
-            VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton);
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
+            VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
     }

@@ -1,13 +1,17 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.div;
 
-import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
+import br.com.onetec.application.configuration.OrcamentoTransiction;
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
+import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.financeiro.div.ContaCorrenteDiv;
-import br.com.onetec.application.views.main.financeiro.modal.ContaCorrenteCadastroModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoCadastroModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoDetalheModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetContaCorrente;
 import br.com.onetec.infra.db.model.SetEstoque;
+import br.com.onetec.infra.db.model.SetOrcamento;
+import br.com.onetec.infra.db.model.SetOrdemServico;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -15,14 +19,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.ItemDoubleClickEvent;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -33,7 +35,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,17 +47,21 @@ public class OrcamentoDiv extends Div {
 //    private final Icon rightArrowIcon;
 //    private final SplitLayout splitLayout;
 
-    private Grid<SetContaCorrente> grid;
+    private Grid<SetOrcamento> grid;
 
     private OrcamentoDiv.Filter filter;
 
     private UtilitySystemConfigService service;
 
-    private ContaCorrenteService contaCorrenteService;
+    private OrcamentoService orcamentoService;
 
-    private ContaCorrenteCadastroModal contaCorrenteCadastroModal;
+    private OrcamentoCadastroModal orcamentoCadastroModal;
+
+    private OrcamentoDetalheModal orcamentoDetalheModal;
 
     private UsuarioService usuarioService;
+
+    private OrdemServicoService ordemServicoService;
 
     private Button btnExcluir;
 
@@ -64,12 +69,16 @@ public class OrcamentoDiv extends Div {
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              ApplicationContext applicationContext1,
-                             ContaCorrenteService contaCorrenteService1,
-                             ContaCorrenteCadastroModal contaCorrenteCadastroModal1) {
-        this.contaCorrenteService = contaCorrenteService1;
+                             OrcamentoService orcamentoService1,
+                             OrcamentoCadastroModal contaCorrenteCadastroModal1,
+                             OrcamentoDetalheModal orcamentoDetalheModal1,
+                             OrdemServicoService ordemServicoService1) {
+        this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
-        this.contaCorrenteCadastroModal = contaCorrenteCadastroModal1;
+        this.orcamentoCadastroModal = contaCorrenteCadastroModal1;
+        this.orcamentoDetalheModal = orcamentoDetalheModal1;
+        this.ordemServicoService = ordemServicoService1;
     }
 
     @Autowired
@@ -167,20 +176,20 @@ public class OrcamentoDiv extends Div {
         mainLayout.setSizeFull();
 
         // Cria o grid
-        grid = new Grid<>(SetContaCorrente.class, false);
-        grid.addColumn(SetContaCorrente::getId_contacorrente)
+        grid = new Grid<>(SetOrcamento.class, false);
+        grid.addColumn(SetOrcamento::getId_orcamento)
                 .setHeader("Id")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetContaCorrente::getNome_contacorrente)
+        grid.addColumn(SetOrcamento::getId_cliente)
                 .setHeader("Apelido da Conta")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetContaCorrente::getBanco_contacorrente)
+        grid.addColumn(SetOrcamento::getGarantia_orcamento)
                 .setHeader("Banco")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetContaCorrente::getData_inclusao)
+        grid.addColumn(SetOrcamento::getData_inclusao)
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -192,19 +201,30 @@ public class OrcamentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.setItems(query -> contaCorrenteService.list(
+        grid.setItems(query -> orcamentoService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
-        VerticalLayout sidebar = new VerticalLayout();
+        grid.addItemDoubleClickListener(this::openDetalheCadastroModal);
+
+        VerticalLayout sidebar = buildSideBar();
         sidebar.setWidth("300px");
         sidebar.setVisible(false); // Inicialmente escondido
 
 
+        // Adiciona o grid e o sidebar ao layout principal
+        mainLayout.add(grid, sidebar);
+
+        return mainLayout;
+    }
+
+    private VerticalLayout buildSideBar() {
+
         // Cria o botão de fechar o sidebar
+        VerticalLayout sidebar = new VerticalLayout();
         Button btnCloseSidebar = new Button("Fechar", event -> {
             sidebar.setVisible(false);
         });
@@ -213,17 +233,31 @@ public class OrcamentoDiv extends Div {
         sidebar.add(btnCloseSidebar);
         sidebar.addClassName("v-sidebar");
 
+
+
         // Configura o item click listener para abrir o sidebar com detalhes
         grid.addItemClickListener(event -> {
-            SetContaCorrente selectedConta = event.getItem();
+            SetOrcamento selectedConta = event.getItem();
+            // Cria o sidebar que será mostrado quando o item for clicado
+            sidebar.add(btnCloseSidebar);
+            sidebar.addClassName("v-sidebar");
+
+            Grid<SetOrdemServico> gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
+            gridOrdemServico.addColumn(SetOrdemServico::getId_ordemservico)
+                    .setHeader("Id")
+                    .setSortable(true)
+                    .setAutoWidth(true);
+            gridOrdemServico.addColumn(SetOrdemServico::getDatainicio_ordemservico)
+                    .setHeader("Data Atendimento")
+                    .setSortable(true)
+                    .setAutoWidth(true);
+            gridOrdemServico.setItems(ordemServicoService.findAllByOrcamentoId(selectedConta.getId_orcamento()));
 
             // Atualiza o conteúdo do sidebar com as informações da conta corrente
             sidebar.removeAll();
             sidebar.add(
-                    new H3("Detalhes da Conta"),
-                    new Text("Nome: " + selectedConta.getNome_contacorrente()),
-                    new Text("Banco: " + selectedConta.getBanco_contacorrente()),
-                    new Text("Usuário: " + usuarioService.findById(selectedConta.getId_usuario()).getNome_usuario()),
+                    new Text("Ordems Serviço Aberta "),
+                    gridOrdemServico,
                     btnCloseSidebar
             );
 
@@ -233,11 +267,9 @@ public class OrcamentoDiv extends Div {
 
         });
 
-        // Adiciona o grid e o sidebar ao layout principal
-        mainLayout.add(grid, sidebar);
-
-        return mainLayout;
+        return sidebar;
     }
+
 
     private void abrirDetalhesDoEstoque(SetEstoque estoque) {
         //  lógica para abrir modal
@@ -245,9 +277,9 @@ public class OrcamentoDiv extends Div {
         //dialog.open();
     }
 
-    private void deleta(SetContaCorrente item) {
+    private void deleta(SetOrcamento item) {
         try {
-            contaCorrenteService.delete(item);
+            orcamentoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
@@ -257,7 +289,7 @@ public class OrcamentoDiv extends Div {
     }
 
 
-    public class Filter extends Div implements Specification<SetContaCorrente> {
+    public class Filter extends Div implements Specification<SetOrcamento> {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
@@ -301,7 +333,7 @@ public class OrcamentoDiv extends Div {
 
 
         @Override
-        public Predicate toPredicate(Root<SetContaCorrente> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetOrcamento> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
@@ -354,7 +386,14 @@ public class OrcamentoDiv extends Div {
 
     private void openCadastroModal() {
         UI.getCurrent().access(() -> {
-            contaCorrenteCadastroModal.open();
+            orcamentoCadastroModal.open();
+        });
+    }
+
+    private void openDetalheCadastroModal(ItemDoubleClickEvent<SetOrcamento> event) {
+        UI.getCurrent().access(() -> {
+            OrcamentoTransiction.setOrcamento(event.getItem());
+            orcamentoDetalheModal.open();
         });
     }
 

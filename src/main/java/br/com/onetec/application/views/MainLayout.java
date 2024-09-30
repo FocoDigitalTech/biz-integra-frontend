@@ -49,6 +49,7 @@ import java.util.Optional;
 
 @Component
 @UIScope
+@PageTitle("Sistema Nagasaki")
 public class MainLayout extends AppLayout {
     private final AuthenticationContext authenticationContext;
 
@@ -64,6 +65,7 @@ public class MainLayout extends AppLayout {
         this.repository = repository;
         this.setPermissaoRepository = setPermissaoRepository1;
         setPrimarySection(Section.DRAWER);
+
         addNavbarContent();
         addDrawerContent();
     }
@@ -72,6 +74,7 @@ public class MainLayout extends AppLayout {
         var toggle = new DrawerToggle();
         toggle.setAriaLabel("Menu toggle");
         toggle.setTooltipText("Menu toggle");
+
 
         viewTitle = new H2("");
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE,
@@ -82,7 +85,8 @@ public class MainLayout extends AppLayout {
 
         String userName = authenticationContext.getPrincipalName().orElse("");
         configuraUsuarioCorrente(authenticationContext.getPrincipalName());
-        Avatar avatar = new Avatar(userName);
+
+        Avatar avatar = new Avatar(userName.substring(0, 2).toUpperCase());
         MenuBar menuBar = new MenuBar();
         //<theme-editor-local-classname>
         menuBar.addClassName("main-layout-menu-bar-1");
@@ -100,6 +104,8 @@ public class MainLayout extends AppLayout {
         header.addClassName("main-layout-header-1");
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
+
+
 
         addToNavbar(false, header);
     }

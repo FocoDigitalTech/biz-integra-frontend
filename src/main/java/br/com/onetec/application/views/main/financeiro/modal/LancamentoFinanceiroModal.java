@@ -102,7 +102,8 @@ public class LancamentoFinanceiroModal extends Dialog {
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
-            addThemeVariants(DialogVariant.LUMO_NO_PADDING);
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             getFooter().add(saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);

@@ -7,6 +7,7 @@ import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.charts.model.Title;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -190,8 +191,11 @@ public class DadosClienteModal extends Dialog {
                     dadosEnderecos,
                     dadosHistoricoAtendimento);
             contentTabs.setSizeFull();
-
-            VerticalLayout layout = new VerticalLayout(tabs, contentTabs, saveButton, cancelButton, atendimentoButton);
+            atendimentoButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton,atendimentoButton);
+            VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
     }

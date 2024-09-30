@@ -53,4 +53,8 @@ public class CondicaoPagamentoService {
             throw new Exception();
         }
     }
+
+    public List<SetCondicaoPagamento> listAll() {
+        return repository.listAll();
+    }
 }

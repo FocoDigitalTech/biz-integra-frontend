@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -62,5 +63,10 @@ public class ClientesService {
         log.info("Salvando novo cliente :" + entity.toString());
         repository.save(entity);
         return entity;
+    }
+
+    public SetCliente findById(Integer idCliente) {
+        Optional<SetCliente> optional = repository.findById(idCliente);
+        return optional.orElse(null);
     }
 }

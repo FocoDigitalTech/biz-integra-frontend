@@ -74,11 +74,11 @@ public class GrupoUsuarioCadastroModal extends Dialog{
                 catch (Exception e) {}
             });
             cancelButton = new Button("Cancelar", event -> close());
-            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             Div contentTabs = new Div(createFormCadastro());
             contentTabs.setSizeFull();
             addThemeVariants(DialogVariant.LUMO_NO_PADDING);
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             getFooter().add(saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);

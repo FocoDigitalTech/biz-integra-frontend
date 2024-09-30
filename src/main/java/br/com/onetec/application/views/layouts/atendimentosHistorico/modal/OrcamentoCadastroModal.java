@@ -1,143 +1,167 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
-import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
+import br.com.onetec.application.service.servicoservices.ServicoService;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
+import br.com.onetec.cross.constants.ModalMessageConst;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
+import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@UIScope
 public class OrcamentoCadastroModal extends Dialog {
 
     private SetCliente cliente;
 
 
-    private Tabs tabs;
     private Div cadastroOrcamantosDadosFinanceiros;
-    private Div cadastroServicosExecutados;
-    private Div cadastroOutros;
     private Button saveButton;
     private Button cancelButton;
 
     // Formulario Orçamento
-    private TextField numeroOrcamento;
     private TextField clienteNomeOrcamento;
-    private ComboBox localTratamentoOrcamento;
-    private TextField problemaOrcamento;
+    private ComboBox<SetEnderecos> localTratamentoOrcamento;
+    private TextArea problemaOrcamento;
     private DatePicker dataOrcamento;
-    private ComboBox atendenteOrcamento;
-    private ComboBox situacaoOrcamento;
-    private TextField dataInspecaoOrcamento;
+    private ComboBox<SetFuncionario> atendenteOrcamento;
+    private ComboBox<SetSituacaoCadastro> situacaoOrcamento;
+    private DatePicker dataInspecaoOrcamento;
     private TimePicker horarioOrcamento;
-    private ComboBox consultorOrcamento;
-    private ComboBox condicaoOrcamento;
+    private ComboBox<SetFuncionario> consultorOrcamento;
+    private ComboBox<SetCondicaoPagamento> condicaoOrcamento;
     private TextField garantiaOrcamento;
     private TextField valorOrcamento;
-    private Button buttonAdcionar;
-    private Button buttonRemover;
-    private Button buttonImprimir;
-    private final CheckboxGroup<String> servicoOrcamentoChekBox = new CheckboxGroup<>("Serviço");
+    private final CheckboxGroup<SetServico> servicoOrcamentoChekBox = new CheckboxGroup<>("Serviço");
+    private UtilitySystemConfigService service;
+
+
+    @Autowired
+    private EnderecoService enderecoService;
+
+    @Autowired
+    private FuncionarioService funcionarioService;
+
+    @Autowired
+    private SituacaoCadastroService situacaoCadastroService;
+
+    @Autowired
+    private CondicaoPagamentoService condicaoPagamentoService;
+
+    @Autowired
+    private ServicoService servicoService;
+
+    @Autowired
+    private OrcamentoService orcamentoService;
+
+
+    @Autowired
+    @Lazy
+    OrcamentoDiv orcamentoDiv;
 
     private void loadClienteData(SetCliente cliente) {
         // Lógica para carregar os dados do cliente usando o objeto cliente
     }
 
     public OrcamentoCadastroModal() {
-        addClassName(LumoUtility.Gap.SMALL);
-        // Recupera o objeto Cliente da sessão
-        cliente = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+        UI.getCurrent().access(() -> {
+            addClassName(LumoUtility.Gap.SMALL);
+            // Recupera o objeto Cliente da sessão
+            cliente = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
 
-        if (cliente != null) {
-            loadClienteData(cliente);
-        } else {
-            // Tratar caso o objeto cliente não esteja presente na sessão
-        }
-
-        addClassName("cadastro-modal");
-        saveButton = new Button("Salvar", eventbe -> save());
-        cancelButton = new Button("Cancelar", event -> close());
-        tabs = new Tabs();
-        Tab tab1 = new Tab("Orçamentos e Dados Financeiros");
-        Tab tab2 = new Tab("Serviços Executados");
-        Tab tab3 = new Tab("Outros");
-
-        tabs.add(tab1, tab2, tab3);
-//            cadastroOrcamantosDadosFinanceiros = createFormCadastroEmpresa();
-//            cadastroServicosExecutados = createFormCadastroAgendamento();
-//            cadastroOutros = createFormCadastroAprovacaoeCobranca();
-//            cadastroEnderecos = createFormEnderecos();
-
-        cadastroOrcamantosDadosFinanceiros = createFormCadastroOrcamantosDadosFinanceiros();
-        cadastroServicosExecutados = createFormCadastroServicosExecutados();
-        cadastroOutros = createFormCadastroOutros();
-
-
-        Div content = new Div(cadastroOrcamantosDadosFinanceiros,
-                cadastroServicosExecutados, cadastroOutros);
-        content.setSizeFull();
-        cadastroOrcamantosDadosFinanceiros.setVisible(true);
-        cadastroServicosExecutados.setVisible(false);
-        cadastroOutros.setVisible(false);
-
-        tabs.addSelectedChangeListener(event -> {
-            cadastroOrcamantosDadosFinanceiros.setVisible(false);
-            cadastroServicosExecutados.setVisible(false);
-            cadastroOutros.setVisible(false);
-
-            Tab selectedTab = tabs.getSelectedTab();
-            if (selectedTab.equals(tab1)) {
-                cadastroOrcamantosDadosFinanceiros.setVisible(true);
-            } else if (selectedTab.equals(tab2)) {
-                cadastroServicosExecutados.setVisible(true);
-            } else if (selectedTab.equals(tab3)) {
-                cadastroOutros.setVisible(true);
+            if (cliente != null) {
+                loadClienteData(cliente);
+            } else {
+                // Tratar caso o objeto cliente não esteja presente na sessão
             }
+
+            saveButton = new Button("Salvar", eventbe -> save());
+            cancelButton = new Button("Cancelar", event -> close());
+
+            cadastroOrcamantosDadosFinanceiros = createFormCadastroOrcamantosDadosFinanceiros();
+
+            Div content = new Div(cadastroOrcamantosDadosFinanceiros);
+            content.setSizeFull();
+            cadastroOrcamantosDadosFinanceiros.setVisible(true);
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
+            VerticalLayout layout = new VerticalLayout(content);
+            add(layout);
         });
-
-        Div contentTabs = new Div(cadastroOrcamantosDadosFinanceiros,
-                cadastroServicosExecutados, cadastroOutros);
-        contentTabs.setSizeFull();
-
-        VerticalLayout layout = new VerticalLayout(tabs,contentTabs, saveButton, cancelButton);
-        add(layout);
-    }
-
-    private Div createFormCadastroOutros() {
-        return new Div();
-    }
-
-    private Div createFormCadastroServicosExecutados() {
-        return new Div();
     }
 
     private Div createFormCadastroOrcamantosDadosFinanceiros() {
 
-        numeroOrcamento = new TextField("N° Orçamento");
-        numeroOrcamento.isReadOnly();
+        service = new UtilitySystemConfigService();
         clienteNomeOrcamento = new TextField("Nome Cliente");
         clienteNomeOrcamento.isReadOnly();
+        clienteNomeOrcamento.setValue(cliente.getNome_cliente());
 
-        localTratamentoOrcamento = new ComboBox("Local Tratamento");
-        problemaOrcamento = new TextField("Problema");
+        localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
+        localTratamentoOrcamento.setItems
+                (enderecoService.findAllClienteId(cliente.getId_cliente()));
+        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEndereco_imovel);
+
+        problemaOrcamento = new TextArea("Problema");
         dataOrcamento = new DatePicker("Data");
-        atendenteOrcamento = new ComboBox("Atendente");
-        situacaoOrcamento = new ComboBox("Situação");
-        dataInspecaoOrcamento = new TextField("Dt Inspeção");
+        service.configuraCalendario(dataOrcamento);
+
+        atendenteOrcamento = new ComboBox<>("Atendente");
+        atendenteOrcamento.setItems(funcionarioService.listAll());
+        atendenteOrcamento.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
+
+        situacaoOrcamento = new ComboBox<>("Situação");
+        situacaoOrcamento.setItems(situacaoCadastroService.listAll());
+        situacaoOrcamento.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
+
+        dataInspecaoOrcamento = new DatePicker("Data Inspeção");
+        service.configuraCalendario(dataInspecaoOrcamento);
+
         horarioOrcamento = new TimePicker("Horário");
-        consultorOrcamento = new ComboBox("Consultor");
-        condicaoOrcamento = new ComboBox("Condição");
+
+        consultorOrcamento = new ComboBox<>("Consultor");
+        consultorOrcamento.setItems(funcionarioService.listAll());
+        consultorOrcamento.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
+
+        condicaoOrcamento = new ComboBox<>("Condição");
+        condicaoOrcamento.setItems(condicaoPagamentoService.listAll());
+        condicaoOrcamento.setItemLabelGenerator(SetCondicaoPagamento::getDescricao_condicaopagamento);
+
+
         garantiaOrcamento = new TextField("Garantia");
+
         valorOrcamento = new TextField("Valor Orçamento");
+        valorOrcamento.setValueChangeMode(ValueChangeMode.EAGER);
+        valorOrcamento.addValueChangeListener(event -> service.formataMoedaBrasileira(valorOrcamento));
+        valorOrcamento.setPlaceholder("R$ 0,00");
 
         localTratamentoOrcamento.setWidth("auto");
         atendenteOrcamento.setWidth("auto");
@@ -147,28 +171,28 @@ public class OrcamentoCadastroModal extends Dialog {
 
         valorOrcamento.setWidth("auto");
 
-        buttonAdcionar = new Button("Adcionar");
-        buttonRemover = new Button("Remover");
-        buttonImprimir = new Button("Imprimir");
+        List<String> items = new ArrayList<>();
+         servicoService.listAll().forEach(obj -> {
+            items.add(obj.getDescricao_servico());
+        });
+        List<SetServico> teste = servicoService.listAll();
 
-        servicoOrcamentoChekBox.setItems("Cupins", "Insetos Rasteiros", "Roedores", "Vazamentos", "Desobstrução", "Limp.Cx D'água", "Outros");
+        //servicoOrcamentoChekBox.setItems("Cupins", "Insetos Rasteiros", "Roedores", "Vazamentos", "Desobstrução", "Limp.Cx D'água", "Outros");
+        servicoOrcamentoChekBox.setItems(servicoService.listAll());
+        servicoOrcamentoChekBox.setItemLabelGenerator(SetServico::getDescricao_servico);
         servicoOrcamentoChekBox.addClassName("double-width");
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
 
-        FormLayout formLayout1 = new FormLayout();
-        formLayout1.setWidthFull();
 
-        Details details = new Details("Orçamentos e Dados Financeiros", formLayout1);
-        details.setOpened(false);
-
-        formLayout.add(numeroOrcamento,clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,dataOrcamento,atendenteOrcamento,situacaoOrcamento,dataInspecaoOrcamento,horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,valorOrcamento,buttonAdcionar,buttonRemover,buttonImprimir,servicoOrcamentoChekBox,details);
+        formLayout.add(clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,
+                dataOrcamento,atendenteOrcamento,situacaoOrcamento,dataInspecaoOrcamento,
+                horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,
+                valorOrcamento,servicoOrcamentoChekBox);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
-
-
 
         return div;
     }
@@ -177,6 +201,55 @@ public class OrcamentoCadastroModal extends Dialog {
 
     private void save() {
         // Lógica para salvar o cadastro
+        SetOrcamento dto = new SetOrcamento();
+
+        try {
+        if (atendenteOrcamento.getValue() != null) {
+            dto.setId_funcionarioatendimento(atendenteOrcamento.getValue().getId_funcionario());
+        }
+        if (consultorOrcamento.getValue() != null) {
+            dto.setId_funcionarioconsultor(consultorOrcamento.getValue().getId_funcionario());
+        }
+        if (situacaoOrcamento.getValue() != null) {
+            dto.setId_situacao(situacaoOrcamento.getValue().getId_situacaocadastro());
+        }
+        if (condicaoOrcamento.getValue() != null) {
+            dto.setId_condicaopagamento(condicaoOrcamento.getValue().getId_condicaopagamento());
+        }
+        if (localTratamentoOrcamento.getValue() != null) {
+            dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+        }
+
+        dto.setId_cliente(cliente.getId_cliente());
+        dto.setDescricao_problema(problemaOrcamento.getValue());
+        dto.setData_orcamento(dataOrcamento.getValue());
+        dto.setData_inspecao(dataInspecaoOrcamento.getValue());
+        dto.setHorario_inspecao(horarioOrcamento.getValue());
+        dto.setGarantia_orcamento(garantiaOrcamento.getValue());
+        dto.setValor_orcamento(service.getValorBigDecimal(valorOrcamento.getValue()));
+        dto.setData_inclusao(LocalDateTime.now());
+        dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        dto.setAtivo("S");
+        service = new UtilitySystemConfigService();
+            orcamentoService.save(dto);
+            orcamentoDiv.refreshGrid();
+            localTratamentoOrcamento.clear();
+            problemaOrcamento.clear();
+            dataOrcamento.clear();
+            atendenteOrcamento.clear();
+            situacaoOrcamento.clear();
+            dataInspecaoOrcamento.clear();
+            horarioOrcamento.clear();
+            consultorOrcamento.clear();
+            condicaoOrcamento.clear();
+            garantiaOrcamento.clear();
+            valorOrcamento.clear();
+            servicoOrcamentoChekBox.clear();
+            service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+            close();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_CREATE);
+        }
 
     }
 
