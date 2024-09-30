@@ -26,6 +26,26 @@
     position: relative; /* Necessário para o posicionamento do ::after */
 }
 
+
+/* Estiliza todos os elementos dentro da notificação */
+.success-notification * {
+    background-color: inherit;
+    color: inherit;
+}
+.success-notification::part(content) {
+    background-color: #28a745;
+    color: white;
+}
+
+.error-notification * {
+   background-color: inherit;
+   color: inherit;
+}
+.error-notification::part(content) {
+   background-color: #ff2300;
+   color: white;
+}
+
 .error-border::after {
     content: "*Campo obrigatório";
     color: red;

@@ -74,4 +74,13 @@
   .telarelatorios-view .mobile-filters:hover {
     color: var(--lumo-body-text-color);
   }
+
+  .v-sidebar {
+      transition: transform 0.3s ease;
+      transform: translateX(-300px); /* Começa fora da tela */
+  }
+
+  .v-sidebar.visible {
+      transform: translateX(0); /* Traz o sidebar de volta para dentro */
+  }
 }

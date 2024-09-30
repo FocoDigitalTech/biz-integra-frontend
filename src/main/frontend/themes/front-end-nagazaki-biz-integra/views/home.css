@@ -1,0 +1,112 @@
+.hero-section {
+    background-image: url('https://via.placeholder.com/1920x600');
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    padding: 100px 0;
+}
+
+.hero-title {
+    color: white;
+    font-size: 3em;
+    margin: 0;
+}
+
+.hero-subtitle {
+    color: white;
+    font-size: 1.5em;
+}
+
+.primary-button {
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+}
+
+/* Info Section */
+.info-section {
+    padding: 20px 0;
+}
+
+.info-section h2 {
+    font-size: 2em;
+}
+
+.info-section p {
+    font-size: 1.2em;
+}
+
+/* Card Section */
+.card-section {
+    padding: 50px 0;
+}
+
+.card-section > * {
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 20px;
+}
+
+/* Footer */
+.footer-section {
+    background-color: #333;
+    color: white;
+    padding: 20px 0;
+}
+
+.clickable-card {
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+    margin: 10px;
+}
+
+.clickable-card:hover {
+    box-shadow: 0px 8px 20px rgba(0, 255, 0, 0.3);
+    transform: translateY(-8px);
+}
+
+.clickable-card.dragging {
+    opacity: 0.5;
+}
+
+.carousel-container {
+    overflow: hidden;
+    width: 80%;
+    height: 400px;
+    position: relative;
+    display: flex;
+    flex-direction: row; /* Por padrão, em carrossel */
+}
+
+.carousel-section {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-section h3 {
+    font-size: 2rem;
+}
+
+.carousel-section p {
+    font-size: 1.2rem;
+}
+
+/* Estilo específico para visualização em lista */
+.list-view-item {
+    margin: 10px 0;
+    transition: none; /* Remove animação no modo lista */
+}
+
+button {
+    margin: 10px;
+}
+
+button:focus {
+    outline: none;
+}
