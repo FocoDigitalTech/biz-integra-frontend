@@ -73,7 +73,9 @@ public class GrupoUsuarioCadastroModal extends Dialog{
                 try { save();}
                 catch (Exception e) {}
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastro());
             contentTabs.setSizeFull();
             addThemeVariants(DialogVariant.LUMO_NO_PADDING);

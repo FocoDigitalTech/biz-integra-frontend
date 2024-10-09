@@ -1,10 +1,9 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.div;
 
 import br.com.onetec.application.service.clientesservice.ClientesService;
-import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrdemServicoCadastroModal;
-import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
@@ -46,19 +45,19 @@ public class ServicosExecutadosDiv extends Div {
 
     private ClientesService clientesService;
 
-    private OrdemServicoCadastroModal funcionarioCadastroModal;
+    private OrdemServicoCadastroModal ordemServicoCadastroModal;
 
     Button btnExcluir;
 
 
     @Autowired
-    public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
+    public void initServices(OrdemServicoCadastroModal ordemServicoCadastroModal1,
                              ClientesService departamentoService1,
                              OrdemServicoService funcionarioService) {
-        this.funcionarioCadastroModal = funcionarioCadastroModal;
+        this.ordemServicoCadastroModal = ordemServicoCadastroModal1;
         this.clientesService = departamentoService1;
         this.ordemServicoService = funcionarioService;
-        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
+        ordemServicoCadastroModal1.addDialogCloseActionListener(event -> {
             // Código para atualizar a AdministrativoView
             refreshGridFuncionario();
         });
@@ -199,7 +198,7 @@ public class ServicosExecutadosDiv extends Div {
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
         private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Nome");
-        private final MultiSelectComboBox<SetDepartamento> departamento = new MultiSelectComboBox<>("Departamento");
+        //private final MultiSelectComboBox<SetDepartamento> departamento = new MultiSelectComboBox<>("Departamento");
 
 
         public FiltersFuncionario(Runnable onSearch) {
@@ -211,8 +210,6 @@ public class ServicosExecutadosDiv extends Div {
             id.setPlaceholder("Código");
 
             //adcionar lista de funcionarios abaixo
-            departamento.setItems(departamentoLista);
-            departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
 
 
 
@@ -222,7 +219,6 @@ public class ServicosExecutadosDiv extends Div {
             resetBtn.addClickListener(e -> {
                 id.clear();
                 nome.clear();
-                departamento.clear();
                 onSearch.run();
             });
             com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
@@ -236,7 +232,7 @@ public class ServicosExecutadosDiv extends Div {
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
-            add(id, nome, departamento, actions);
+            add(id, nome,  actions);
         }
 
 
@@ -299,12 +295,15 @@ public class ServicosExecutadosDiv extends Div {
     }
 
     private Button createFuncionarioCadastroButton() {
+
         Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
         return cadastroButton;
     }
 
 
     private void openCadastroFuncionarioModal() {
-        funcionarioCadastroModal.open();
+        SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+        SetClienteTransiction.setCliente(entidade);
+        ordemServicoCadastroModal.open();
     }
 }

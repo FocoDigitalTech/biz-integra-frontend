@@ -1,6 +1,8 @@
 package br.com.onetec.application.service.tecnicoassistenteservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetSituacaoCadastro;
+import br.com.onetec.infra.db.model.SetSituacaoPagamento;
 import br.com.onetec.infra.db.model.SetTecnicoAssistente;
 import br.com.onetec.infra.db.repository.ISetSituacaoCadastroRepository;
 import br.com.onetec.infra.db.repository.ISetTecnicoAssistenteRepository;
@@ -11,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,7 +44,13 @@ public class TecnicoAssistenteService {
 
     public void delete(SetTecnicoAssistente item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetTecnicoAssistente> optional = repository.findById(item.getId_tecnicoassistente());
+            SetTecnicoAssistente entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

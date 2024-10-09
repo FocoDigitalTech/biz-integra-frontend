@@ -1,7 +1,9 @@
 package br.com.onetec.application.service.userservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.views.main.configuracoessistema.div.PragasDiv;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
+import br.com.onetec.infra.db.model.SetTipoPagamento;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import br.com.onetec.infra.db.repository.ITipoMidiaRepository;
 import br.com.onetec.infra.db.repository.IUsuariosRepository;
@@ -15,6 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import br.com.onetec.application.security.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,7 +46,13 @@ public class UsuarioService {
 
     public void delete(SetUsuarios item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetUsuarios> optional = repository.findById(item.getId_usuario());
+            SetUsuarios entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

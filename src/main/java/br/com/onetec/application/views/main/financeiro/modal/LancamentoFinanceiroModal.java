@@ -97,7 +97,9 @@ public class LancamentoFinanceiroModal extends Dialog {
                 try { save();}
                 catch (Exception e) {}
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             Div contentTabs = new Div(createFormCadastroEmpresa());

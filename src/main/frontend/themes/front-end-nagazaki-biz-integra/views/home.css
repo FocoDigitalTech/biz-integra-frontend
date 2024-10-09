@@ -87,6 +87,12 @@
     justify-content: center;
     align-items: center;
     transition: transform 0.5s ease-in-out;
+    background-image: url('https://nagasakidedetizacao.com.br/wp-content/uploads/2020/08/Logo-Nagasaki.png'); /* Caminho da sua imagem */
+    background-size: 50% auto;
+    background-position: center; /* Centraliza a imagem */
+    background-repeat: no-repeat; /* Impede que a imagem se repita */
+    padding: 20px; /* Ajuste conforme necessário para espaçamento interno */
+    border-radius: 10px; /* Adiciona bordas arredondadas aos cards */
 }
 
 .carousel-section h3 {
@@ -110,3 +116,31 @@ button {
 button:focus {
     outline: none;
 }
+
+.slide-left {
+    animation: slideLeft 0.5s ease;
+}
+
+@keyframes slideLeft {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.slide-right {
+    animation: slideRight 0.5s ease;
+}
+
+@keyframes slideRight {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+

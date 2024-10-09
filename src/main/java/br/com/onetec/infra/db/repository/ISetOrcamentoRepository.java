@@ -13,4 +13,7 @@ public interface ISetOrcamentoRepository extends CrudRepository<SetOrcamento, In
 
     @Query(value = "SELECT * FROM tb_orcamento where ativo = 'S'", nativeQuery = true)
     List<SetOrcamento> listAll();
+
+    @Query(value = "SELECT * FROM tb_orcamento where ativo = 'S' and id_cliente = ?1", nativeQuery = true)
+    List<SetOrcamento> listAllByClientId(Integer idcliente);
 }

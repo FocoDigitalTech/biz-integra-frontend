@@ -1,6 +1,8 @@
 package br.com.onetec.application.service.situacaocadastroservice;
 
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import br.com.onetec.infra.db.model.SetSituacaoCadastro;
 import br.com.onetec.infra.db.model.SetTipoAtendimento;
 import br.com.onetec.infra.db.repository.ISetSituacaoCadastroRepository;
@@ -12,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -41,7 +45,13 @@ public class SituacaoCadastroService {
 
     public void delete(SetSituacaoCadastro item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetSituacaoCadastro> optional = repository.findById(item.getId_situacaocadastro());
+            SetSituacaoCadastro entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

@@ -1,6 +1,8 @@
 package br.com.onetec.application.service.permissaoservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
+import br.com.onetec.infra.db.model.SetPagamento;
 import br.com.onetec.infra.db.model.SetPermissao;
 import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
 import br.com.onetec.infra.db.repository.ISetPermissaoRepository;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +42,13 @@ public class PermissaoService {
 
     public void delete(SetPermissao item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetPermissao> optional = repository.findById(item.getId_permissao());
+            SetPermissao entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

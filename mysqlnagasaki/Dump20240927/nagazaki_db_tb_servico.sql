@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: nagazaki_db
 -- ------------------------------------------------------
--- Server version	8.0.39
+-- Server version	8.0.39-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -32,7 +32,7 @@ CREATE TABLE `tb_servico` (
   `ativo` varchar(1) DEFAULT NULL,
   `id_usuario` int DEFAULT NULL,
   PRIMARY KEY (`id_servico`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,7 @@ CREATE TABLE `tb_servico` (
 
 LOCK TABLES `tb_servico` WRITE;
 /*!40000 ALTER TABLE `tb_servico` DISABLE KEYS */;
-INSERT INTO `tb_servico` VALUES (1,NULL,'Controle de Pragas','2024-08-27 18:55:18',NULL,NULL,'S',2);
+INSERT INTO `tb_servico` VALUES (1,NULL,'Controle de Pragas','2024-08-27 18:55:18',NULL,NULL,'S',2),(2,NULL,'Insetos Rasteiros','2024-09-29 11:18:44',NULL,NULL,'S',7),(3,NULL,'Limp.Cx D\'água','2024-09-29 11:30:33',NULL,NULL,'S',7),(4,NULL,'Roedores','2024-09-29 11:30:39',NULL,NULL,'S',7);
 /*!40000 ALTER TABLE `tb_servico` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-27  1:03:05
+-- Dump completed on 2024-09-30 15:47:07

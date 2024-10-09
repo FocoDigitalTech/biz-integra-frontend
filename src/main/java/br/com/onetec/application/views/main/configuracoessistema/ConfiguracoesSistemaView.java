@@ -88,8 +88,6 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
                         servicoDiv);
                 tabSheet.add("Pragas",
                         pragasDiv);
-                tabSheet.add("Tecnicos e Assistentes",
-                        new Div(new Text("This is the Shipping tab content")));
                 tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
                 add(tabSheet);
             });

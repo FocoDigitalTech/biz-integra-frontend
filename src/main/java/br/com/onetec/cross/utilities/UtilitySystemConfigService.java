@@ -2,13 +2,18 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.application.views.main.clientes.modal.CadastroClientesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
@@ -166,6 +172,33 @@ public class UtilitySystemConfigService {
         return celularField;
     }
 
+    public TextField configureTelefoneResidencialField(TextField telefoneField) {
+        telefoneField.setMaxLength(14); // Máximo de caracteres para o formato (XX) XXXX-XXXX
+        telefoneField.setPlaceholder("(XX) XXXX-XXXX");
+        telefoneField.setValueChangeMode(ValueChangeMode.EAGER); // Atualiza o valor conforme o usuário digita
+
+        telefoneField.addValueChangeListener(event -> {
+            String value = event.getValue();
+            // Remove qualquer caractere não numérico
+            value = value.replaceAll("[^0-9]", "");
+
+            // Adiciona o formato do telefone residencial
+            if (value.length() > 2) {
+                value = "(" + value.substring(0, 2) + ") " + value.substring(2);
+            }
+            if (value.length() > 8) {
+                value = value.substring(0, 9) + "-" + value.substring(9);
+            }
+
+            // Evita que o campo fique alterando para valores incorretos
+            if (!event.getOldValue().equals(value)) {
+                telefoneField.setValue(value);
+            }
+        });
+
+        return telefoneField;
+    }
+
     public TextField configureCEPField(TextField cepField) {
         cepField.setMaxLength(9);
         cepField.setPlaceholder("XXXXX-XXX");
@@ -208,7 +241,6 @@ public class UtilitySystemConfigService {
         if (value.isEmpty()) {
             return BigDecimal.ZERO;
         }
-
         // Substitui vírgula por ponto para criar o BigDecimal
         value = value.replace(",", ".");
         BigDecimal valor = new BigDecimal(value);
@@ -240,4 +272,57 @@ public class UtilitySystemConfigService {
         return valorItem;
     }
 
+    public void askForConfirmation(Dialog modal) {
+
+        Dialog confirmationDialog = new Dialog();
+        confirmationDialog.add("Você realmente deseja sair sem salvar as alterações?");
+
+        Button confirmButton = new Button("Sim", event -> {
+            confirmationDialog.close();
+            modal.close();
+            Notification.show("Você saiu sem salvar.");
+        });
+
+        Button cancelButton = new Button("Não", event -> confirmationDialog.close());
+
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        confirmationDialog.getFooter().add(confirmButton, cancelButton);
+        //confirmationDialog.add(confirmButton, cancelButton);
+        confirmationDialog.open();
+
+    }
+
+    public void configureEmailField(EmailField internetEmailField) {
+        internetEmailField.getElement().setAttribute("name", "email");
+        internetEmailField.setErrorMessage("Insira um endereço de e-mail válido");
+        internetEmailField.setClearButtonVisible(true);
+    }
+
+    private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#,##0.00'%'");
+
+    public TextField formataPorcentagem(TextField valor_item) {
+        // Remove caracteres não numéricos, exceto o ponto decimal
+        String value = valor_item.getValue().replaceAll("[^\\d.]", "");
+
+        if (!value.isEmpty()) {
+            double valorNumerico = Double.parseDouble(value) / 100; // Divide por 100 para obter porcentagem
+            valor_item.setValue(PERCENT_FORMAT.format(valorNumerico));
+        } else {
+            valor_item.setValue("");
+        }
+        return valor_item;
+    }
+
+    public BigDecimal extrairPorcentagem(BigDecimal valorSomado, BigDecimal porcentagem) {
+        // Dividindo a porcentagem por 100 para obter o fator decimal (exemplo: 2% = 0.02)
+        BigDecimal fatorPorcentagem = porcentagem.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
+
+        // Multiplicando o valor somado pelo fator porcentagem para extrair o valor da porcentagem
+        BigDecimal valorPorcentagem = valorSomado.multiply(fatorPorcentagem).setScale(2, RoundingMode.HALF_UP);
+
+        return valorPorcentagem;
+    }
 }

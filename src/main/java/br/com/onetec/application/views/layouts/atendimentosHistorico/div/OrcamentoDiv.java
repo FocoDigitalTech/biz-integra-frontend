@@ -5,14 +5,14 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoCadastroModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoDetalheModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrdemServicoCadastroModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrdemServicoDadosModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetOrcamento;
-import br.com.onetec.infra.db.model.SetOrdemServico;
-import br.com.onetec.infra.db.model.SetUsuarios;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -23,8 +23,10 @@ import com.vaadin.flow.component.grid.ItemDoubleClickEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -37,6 +39,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -65,6 +68,10 @@ public class OrcamentoDiv extends Div {
 
     private Button btnExcluir;
 
+    private OrdemServicoDadosModal ordemServicoDadosModal;
+
+    private OrdemServicoCadastroModal ordemServicoCadastroModal;
+
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -72,13 +79,17 @@ public class OrcamentoDiv extends Div {
                              OrcamentoService orcamentoService1,
                              OrcamentoCadastroModal contaCorrenteCadastroModal1,
                              OrcamentoDetalheModal orcamentoDetalheModal1,
-                             OrdemServicoService ordemServicoService1) {
+                             OrdemServicoService ordemServicoService1,
+                             OrdemServicoDadosModal ordemServicoDadosModal1,
+                             OrdemServicoCadastroModal ordemServicoCadastroModal1) {
         this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.orcamentoCadastroModal = contaCorrenteCadastroModal1;
         this.orcamentoDetalheModal = orcamentoDetalheModal1;
         this.ordemServicoService = ordemServicoService1;
+        this.ordemServicoDadosModal = ordemServicoDadosModal1;
+        this.ordemServicoCadastroModal = ordemServicoCadastroModal1;
     }
 
     @Autowired
@@ -112,7 +123,9 @@ public class OrcamentoDiv extends Div {
 //
 //        splitLayout.setSizeFull();
 //        splitLayout.setWidthFull();
-        add(telaDiv());
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
     }
 //
 //    private void updateSidebar() {
@@ -122,23 +135,34 @@ public class OrcamentoDiv extends Div {
 
     private Div telaDiv() {
         /* constuir a tela funcionarios*/
-        setSizeFull();
-        addClassNames("telarelatorios-view");
+        SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+        entidade = SetClienteTransiction.getCliente();
+        if (Objects.nonNull(entidade)) {
+            setSizeFull();
+            addClassNames("telarelatorios-view");
 
-        com.vaadin.flow.component.Component gridFuncionario = createGrid();
-        filter = new OrcamentoDiv.Filter(() -> refreshGrid());
-        HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
+            com.vaadin.flow.component.Component gridFuncionario = createGrid(entidade);
+            filter = new OrcamentoDiv.Filter(() -> refreshGrid());
+            HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
-        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
-        layout.setSizeFull();
-        layout.setPadding(false);
-        layout.setSpacing(false);
+            VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
+            layout.setSizeFull();
+            layout.setPadding(false);
+            layout.setSpacing(false);
 
-        add(layout);
-        Div div = new Div(layout);
-        div.setSizeFull();
 
-        return div;
+            add(layout);
+            Div div = new Div(layout);
+            div.setSizeFull();
+
+            return div;
+        } else {
+            ProgressBar progressBar = new ProgressBar();
+            progressBar.setIndeterminate(true);
+            add(progressBar);
+
+            return new Div(progressBar);
+        }
 
     }
 
@@ -170,7 +194,7 @@ public class OrcamentoDiv extends Div {
         return mobileFilters;
     }
 
-    private com.vaadin.flow.component.Component createGrid() {
+    private com.vaadin.flow.component.Component createGrid(SetCliente entidade) {
         // Cria o layout principal
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
@@ -201,9 +225,9 @@ public class OrcamentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.setItems(query -> orcamentoService.list(
+        grid.setItems(query -> orcamentoService.listByCustomer(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filter).stream());
+                filter,entidade).stream());
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
@@ -225,12 +249,19 @@ public class OrcamentoDiv extends Div {
 
         // Cria o botão de fechar o sidebar
         VerticalLayout sidebar = new VerticalLayout();
-        Button btnCloseSidebar = new Button("Fechar", event -> {
+        Button btnCloseSidebar = new Button(new Icon(VaadinIcon.ARROW_RIGHT), event -> {
             sidebar.setVisible(false);
+        });
+        btnCloseSidebar.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR);
+        Button createBtnSidebar = new Button(new Icon(VaadinIcon.PLUS));
+        createBtnSidebar.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_PRIMARY);
+        createBtnSidebar.setAriaLabel("Add ordem de serviço");
+
+        Button btnNovaOrdem = new Button("Novo", event -> {
         });
 
         // Cria o sidebar que será mostrado quando o item for clicado
-        sidebar.add(btnCloseSidebar);
+        sidebar.add(btnCloseSidebar,btnNovaOrdem);
         sidebar.addClassName("v-sidebar");
 
 
@@ -239,12 +270,19 @@ public class OrcamentoDiv extends Div {
         grid.addItemClickListener(event -> {
             SetOrcamento selectedConta = event.getItem();
             // Cria o sidebar que será mostrado quando o item for clicado
-            sidebar.add(btnCloseSidebar);
+            //sidebar.add(btnCloseSidebar,createBtnSidebar);
             sidebar.addClassName("v-sidebar");
+            createBtnSidebar.addClickListener(event1 -> {
+                openCadastroOrdemServicoModal(event.getItem());
+            });
 
             Grid<SetOrdemServico> gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
             gridOrdemServico.addColumn(SetOrdemServico::getId_ordemservico)
                     .setHeader("Id")
+                    .setSortable(true)
+                    .setAutoWidth(true);
+            gridOrdemServico.addColumn(SetOrdemServico::getNome_pontofocal)
+                    .setHeader("Ponto Focal")
                     .setSortable(true)
                     .setAutoWidth(true);
             gridOrdemServico.addColumn(SetOrdemServico::getDatainicio_ordemservico)
@@ -253,12 +291,16 @@ public class OrcamentoDiv extends Div {
                     .setAutoWidth(true);
             gridOrdemServico.setItems(ordemServicoService.findAllByOrcamentoId(selectedConta.getId_orcamento()));
 
+            gridOrdemServico.addItemClickListener(event1 -> {
+                openDetalhesOrdemServico(event1.getItem());
+            });
+
             // Atualiza o conteúdo do sidebar com as informações da conta corrente
             sidebar.removeAll();
             sidebar.add(
-                    new Text("Ordems Serviço Aberta "),
+                    new Text("Ordems de Serviço Aberta: "),
                     gridOrdemServico,
-                    btnCloseSidebar
+                    new HorizontalLayout(btnCloseSidebar,createBtnSidebar)
             );
 
             sidebar.addClassName("visible");
@@ -270,12 +312,17 @@ public class OrcamentoDiv extends Div {
         return sidebar;
     }
 
-
-    private void abrirDetalhesDoEstoque(SetEstoque estoque) {
-        //  lógica para abrir modal
-        // ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
-        //dialog.open();
+    private void openCadastroOrdemServicoModal(SetOrcamento item) {
+         ordemServicoCadastroModal.setOrdemServico(item);
+         ordemServicoCadastroModal.open();
     }
+
+
+    private void openDetalhesOrdemServico(SetOrdemServico item) {
+        ordemServicoDadosModal.setOrdemServico(item);
+        ordemServicoDadosModal.open();
+    }
+
 
     private void deleta(SetOrcamento item) {
         try {
@@ -392,7 +439,8 @@ public class OrcamentoDiv extends Div {
 
     private void openDetalheCadastroModal(ItemDoubleClickEvent<SetOrcamento> event) {
         UI.getCurrent().access(() -> {
-            OrcamentoTransiction.setOrcamento(event.getItem());
+            UI.getCurrent().getSession().setAttribute("orcamento", event.getItem());
+            orcamentoDetalheModal.setOrcamento(event.getItem());
             orcamentoDetalheModal.open();
         });
     }

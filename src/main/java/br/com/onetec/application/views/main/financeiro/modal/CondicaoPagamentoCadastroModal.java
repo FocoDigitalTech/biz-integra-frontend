@@ -50,7 +50,9 @@ public class CondicaoPagamentoCadastroModal extends Dialog {
                 } catch (Exception e) {
                 }
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

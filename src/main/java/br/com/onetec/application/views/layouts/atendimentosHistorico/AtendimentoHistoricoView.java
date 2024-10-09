@@ -59,6 +59,7 @@ public class AtendimentoHistoricoView extends  Div {
     private OrcamentoDiv orcamentoDiv;
     private ServicosExecutadosDiv servicosExecutadosDiv;
     private TipoEventoFinanceiroDiv tipoEventoFinanceiroDiv;
+
     
 
     @Autowired
@@ -67,7 +68,8 @@ public class AtendimentoHistoricoView extends  Div {
     }
 
     @Autowired
-    public AtendimentoHistoricoView(OrcamentoDiv orcamentoDiv1){
+    public AtendimentoHistoricoView(OrcamentoDiv orcamentoDiv1,ServicosExecutadosDiv servicosExecutadosDiv1){
+        this.servicosExecutadosDiv = servicosExecutadosDiv1;
         this.orcamentoDiv = orcamentoDiv1;
         UI.getCurrent().access(() -> {
             setSizeFull();
@@ -76,11 +78,12 @@ public class AtendimentoHistoricoView extends  Div {
             TabSheet tabSheet = new TabSheet();
             tabSheet.add("Orçamento e Dados Financeiros",
                     orcamentoDiv);
-            tabSheet.add("Serviços Executados",
-                    new Div());
+//            tabSheet.add("Serviços Executados",
+//                    servicosExecutadosDiv);
            // tabSheet.add("Outros",
              //       new Div());
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+
             add(tabSheet);
         });
     }

@@ -147,6 +147,7 @@ public class MainLayout extends AppLayout {
         nav.addItem(createNavItem(MenuNavItemVerticalTitleConst.NAME_SEGURANCA, ConfiguracoesSegurancaView.class,
                 VaadinIcon.GROUP));
 
+
         nav.setCollapsible(false);
 
         return nav;

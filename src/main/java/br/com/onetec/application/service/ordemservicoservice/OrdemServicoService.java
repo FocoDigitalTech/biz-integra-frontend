@@ -1,5 +1,6 @@
 package br.com.onetec.application.service.ordemservicoservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrcamento;
 import br.com.onetec.infra.db.model.SetOrdemServico;
 import br.com.onetec.infra.db.repository.ISetOrcamentoRepository;
@@ -11,7 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -36,6 +39,11 @@ public class OrdemServicoService {
         return repository.listAllByOrcamentoId(orcamentoid);
     }
 
+    public List<SetOrdemServico> findAll(){
+
+        return repository.listAll();
+    }
+
     public void save(SetOrdemServico dto) throws Exception {
         try {
             repository.save(dto);
@@ -46,7 +54,13 @@ public class OrdemServicoService {
 
     public void delete(SetOrdemServico item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetOrdemServico> optional = repository.findById(item.getId_ordemservico());
+            SetOrdemServico entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

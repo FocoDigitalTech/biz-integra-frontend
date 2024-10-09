@@ -4,6 +4,7 @@ package br.com.onetec.application.views.main.administrativo;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
@@ -57,6 +58,8 @@ public class AdministrativoView extends Div {
 
     private FornecedorDiv fornecedorDiv;
 
+    private ComprasDiv comprasDiv;
+
     private Grid<SetDepartamento> departamentoGrid;
 
 
@@ -71,26 +74,37 @@ public class AdministrativoView extends Div {
 
     private DepartamentoCadastroModal departamentoCadastroModal;
 
+
+
     @Autowired
     public void initServices(FuncionarioDiv funcionarioDiv,
                              FornecedorDiv fornecedorDiv1,
                              DepartamentoService departamentoService,
                              FuncionarioService funcionarioService,
-                             DepartamentoCadastroModal departamentoCadastroModal) {
+                             DepartamentoCadastroModal departamentoCadastroModal,
+                             ComprasDiv comprasDiv1) {
         this.fornecedorDiv = fornecedorDiv1;
         this.funcionarioDiv = funcionarioDiv;
         this.departamentoService = departamentoService;
         this.funcionarioService = funcionarioService;
         this.departamentoCadastroModal = departamentoCadastroModal;
+        this.comprasDiv = comprasDiv1;
     }
 
 
     @Autowired
-    public AdministrativoView(FuncionarioDiv funcionarioDiv1,
-                                FornecedorDiv fornecedorDiv1) {
-
-        this.funcionarioDiv = funcionarioDiv1;
+    public AdministrativoView(FuncionarioDiv funcionarioDiv,
+                              FornecedorDiv fornecedorDiv1,
+                              DepartamentoService departamentoService,
+                              FuncionarioService funcionarioService,
+                              DepartamentoCadastroModal departamentoCadastroModal,
+                              ComprasDiv comprasDiv1) {
         this.fornecedorDiv = fornecedorDiv1;
+        this.funcionarioDiv = funcionarioDiv;
+        this.departamentoService = departamentoService;
+        this.funcionarioService = funcionarioService;
+        this.departamentoCadastroModal = departamentoCadastroModal;
+        this.comprasDiv = comprasDiv1;
         UI.getCurrent().access(() -> {
         setSizeFull();
         TabSheet tabSheet = new TabSheet();
@@ -102,9 +116,7 @@ public class AdministrativoView extends Div {
         tabSheet.add("Fornecedores",
                 fornecedorDiv);
         tabSheet.add("Compras",
-                new Div(new Text("This is the Shipping tab content")));
-        tabSheet.add("Tabelas de Serviço",
-                new Div(new Text("This is the Shipping tab content")));
+                comprasDiv);
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         add(tabSheet);
         });
@@ -206,6 +218,7 @@ public class AdministrativoView extends Div {
     }
 
     private void openDetalhesClienteModal(SetDepartamento item) {
+
 
     }
 

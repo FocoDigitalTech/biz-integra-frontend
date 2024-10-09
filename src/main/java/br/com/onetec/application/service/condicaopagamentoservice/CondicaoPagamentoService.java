@@ -2,10 +2,7 @@ package br.com.onetec.application.service.condicaopagamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Departamento;
-import br.com.onetec.infra.db.model.SetCondicaoPagamento;
-import br.com.onetec.infra.db.model.SetDepartamento;
-import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetFuncionario;
+import br.com.onetec.infra.db.model.*;
 import br.com.onetec.infra.db.repository.IDepartamentoRepository;
 import br.com.onetec.infra.db.repository.IFuncionarioRepository;
 import br.com.onetec.infra.db.repository.ISetCondicaoPagamentoRepository;
@@ -34,8 +31,12 @@ public class CondicaoPagamentoService {
 
     public Page<SetCondicaoPagamento> list(Pageable pageable, Specification<SetCondicaoPagamento> filter) {
         log.info("Pageable: {}", pageable);
-        Page<SetCondicaoPagamento> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetCondicaoPagamento> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetCondicaoPagamento> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetCondicaoPagamento dto) throws Exception {
@@ -48,7 +49,13 @@ public class CondicaoPagamentoService {
 
     public void delete(SetCondicaoPagamento item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetCondicaoPagamento> optional = repository.findById(item.getId_condicaopagamento());
+            SetCondicaoPagamento entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Cliente excluido !");
         } catch (Exception e){
             throw new Exception();
         }

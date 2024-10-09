@@ -1,161 +1,116 @@
 package br.com.onetec.application.views.main.home;
 
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.infra.db.model.SetEnderecos;
+import br.com.onetec.infra.db.model.SetFuncionario;
+import br.com.onetec.infra.db.model.SetOrdemServico;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.details.DetailsVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Route(value = "",layout = MainLayout.class)
 @PermitAll
 public class HomeView extends VerticalLayout {
 
-    public HomeView() {
+
+    private OrdemServicoService ordemServicoService;
+
+
+    private FuncionarioService funcionarioService;
+
+
+    private EnderecoService enderecoService;
+
+    @Autowired
+    public void initServices(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
+                             EnderecoService enderecoService1) {
+        this.enderecoService = enderecoService1;
+        this.ordemServicoService = ordemServicoServicev1;
+        this.funcionarioService = funcionarioService1;
+    }
+
+    @Autowired
+    public HomeView(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
+                    EnderecoService enderecoService1) {
+        this.enderecoService = enderecoService1;
+        this.ordemServicoService = ordemServicoServicev1;
+        this.funcionarioService = funcionarioService1;
+        UI.getCurrent().access(() -> {
 //        // Logo
-//        Image logo = new Image("https://nagasakidedetizacao.com.br/wp-content/uploads/2020/08/Logo-Nagasaki.png", "Nagazaki Logo");
-//        logo.setHeight("100px");
-//
-//        // Título
-//        H1 title = new H1("Bem-vindo à Nagasaki! "+ UsuarioAutenticadoConfig.getUser().getNome_usuario());
-//
-//        // Botões de navegação
-//        Button button1 = new Button("Funcionalidade 1");
-//        Button button2 = new Button("Funcionalidade 2");
-//
-//        // Container para os botões
-//        Div buttonContainer = new Div(button1, button2);
-//        buttonContainer.addClassName("button-container");
-//
-//        // Adicionando os componentes ao layout principal
-//        add(logo, title, buttonContainer);
-//
-//        // Estilizando o layout
-//        setAlignItems(Alignment.CENTER);
-//        setJustifyContentMode(JustifyContentMode.CENTER);
-//        setHeightFull();
 
 
-        // Info Sections
-        //VerticalLayout infoSection = createInfoSection();
+            // Info Sections
+            //VerticalLayout infoSection = createInfoSection();
 
-        // Card Section
-        HorizontalLayout cardSection = createCardSection();
+            // Card Section
+            HorizontalLayout cardSection = createCardSection();
 
-        // Footer
-        HorizontalLayout footer = createFooter();
+            // Footer
+            HorizontalLayout footer = createFooter();
 
-        // Add all sections to the main layout
-        add(cardSection, footer);
+            // Add all sections to the main layout
+            add(cardSection, footer);
 
-        // Full width and alignment
-        setWidthFull();
-        setAlignItems(Alignment.CENTER);
+            // Full width and alignment
+            setWidthFull();
+            setAlignItems(Alignment.CENTER);
+        });
     }
 
-
-
-    private VerticalLayout createInfoSection() {
-        H2 infoTitle = new H2("Why Choose Us?");
-        Paragraph infoText = new Paragraph("We offer the best services in the industry...");
-
-        VerticalLayout infoSection = new VerticalLayout(infoTitle, infoText);
-        infoSection.setAlignItems(Alignment.CENTER);
-        infoSection.addClassName("info-section");
-        return infoSection;
-    }
-
-//    private HorizontalLayout createCardSection() {
-//
-//        Image cardImage1 = new Image("https://via.placeholder.com/150", "Card Image 1");
-//        Image cardImage2 = new Image("https://via.placeholder.com/150", "Card Image 2");
-//        Image cardImage3 = new Image("https://via.placeholder.com/150", "Card Image 3");
-//
-//        // Card 1
-//        VerticalLayout card1 = new VerticalLayout(cardImage1, new H3("Service 1"), new Paragraph("Description for service 1."), getlist());
-//        card1.addClassName("clickable-card");
-//        card1.addClickListener(event -> {
-//            // Ação ao clicar no card 1
-//            System.out.println("Card 1 clicked!");
-//            // Você pode abrir um modal, redirecionar, ou executar qualquer outra ação aqui
-//        });
-//
-//        // Card 2
-//        VerticalLayout card2 = new VerticalLayout(cardImage2, new H3("Service 2"), new Paragraph("Description for service 2."), getlist());
-//        card2.addClassName("clickable-card");
-//        card2.addClickListener(event -> {
-//            // Ação ao clicar no card 2
-//            System.out.println("Card 2 clicked!");
-//        });
-//
-//        // Card 3
-//        VerticalLayout card3 = new VerticalLayout(cardImage3, new H3("Service 3"), new Paragraph("Description for service 3."), getlist());
-//        card3.addClassName("clickable-card");
-//        card3.addClickListener(event -> {
-//            // Ação ao clicar no card 3
-//            System.out.println("Card 3 clicked!");
-//        });
-//
-//        HorizontalLayout cardSection = new HorizontalLayout( card1, card2, card3);
-//        cardSection.setSpacing(true);
-//        cardSection.addClassName("card-section");
-//        return cardSection;
-//    }
-
-    private Accordion getlist() {
+    private Accordion getlist1(List<SetOrdemServico> listaPorFuncionario) {
         Accordion accordion = new Accordion();
 
-        Span name = new Span("Sophia Williams");
-        Span email = new Span("sophia.williams@company.com");
-        Span phone = new Span("(501) 555-9128");
+        listaPorFuncionario.forEach(ordem -> {
+            Span name = new Span("OS: " + ordem.getId_ordemservico().toString());
+            Span email = new Span(ordem.getHorarioinicio_ordemservico().toString());
+            Span pontoFocal = new Span (ordem.getNome_pontofocal());
+            Span phone = new Span(ordem.getOcorrencias_ordemservico());
+            VerticalLayout personalInformationLayout = new VerticalLayout(name,
+                    email,pontoFocal, phone);
+            personalInformationLayout.setSpacing(false);
+            personalInformationLayout.setPadding(false);
 
-        VerticalLayout personalInformationLayout = new VerticalLayout(name,
-                email, phone);
-        personalInformationLayout.setSpacing(false);
-        personalInformationLayout.setPadding(false);
+            SetEnderecos enderecos = enderecoService.findAllById(ordem.getId_endereco());
 
-        AccordionPanel personalInfoPanel = accordion.add("Personal information",
-                personalInformationLayout);
-        personalInfoPanel.addThemeVariants(DetailsVariant.SMALL);
+            AccordionPanel personalInfoPanel = accordion.add(enderecos.getEndereco_imovel(),
+                    personalInformationLayout);
+            personalInfoPanel.addThemeVariants(DetailsVariant.SMALL);
+        });
 
-        Span street = new Span("4027 Amber Lake Canyon");
-        Span zipCode = new Span("72333-5884 Cozy Nook");
-        Span city = new Span("Arkansas");
-
-        VerticalLayout billingAddressLayout = new VerticalLayout();
-        billingAddressLayout.setSpacing(false);
-        billingAddressLayout.setPadding(false);
-        billingAddressLayout.add(street, zipCode, city);
-
-        AccordionPanel billingAddressPanel = accordion.add("Billing address",
-                billingAddressLayout);
-        billingAddressPanel.addThemeVariants(DetailsVariant.SMALL);
-
-        Span cardBrand = new Span("Mastercard");
-        Span cardNumber = new Span("1234 5678 9012 3456");
-        Span expiryDate = new Span("Expires 06/21");
-
-        VerticalLayout paymentLayout = new VerticalLayout();
-        paymentLayout.setSpacing(false);
-        paymentLayout.setPadding(false);
-        paymentLayout.add(cardBrand, cardNumber, expiryDate);
-
-        AccordionPanel paymentPanel = accordion.add("Payment", paymentLayout);
-        paymentPanel.addThemeVariants(DetailsVariant.SMALL);
         return accordion;
     }
 
+
     private HorizontalLayout createFooter() {
-        Paragraph footerText = new Paragraph("© 2024 Your Company. All Rights Reserved.");
+
+        LocalDate a = LocalDate.now();
+        Paragraph footerText = new Paragraph("Mapa de Programação Diario : " + a.getDayOfMonth() + "/" + a.getMonthValue() + "/" +
+                a.getYear());
 
         HorizontalLayout footer = new HorizontalLayout(footerText);
         footer.setWidthFull();
@@ -164,70 +119,171 @@ public class HomeView extends VerticalLayout {
         return footer;
     }
 
+
     private HorizontalLayout createCardSection() {
         List<VerticalLayout> cards = new ArrayList<>();
+        List<SetOrdemServico> listaOrdens = ordemServicoService.findAll();
+
+        List<SetOrdemServico> novaLista = new ArrayList<>();
+        List<SetFuncionario> listaAssistente = funcionarioService.listAll();
 
         addClassName("carousel-section");
 
-        // Criação dos cards
-        cards.add(createCard("Service 1", "Description for service 1.", "https://via.placeholder.com/150"));
-        cards.add(createCard("Service 2", "Description for service 2.", "https://via.placeholder.com/150"));
-        cards.add(createCard("Service 3", "Description for service 3.", "https://via.placeholder.com/150"));
-        cards.add(createCard("Service 4", "Description for service 4.", "https://via.placeholder.com/150"));
-        cards.add(createCard("Service 5", "Description for service 5.", "https://via.placeholder.com/150"));
-        cards.add(createCard("Service 6", "Description for service 6.", "https://via.placeholder.com/150"));
+        listaOrdens.forEach(ordem -> {
+            if (ordem.getDatainicio_ordemservico().equals(LocalDate.now())) {
+                novaLista.add(ordem);
+            }
+        });
+        if (novaLista.size() > 0) {
+            listaAssistente.forEach(assistente -> {
+                List<SetOrdemServico> listaPorFuncionario = new ArrayList<>();
+                Boolean existe;
+                SetFuncionario assist = assistente;
+                novaLista.forEach(ordem -> {
+                    if (assist.getId_funcionario().equals(ordem.getId_funcionariotecnico())) {
+                        listaPorFuncionario.add(ordem);
+                    }
+                });
 
-        // Criar sessões de até 3 cards cada
-        List<HorizontalLayout> sessions = new ArrayList<>();
-        for (int i = 0; i < cards.size(); i += 3) {
-            HorizontalLayout session = new HorizontalLayout();
-            session.setSpacing(true);
-            session.addClassName("card-section");
+                if (!listaPorFuncionario.isEmpty()) {
+                    cards.add(createCard1(listaPorFuncionario, assist));
+                }
+            });
 
-            // Adicionar até 3 cards por sessão
-            for (int j = i; j < i + 3 && j < cards.size(); j++) {
-                session.add(cards.get(j));
+//        novaLista.forEach(ordem -> {
+//            cards.add(createCard1(ordem));
+//        });
+
+
+            // Criar sessões de até 3 cards cada
+            List<HorizontalLayout> sessions = new ArrayList<>();
+            for (int i = 0; i < cards.size(); i += 3) {
+                HorizontalLayout session = new HorizontalLayout();
+                session.setSpacing(true);
+                session.addClassName("card-section");
+
+                // Adicionar até 3 cards por sessão
+                for (int j = i; j < i + 3 && j < cards.size(); j++) {
+                    session.add(cards.get(j));
+                }
+
+                sessions.add(session);
             }
 
-            sessions.add(session);
+            // Contêiner para as sessões com transição
+            Div sessionContainer = new Div();
+            sessionContainer.setWidthFull();
+            sessionContainer.addClassName("session-container");
+
+            // Inicialmente, exibe a primeira sessão
+            Div sessionSlide = new Div(sessions.get(0));
+            sessionSlide.addClassName("session-slide");
+            sessionContainer.add(sessionSlide);
+
+            // Botões de navegação
+            Button previousButton = new Button("Anterior", event -> switchSession(sessions, sessionSlide, -1));
+            Button nextButton = new Button("Próximo", event -> switchSession(sessions, sessionSlide, 1));
+
+            HorizontalLayout navigation = new HorizontalLayout(previousButton, nextButton);
+            navigation.setJustifyContentMode(JustifyContentMode.CENTER);
+
+            // Layout final
+            VerticalLayout cardSectionLayout = new VerticalLayout(sessionContainer, navigation);
+            cardSectionLayout.setAlignItems(Alignment.CENTER);
+            cardSectionLayout.setWidthFull();
+
+            return new HorizontalLayout(cardSectionLayout);
+        } else {
+            return new HorizontalLayout(new Div());
         }
-
-        // Contêiner para as sessões com transição
-        Div sessionContainer = new Div();
-        sessionContainer.setWidthFull();
-        sessionContainer.addClassName("session-container");
-
-        // Inicialmente, exibe a primeira sessão
-        Div sessionSlide = new Div(sessions.get(0));
-        sessionSlide.addClassName("session-slide");
-        sessionContainer.add(sessionSlide);
-
-        // Botões de navegação
-        Button previousButton = new Button("Anterior", event -> switchSession(sessions, sessionSlide, -1));
-        Button nextButton = new Button("Próximo", event -> switchSession(sessions, sessionSlide, 1));
-
-        HorizontalLayout navigation = new HorizontalLayout(previousButton, nextButton);
-        navigation.setJustifyContentMode(JustifyContentMode.CENTER);
-
-        // Layout final
-        VerticalLayout cardSectionLayout = new VerticalLayout(sessionContainer, navigation);
-        cardSectionLayout.setAlignItems(Alignment.CENTER);
-        cardSectionLayout.setWidthFull();
-
-        return new HorizontalLayout(cardSectionLayout);
     }
 
 
-
-    private VerticalLayout createCard(String title, String description, String imageUrl) {
-        Image cardImage = new Image(imageUrl, title);
-        VerticalLayout card = new VerticalLayout(cardImage, new H3(title), new Paragraph(description), getlist());
+    private VerticalLayout createCard1(List<SetOrdemServico> listaPorFuncionario, SetFuncionario assistente) {
+        SetFuncionario funcionario = funcionarioService.findById(listaPorFuncionario.get(0).getId_funcionarioassistente());
+        String title = assistente.getNome_funcionario() + " e " + funcionario.getNome_funcionario();
+        String description = "Abaixo programação :";
+        VerticalLayout card = new VerticalLayout(new H3(title), new Paragraph(description), getlist1(listaPorFuncionario));
         card.addClassName("clickable-card");
+        // Criando o modal (Dialog)
+        Dialog modal = createModal(assistente, listaPorFuncionario);
+
+        // Adicionando listener para abrir o modal ao clicar no card
         card.addClickListener(event -> {
-            System.out.println(title + " clicked!");
+            modal.open();  // Abre o modal
         });
+
         return card;
     }
+
+    private Dialog createModal(SetFuncionario assistente, List<SetOrdemServico> listaPorFuncionario) {
+        // Criando o dialog/modal
+        Dialog modal = new Dialog();
+        modal.setWidth("600px");
+        modal.setHeight("500px");
+
+        // Criando as abas
+        Tab tab1 = new Tab("Informações");
+        Tab tab2 = new Tab("Mapa");
+
+        Tabs tabs = new Tabs(tab1, tab2);
+
+        // Conteúdo da primeira aba (informações do funcionário)
+        VerticalLayout infoLayout = new VerticalLayout(new H3("Detalhes do Funcionário: " + assistente.getNome_funcionario()));
+        listaPorFuncionario.forEach(ordem -> {
+            Span osId = new Span("OS: " + ordem.getId_ordemservico());
+            Span horarioInicio = new Span("Início: " + ordem.getHorarioinicio_ordemservico().toString());
+            Span pontoFocal = new Span("Ponto Focal: " + ordem.getNome_pontofocal().toString());
+            Span ocorrencia = new Span("Ocorrência: " + ordem.getOcorrencias_ordemservico());
+            infoLayout.add(new VerticalLayout(osId, horarioInicio,pontoFocal, ocorrencia));
+        });
+
+        // Conteúdo da segunda aba (OpenStreetMap com Leaflet)
+        Div mapDiv = new Div();
+        mapDiv.setId("map");  // Definimos o ID para poder referenciar no JavaScript
+        mapDiv.setWidth("100%");
+        mapDiv.setHeight("300px");
+
+        // Layouts para cada aba
+        Div infoContent = new Div(infoLayout);
+        Div mapContent = new Div(mapDiv);
+
+        // Exibir conteúdo com base na aba selecionada
+        Div content = new Div(infoContent, mapContent);
+        content.setSizeFull();
+
+        mapContent.setVisible(false);  // Inicialmente, mostrar apenas as informações
+
+        SetEnderecos end = enderecoService.findAllById(listaPorFuncionario.get(0).getId_endereco());
+
+        // Listener para troca de abas
+        tabs.addSelectedChangeListener(event -> {
+            Tab selectedTab = tabs.getSelectedTab();
+            if (selectedTab.equals(tab1)) {
+                infoContent.setVisible(true);
+                mapContent.setVisible(false);
+            } else if (selectedTab.equals(tab2)) {
+                infoContent.setVisible(false);
+                mapContent.setVisible(true);
+                String endereco1 = "Rua da Consolação, 1234, São Paulo, SP, Brasil";
+                if (Objects.nonNull(end)){
+                    endereco1 = end.getEndereco_imovel();
+                }
+                String endereco2 = endereco1;
+                loadOpenStreetMap(endereco1,endereco2);  // Carregar o mapa quando a aba for selecionada
+            }
+        });
+
+        // Botão de fechar
+        Button closeButton = new Button("Fechar", event -> modal.close());
+
+        // Adicionando tudo no modal
+        VerticalLayout modalLayout = new VerticalLayout(tabs, content, closeButton);
+        modal.add(modalLayout);
+
+        return modal;
+    }
+
 
     private void switchSession(List<HorizontalLayout> sessions, Div sessionSlide, int direction) {
         // Obtenha a sessão atual exibida
@@ -262,6 +318,60 @@ public class HomeView extends VerticalLayout {
         }
     }
 
+
+    private void loadOpenStreetMap(String endereco1, String endereco2) {
+        try {
+            // Obter coordenadas dos dois endereços
+            double[] coords1 = getCoordinates(endereco1);
+            double[] coords2 = getCoordinates(endereco2);
+
+            // Carregar o mapa com base nas coordenadas do primeiro endereço
+            getUI().ifPresent(ui -> {
+                ui.getPage().executeJs(
+                        "var map = L.map('map').setView([" + coords1[0] + ", " + coords1[1] + "], 13);" +  // Coordenadas e zoom inicial
+                                "L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {" +
+                                "    attribution: '© OpenStreetMap contributors'" +
+                                "}).addTo(map);" +
+                                "L.marker([" + coords1[0] + ", " + coords1[1] + "]).addTo(map).bindPopup('Endereço 1: " + endereco1 + "').openPopup();" +  // Primeiro endereço
+                                "L.marker([" + coords2[0] + ", " + coords2[1] + "]).addTo(map).bindPopup('Endereço : " + endereco2 + "').openPopup();"  // Segundo endereço
+                );
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public double[] getCoordinates(String address) throws Exception {
+        // Codificar o endereço para URL
+        String encodedAddress = java.net.URLEncoder.encode(address, "UTF-8");
+        String urlString = "https://nominatim.openstreetmap.org/search?q=" + encodedAddress + "&format=json&limit=1";
+
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        // Processar a resposta JSON
+        JSONArray jsonArray = new JSONArray(response.toString());
+        if (jsonArray.length() > 0) {
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
+            double lat = jsonObject.getDouble("lat");
+            double lon = jsonObject.getDouble("lon");
+            return new double[] {lat, lon};
+        }
+
+        throw new Exception("Não foi possível encontrar coordenadas para o endereço: " + address);
+    }
 
 
 

@@ -4,6 +4,7 @@ package br.com.onetec.application.views.main.administrativo.modal;
 import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.repository.IFuncionarioRepository;
 import com.vaadin.flow.component.UI;
@@ -46,13 +47,16 @@ public class DepartamentoCadastroModal extends Dialog {
     @Lazy
     AdministrativoView administrativoView;
 
+    UtilitySystemConfigService service;
 
     public DepartamentoCadastroModal() {
         UI.getCurrent().access(() -> {
 
+            service = new UtilitySystemConfigService();
             addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
-            cancelButton = new Button("Cancelar", event -> close());
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
 
 
             Div contentTabs = new Div(createFormCadastroEmpresa());

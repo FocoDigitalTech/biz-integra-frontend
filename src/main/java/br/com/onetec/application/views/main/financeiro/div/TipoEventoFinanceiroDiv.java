@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.financeiro.div;
 
-import br.com.onetec.application.service.tipopagamentoservice.TipoEventoFinanceiroService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.financeiro.modal.TipoEventoFinanceiroCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;

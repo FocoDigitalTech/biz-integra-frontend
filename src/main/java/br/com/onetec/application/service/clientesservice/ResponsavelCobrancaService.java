@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class ResponsavelCobrancaService {
@@ -27,5 +30,13 @@ public class ResponsavelCobrancaService {
         } else {
             return null;
         }
+    }
+
+    public void update(SetResponsavelCobranca cobranca) {
+        Optional<SetResponsavelCobranca> optional = repository.findById(cobranca.getId_responsavelcobranca());
+        SetResponsavelCobranca entity = optional.get();
+        entity = cobranca;
+        entity.setData_alteracao(LocalDateTime.now());
+        repository.save(entity);
     }
 }

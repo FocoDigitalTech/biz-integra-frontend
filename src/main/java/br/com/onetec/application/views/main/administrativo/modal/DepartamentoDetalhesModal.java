@@ -4,6 +4,7 @@ import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.layouts.notificationAlert.NotificationForm;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.UI;
@@ -49,13 +50,16 @@ public class DepartamentoDetalhesModal extends Dialog {
     private SetDepartamento departamento;
 
 
+    private UtilitySystemConfigService service;
 
     public DepartamentoDetalhesModal() {
         UI.getCurrent().access(() -> {
+            service = new UtilitySystemConfigService();
             SetDepartamento departamento = new SetDepartamento();
             addClassName("cadastro-modal");
             saveButton = new Button("Atualizar", eventbe -> update());
-            cancelButton = new Button("Cancelar", event -> close());
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             deleteButton = new Button("Excluir", event -> delete(departamento));
 
 
@@ -145,7 +149,11 @@ public class DepartamentoDetalhesModal extends Dialog {
 
     private void delete(SetDepartamento departamento) {
         // Lógica para deletar o cadastro
-        departamentoService.deletar(departamento);
+        try {
+            departamentoService.deletar(departamento);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         close();
         new NotificationForm().showSuccessNotification("Deletado com sucesso");
     }

@@ -37,4 +37,6 @@ public class SetOrdemServico {
     private LocalDateTime data_exclusao;
     private String ativo;
     private Integer id_usuario;
+    private Integer id_endereco;
+    private Integer id_funcionariotecnico;
 }

@@ -1,6 +1,8 @@
 package br.com.onetec.application.service.servicoservices;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetServico;
+import br.com.onetec.infra.db.model.SetServicosOrcamento;
 import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import br.com.onetec.infra.db.repository.ISetServicoRepository;
 import br.com.onetec.infra.db.repository.ISetSetorAtuacaoRepository;
@@ -11,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,7 +44,13 @@ public class ServicoService {
 
     public void delete(SetServico item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetServico> optional = repository.findById(item.getId_servico());
+            SetServico entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

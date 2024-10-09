@@ -1,5 +1,7 @@
 package br.com.onetec.application.service.eventofinanceiro;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.repository.ISetEventoFinanceiroRepository;
@@ -11,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,7 +44,13 @@ public class EventoFinanceiroService {
 
     public void delete(SetEventoFinanceiro item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetEventoFinanceiro> optional = repository.findById(item.getId_eventofinanceiro());
+            SetEventoFinanceiro entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

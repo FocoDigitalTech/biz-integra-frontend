@@ -48,8 +48,6 @@ public class ConfiguracoesSegurancaView extends VerticalLayout {
                     usuariosDiv);
             tabSheet.add("Grupos de usuários",
                     situacaoCadastroDiv);
-            tabSheet.add("Permissões",
-                    new Div(new Text("This is the Shipping tab content")));
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
             add(tabSheet);
         });

@@ -1,5 +1,7 @@
 package br.com.onetec.application.service.estoqueservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetRegiao;
 import br.com.onetec.infra.db.repository.IRegiaoRepository;
@@ -10,6 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -38,7 +43,13 @@ public class EstoqueService {
 
     public void delete(SetEstoque item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetEstoque> optional = repository.findById(item.getId_estoque());
+            SetEstoque entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

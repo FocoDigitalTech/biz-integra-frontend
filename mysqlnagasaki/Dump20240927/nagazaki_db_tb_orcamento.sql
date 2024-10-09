@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
 --
 -- Host: localhost    Database: nagazaki_db
 -- ------------------------------------------------------
--- Server version	8.0.39
+-- Server version	8.0.39-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -43,7 +43,7 @@ CREATE TABLE `tb_orcamento` (
   `id_usuario` int NOT NULL,
   `ativo` varchar(45) NOT NULL,
   PRIMARY KEY (`id_orcamento`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -52,6 +52,7 @@ CREATE TABLE `tb_orcamento` (
 
 LOCK TABLES `tb_orcamento` WRITE;
 /*!40000 ALTER TABLE `tb_orcamento` DISABLE KEYS */;
+INSERT INTO `tb_orcamento` VALUES (1,1,1,'entupimento de encanamento','2024-09-21 00:00:00',2,2,'2024-09-28 00:00:00','05:00:00',1,2,30,254,NULL,'2024-09-29 12:28:41',NULL,NULL,7,'S');
 /*!40000 ALTER TABLE `tb_orcamento` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -64,4 +65,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-27  1:03:02
+-- Dump completed on 2024-09-30 15:47:06

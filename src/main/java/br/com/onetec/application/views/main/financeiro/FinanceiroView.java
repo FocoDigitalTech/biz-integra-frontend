@@ -26,6 +26,7 @@ public class FinanceiroView extends VerticalLayout {
     private GrupoFinanceiroDiv grupoFinanceiroDiv;
     private EventoFinanceiroDiv eventoFinanceiroDiv;
     private ContaCorrenteDiv contaCorrenteDiv;
+    private TipopagamentoDiv tipoPagamentoDiv;
 
 
 
@@ -35,13 +36,15 @@ public class FinanceiroView extends VerticalLayout {
                                  GrupoFinanceiroDiv grupoFinanceiroDiv1,
                                  EventoFinanceiroDiv eventoFinanceiroDiv1,
                                  ContaCorrenteDiv contaCorrenteDiv1,
-                                 LancamentoFinanceiroDiv lancamentoFinanceiroDiv){
+                                 LancamentoFinanceiroDiv lancamentoFinanceiroDiv,
+                                 TipopagamentoDiv tipoPagamentoDiv1){
             this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
             this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
             this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
             this.eventoFinanceiroDiv = eventoFinanceiroDiv1;
             this.contaCorrenteDiv = contaCorrenteDiv1;
             this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
+            this.tipoPagamentoDiv = tipoPagamentoDiv1;
         }
 
         @Autowired
@@ -50,13 +53,15 @@ public class FinanceiroView extends VerticalLayout {
                               GrupoFinanceiroDiv grupoFinanceiroDiv1,
                               EventoFinanceiroDiv eventoFinanceiroDiv1,
                               ContaCorrenteDiv contaCorrenteDiv1,
-                              LancamentoFinanceiroDiv lancamentoFinanceiroDiv){
-            this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
-            this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
-            this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
-            this.eventoFinanceiroDiv = eventoFinanceiroDiv1;
-            this.contaCorrenteDiv = contaCorrenteDiv1;
-            this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
+                              LancamentoFinanceiroDiv lancamentoFinanceiroDiv,
+                              TipopagamentoDiv tipoPagamentoDiv1){
+        this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
+        this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
+        this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
+        this.eventoFinanceiroDiv = eventoFinanceiroDiv1;
+        this.contaCorrenteDiv = contaCorrenteDiv1;
+        this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
+        this.tipoPagamentoDiv = tipoPagamentoDiv1;
 
             UI.getCurrent().access(() -> {
                 setSizeFull();
@@ -70,7 +75,7 @@ public class FinanceiroView extends VerticalLayout {
                 tabSheet.add("Grupos",
                         grupoFinanceiroDiv);
                 tabSheet.add("Tipo Pagamento",
-                        new Div(new Text("This is the Shipping tab content")));
+                        tipoPagamentoDiv);
                 tabSheet.add("Sub-Contas (Evento Financeiro)",
                         eventoFinanceiroDiv);
 //            tabSheet.add("Novo Plano de Contas",

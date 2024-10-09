@@ -2,6 +2,7 @@ package br.com.onetec.application.service.enderecoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Endereco;
+import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.repository.IEnderecosRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -53,5 +55,25 @@ public class EnderecoService {
             return new ArrayList<>();
         }
 
+    }
+
+    public SetEnderecos findAllById(Integer id_endereco) {
+        Optional<SetEnderecos> optional = repository.findById(id_endereco);
+        return optional.orElse(null);
+
+    }
+
+    public void deletar(SetEnderecos endereco) throws Exception {
+        try {
+            Optional<SetEnderecos> optional = repository.findById(endereco.getId_endereco());
+            SetEnderecos entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
     }
 }

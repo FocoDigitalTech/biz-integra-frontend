@@ -5,6 +5,7 @@ import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
+import br.com.onetec.infra.db.model.SetContrato;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.repository.IDepartamentoRepository;
@@ -58,8 +59,18 @@ public class DepartamentoService {
 
     }
 
-    public void deletar(SetDepartamento departamento) {
-        repository.delete(departamento);
+    public void deletar(SetDepartamento departamento) throws Exception {
+        try {
+            Optional<SetDepartamento> optional = repository.findById(departamento.getId_departamento());
+            SetDepartamento entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
     }
 
     public SetDepartamento findById(Integer id_departamento) {

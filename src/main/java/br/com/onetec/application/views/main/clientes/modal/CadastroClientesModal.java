@@ -10,6 +10,7 @@ import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.application.views.main.clientes.ClientesView;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
@@ -27,6 +28,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -34,6 +36,7 @@ import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -57,7 +60,7 @@ public class CadastroClientesModal extends Dialog {
     private ComboBox administradora;
     private ComboBox <SetTipoMidia>tipoMidia;
     private TextField midiaAntigaField;
-    private TextField internetEmailField;
+    private EmailField internetEmailField;
     private ComboBox<String> FJField;
     private TextField CGCCPFField;
     private TextField inscEstatualField;
@@ -67,21 +70,21 @@ public class CadastroClientesModal extends Dialog {
     private TextField nomesocialAgendamentoField;
     private TextField telefoneAgendamentoField;
     private TextField celularAgendamentoField;
-    private TextField internetEmailAgendamentoField;
+    private EmailField internetEmailAgendamentoField;
     private TextArea observacaoAgendamentoField;
     //Aprovacao
     private TextField nomeAprovacaoField;
     private TextField nomesocialAprovacaoField;
     private TextField telefoneAprovacaoField;
     private TextField celularAprovacaoField;
-    private TextField internetEmailAprovacaoField;
+    private EmailField internetEmailAprovacaoField;
     private TextArea observacaoAprovacaoField;
     //Cobranca
     private TextField nomeCobrancaField;
     private TextField nomesocialCobrancaField;
     private TextField telefoneCobrancaField;
     private TextField celularCobrancaField;
-    private TextField internetEmailCobrancaField;
+    private EmailField internetEmailCobrancaField;
     private TextArea observacaoCobrancaField;
     //Enderecos
     private TextField fieldEnderecosCEP;
@@ -124,6 +127,10 @@ public class CadastroClientesModal extends Dialog {
     private RegiaoService regiaoService;
     private ApiEnderecoService apiEnderecoService;
     private List<SetEstado> estadoList = new ArrayList<>();
+
+    @Autowired
+    @Lazy
+    ClientesView clienteView;
 
     @Autowired
     public void initServices (ClientesService clientesService,
@@ -200,7 +207,8 @@ public class CadastroClientesModal extends Dialog {
         UI.getCurrent().access(() -> {
             addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
-            cancelButton = new Button("Cancelar", event -> close());
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             tabs = new Tabs();
             Tab tab1 = new Tab("Cadastro Empresa");
             Tab tab2 = new Tab("Agendamento");
@@ -397,9 +405,18 @@ public class CadastroClientesModal extends Dialog {
         tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
         midiaAntigaField = new TextField("Midia Antiga");
+
+
         telefoneField = new TextField("Telefone de Contato");
         celularField = new TextField("Celular");
-        internetEmailField = new TextField("E-mail");
+
+        internetEmailField = new EmailField("E-mail");
+
+        service.configureCelularField(celularField);
+        service.configureEmailField(internetEmailField);
+        service.configureTelefoneResidencialField(telefoneField);
+
+
         FJField = new ComboBox<>("Natureza Juridica");
         FJField.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
         FJField.addValueChangeListener(event -> {
@@ -420,7 +437,9 @@ public class CadastroClientesModal extends Dialog {
         observacaoField = new TextArea("Observação");
 
 
-        configureCelularField();
+
+
+
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(dataField,nomeField,administradora,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
@@ -440,10 +459,13 @@ public class CadastroClientesModal extends Dialog {
         nomesocialAgendamentoField = new TextField("Nome Social");
         telefoneAgendamentoField = new TextField("Telefone de Contato");
         celularAgendamentoField = new TextField("Celular");
-        internetEmailAgendamentoField = new TextField("E-mail");
+        internetEmailAgendamentoField = new EmailField("E-mail");
         observacaoAgendamentoField = new TextArea("Observação");
 
-        configureCelularField();
+        service.configureCelularField(celularAgendamentoField);
+        service.configureEmailField(internetEmailAgendamentoField);
+        service.configureTelefoneResidencialField(telefoneAgendamentoField);
+
         formLayout.setWidthFull();
         formLayout.add(nomeAgendamentoField, nomesocialAgendamentoField,telefoneAgendamentoField,celularAgendamentoField,internetEmailAgendamentoField,observacaoAgendamentoField);
 
@@ -498,8 +520,13 @@ public class CadastroClientesModal extends Dialog {
         nomesocialAprovacaoField = new TextField("Nome Social");
         telefoneAprovacaoField = new TextField("Telefone de Contato Aprovador");
         celularAprovacaoField = new TextField("Celular Aprovador");
-        internetEmailAprovacaoField = new TextField("E-mail Aprovador");
+        internetEmailAprovacaoField = new EmailField("E-mail Aprovador");
         observacaoAprovacaoField = new TextArea("Observação Aprovador");
+
+        service.configureCelularField(celularAprovacaoField);
+        service.configureEmailField(internetEmailAprovacaoField);
+        service.configureTelefoneResidencialField(telefoneAprovacaoField);
+
         formLayout.setWidthFull();
         formLayout.add(nomeAprovacaoField, nomesocialAprovacaoField,telefoneAprovacaoField,celularAprovacaoField,internetEmailAprovacaoField,observacaoAprovacaoField);
 
@@ -527,8 +554,13 @@ public class CadastroClientesModal extends Dialog {
         nomesocialCobrancaField = new TextField("Nome Social");
         telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
         celularCobrancaField = new TextField("Celular Cobrança");
-        internetEmailCobrancaField = new TextField("E-mail Cobrança");
+        internetEmailCobrancaField = new EmailField("E-mail Cobrança");
         observacaoCobrancaField = new TextArea("Observação Cobrança");
+
+        service.configureCelularField(celularCobrancaField);
+        service.configureEmailField(internetEmailCobrancaField);
+        service.configureTelefoneResidencialField(telefoneCobrancaField);
+
         formLayout.setWidthFull();
         formLayout.add(nomeCobrancaField, nomesocialCobrancaField,telefoneCobrancaField,celularCobrancaField,internetEmailCobrancaField,observacaoCobrancaField);
 
@@ -544,21 +576,7 @@ public class CadastroClientesModal extends Dialog {
         return lista;
     }
 
-    private void configureCelularField() {
-        celularField.setPlaceholder("(XX) XXXXX-XXXX");
-        celularField.setValueChangeMode(ValueChangeMode.EAGER);
-        celularField.addValueChangeListener(event -> {
-            String value = event.getValue();
-            value = value.replaceAll("[^0-9]", "");
-            if (value.length() > 2) {
-                value = "(" + value.substring(0, 2) + ") " + value.substring(2);
-            }
-            if (value.length() > 9) {
-                value = value.substring(0, 10) + "-" + value.substring(10);
-            }
-            celularField.setValue(value);
-        });
-    }
+
 
     private void save() {
         Cliente dto = newCliente();
@@ -566,20 +584,26 @@ public class CadastroClientesModal extends Dialog {
         SetResponsavelAgendamento agendamento = newPessoaAgendamento(cliente.getId_cliente());
         SetResponsavelAprovacao aprovacao = newPessoaAprovacao(cliente.getId_cliente());
         SetResponsavelCobranca cobranca = newPessoaCobranca(cliente.getId_cliente());
+        try {
         responsavelCobrancaService.save(cobranca);
         responsavelAgendamentoService.save(agendamento);
         responsavelAprovacaoService.save(aprovacao);
         if (enderecos.size() > 0) {
             enderecoService.save(enderecos, cliente.getId_cliente(), 1);
         }
+        service.notificaSucesso("Salvo com sucesso");
+        clienteView.refreshGrid();
         close();
+        } catch (Exception e){
+            service.notificaErro("Erro ao cadastrar cliente.");
+        }
     }
 
     private SetResponsavelCobranca newPessoaCobranca(Integer id_cliente) {
         SetResponsavelCobranca cobranca = new SetResponsavelCobranca();
         cobranca.setNome_cobranca(nomeCobrancaField.getValue());
-        cobranca.setTelefone_fixo(telefoneCobrancaField.getValue());
-        cobranca.setTelefone_celular(celularCobrancaField.getValue());
+        cobranca.setTelefone_fixo(service.removeMascara(telefoneCobrancaField.getValue()));
+        cobranca.setTelefone_celular(service.removeMascara(celularCobrancaField.getValue()));
         cobranca.setNome_social(nomesocialCobrancaField.getValue());
         cobranca.setEmail(internetEmailCobrancaField.getValue());
         cobranca.setObservacao(observacaoCobrancaField.getValue());
@@ -594,9 +618,9 @@ public class CadastroClientesModal extends Dialog {
     private SetResponsavelAprovacao newPessoaAprovacao(Integer id_cliente) {
         SetResponsavelAprovacao aprovacao = new SetResponsavelAprovacao();
         aprovacao.setNome_aprovacao(nomeAprovacaoField.getValue());
-        aprovacao.setTelefone_fixo(telefoneAprovacaoField.getValue());
+        aprovacao.setTelefone_fixo(service.removeMascara(telefoneAprovacaoField.getValue()));
         aprovacao.setNome_social(nomesocialAprovacaoField.getValue());
-        aprovacao.setTelefone_celular(celularAprovacaoField.getValue());
+        aprovacao.setTelefone_celular(service.removeMascara(celularAprovacaoField.getValue()));
         aprovacao.setEmail(internetEmailAprovacaoField.getValue());
         aprovacao.setObservacao(observacaoAprovacaoField.getValue());
         aprovacao.setId_cliente(id_cliente);
@@ -610,8 +634,8 @@ public class CadastroClientesModal extends Dialog {
         SetResponsavelAgendamento agendamento = new SetResponsavelAgendamento();
         agendamento.setNome_agendamento(nomeAgendamentoField.getValue());
         agendamento.setNome_social(nomesocialAgendamentoField.getValue());
-        agendamento.setTelefone_fixo(telefoneAgendamentoField.getValue());
-        agendamento.setTelefone_celular(celularAgendamentoField.getValue());
+        agendamento.setTelefone_fixo(service.removeMascara(telefoneAgendamentoField.getValue()));
+        agendamento.setTelefone_celular(service.removeMascara(celularAgendamentoField.getValue()));
         agendamento.setEmail(internetEmailAgendamentoField.getValue());
         agendamento.setObservacao(observacaoAgendamentoField.getValue());
         agendamento.setData_agendamento(LocalDate.now());
@@ -625,23 +649,22 @@ public class CadastroClientesModal extends Dialog {
     private Cliente newCliente() {
         Cliente cliente = new Cliente();
         cliente.setNomeField(nomeField.getValue());
-        cliente.setTelefoneField(telefoneField.getValue());
-        cliente.setCelularField(celularField.getValue());
+        cliente.setTelefoneField(service.removeMascara(telefoneField.getValue()));
+        cliente.setCelularField(service.removeMascara(celularField.getValue()));
+
         cliente.setDataField(dataField.getValue());
         cliente.setHoraField(horaField.getValue());
         cliente.setContatoField(contatoField.getValue());
-        cliente.setAdministradora("Teste");
-        cliente.setTipoMidia("Teste");
+        cliente.setAdministradora(administradora.getValue().toString());
+        cliente.setTipoMidia(tipoMidia.getValue().getId_tipomidia());
         cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());
         cliente.setFJField(FJField.getValue());
-        cliente.setCGCCPFField(CGCCPFField.getValue());
+        cliente.setCGCCPFField(service.removeMascara(CGCCPFField.getValue()));
         cliente.setInscEstatualField(inscEstatualField.getValue());
         cliente.setObservacaoField(observacaoField.getValue());
         return cliente;
     }
-
-
 
 
 }

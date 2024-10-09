@@ -1,5 +1,7 @@
 package br.com.onetec.application.service.grupousuarioservice;
 
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
 import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +43,12 @@ public class GrupoUsuarioService {
 
     public void delete(SetGrupoUsuario item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetGrupoUsuario> optional = repository.findById(item.getId_grupousuario());
+            SetGrupoUsuario entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

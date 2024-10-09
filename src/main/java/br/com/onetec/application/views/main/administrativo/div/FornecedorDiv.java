@@ -3,11 +3,13 @@ package br.com.onetec.application.views.main.administrativo.div;
 
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
+import br.com.onetec.application.views.main.administrativo.modal.FornecedorCadastroModal;
 import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFornecedor;
+import br.com.onetec.infra.db.model.SetPraga;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -47,24 +49,20 @@ public class FornecedorDiv extends Div {
 
     private DepartamentoService departamentoService;
 
-    private FuncionarioCadastroModal funcionarioCadastroModal;
+    private FornecedorCadastroModal fornecedorCadastroModal;
 
     Button btnExcluir;
 
 
     @Autowired
-    public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
+    public void initServices(FornecedorCadastroModal fornecedorCadastroModal1,
                              DepartamentoService departamentoService1,
                              FornecedorService funcionarioService,
                              UtilitySystemConfigService service1) {
-        this.funcionarioCadastroModal = funcionarioCadastroModal;
+        this.fornecedorCadastroModal = fornecedorCadastroModal1;
         this.departamentoService = departamentoService1;
         this.fornecedorService = funcionarioService;
         this.service = service1;
-        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
-            // Código para atualizar a AdministrativoView
-            refreshGridFuncionario();
-        });
     }
 
 
@@ -74,6 +72,22 @@ public class FornecedorDiv extends Div {
             add(telaDiv());
         });
 
+    }
+
+    public void refreshGrid() {
+        gridFornecedor.getDataProvider().refreshAll();
+    }
+
+
+    private void deleta(SetFornecedor item) {
+        try {
+            fornecedorService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            refreshGrid();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
     }
 
     private Div telaDiv() {
@@ -176,7 +190,13 @@ public class FornecedorDiv extends Div {
 
 
         // Adiciona o listener de clique nos itens da grade
-        gridFornecedor.addItemClickListener(event -> openDetalhesFornecedorModal(event.getItem()));
+        gridFornecedor.addItemClickListener(event -> {
+            // Configura o botão "Deletar" para deletar o item clicado
+            btnExcluir.addClickListener(event1 -> deleta(event.getItem()));
+
+            // Torna o botão "Deletar" visível
+            btnExcluir.setVisible(true);
+        });
 
 
         gridFornecedor.setItems(query -> fornecedorService.list(
@@ -232,10 +252,14 @@ public class FornecedorDiv extends Div {
             com.vaadin.flow.component.button.Button searchBtn = new com.vaadin.flow.component.button.Button("Buscar");
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
+            btnExcluir = new Button("Excluir");
+            btnExcluir.setVisible(false);
+            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_ERROR);
 
 
 
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(btnExcluir,resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
@@ -308,7 +332,6 @@ public class FornecedorDiv extends Div {
 
 
     private void openCadastroFuncionarioModal() {
-        //funcionarioCadastroModal.open();
-        service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+        fornecedorCadastroModal.open();
     }
 }
