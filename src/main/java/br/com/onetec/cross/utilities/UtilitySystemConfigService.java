@@ -235,6 +235,18 @@ public class UtilitySystemConfigService {
         return valor_item;
     }
 
+    public String stringMoedaBrasileira(String valor_item) {
+        String value = valor_item.replaceAll("[^\\d]", ""); // Remove caracteres não numéricos
+
+        if (!value.isEmpty()) {
+            double valorNumerico = Double.parseDouble(value) / 100;
+            valor_item = "R$ " + DECIMAL_FORMAT.format(valorNumerico);
+        } else {
+            valor_item = "";
+        }
+        return valor_item;
+    }
+
     public BigDecimal getValorBigDecimal(String valueField) {
         String value = valueField.replaceAll("[^\\d,]", ""); // Remove caracteres exceto dígitos e vírgula
 

@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.clientes;
 import br.com.onetec.application.service.clientesservice.*;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
@@ -13,6 +14,7 @@ import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.model.SetOrcamento;
+import br.com.onetec.infra.db.model.SetSituacaoCadastro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -69,6 +71,8 @@ public class ClientesView extends Div {
 
     private EnderecoService enderecoService;
 
+    private SituacaoCadastroService situacaoCadastroService;
+
     private ResponsavelCobrancaService responsavelCobrancaService;
 
     private ResponsavelAgendamentoService responsavelAgendamentoService;
@@ -92,7 +96,8 @@ public class ClientesView extends Div {
                              ResponsavelAprovacaoService responsavelAprovacaoService1,
                              CadastroClientesModal cadastroModal1,
                              DadosClienteModal detalhesClienteModal1,
-                             OrcamentoService orcamentoService) {
+                             OrcamentoService orcamentoService,
+                             SituacaoCadastroService situacaoCadastroService1) {
         this.estadoService = estadoService1;
         this.clientesService = clientesService1;
         this.usuarioService = usuarioService1;
@@ -104,6 +109,7 @@ public class ClientesView extends Div {
         this.detalhesClienteModal = detalhesClienteModal1;
         this.service = new UtilitySystemConfigService();
         this.orcamentoService = orcamentoService;
+        this.situacaoCadastroService = situacaoCadastroService1;
     }
 
     @Autowired
@@ -167,7 +173,7 @@ public class ClientesView extends Div {
         private final IntegerField numerocontrato = new IntegerField("N° Contrato");
         private final TextField numeroos = new TextField("N° Ordem de Serviço");
         private final TextField endereco = new TextField("Endereço");
-        private final CheckboxGroup<String> stringCheckboxGroup = new CheckboxGroup<>("Situação");
+        private final CheckboxGroup<SetSituacaoCadastro> stringCheckboxGroup = new CheckboxGroup<>("Situação");
         private final ComboBox<String> FJFieldCombo = new ComboBox<>("Natureza Juridica");
 
 
@@ -198,7 +204,9 @@ public class ClientesView extends Div {
             numerocontrato.setPlaceholder("Numero do Contrato");
 
 
-            stringCheckboxGroup.setItems("Monitoramento", "Executado", "Cancelado");
+            stringCheckboxGroup.setItems(situacaoCadastroService.listAll());
+            stringCheckboxGroup.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
+
             stringCheckboxGroup.addClassName("double-width");
 
             // Action buttons
@@ -303,10 +311,14 @@ public class ClientesView extends Div {
 
 
             if (!stringCheckboxGroup.isEmpty()) {
-                String databaseColumn = "ativo";
+                String databaseColumn = "id_cliente";
                 List<Predicate> rolePredicates = new ArrayList<>();
-                for (String role : stringCheckboxGroup.getValue()) {
-                    rolePredicates.add(criteriaBuilder.equal(criteriaBuilder.literal(role), root.get(databaseColumn)));
+                for (SetSituacaoCadastro role : stringCheckboxGroup.getValue()) {
+                    List<SetOrcamento> orcClient = orcamentoService.findAllBySituacaoId(role.getId_situacaocadastro());
+                    for (SetOrcamento orc : orcClient){
+                        rolePredicates.add(criteriaBuilder.equal
+                          (criteriaBuilder.literal(orc.getId_cliente()), root.get(databaseColumn)));
+                    }
                 }
                 predicates.add(criteriaBuilder.or(rolePredicates.toArray(Predicate[]::new)));
             }

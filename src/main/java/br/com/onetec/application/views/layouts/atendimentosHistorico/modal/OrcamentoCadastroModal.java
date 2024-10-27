@@ -1,6 +1,7 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.arquivoorcamentoservice.ArquivoOrcamentoService;
 import br.com.onetec.application.service.comissoesservice.ComissoesService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
@@ -15,7 +16,9 @@ import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
+import br.com.onetec.application.views.main.financeiro.modal.TipoPagamentoCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
@@ -33,18 +36,23 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.crud.CrudGrid;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -52,9 +60,13 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -63,11 +75,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import javax.swing.*;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -87,7 +99,7 @@ public class OrcamentoCadastroModal extends Dialog {
     private Button botaoContrato;
     private Button botaoPagamento;
 
-    // Formulario Orçamento
+    // Formulario Orçamento.
     private TextField clienteNomeOrcamento;
     private ComboBox<SetEnderecos> localTratamentoOrcamento;
     private TextArea problemaOrcamento;
@@ -215,6 +227,12 @@ public class OrcamentoCadastroModal extends Dialog {
     @Autowired
     private PagamentoService pagamentoService;
 
+    @Autowired
+    private TipoPagamentoCadastroModal tipoPagamentoCadastroModal;
+
+    @Autowired
+    private ArquivoOrcamentoService arquivoOrcamentoService;
+
 
     @Autowired
     @Lazy
@@ -227,8 +245,8 @@ public class OrcamentoCadastroModal extends Dialog {
     private Div cadastroPagamentos;
     private Div cadastroFaturamento;
     private Div cadastroNotaFiscal;
+    private Div cadastroArquivosOrcamento;
     private Anchor downloadLink;
-    private Button botaoNotaFiscal;
 
 
     private Tab tab2;
@@ -236,6 +254,8 @@ public class OrcamentoCadastroModal extends Dialog {
     private Tab tab4;
     private Tab tab5;
     private Tab tab6;
+    private Tab tab7;
+    private Tab tab8;
 
     private void loadClienteData(SetCliente cliente) {
         // Lógica para carregar os dados do cliente usando o objeto cliente
@@ -294,16 +314,6 @@ public class OrcamentoCadastroModal extends Dialog {
                 }
             });
 
-            botaoNotaFiscal = new Button("Gerar Nota Fiscal", e -> {
-                    // Criar o StreamResource para gerar e abrir o PDF
-                    StreamResource resource = new StreamResource("notafiscal.pdf", this::gerarNotaFiscalPdf);
-                    // Criar o Anchor (link) para o StreamResource e definir o texto
-                    downloadLink.setHref(resource);  // Seta o recurso de download
-                    downloadLink.setText("Abrir Nota PDF");  // Texto do link
-                    // Definir o alvo para abrir em nova aba
-                    downloadLink.setTarget("_blank");
-                    // Adiciona o link de download ao layout
-                });
             botaoPagamento = new Button("Gerar Pagamentos", eventbe -> openModalPagamentosParcela());
 
             botaoPagamento.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
@@ -338,8 +348,10 @@ public class OrcamentoCadastroModal extends Dialog {
              tab4 = new Tab("Pagamentos");
              tab5 = new Tab("Faturamento");
              tab6 = new Tab("Nota Fiscal");
+             tab7 = new Tab("Arquivos Orçamento");
+             tab8 = new Tab("Pós Venda");
 
-            tabs.add(tab1, tab2, tab3, tab4, tab5,tab6);
+            tabs.add(tab1, tab2, tab3, tab4, tab5,tab6,tab7);
             tab2.setVisible(false);
             tab3.setVisible(false);
             tab4.setVisible(false);
@@ -356,6 +368,7 @@ public class OrcamentoCadastroModal extends Dialog {
                     tab4.setVisible(true);
                     tab5.setVisible(true);
                     tab6.setVisible(true);
+                    tab7.setVisible(true);
                     System.out.println("Contrato será incluído.");
                 } else {
                     contratoincluido = false;
@@ -364,7 +377,9 @@ public class OrcamentoCadastroModal extends Dialog {
                     tab4.setVisible(false);
                     tab5.setVisible(false);
                     tab6.setVisible(false);
+                    tab7.setVisible(true);
                     System.out.println("Contrato não será incluído.");
+                    tabs.setSelectedTab(tab1);
 
                 }
             });
@@ -376,9 +391,10 @@ public class OrcamentoCadastroModal extends Dialog {
             cadastroPagamentos = createFormCadastroPagamentos();
             cadastroFaturamento = createFormCadastroFaturamento();
             cadastroNotaFiscal = createFormcadastroNotaFiscal();
+            cadastroArquivosOrcamento = createArquivosOrcamento();
 
             Div content = new Div(cadastroOrcamantosDadosFinanceiros,cadastroFechamentodeContrado,cadastroComissoes,
-                    cadastroPagamentos,cadastroFaturamento,cadastroNotaFiscal);
+                    cadastroPagamentos,cadastroFaturamento,cadastroNotaFiscal,cadastroArquivosOrcamento);
             content.setSizeFull();
             cadastroOrcamantosDadosFinanceiros.setVisible(true);
             cadastroFechamentodeContrado.setVisible(false);
@@ -386,6 +402,7 @@ public class OrcamentoCadastroModal extends Dialog {
             cadastroPagamentos.setVisible(false);
             cadastroFaturamento.setVisible(false);
             cadastroNotaFiscal.setVisible(false);
+            cadastroArquivosOrcamento.setVisible(false);
 
             tabs.addSelectedChangeListener(event -> {
                 cadastroOrcamantosDadosFinanceiros.setVisible(false);
@@ -394,6 +411,7 @@ public class OrcamentoCadastroModal extends Dialog {
                 cadastroPagamentos.setVisible(false);
                 cadastroFaturamento.setVisible(false);
                 cadastroNotaFiscal.setVisible(false);
+                cadastroArquivosOrcamento.setVisible(false);
 
                 Tab selectedTab = tabs.getSelectedTab();
                 if (selectedTab.equals(tab1)) {
@@ -420,11 +438,15 @@ public class OrcamentoCadastroModal extends Dialog {
                     cadastroNotaFiscal.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                } else if (selectedTab.equals(tab7)) {
+                    cadastroArquivosOrcamento.setVisible(true);
+                    botaoContrato.setVisible(false);
+                    botaoPagamento.setVisible(false);
                 }
             });
 
             Div contentTabs = new Div(cadastroOrcamantosDadosFinanceiros,cadastroFechamentodeContrado,cadastroComissoes,
-                    cadastroPagamentos,cadastroFaturamento,cadastroNotaFiscal);
+                    cadastroPagamentos,cadastroFaturamento,cadastroNotaFiscal,cadastroArquivosOrcamento);
             contentTabs.setSizeFull();
 
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -440,10 +462,108 @@ public class OrcamentoCadastroModal extends Dialog {
             // Alinha à esquerda
             HorizontalLayout rightButtons = new HorizontalLayout(checkbox,saveButton, cancelButton);
             footerLayout.add(rightButtons); // Alinha à direita
-            getFooter().add(botaoNotaFiscal,botaoContrato,botaoPagamento,downloadLink,footerLayout);
+            getFooter().add(botaoContrato,botaoPagamento,downloadLink,footerLayout);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
+    }
+
+    private List<SetArquivoOrcamento> listArquivo = new ArrayList<>();
+
+    private Grid<SetArquivoOrcamento> gridArquivos = new Grid<>(SetArquivoOrcamento.class, false);
+
+    private Div createArquivosOrcamento() {
+        FormLayout formLayout = new FormLayout();
+        formLayout.setWidthFull();
+
+        MultiFileMemoryBuffer buffer = new MultiFileMemoryBuffer();
+        Upload upload = new Upload(buffer);
+
+
+
+        // Define o diretório de salvamento dos arquivos
+        String uploadDir = "C:/SYSTEM_files_NAGASAKI/filesidcliente" + cliente.getId_cliente() + "orcamento";
+        File directory = new File(uploadDir);
+        if (!directory.exists()) {
+            directory.mkdirs(); // Cria o diretório se não existir
+        }
+
+        // Configura a grid de arquivos
+        Grid<SetArquivoOrcamento> gridArquivos = new Grid<>(SetArquivoOrcamento.class);
+        gridArquivos.removeAllColumns(); // Remove as colunas automáticas
+        gridArquivos.addColumn(SetArquivoOrcamento::getNome_arquivoorcamento)
+                .setHeader("Nome Arquivo")
+                .setSortable(true)
+                .setAutoWidth(true);
+        gridArquivos.addComponentColumn(arquivoOrcamento -> {
+            // Cria um link para download associado ao arquivo
+            Anchor downloadLink = new Anchor(new StreamResource(arquivoOrcamento.getNome_arquivoorcamento(), () -> {
+                try {
+                    return new FileInputStream(new File(arquivoOrcamento.getCaminho_arquivoorcamento()));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }), "Download");
+            downloadLink.getElement().setAttribute("download", true);
+            return downloadLink;
+        }).setHeader("Download").setSortable(true).setAutoWidth(true);
+        gridArquivos.addComponentColumn(arquivoOrcamento -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                listArquivo.remove(arquivoOrcamento);
+                // Atualiza os itens da grid
+                gridArquivos.setItems(listArquivo);
+                // Feedback ao usuário
+                Notification.show("Arquivo removido: " + arquivoOrcamento.getNome_arquivoorcamento(), 3000, Notification.Position.MIDDLE);
+            });
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
+
+        upload.addSucceededListener(event -> {
+            String fileName = event.getFileName();
+            InputStream inputStream = buffer.getInputStream(fileName);
+
+            // Salva o arquivo no diretório especificado
+            File targetFile = new File(uploadDir + "/" + fileName);
+            if (targetFile.exists()) {
+                // Arquivo já existe, pode optar por ignorar, sobrescrever ou renomear
+                Notification.show("O arquivo já existe: " + fileName, 3000, Notification.Position.MIDDLE);
+                return;
+            }
+
+            try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                inputStream.transferTo(outputStream);
+                SetArquivoOrcamento arquivoOrcamento = new SetArquivoOrcamento();
+                arquivoOrcamento.setAtivo("S");
+                arquivoOrcamento.setCaminho_arquivoorcamento(uploadDir + "/" + fileName);
+                arquivoOrcamento.setNome_arquivoorcamento(fileName);
+                arquivoOrcamento.setData_inclusao(LocalDateTime.now());
+                arquivoOrcamento.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                arquivoOrcamento.setId_cliente(cliente.getId_cliente());
+                listArquivo.add(arquivoOrcamento);
+
+                // Atualiza os itens da grid
+                gridArquivos.setItems(listArquivo);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Notification.show("Erro ao salvar o arquivo: " + e.getMessage(), 3000, Notification.Position.MIDDLE);
+            }
+        });
+
+        // Adiciona os componentes ao layout
+        formLayout.add(upload, gridArquivos);
+
+        // Retorna o container principal
+
+
+        Div div = new Div();
+        div.setSizeFull();
+        div.add(formLayout);
+        return div;
     }
 
     private void openModalPagamentosParcela() {
@@ -719,9 +839,6 @@ public class OrcamentoCadastroModal extends Dialog {
     }
 
 
-
-
-
     private Div createFormCadastroPagamentos() {
 
         numeroparcela_pagamento = new IntegerField("Parcela Pagamento");
@@ -734,8 +851,22 @@ public class OrcamentoCadastroModal extends Dialog {
         id_tipopagamento = new ComboBox<>("Tipo de Pagamento");
         id_situacaopagamento = new ComboBox<>("Status Pagamento");
         descricao_pagamento = new TextArea("Observações");
+
         id_situacaopagamento.setItems(situacaoPagamentoService.listAll());
+        id_situacaopagamento.setItemLabelGenerator(SetSituacaoPagamento::getNome_situacaopagamento);
+
         id_tipopagamento.setItems(tipoPagamentoService.listAll());
+        id_tipopagamento.setItemLabelGenerator(SetTipoPagamento::getNome_tipopagamento);
+
+
+        // Criação do botão com ícone de "plus"
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            tipoPagamentoCadastroModal.open();
+        });
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout id_tipopagamentolayout = new HorizontalLayout(id_tipopagamento, addButtonTipoPagamento);
+        id_tipopagamentolayout.setAlignItems(FlexComponent.Alignment.END);
 
         valor_pagamento.setValueChangeMode(ValueChangeMode.EAGER);
         valor_pagamento.addValueChangeListener(event -> service.formataMoedaBrasileira(valor_pagamento));
@@ -809,7 +940,7 @@ public class OrcamentoCadastroModal extends Dialog {
                 data_pagamento,
                 valorpago_pagamento,
                 numerodocumento_pagamento,
-                id_tipopagamento,
+                id_tipopagamentolayout,
                 id_situacaopagamento,
                 descricao_pagamento,
                 saveAdicionarButton,
@@ -872,7 +1003,7 @@ public class OrcamentoCadastroModal extends Dialog {
         parcela_comisao.setMax(totalparcelas_comissao.getValue());
 
         porcentagem_comissoes.addValueChangeListener(event -> {
-            BigDecimal valorsomado = service.getValorBigDecimal(valor_total.getValue());
+            BigDecimal valorsomado = service.getValorBigDecimal(valor_nagasaki.getValue());
             BigDecimal valorporcentagem = service.extrairPorcentagem(valorsomado,
                     service.getValorBigDecimal(porcentagem_comissoes.getValue()));
             valor_comissao.setValue(valorporcentagem.toString());
@@ -1131,153 +1262,26 @@ public class OrcamentoCadastroModal extends Dialog {
     private boolean contratoincluido = false;
 
     public InputStream createPdf() {
-
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             // Criar PDF Writer
-            PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            pdfDoc.setDefaultPageSize(PageSize.A4);
-            Document document = new Document(pdfDoc);
-
-            // Adicionar cabeçalho com logotipo
-            Image logo = new Image(ImageDataFactory.create("https://nagasakidedetizacao.com.br/wp-content/uploads/2020/08/Logo-Nagasaki.png"));
-            logo.setWidth(100);
-            logo.setHorizontalAlignment(HorizontalAlignment.LEFT);
-            document.add(logo);
-
-            // Título do contrato
-            Paragraph title = new Paragraph("Contrato de Prestação de Serviços")
-                    .setFontSize(20)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20);
-            document.add(title);
-
-            // Informações gerais do contrato
-            document.add(new Paragraph("Cliente: "+ cliente.getNome_cliente() + "   CNPJ/CPF: "+ cliente.getCpf_cgc_cliente())
-                    .setFontSize(12)
-                    .setBold()
-                    .setMarginBottom(5));
-            document.add(new Paragraph("Data: " + LocalDate.now())
-                    .setFontSize(12)
-                    .setMarginBottom(15));
-
-            // Texto introdutório
-            Paragraph intro = new Paragraph("Este contrato de prestação de serviços é firmado entre a empresa Nagasaki e o cliente mencionado acima, respeitando as cláusulas e condições descritas a seguir.")
-                    .setTextAlignment(TextAlignment.JUSTIFIED)
-                    .setFontSize(12)
-                    .setMarginBottom(20);
-            document.add(intro);
-
-            // Adicionar seções com títulos destacados
-            document.add(new Paragraph("1. Objetivo do Contrato")
-                    .setBold()
-                    .setFontSize(14)
-                    .setMarginBottom(10));
-            List<String> listaServicos = new ArrayList<>();
-            AtomicReference<String> services = new AtomicReference<>("");
-            servicoOrcamentoChekBox.getValue().forEach(p->{
-                    services.set("," + p.getDescricao_servico());
-            });
-            document.add(new Paragraph("O presente contrato tem como objetivo a prestação de serviços de "+services.get()+", conforme detalhado nas cláusulas seguintes.")
-                    .setTextAlignment(TextAlignment.JUSTIFIED)
-                    .setFontSize(12)
-                    .setMarginBottom(15));
-
-            // Seção com tabela
-            document.add(new Paragraph("2. Valores e Pagamentos")
-                    .setBold()
-                    .setFontSize(14)
-                    .setMarginBottom(10));
-            document.add(new Paragraph("O valor total acordado entre as partes é de R$ "+ valor_total.getValue() +", pago conforme o seguinte cronograma:")
-                    .setTextAlignment(TextAlignment.JUSTIFIED)
-                    .setFontSize(12)
-                    .setMarginBottom(10));
-
-            Integer parcelas = 1;
-            if(Objects.isNull(parcelamentoPagar)) {
-                parcelas = Integer.valueOf(id_condicaopagamento.getValue().getQuantidade_parcelas());
-            } else {
-                if (parcelamentoPagar.getValue() != null) {
-                    if (parcelamentoPagar.getValue() > 1) {
-                        parcelas = parcelamentoPagar.getValue();
-                    }
-                }
-            }
-
-            BigDecimal value = service.getValorBigDecimal(valor_total.getValue())
-                    .divide(BigDecimal.valueOf(parcelas), RoundingMode.HALF_UP);
-
-            List<BigDecimal> listaValues = new ArrayList<>();
-            for (int i = 0; i < parcelas; i++){
-                listaValues.add(value);
-            }
-
-            // Tabela de pagamentos
-            Table paymentTable = new Table(UnitValue.createPercentArray(new float[]{2, 2, 2, 2}));
-            paymentTable.setWidth(UnitValue.createPercentValue(100));
-            paymentTable.addHeaderCell(new Cell().add(new Paragraph("Parcela")).setBold());
-            paymentTable.addHeaderCell(new Cell().add(new Paragraph("Valor")).setBold());
-            paymentTable.addHeaderCell(new Cell().add(new Paragraph("Data")).setBold());
-            paymentTable.addHeaderCell(new Cell().add(new Paragraph("Status")).setBold());
-
-            // Adicionar conteúdo à tabela
-            AtomicInteger finalParcelas = new AtomicInteger();
-            listaValues.forEach(v -> {
-
-                finalParcelas.getAndIncrement();
-                String p = String.valueOf(finalParcelas.get());
-                String data = "";
-                if(datainicio_vencimento.getValue()!=null){
-                    data = datainicio_vencimento.getValue().plusMonths(finalParcelas.get()).toString();
-                }else {
-                    data = LocalDate.now().toString();
-                }
-
-                paymentTable.addCell(new Cell().add(new Paragraph(p)));
-                paymentTable.addCell(new Cell().add(new Paragraph("R$ "+v)));
-                paymentTable.addCell(new Cell().add(new Paragraph(data)));
-                paymentTable.addCell(new Cell().add(new Paragraph("Pendente")));
-            });
-            // Adicionar mais linhas conforme necessário...
-            document.add(paymentTable.setMarginBottom(20));
-
-            // Parágrafos adicionais de seções
-            document.add(new Paragraph("3. Prazo de Execução")
-                    .setBold()
-                    .setFontSize(14)
-                    .setMarginBottom(10));
-            document.add(new Paragraph("A execução dos serviços terá início na data de "+datainicio_execucao.getValue()+", conforme detalhado no cronograma abaixo.")
-                    .setTextAlignment(TextAlignment.JUSTIFIED)
-                    .setFontSize(12)
-                    .setMarginBottom(15));
-
-            // Adicionar rodapé
-            Paragraph footer = new Paragraph("Assinatura: ________________________________")
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontSize(12)
-                    .setMarginTop(30);
-            document.add(footer);
-
-            document.close();
-
-            return new ByteArrayInputStream(baos.toByteArray());
+            return new SetClienteTransiction().EditDocAndGeneratePdf();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-
-
     private Div createFormCadastroOrcamantosDadosFinanceiros() {
 
 
         service = new UtilitySystemConfigService();
+
         clienteNomeOrcamento = new TextField("Nome Cliente");
         clienteNomeOrcamento.isReadOnly();
         clienteNomeOrcamento.setReadOnly(true);
         clienteNomeOrcamento.setValue(cliente.getNome_cliente());
+
+
 
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
         localTratamentoOrcamento.setItems
@@ -1375,6 +1379,7 @@ public class OrcamentoCadastroModal extends Dialog {
 
 
 
+
         dto.setId_cliente(cliente.getId_cliente());
         dto.setDescricao_problema(problemaOrcamento.getValue());
         dto.setData_orcamento(dataOrcamento.getValue());
@@ -1387,6 +1392,20 @@ public class OrcamentoCadastroModal extends Dialog {
         dto.setAtivo("S");
         service = new UtilitySystemConfigService();
             SetOrcamento orc = orcamentoService.save(dto);
+            if (listArquivo.size() > 0) {
+                listArquivo.forEach(setArquivoOrcamento -> {
+                    setArquivoOrcamento.setId_orcamento(orc.getId_orcamento());
+                    setArquivoOrcamento.setId_cliente(orc.getId_cliente());
+                    try {
+                        arquivoOrcamentoService.save(setArquivoOrcamento);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            listArquivo.clear();
+            gridArquivos.setItems(listArquivo);
+            problemaOrcamento.clear();
             if (servicoOrcamentoChekBox.getValue().size() > 0) {
                 servicoOrcamentoChekBox.getValue().forEach(p -> {
                     SetServicosOrcamento obj = new SetServicosOrcamento();
@@ -1525,118 +1544,6 @@ public class OrcamentoCadastroModal extends Dialog {
     }
 
 
-    public InputStream gerarNotaFiscalPdf() {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            // Criar PDF Writer
-            PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document = new Document(pdfDoc);
-            document.setMargins(20, 20, 20, 20);
-
-            // Adicionar Logotipo
-            String logoPath = "https://nagasakidedetizacao.com.br/wp-content/uploads/2020/08/Logo-Nagasaki.png"; // Caminho para o logotipo
-            ImageData logoData = ImageDataFactory.create(logoPath);
-            Image logo = new Image(logoData).scaleToFit(100, 50);
-            document.add(logo.setFixedPosition(20, 700));
-
-            // Informações da empresa e cliente
-            Paragraph empresaInfo = new Paragraph("Nagasaki\nCNPJ: 04.004.186/0001-08\nEndereço: RUA JOÃO BERTACCHI, 49\nSão Paulo, SP, CEP 04777-110")
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontSize(10);
-            document.add(empresaInfo);
-
-            Paragraph clienteInfo = new Paragraph("Cliente: "+cliente.getNome_cliente()+"\nCPF/CNPJ: "+cliente.getCpf_cgc_cliente())
-                    .setTextAlignment(TextAlignment.RIGHT)
-                    .setFontSize(10);
-            document.add(clienteInfo);
-
-            // Título
-            Paragraph title = new Paragraph("Nota Fiscal de Serviços")
-                    .setBold()
-                    .setFontSize(18)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20);
-            document.add(title);
-
-            // Seção de dados da nota fiscal
-            Table table = new Table(UnitValue.createPercentArray(new float[] {1, 2, 1, 2}));
-            table.setWidth(UnitValue.createPercentValue(100));
-
-            // Cabeçalho da tabela
-            table.addHeaderCell(new Paragraph("Campo").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            table.addHeaderCell(new Paragraph("Informação").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            table.addHeaderCell(new Paragraph("Campo").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            table.addHeaderCell(new Paragraph("Informação").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-
-            // Dados da nota
-            addTableCell(table, "Número", numero_notafiscal.getValue());
-            addTableCell(table, "Série", serie_notafiscal.getValue());
-            addTableCell(table, "Data Emissão", dataemissao_notafiscal.getValue().toString());
-            addTableCell(table, "Natureza", natureza_notafiscal.getValue());
-
-            addTableCell(table, "Código Fiscal", numero_notafiscal.getValue());  // Exemplo de campo extra
-            addTableCell(table, "Unidade", unidade_notafiscal.getValue());
-            addTableCell(table, "Quantidade", quantidade_notafiscal.getValue().toString());
-            addTableCell(table, "Valor Unitário", valorunitario_notafiscal.getValue());
-            document.add(table);
-
-            // Serviços detalhados
-            Paragraph serviceTitle = new Paragraph("Serviços Prestados").setBold().setFontSize(14).setMarginTop(10);
-            document.add(serviceTitle);
-
-            Table serviceTable = new Table(UnitValue.createPercentArray(new float[]{1, 3, 1, 1, 1}));
-            serviceTable.setWidth(UnitValue.createPercentValue(100));
-
-            // Cabeçalhos dos serviços
-            serviceTable.addHeaderCell(new Paragraph("Código").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            serviceTable.addHeaderCell(new Paragraph("Descrição").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            serviceTable.addHeaderCell(new Paragraph("Quantidade").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            serviceTable.addHeaderCell(new Paragraph("Valor Unitário").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-            serviceTable.addHeaderCell(new Paragraph("Valor Total").setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
-
-            // Exemplo de serviço prestado
-            serviceTable.addCell(new Paragraph("001"));
-            serviceTable.addCell(new Paragraph(descricao_notafiscal.getValue()));
-            serviceTable.addCell(new Paragraph(quantidade_notafiscal.getValue().toString()));
-            serviceTable.addCell(new Paragraph(valorunitario_notafiscal.getValue()));
-            serviceTable.addCell(new Paragraph(valortotal_notafiscal.getValue()));
-
-            document.add(serviceTable);
-
-            // Totalização e impostos
-            Table totalTable = new Table(UnitValue.createPercentArray(new float[]{3, 1}));
-            totalTable.setWidth(UnitValue.createPercentValue(100));
-            totalTable.addCell(new Paragraph("Subtotal").setBold());
-            totalTable.addCell(new Paragraph(valorunitario_notafiscal.getValue()));
-
-
-            totalTable.addCell(new Paragraph("Valor Total").setBold());
-            totalTable.addCell(new Paragraph("R$ " + valortotal_notafiscal.getValue()));
-
-            document.add(totalTable);
-
-            // Adicionar uma linha para assinatura
-            Paragraph assinatura = new Paragraph("\n\n________________________________________\nAssinatura do Emitente")
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginTop(20);
-            document.add(assinatura);
-
-            // Rodapé
-            Paragraph footer = new Paragraph("Este documento não é válido como nota fiscal eletrônica. Emitido por: Nagasaki Controle de Pragas")
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setFontSize(10)
-                    .setMarginTop(30);
-            document.add(footer);
-
-            // Fechar o documento
-            document.close();
-
-            return new ByteArrayInputStream(baos.toByteArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     // Método auxiliar para adicionar células estilizadas na tabela
     private void addTableCell(Table table, String campo, String valor) {

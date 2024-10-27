@@ -25,6 +25,8 @@ public class EnderecoService {
         enderecos.forEach(e -> {
             SetEnderecos et = new SetEnderecos();
             et.setAtivo("S");
+            et.setId_regiao(e.getComboEnderecosRegiao().getId_regiao());
+            et.setId_tipoimovel(e.getComboEnderecosTipoImovel().getId_tipoimovel());
             et.setArea_imovel(e.getFieldEnderecosArea());
             et.setBairro_imovel(e.getFieldEnderecosBairro());
             et.setCep_imovel(e.getFieldEnderecosCEP());
@@ -72,6 +74,48 @@ public class EnderecoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    public void updateListaNova(List<Endereco> enderecosLista, Integer id_cliente, Integer id_usuario) {
+        enderecosLista.forEach(e -> {
+            SetEnderecos et = new SetEnderecos();
+            et.setAtivo("S");
+            et.setId_regiao(e.getComboEnderecosRegiao().getId_regiao());
+            et.setId_tipoimovel(e.getComboEnderecosTipoImovel().getId_tipoimovel());
+            et.setArea_imovel(e.getFieldEnderecosArea());
+            et.setBairro_imovel(e.getFieldEnderecosBairro());
+            et.setCep_imovel(e.getFieldEnderecosCEP());
+            et.setEndereco_imovel(e.getFieldEnderecosEndereço());
+            et.setCidade_imovel(e.getFieldEnderecosCidade());
+            et.setComplemento_imovel(e.getFieldEnderecosComplemento());
+            et.setData_inclusao(LocalDateTime.now());
+            et.setId_cliente(id_cliente);
+            et.setId_estado(e.getComboEnderecosUF().getId_estado());
+            et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            et.setNome_responsavel(e.getFieldEnderecosReponsavel());
+            et.setNumero_imovel(e.getFieldEnderecosNumero());
+            et.setPonto_referencia(e.getFieldEnderecosPontodeReferencia());
+            et.setPagina_guia(e.getFieldEnderecosPagGuia());
+            et.setTelefone_local(e.getFieldEnderecosTelefone());
+            et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            et.setAtivo("S");
+            log.info("Salvando novo endereço :" + et.toString());
+            repository.save(et);
+        });
+
+    }
+
+    public void update(SetEnderecos item) throws Exception {
+        try {
+            Optional<SetEnderecos> optional = repository.findById(item.getId_endereco());
+            SetEnderecos entity = optional.get();
+            entity = item;
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Atualizado !");
         } catch (Exception e){
             throw new Exception();
         }

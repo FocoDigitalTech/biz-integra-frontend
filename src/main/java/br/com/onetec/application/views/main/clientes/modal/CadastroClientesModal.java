@@ -589,7 +589,7 @@ public class CadastroClientesModal extends Dialog {
         responsavelAgendamentoService.save(agendamento);
         responsavelAprovacaoService.save(aprovacao);
         if (enderecos.size() > 0) {
-            enderecoService.save(enderecos, cliente.getId_cliente(), 1);
+            enderecoService.save(enderecos, cliente.getId_cliente(), UsuarioAutenticadoConfig.getUser().getId_usuario());
         }
         service.notificaSucesso("Salvo com sucesso");
         clienteView.refreshGrid();

@@ -64,4 +64,9 @@ public class CondicaoPagamentoService {
     public List<SetCondicaoPagamento> listAll() {
         return repository.listAll();
     }
+
+    public SetCondicaoPagamento fidById(Integer id_condicaopagamento) {
+        Optional<SetCondicaoPagamento> optional = repository.findById(id_condicaopagamento);
+        return  optional.orElse(null);
+    }
 }

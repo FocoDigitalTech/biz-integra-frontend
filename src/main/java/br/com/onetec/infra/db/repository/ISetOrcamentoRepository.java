@@ -16,4 +16,10 @@ public interface ISetOrcamentoRepository extends CrudRepository<SetOrcamento, In
 
     @Query(value = "SELECT * FROM tb_orcamento where ativo = 'S' and id_cliente = ?1", nativeQuery = true)
     List<SetOrcamento> listAllByClientId(Integer idcliente);
+
+    @Query(value = "SELECT * FROM tb_orcamento where ativo = 'S' and id_situacao = ?1", nativeQuery = true)
+    List<SetOrcamento> findAllBySituacaoId(Integer id_situacaocadastro);
+
+    @Query(value = "SELECT max(id_orcamento) FROM tb_orcamento", nativeQuery = true)
+    Integer findAllMaxId();
 }

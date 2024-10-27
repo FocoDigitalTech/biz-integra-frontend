@@ -1,6 +1,7 @@
 package br.com.onetec.application.service.orcamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.codigonumeracaoservice.CodigoNumeracaoService;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetFluxoRecebimentoPagamento;
 import br.com.onetec.infra.db.model.SetNotaFiscal;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class OrcamentoService {
 
     private ISetOrcamentoRepository repository;
+
 
     @Autowired
     public void initServices (ISetOrcamentoRepository repository1){
@@ -83,5 +85,13 @@ public class OrcamentoService {
 
     public SetOrcamento findAllById(Integer id_orcamento) {
         return repository.findById(id_orcamento).orElse(null);
+    }
+
+    public List<SetOrcamento> findAllBySituacaoId(Integer id_situacaocadastro) {
+        return repository.findAllBySituacaoId(id_situacaocadastro);
+    }
+
+    public Integer findAllMaxId() {
+        return repository.findAllMaxId();
     }
 }

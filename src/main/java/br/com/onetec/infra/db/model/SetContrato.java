@@ -13,7 +13,15 @@ import java.time.LocalDateTime;
 public class SetContrato {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "contrato_seq")
+    @TableGenerator(
+            name = "contrato_seq",
+            table = "tb_codigonumeracao",
+            pkColumnName = "sequence_name",
+            valueColumnName = "contrato_codigonumeracao",
+            pkColumnValue = "incremento",
+            allocationSize = 1
+    )
     private Integer id_contrato;
     private Integer id_cliente;
     private Integer id_orcamento;

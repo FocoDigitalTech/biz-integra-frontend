@@ -11,13 +11,17 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
 @Route(value = "financeiro", layout = MainLayout.class)
 @PageTitle(ViewsTitleConst.FINANCEIRO_NAV_TITLE)
 @PermitAll
+@Component
+@UIScope
 public class FinanceiroView extends VerticalLayout {
 
     private LancamentoFinanceiroDiv lancamentoFinanceiro;

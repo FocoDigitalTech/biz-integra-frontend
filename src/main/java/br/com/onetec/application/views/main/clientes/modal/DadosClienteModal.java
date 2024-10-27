@@ -11,7 +11,6 @@ import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
 import br.com.onetec.application.views.main.clientes.ClientesView;
-import br.com.onetec.application.views.main.financeiro.div.CondicaoPagamentoDiv;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
@@ -20,7 +19,6 @@ import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.charts.model.Title;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -39,9 +37,6 @@ import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -52,6 +47,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -196,7 +192,7 @@ public class DadosClienteModal extends Dialog {
             internetEmailCobrancaField.setValue(setResponsavelCobranca.getEmail());
             observacaoCobrancaField.setValue(setResponsavelCobranca.getObservacao());
             //Enderecos
-            List<SetEnderecos> enderecosLista = enderecoService.findAllClienteId(cliente.getId_cliente());
+            enderecosLista = enderecoService.findAllClienteId(cliente.getId_cliente());
             List<SetTipoImovel> listaimovel = tipoimovelService.findAllImovel();
             List<SetEstado> listauf = estadoService.listAll();
             List<SetRegiao> listaregiao = regiaoService.findAllRegiao();
@@ -215,7 +211,7 @@ public class DadosClienteModal extends Dialog {
                         e.getBairro_imovel(), e.getCidade_imovel(),
                         uf, e.getTelefone_local(), e.getPagina_guia(),
                         e.getEndereco_imovel(), regiao, e.getPonto_referencia()));
-                grid.setItems(enderecos);
+                grid.setItems(enderecosLista);
             });
             CGCCPFField.setValue(cliente.getCpf_cgc_cliente());
         });
@@ -391,9 +387,11 @@ public class DadosClienteModal extends Dialog {
     }
 
     private List<Endereco> enderecos = new ArrayList<>();
-    private Grid<Endereco> grid = new Grid<>(Endereco.class, false);
+    private List<SetEnderecos> enderecosLista = new ArrayList<>();
+    private Grid<SetEnderecos> grid = new Grid<>(SetEnderecos.class, false);
 
 
+    private List<Endereco> enderecosAtualizados = new ArrayList<>();
 
     private Div createFormEnderecos() {
         Div div = new Div();
@@ -415,26 +413,40 @@ public class DadosClienteModal extends Dialog {
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
         // Configurar o Grid
-        grid.setItems(enderecos);
+        //grid.setItems(enderecos);
 //        grid.addColumn(endereco -> {
 //            String descricao_tipoimovel = endereco.getComboEnderecosTipoImovel().getDescricao_tipoimovel();
 //            return descricao_tipoimovel != null ? descricao_tipoimovel : "N/A";
 //        })
 //                .setHeader("TipoImovel")
 //                .setAutoWidth(true);
-        grid.addColumn("fieldEnderecosEndereço").setHeader("Endereço").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosNumero").setHeader("Numero").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosBairro").setHeader("Bairro").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosCEP").setHeader("CEP").setAutoWidth(true);
-        grid.addColumn("fieldEnderecosCidade").setHeader("Cidade").setAutoWidth(true);
-        //grid.addColumn("comboEnderecosUF").setHeader("UF").setAutoWidth(true);
-        grid.addColumn(endereco -> {
-            String uf_estado = endereco.getComboEnderecosUF().getUf_estado();
-            return uf_estado != null ? uf_estado : "N/A";
-        })
-                .setHeader("UF")
+        grid.addColumn(SetEnderecos::getEndereco_imovel)
+                .setHeader("Endereço")
                 .setAutoWidth(true);
-        grid.addColumn("fieldEnderecosTelefone").setHeader("Telefone").setAutoWidth(true);
+
+        grid.addColumn(SetEnderecos::getNumero_imovel)
+                .setHeader("Numero")
+                .setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getBairro_imovel)
+                .setHeader("Bairro")
+                .setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getCep_imovel)
+                .setHeader("CEP")
+                .setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getCidade_imovel)
+                .setHeader("Cidade")
+                .setAutoWidth(true);
+        grid.addColumn(SetEnderecos::getTelefone_local)
+                .setHeader("Telefone")
+                .setAutoWidth(true);
+
+        grid.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                dadosEndereco(event.getItem());
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
 
         // Campos de texto para entrada de dados
         fieldEnderecosCEP.setPlaceholder("Digite");
@@ -477,11 +489,14 @@ public class DadosClienteModal extends Dialog {
 
 
 
+
+
             if (!fieldEnderecosCEP.isEmpty()) {
                 Endereco endereco =
                         new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,UF,Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
                 enderecos.add(endereco);
-                grid.setItems(enderecos);
+               // grid.setItems(enderecos);
+                enderecosAtualizados.add(endereco);
                 Notification.show("Endereço Adicionado!");
                 fieldEnderecosCEP.clear();
                 comboEnderecosTipoImovel.clear();
@@ -497,6 +512,8 @@ public class DadosClienteModal extends Dialog {
                 fieldEnderecosReponsavel.clear();
                 comboEnderecosRegiao.clear();
                 fieldEnderecosPontodeReferencia.clear();
+                enderecosLista = enderecoService.findAllClienteId(cliente.getId_cliente());
+                grid.setItems(enderecosLista);
 
             } else {
                 fieldEnderecosPagGuia.addClassName("error-border");
@@ -528,6 +545,168 @@ public class DadosClienteModal extends Dialog {
         div.add(layout);
 
         return div;
+    }
+
+    private void dadosEndereco(SetEnderecos item) {
+        Dialog endereco = new DadosClienteModal();
+        FormLayout formEndereco = new FormLayout();
+
+        //formulario
+        TextField enderecosCEP = new TextField("CEP");
+        ComboBox<SetTipoImovel> enderecosTipoImovel  = new ComboBox("Tipo de Imóvel");
+        TextField enderecosArea = new TextField("Area");
+        TextField enderecosEndereço = new TextField("Endereço");
+        TextField enderecosNumero = new TextField("Número");
+        TextField enderecosComplemento = new TextField("Complemento");
+        TextField enderecosBairro = new TextField("Bairro");
+        TextField enderecosCidade = new TextField("Cidade");
+        ComboBox<SetEstado> enderecosUF  = new ComboBox("UF");
+        TextField enderecosTelefone = new TextField("Telefone do Local");
+        TextField enderecosPagGuia = new TextField("Pag. Guia");
+        TextField enderecosReponsavel = new TextField("Responsável");
+        ComboBox<SetRegiao> enderecosRegiao  = new ComboBox ("Região");
+        TextField enderecosPontodeReferencia = new TextField("Ponto de Referencia");
+
+        //config form
+
+        enderecosCEP.setValue(item.getCep_imovel());
+        enderecosArea.setValue(item.getArea_imovel());
+        enderecosEndereço.setValue(item.getEndereco_imovel());
+        enderecosNumero.setValue(item.getNumero_imovel());
+        enderecosComplemento.setValue(item.getComplemento_imovel());
+        enderecosBairro.setValue(item.getBairro_imovel());
+        enderecosCidade.setValue(item.getCidade_imovel());
+        enderecosTelefone.setValue(item.getTelefone_local());
+        enderecosPagGuia.setValue(item.getPagina_guia());
+        enderecosReponsavel.setValue(item.getNome_responsavel());
+        enderecosPontodeReferencia.setValue(item.getPonto_referencia());
+
+        service.configureCEPField(enderecosCEP);
+        enderecosCEP.addBlurListener(event -> buscarCep());
+        enderecosCEP.addValueChangeListener(event -> {
+            String value = event.getValue().replaceAll("[^0-9]", "");
+            if (value.length() >= 8) {
+                String cep = value;
+                EApiEnderecoResponse response = service.buscarCep(enderecosEndereço);
+                enderecosEndereço.setValue(response.getLogradouro());
+                //complemento_funcionario.setValue(response.get);
+                enderecosBairro.setValue(response.getBairro());
+                enderecosCidade.setValue(response.getLocalidade());
+                enderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
+            }
+            if (value.length() <= 7) {
+                enderecosEndereço.clear();
+                enderecosBairro.clear();
+                enderecosCidade.clear();
+                enderecosUF.clear();
+            }
+        });
+
+        List<SetTipoImovel> listaimovel = tipoimovelService.findAllImovel();
+        List<SetRegiao> listaregiao = regiaoService.findAllRegiao();
+
+        enderecosTipoImovel.setItems(listaimovel);
+        enderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
+        enderecosUF.setItems(estadoList);
+        enderecosUF.setItemLabelGenerator(SetEstado::getUf_estado);
+        enderecosRegiao.setItems(listaregiao);
+        enderecosRegiao.setItemLabelGenerator(SetRegiao::getDescricao_regiao);
+
+        enderecosTipoImovel.setValue(listaimovel.stream()
+                .filter(midia -> midia.getId_tipoimovel().equals(item.getId_tipoimovel()))
+                .findFirst().orElse(null));
+        enderecosUF.setValue(estadoList.stream()
+                .filter(midia -> midia.getId_estado().equals(item.getId_estado()))
+                .findFirst().orElse(null));
+        enderecosRegiao.setValue(listaregiao.stream()
+                .filter(midia -> midia.getId_regiao().equals(item.getId_regiao()))
+                .findFirst().orElse(null));
+
+        //botoes
+        Button saveBtn = new Button("Atualizar", eventbe -> {
+            item.setData_alteracao(LocalDateTime.now());
+            item.setEndereco_imovel(enderecosEndereço.getValue());
+            item.setCep_imovel(enderecosCEP.getValue());
+            if (Objects.nonNull(enderecosTipoImovel.getValue().getId_tipoimovel())) {
+                item.setId_tipoimovel(enderecosTipoImovel.getValue().getId_tipoimovel());
+            }
+            item.setArea_imovel(enderecosArea.getValue());
+            item.setNumero_imovel(enderecosNumero.getValue());
+            item.setComplemento_imovel(enderecosComplemento.getValue());
+            item.setBairro_imovel(enderecosBairro.getValue());
+            item.setCidade_imovel(enderecosCidade.getValue());
+            if (Objects.nonNull(enderecosUF.getValue().getId_estado())) {
+                item.setId_estado(enderecosUF.getValue().getId_estado());
+            }
+            item.setTelefone_local(enderecosTelefone.getValue());
+            item.setPagina_guia(enderecosPagGuia.getValue());
+            item.setNome_responsavel(enderecosReponsavel.getValue());
+            if (Objects.nonNull(enderecosRegiao.getValue().getId_regiao())){
+                item.setId_regiao(enderecosRegiao.getValue().getId_regiao());
+            }
+
+            item.setPonto_referencia(enderecosPontodeReferencia.getValue());
+            try {
+                enderecoService.update(item);
+                endereco.close();
+                service.notificaSucesso("Atualizado com sucesso !");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        Button cancelBtn = new Button("Cancelar", event -> service.askForConfirmation(endereco));
+        Button deleteBtn = new Button("Excluir", event -> {
+            Dialog confirmationDialog = new Dialog();
+            confirmationDialog.add("Você realmente deseja deletar o endereço ?");
+
+            Button confirmButton = new Button("Sim", event1 -> {
+
+                try {
+                    enderecoService.deletar(item);
+                    enderecosLista.remove(item);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                grid.setItems(enderecosLista);
+                confirmationDialog.close();
+                endereco.close();
+                service.notificaSucesso("Excluido com sucesso !");
+            });
+
+            Button cancelButton = new Button("Não", event1 -> confirmationDialog.close());
+
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_ERROR);
+            confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+            confirmationDialog.getFooter().add(confirmButton, cancelButton);
+            confirmationDialog.open();
+
+        });
+
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        deleteBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+        endereco.addDialogCloseActionListener(event -> service.askForConfirmation(endereco));
+
+        formEndereco.add(enderecosCEP
+                ,enderecosTipoImovel
+                ,enderecosArea
+                ,enderecosEndereço
+                ,enderecosNumero
+                ,enderecosComplemento
+                ,enderecosBairro
+                ,enderecosCidade
+                ,enderecosUF
+                ,enderecosTelefone
+                ,enderecosPagGuia
+                ,enderecosReponsavel
+                ,enderecosRegiao
+                ,enderecosPontodeReferencia);
+        endereco.add(formEndereco);
+        endereco.getFooter().add(saveBtn, cancelBtn, deleteBtn);
+
+        endereco.open();
     }
 
 
@@ -845,8 +1024,9 @@ public class DadosClienteModal extends Dialog {
         responsavelCobrancaService.update(cobranca);
         responsavelAgendamentoService.update(agendamento);
         responsavelAprovacaoService.update(aprovacao);
-        if (enderecos.size() > 0) {
-            enderecoService.save(enderecos, cliente.getId_cliente(), 1);
+        if (enderecosAtualizados.size() > 0) {
+            enderecoService.updateListaNova(enderecosAtualizados, cliente.getId_cliente(),
+                    UsuarioAutenticadoConfig.getUser().getId_usuario());
         }
         close();
     }
@@ -917,86 +1097,4 @@ public class DadosClienteModal extends Dialog {
         cliente.setObservacaoField(observacaoField.getValue());
         return cliente;
     }
-//    public DadosClienteModal(SetCliente cliente, ClientesService clientesService, EstadoService estadoService, UsuarioService usuarioService, EnderecoService enderecoService, ResponsavelCobrancaService responsavelCobrancaService, ResponsavelAgendamentoService responsavelAgendamentoService, ResponsavelAprovacaoService responsavelAprovacaoService) {
-//        new Title("Detalhes do Cliente");
-//        this.clientesService = clientesService;
-//        this.estadoService = estadoService;
-//        this.usuarioService = usuarioService;
-//        this.enderecoService =  enderecoService;
-//        this.responsavelCobrancaService = responsavelCobrancaService;
-//        this.responsavelAgendamentoService = responsavelAgendamentoService;
-//        this.responsavelAprovacaoService = responsavelAprovacaoService;
-//
-//        UI.getCurrent().access(() -> {
-//
-//            saveButton = new Button("Salvar", eventbe -> save());
-//            cancelButton = new Button("Cancelar", event -> close());
-//            atendimentoButton = new Button("Atendimento e Histórico", event -> atendimentoAbrir(cliente
-//            ));
-//            tabs = new Tabs();
-//            Tab tab1 = new Tab("Dados Empresa");
-//            Tab tab2 = new Tab("Dados Agendamento");
-//            Tab tab3 = new Tab("Aprovação");
-//            Tab tab4 = new Tab("Cobrança");
-//            Tab tab5 = new Tab("Dados Endereços");
-//
-//            tabs.add(tab1, tab2, tab3, tab4, tab5);
-//            dadosEmpresa = createFormCadastroEmpresa(cliente);
-//            dadosAgendamento = createFormCadastroAgendamento(cliente);
-//            dadosCobranca = createFormCadastroCobranca(cliente);
-//            dadosAprovacao = createFormCadastroAprovacao(cliente);
-//            dadosEnderecos = createFormEnderecos(cliente);
-//            dadosHistoricoAtendimento = createFormHistoricoAtendimento();
-//
-//            Div content = new Div(dadosEmpresa,
-//                    dadosAgendamento,
-//                    dadosCobranca,
-//                    dadosAprovacao,
-//                    dadosEnderecos,
-//                    dadosHistoricoAtendimento);
-//            content.setSizeFull();
-//            dadosEmpresa.setVisible(true);
-//            dadosAgendamento.setVisible(false);
-//            dadosCobranca.setVisible(false);
-//            dadosAprovacao.setVisible(false);
-//            dadosEnderecos.setVisible(false);
-//            dadosHistoricoAtendimento.setVisible(false);
-//
-//            tabs.addSelectedChangeListener(event -> {
-//                dadosEmpresa.setVisible(false);
-//                dadosAgendamento.setVisible(false);
-//                dadosCobranca.setVisible(false);
-//                dadosAprovacao.setVisible(false);
-//                dadosEnderecos.setVisible(false);
-//                dadosHistoricoAtendimento.setVisible(false);
-//
-//                Tab selectedTab = tabs.getSelectedTab();
-//                if (selectedTab.equals(tab1)) {
-//                    dadosEmpresa.setVisible(true);
-//                } else if (selectedTab.equals(tab2)) {
-//                    dadosAgendamento.setVisible(true);
-//                } else if (selectedTab.equals(tab3)) {
-//                    dadosAprovacao.setVisible(true);
-//                } else if (selectedTab.equals(tab4)) {
-//                    dadosCobranca.setVisible(true);
-//                } else if (selectedTab.equals(tab5)) {
-//                    dadosEnderecos.setVisible(true);
-//                }
-//            });
-//
-//            Div contentTabs = new Div(dadosEmpresa,
-//                    dadosAgendamento,
-//                    dadosAprovacao,
-//                    dadosCobranca,
-//                    dadosEnderecos,
-//                    dadosHistoricoAtendimento);
-//            contentTabs.setSizeFull();
-//            atendimentoButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-//            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-//            getFooter().add(saveButton, cancelButton,atendimentoButton);
-//            VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
-//            add(layout);
-//        });
-//    }
 }

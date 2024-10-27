@@ -2,8 +2,12 @@ package br.com.onetec.application.views.layouts.atendimentosHistorico.div;
 
 import br.com.onetec.application.configuration.OrcamentoTransiction;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
+import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoCadastroModal;
@@ -28,18 +32,19 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.ui.Label;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 
 @Component
 @UIScope
@@ -72,6 +77,16 @@ public class OrcamentoDiv extends Div {
 
     private OrdemServicoCadastroModal ordemServicoCadastroModal;
 
+    private SituacaoCadastroService situacaoCadastroService;
+
+    private CondicaoPagamentoService condicaoPagamentoService;
+
+    private ContratoService contratoService;
+
+    private EnderecoService enderecoService;
+
+    private ApplicationContext applicationContext;
+
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -81,7 +96,11 @@ public class OrcamentoDiv extends Div {
                              OrcamentoDetalheModal orcamentoDetalheModal1,
                              OrdemServicoService ordemServicoService1,
                              OrdemServicoDadosModal ordemServicoDadosModal1,
-                             OrdemServicoCadastroModal ordemServicoCadastroModal1) {
+                             OrdemServicoCadastroModal ordemServicoCadastroModal1,
+                             SituacaoCadastroService situacaoCadastroService1,
+                             CondicaoPagamentoService condicaoPagamentoService1,
+                             EnderecoService enderecoService1,
+                             ContratoService contratoService1) {
         this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
@@ -90,39 +109,15 @@ public class OrcamentoDiv extends Div {
         this.ordemServicoService = ordemServicoService1;
         this.ordemServicoDadosModal = ordemServicoDadosModal1;
         this.ordemServicoCadastroModal = ordemServicoCadastroModal1;
+        this.situacaoCadastroService = situacaoCadastroService1;
+        this.condicaoPagamentoService = condicaoPagamentoService1;
+        this.enderecoService = enderecoService1;
+        this.contratoService = contratoService1;
+        this.applicationContext = applicationContext1;
     }
 
     @Autowired
     public OrcamentoDiv() {
-//        button = new Button();
-//        leftArrowIcon = VaadinIcon.ARROW_LEFT.create();
-//        rightArrowIcon = VaadinIcon.ARROW_RIGHT.create();
-//        Div masterContainer = new Div();
-//        Div detailContent = new Div();
-//        detailContent.add(new H3("Texto"));
-//        masterContainer.setSizeFull();
-//
-//        sidebarCollapsed = true;
-//
-//        button.addClickListener(event -> {
-//            sidebarCollapsed = !sidebarCollapsed;
-//            updateSidebar();
-//        });
-//        button.setAriaLabel("Expand/collapse sidebar");
-//        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-//        button.getStyle().set("float", "right");
-//
-//        masterContainer.add(button, telaDiv());
-//        masterContainer.setWidthFull();
-//
-//       // masterContainer.getStyle().set("overflow", "auto");
-//
-//        splitLayout = new SplitLayout(masterContainer, detailContent);
-//
-//        updateSidebar();
-//
-//        splitLayout.setSizeFull();
-//        splitLayout.setWidthFull();
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -205,18 +200,53 @@ public class OrcamentoDiv extends Div {
                 .setHeader("Id")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetOrcamento::getId_cliente)
-                .setHeader("Apelido da Conta")
+        grid.addColumn(s -> {
+            SetSituacaoCadastro situacaoCadastro = situacaoCadastroService.fidById(s.getId_situacao());
+            return situacaoCadastro == null ? "N/A" : situacaoCadastro.getDescricao_situacaocadastro();
+              }).setHeader("Situação Orçamento")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetOrcamento::getGarantia_orcamento)
-                .setHeader("Banco")
+        grid.addColumn(s -> {
+            SetCondicaoPagamento condicaoPagamento = condicaoPagamentoService.
+                    fidById(s.getId_condicaopagamento());
+            return condicaoPagamento == null ? "N/A" : condicaoPagamento.getDescricao_condicaopagamento();
+        }).setHeader("Condição Pagamento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(cliente -> {
+            SetEnderecos listaEnderecos = enderecoService.findAllById(cliente.getId_endereco());
+            return listaEnderecos == null ? "N/A" : listaEnderecos.getEndereco_imovel();
+        })
+                .setHeader("Endereço")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(valor -> {
+            String valorOrcamento = service.stringMoedaBrasileira
+                    (valor.getValor_orcamento().toString());
+            return valorOrcamento;
+        })
+                .setHeader("Valor do Orçamento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(new ComponentRenderer<>(orc -> {
+            SetContrato contrato = contratoService.findByIdOrcamento(orc.getId_orcamento());
+            String possuiContrato = contrato == null ? "NÃO" : "SIM";
+            Span span = new Span(possuiContrato);
+            if ("SIM".equals(possuiContrato)) {
+                span.getStyle().set("color", "green");
+            } else {
+                span.getStyle().set("color", "red");
+            }
+            return span;
+        }))
+                .setHeader("Possui Contrato ?")
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(SetOrcamento::getData_inclusao)
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
+
         grid.addColumn(midia -> {
             SetUsuarios usuarios = usuarioService.findById(midia.getId_usuario());
             return usuarios == null ? "N/A" : usuarios.getNome_usuario();
@@ -433,6 +463,7 @@ public class OrcamentoDiv extends Div {
 
     private void openCadastroModal() {
         UI.getCurrent().access(() -> {
+            orcamentoCadastroModal = applicationContext.getBean(OrcamentoCadastroModal.class);
             orcamentoCadastroModal.open();
         });
     }

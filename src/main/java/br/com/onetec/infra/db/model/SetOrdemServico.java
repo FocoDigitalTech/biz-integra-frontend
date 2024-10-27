@@ -13,7 +13,15 @@ import java.time.LocalTime;
 public class SetOrdemServico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "ordemservico_seq")
+    @TableGenerator(
+            name = "ordemservico_seq",
+            table = "tb_codigonumeracao",
+            pkColumnName = "sequence_name",
+            valueColumnName = "ordemservico_codigonumeracao",
+            pkColumnValue = "incremento",
+            allocationSize = 1
+    )
     private Integer id_ordemservico;
     private Integer id_orcamento;
     private Integer id_contrato;

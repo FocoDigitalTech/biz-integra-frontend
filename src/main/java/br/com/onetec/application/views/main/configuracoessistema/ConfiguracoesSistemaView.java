@@ -64,10 +64,20 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
         @Autowired
         public ConfiguracoesSistemaView(TipoMidiaDiv tipomidiaDiv1,
                                         TipoImovelDiv tipoimovelDiv1,
-                                        RegiaoDiv regiaoDiv1) {
+                                        RegiaoDiv regiaoDiv1,
+                                        TipoAtendimentoDiv tipoAtendimentoDiv1,
+                                        SituacaoCadastroDiv situacaoCadastroDiv1,
+                                        SetorAtuacaoDiv setorAtuacaoDiv1,
+                                        ServicoDiv servicoDiv1,
+                                        PragasDiv pragasDiv) {
             this.tipomidiaDiv = tipomidiaDiv1;
             this.tipoimovelDiv = tipoimovelDiv1;
             this.regiaoDiv = regiaoDiv1;
+            this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
+            this.situacaoCadastroDiv = situacaoCadastroDiv1;
+            this.setorAtuacaoDiv = setorAtuacaoDiv1;
+            this.servicoDiv = servicoDiv1;
+            this.pragasDiv = pragasDiv;
             UI.getCurrent().access(() -> {
                 setSizeFull();
                 TabSheet tabSheet = new TabSheet();

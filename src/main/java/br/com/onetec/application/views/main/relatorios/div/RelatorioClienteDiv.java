@@ -30,6 +30,8 @@ public class RelatorioClienteDiv extends VerticalLayout {
 
         @Autowired
         public RelatorioClienteDiv() {
+            // Criação de um card
+
             }
 
 }

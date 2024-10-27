@@ -5,6 +5,7 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import br.com.onetec.infra.db.model.SetSituacaoCadastro;
 import br.com.onetec.infra.db.model.SetTipoAtendimento;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import br.com.onetec.infra.db.repository.ISetSituacaoCadastroRepository;
 import br.com.onetec.infra.db.repository.ISetTipoAtendimentoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -59,5 +60,11 @@ public class SituacaoCadastroService {
 
     public List<SetSituacaoCadastro> listAll() {
         return repository.listAll();
+    }
+
+
+    public SetSituacaoCadastro fidById(Integer id_situacao) {
+        Optional<SetSituacaoCadastro> optional = repository.findById(id_situacao);
+        return optional.orElse(null);
     }
 }

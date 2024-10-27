@@ -22,10 +22,12 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.PermitAll;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Route(value = "estoque", layout = MainLayout.class)
 @PageTitle(ViewsTitleConst.ESTOQUE_NAV_TITLE)
 @PermitAll
+@Component
 @UIScope
 public class EstoqueView extends VerticalLayout implements BeforeEnterListener {
 

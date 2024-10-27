@@ -66,4 +66,14 @@ public class ContratoService {
             throw new Exception();
         }
     }
+
+    public SetContrato findById(Integer idcontrato) {
+        Optional<SetContrato> optional = repository.findById(idcontrato);
+        return optional.orElse(null);
+    }
+
+    public SetContrato findByIdOrcamento(Integer id_orcamento) {
+        Optional<SetContrato> optional = repository.findByIdOrcamento(id_orcamento);
+        return optional.orElse(null);
+    }
 }
