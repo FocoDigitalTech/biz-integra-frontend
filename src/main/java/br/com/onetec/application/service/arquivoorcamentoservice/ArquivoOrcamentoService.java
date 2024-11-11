@@ -2,9 +2,7 @@ package br.com.onetec.application.service.arquivoorcamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetArquivoOrcamento;
-import br.com.onetec.infra.db.model.SetCodigoNumeracao;
 import br.com.onetec.infra.db.repository.ISetArquivoOrcamentoRepository;
-import br.com.onetec.infra.db.repository.ISetCodigoNumeracaoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -64,6 +62,10 @@ public class ArquivoOrcamentoService {
         } catch (Exception e){
             throw new Exception();
         }
+    }
+
+    public List<SetArquivoOrcamento> findAllByOrcamentoId(Integer id_orcamento) {
+        return repository.listAllByOrcamentoId(id_orcamento);
     }
 
 }

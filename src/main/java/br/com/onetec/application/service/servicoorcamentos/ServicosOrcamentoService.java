@@ -1,11 +1,8 @@
 package br.com.onetec.application.service.servicoorcamentos;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetRegiao;
-import br.com.onetec.infra.db.model.SetServico;
 import br.com.onetec.infra.db.model.SetServicosOrcamento;
 import br.com.onetec.infra.db.repository.IServicosOrcamentoRepository;
-import br.com.onetec.infra.db.repository.ISetServicoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +29,12 @@ public class ServicosOrcamentoService {
     public Page<SetServicosOrcamento> list(Pageable pageable, Specification<SetServicosOrcamento> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetServicosOrcamento> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetServicosOrcamento> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetServicosOrcamento> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetServicosOrcamento dto) throws Exception {

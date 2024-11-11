@@ -15,35 +15,23 @@ import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoServ
 import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagamentoService;
+import br.com.onetec.application.service.tipopagamentoservice.AutoCrudTipoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.application.views.main.financeiro.modal.TipoPagamentoCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
+import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
-import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.HorizontalAlignment;
-import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.UnitValue;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.crud.CrudGrid;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -60,13 +48,11 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -75,18 +61,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.swing.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @UIScope
@@ -314,7 +295,10 @@ public class OrcamentoCadastroModal extends Dialog {
                 }
             });
 
-            botaoPagamento = new Button("Gerar Pagamentos", eventbe -> openModalPagamentosParcela());
+            botaoPagamento = new Button("Gerar Pagamentos", eventbe -> {
+
+                openModalPagamentosParcela();
+            });
 
             botaoPagamento.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_SUCCESS);
@@ -475,19 +459,14 @@ public class OrcamentoCadastroModal extends Dialog {
     private Div createArquivosOrcamento() {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-
         MultiFileMemoryBuffer buffer = new MultiFileMemoryBuffer();
         Upload upload = new Upload(buffer);
-
-
-
         // Define o diretório de salvamento dos arquivos
         String uploadDir = "C:/SYSTEM_files_NAGASAKI/filesidcliente" + cliente.getId_cliente() + "orcamento";
         File directory = new File(uploadDir);
         if (!directory.exists()) {
             directory.mkdirs(); // Cria o diretório se não existir
         }
-
         // Configura a grid de arquivos
         Grid<SetArquivoOrcamento> gridArquivos = new Grid<>(SetArquivoOrcamento.class);
         gridArquivos.removeAllColumns(); // Remove as colunas automáticas
@@ -526,7 +505,6 @@ public class OrcamentoCadastroModal extends Dialog {
         upload.addSucceededListener(event -> {
             String fileName = event.getFileName();
             InputStream inputStream = buffer.getInputStream(fileName);
-
             // Salva o arquivo no diretório especificado
             File targetFile = new File(uploadDir + "/" + fileName);
             if (targetFile.exists()) {
@@ -534,7 +512,6 @@ public class OrcamentoCadastroModal extends Dialog {
                 Notification.show("O arquivo já existe: " + fileName, 3000, Notification.Position.MIDDLE);
                 return;
             }
-
             try (OutputStream outputStream = new FileOutputStream(targetFile)) {
                 inputStream.transferTo(outputStream);
                 SetArquivoOrcamento arquivoOrcamento = new SetArquivoOrcamento();
@@ -545,7 +522,6 @@ public class OrcamentoCadastroModal extends Dialog {
                 arquivoOrcamento.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
                 arquivoOrcamento.setId_cliente(cliente.getId_cliente());
                 listArquivo.add(arquivoOrcamento);
-
                 // Atualiza os itens da grid
                 gridArquivos.setItems(listArquivo);
             } catch (IOException e) {
@@ -553,13 +529,9 @@ public class OrcamentoCadastroModal extends Dialog {
                 Notification.show("Erro ao salvar o arquivo: " + e.getMessage(), 3000, Notification.Position.MIDDLE);
             }
         });
-
         // Adiciona os componentes ao layout
         formLayout.add(upload, gridArquivos);
-
         // Retorna o container principal
-
-
         Div div = new Div();
         div.setSizeFull();
         div.add(formLayout);
@@ -594,6 +566,15 @@ public class OrcamentoCadastroModal extends Dialog {
             parcelamentoPagar.setValue(Integer.valueOf(id_condicaopagamento.getValue().getQuantidade_parcelas()));
             valorTotalAPagar.setValue((valor_total.getValue()));  // Valor inicial sem máscara
 
+            service.formataMoedaBrasileira(valorTotalAPagar);  // Formatar como moeda brasileira
+            BigDecimal valorTots = service.getValorBigDecimal(valorTotalAPagar.getValue());  // Converter o valor total para BigDecimal
+            int divisors = parcelamentoPagar.getValue();
+
+            if (divisors > 0) {
+                BigDecimal valorParcela = valorTots.divide(BigDecimal.valueOf(divisors), 2, RoundingMode.HALF_UP);
+                valorFinalParcela.setValue(valorParcela.toString());
+                service.formataMoedaBrasileira(valorFinalParcela);
+            }
 
             parcelamentoPagar.setStepButtonsVisible(true);
             parcelamentoPagar.setValueChangeMode(ValueChangeMode.EAGER);
@@ -668,7 +649,7 @@ public class OrcamentoCadastroModal extends Dialog {
 
             });
             pagamentoButon.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            Button cancelar = new Button("Cancelar", event -> close());
+            Button cancelar = new Button("Cancelar", event -> service.askForConfirmation(modalPagamento));
             cancelar.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
 
 
@@ -855,18 +836,15 @@ public class OrcamentoCadastroModal extends Dialog {
         id_situacaopagamento.setItems(situacaoPagamentoService.listAll());
         id_situacaopagamento.setItemLabelGenerator(SetSituacaoPagamento::getNome_situacaopagamento);
 
+        HorizontalLayout id_situacaopagamentoLayout =
+                new CustomizedComboBox()
+                        .customizeSituacaoPagamento(id_situacaopagamento,situacaoPagamentoService);
+
         id_tipopagamento.setItems(tipoPagamentoService.listAll());
         id_tipopagamento.setItemLabelGenerator(SetTipoPagamento::getNome_tipopagamento);
 
-
-        // Criação do botão com ícone de "plus"
-        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
-        addButtonTipoPagamento.addClickListener(event -> {
-            tipoPagamentoCadastroModal.open();
-        });
-        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
-        HorizontalLayout id_tipopagamentolayout = new HorizontalLayout(id_tipopagamento, addButtonTipoPagamento);
-        id_tipopagamentolayout.setAlignItems(FlexComponent.Alignment.END);
+        HorizontalLayout id_tipopagamentolayout =
+                new CustomizedComboBox().customizeTipoPagamento(id_tipopagamento,tipoPagamentoService);
 
         valor_pagamento.setValueChangeMode(ValueChangeMode.EAGER);
         valor_pagamento.addValueChangeListener(event -> service.formataMoedaBrasileira(valor_pagamento));
@@ -941,7 +919,7 @@ public class OrcamentoCadastroModal extends Dialog {
                 valorpago_pagamento,
                 numerodocumento_pagamento,
                 id_tipopagamentolayout,
-                id_situacaopagamento,
+                id_situacaopagamentoLayout,
                 descricao_pagamento,
                 saveAdicionarButton,
                 gridPagamento);
@@ -1238,6 +1216,10 @@ public class OrcamentoCadastroModal extends Dialog {
         id_condicaopagamento.setItems(condicaoPagamentoService.listAll());
         id_condicaopagamento.setItemLabelGenerator(SetCondicaoPagamento::getDescricao_condicaopagamento);
 
+        HorizontalLayout id_condicaopagamentolayout =
+                new CustomizedComboBox().customizeCondicaoPagamento(id_condicaopagamento,condicaoPagamentoService);
+
+
         datainicio_vencimento.setValue(LocalDate.now());
 
         meses_garantia.addValueChangeListener(event -> {
@@ -1249,7 +1231,7 @@ public class OrcamentoCadastroModal extends Dialog {
         datafim_garantia.setReadOnly(true);
 
         formLayout.add(aplicacoes_periodicas,tipo_cobranca,valor_total,valor_nagasaki,data_venda,
-                id_condicaopagamento,datainicio_execucao,datainicio_vencimento,meses_garantia,
+                id_condicaopagamentolayout,datainicio_execucao,datainicio_vencimento,meses_garantia,
                 datafim_garantia,quantidade_aplicacoes,observacoes_contrato);
 
         Div div = new Div(formLayout);
@@ -1286,7 +1268,7 @@ public class OrcamentoCadastroModal extends Dialog {
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
         localTratamentoOrcamento.setItems
                 (enderecoService.findAllClienteId(cliente.getId_cliente()));
-        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEndereco_imovel);
+        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEnderecoImovel);
 
         problemaOrcamento = new TextArea("Problema");
         dataOrcamento = new DatePicker("Data");
@@ -1299,6 +1281,9 @@ public class OrcamentoCadastroModal extends Dialog {
         situacaoOrcamento = new ComboBox<>("Situação");
         situacaoOrcamento.setItems(situacaoCadastroService.listAll());
         situacaoOrcamento.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
+
+
+
 
         dataInspecaoOrcamento = new DatePicker("Data Inspeção");
         service.configuraCalendario(dataInspecaoOrcamento);
@@ -1329,6 +1314,9 @@ public class OrcamentoCadastroModal extends Dialog {
 
         valorOrcamento.setWidth("auto");
 
+        HorizontalLayout situacaoOrcamentolayout =
+                new CustomizedComboBox().customizeSituacaoCadastro(situacaoOrcamento,situacaoCadastroService);
+
         List<String> items = new ArrayList<>();
          servicoService.listAll().forEach(obj -> {
             items.add(obj.getDescricao_servico());
@@ -1345,7 +1333,7 @@ public class OrcamentoCadastroModal extends Dialog {
 
 
         formLayout.add(clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,
-                dataOrcamento,atendenteOrcamento,situacaoOrcamento,dataInspecaoOrcamento,
+                dataOrcamento,atendenteOrcamento,situacaoOrcamentolayout,dataInspecaoOrcamento,
                 horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,
                 valorOrcamento,servicoOrcamentoChekBox);
 
@@ -1355,6 +1343,8 @@ public class OrcamentoCadastroModal extends Dialog {
         return div;
     }
 
+
+    private AutoCrudTipoPagamentoService autoCrudServiceImp;
 
     private void save() {
         // Lógica para salvar o cadastro

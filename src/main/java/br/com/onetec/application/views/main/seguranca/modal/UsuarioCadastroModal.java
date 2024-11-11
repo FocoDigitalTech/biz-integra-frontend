@@ -1,21 +1,20 @@
 package br.com.onetec.application.views.main.seguranca.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.grupousuarioservice.GrupoUsuarioService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.seguranca.div.UsuariosDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetFuncionario;
+import br.com.onetec.infra.db.model.SetGrupoUsuario;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.BlurNotifier;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -23,10 +22,8 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +31,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 
 @Component

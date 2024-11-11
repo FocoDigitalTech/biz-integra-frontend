@@ -10,6 +10,7 @@ import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.main.clientes.ClientesView;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -31,9 +33,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -44,6 +44,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Component
@@ -128,6 +129,8 @@ public class CadastroClientesModal extends Dialog {
     private ApiEnderecoService apiEnderecoService;
     private List<SetEstado> estadoList = new ArrayList<>();
 
+    private DadosClienteModal detalhesClienteModal;
+
     @Autowired
     @Lazy
     ClientesView clienteView;
@@ -143,7 +146,8 @@ public class CadastroClientesModal extends Dialog {
                               UtilitySystemConfigService service1, TipoMidiaService tipomidiaService1,
                               TipoImovelService tipoimovelService1,
                               RegiaoService regiaoService1,
-                              ApiEnderecoService enderecoService1) {
+                              ApiEnderecoService enderecoService1,
+                              DadosClienteModal detalhesClienteModal1) {
         this.clientesService = clientesService;
         this.estadoService = estadoService;
         this.usuarioService = usuarioService;
@@ -156,6 +160,7 @@ public class CadastroClientesModal extends Dialog {
         this.tipoimovelService = tipoimovelService1;
         this.regiaoService = regiaoService1;
         this.apiEnderecoService = enderecoService1;
+        this.detalhesClienteModal = detalhesClienteModal1;
         UI.getCurrent().access(() -> {
 
             service.configureCEPField(fieldEnderecosCEP);
@@ -289,6 +294,14 @@ public class CadastroClientesModal extends Dialog {
         comboEnderecosRegiao  = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
+
+        comboEnderecosRegiao.setRequiredIndicatorVisible(true);
+
+        comboEnderecosTipoImovel.setRequiredIndicatorVisible(true);
+
+        fieldEnderecosCEP.setRequiredIndicatorVisible(true);
+
+
         // Configurar o Grid
         grid.setItems(enderecos);
         grid.addColumn(endereco -> {
@@ -334,6 +347,21 @@ public class CadastroClientesModal extends Dialog {
 
         // Botão para salvar o endereço
         Button saveButton = new Button("Adicionar Endereço", event -> {
+
+            if (Objects.isNull(comboEnderecosTipoImovel.getValue())) {
+                service.notificaErro("Preencha o campo Tipo de imovel !");
+                return;
+            }
+            if (Objects.isNull(fieldEnderecosCEP.getValue())) {
+                service.notificaErro("Preencha o campo CEP !");
+                return;
+            }
+            if (Objects.isNull(comboEnderecosRegiao.getValue())) {
+                service.notificaErro("Preencha o campo Região !");
+                return;
+            }
+
+
             String CEP = fieldEnderecosCEP.getValue();
             SetTipoImovel TipoImovel = comboEnderecosTipoImovel.getValue();
             String Area = fieldEnderecosArea.getValue();
@@ -373,7 +401,7 @@ public class CadastroClientesModal extends Dialog {
                 fieldEnderecosPontodeReferencia.clear();
 
             } else {
-                fieldEnderecosPagGuia.addClassName("error-border");
+                //fieldEnderecosPagGuia.addClassName("error-border");
                 //estadoError.setVisible(true);
             }
         });
@@ -577,7 +605,6 @@ public class CadastroClientesModal extends Dialog {
     }
 
 
-
     private void save() {
         Cliente dto = newCliente();
         SetCliente cliente = clientesService.save(dto);
@@ -594,9 +621,17 @@ public class CadastroClientesModal extends Dialog {
         service.notificaSucesso("Salvo com sucesso");
         clienteView.refreshGrid();
         close();
+        abrirModalDados(cliente);
         } catch (Exception e){
             service.notificaErro("Erro ao cadastrar cliente.");
         }
+    }
+
+    private void abrirModalDados(SetCliente cliente) {
+        UI.getCurrent().getSession().setAttribute("cliente",cliente);
+        SetClienteTransiction.setCliente(cliente);
+        detalhesClienteModal.setCliente(cliente);
+        detalhesClienteModal.open();
     }
 
     private SetResponsavelCobranca newPessoaCobranca(Integer id_cliente) {

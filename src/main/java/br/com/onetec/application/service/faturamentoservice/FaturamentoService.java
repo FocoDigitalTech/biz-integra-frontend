@@ -1,11 +1,8 @@
 package br.com.onetec.application.service.faturamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetFaturamento;
-import br.com.onetec.infra.db.model.SetVeiculo;
 import br.com.onetec.infra.db.repository.ISetFaturamentoRepository;
-import br.com.onetec.infra.db.repository.ISetVeiculoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +27,12 @@ public class FaturamentoService {
     public Page<SetFaturamento> list(Pageable pageable, Specification<SetFaturamento> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetFaturamento> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetFaturamento> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetFaturamento> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetFaturamento dto) throws Exception {
@@ -64,5 +66,10 @@ public class FaturamentoService {
         } catch (Exception e){
             throw new Exception();
         }
+    }
+
+    public SetFaturamento findByIdOrcamento(Integer id_orcamento) {
+        Optional<SetFaturamento> optional = repository.findByIdOrcamento(id_orcamento);
+        return optional.orElse(null);
     }
 }

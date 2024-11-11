@@ -1,7 +1,6 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.compraprodutoservice.CompraProdutoService;
 import br.com.onetec.application.service.compraservice.CompraService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;

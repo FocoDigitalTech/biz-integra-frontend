@@ -1,11 +1,8 @@
 package br.com.onetec.application.service.tipomidiaservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetFuncionario;
-import br.com.onetec.infra.db.model.SetTipoImovel;
 import br.com.onetec.infra.db.model.SetTipoMidia;
 import br.com.onetec.infra.db.repository.ITipoMidiaRepository;
-import com.vaadin.flow.component.textfield.TextField;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,7 +30,12 @@ public class TipoMidiaService {
     public Page<SetTipoMidia> list(Pageable pageable, Specification<SetTipoMidia> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetTipoMidia> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetTipoMidia> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetTipoMidia> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetTipoMidia dto) throws Exception {

@@ -1,55 +1,18 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
-import br.com.onetec.application.service.departamentoservice.DepartamentoService;
-import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.ServicosExecutadosDiv;
-import br.com.onetec.application.views.main.administrativo.AdministrativoView;
-import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
-import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
-import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
-import br.com.onetec.application.views.main.financeiro.div.*;
+import br.com.onetec.application.views.main.financeiro.div.TipoEventoFinanceiroDiv;
 import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetDepartamento;
-import br.com.onetec.infra.db.model.SetFuncionario;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.details.Details;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
-import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
-import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Route(value = "atendimentos_historico",layout = MainLayout.class)
 @PermitAll
@@ -60,32 +23,57 @@ public class AtendimentoHistoricoView extends  Div {
     private ServicosExecutadosDiv servicosExecutadosDiv;
     private TipoEventoFinanceiroDiv tipoEventoFinanceiroDiv;
 
-    
+
 
     @Autowired
-    public void initServices(OrcamentoDiv orcamentoDiv1){
+    public void initServices(OrcamentoDiv orcamentoDiv1,
+                             ServicosExecutadosDiv servicosExecutadosDiv1){
+        this.servicosExecutadosDiv = servicosExecutadosDiv1;
         this.orcamentoDiv = orcamentoDiv1;
     }
 
     @Autowired
-    public AtendimentoHistoricoView(OrcamentoDiv orcamentoDiv1,ServicosExecutadosDiv servicosExecutadosDiv1){
-        this.servicosExecutadosDiv = servicosExecutadosDiv1;
-        this.orcamentoDiv = orcamentoDiv1;
+    public AtendimentoHistoricoView(){
         UI.getCurrent().access(() -> {
             setSizeFull();
             SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+            if (entidade == null) {
+                add(new Div("Cliente não encontrado na sessão."));
+                return;
+            }
 
             TabSheet tabSheet = new TabSheet();
             tabSheet.add("Orçamento e Dados Financeiros",
                     orcamentoDiv);
 //            tabSheet.add("Serviços Executados",
-//                    servicosExecutadosDiv);
-           // tabSheet.add("Outros",
-             //       new Div());
+//                    this.servicosExecutadosDiv);
+//            tabSheet.add("Contatos",
+//                    new Div());
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
 
             add(tabSheet);
         });
     }
+
+
+
+//    @Override
+//    public void afterNavigation(AfterNavigationEvent event) {
+//        //new AtendimentoHistoricoView();
+//       // UI.getCurrent().getPage().executeJs("location.reload();");
+//    }
+//
+//    @PostConstruct
+//    public void init() {
+//        // Este método será chamado após a injeção de dependências
+//        // e após a construção da view.
+//        if(SetClienteTransiction.isRecarregaPagina()) {
+//            SetClienteTransiction.setRecarregaPagina(false);
+//           // UI.getCurrent().getPage().executeJs("location.reload();");
+//            UI.getCurrent().getElement().executeJs("setTimeout(() => { this.$0.callMethod(); }, 5000)", this);
+//            System.out.println("Teste");
+//            // Aqui você pode executar a lógica que deseja após a navegação
+//        }
+//    }
 
 }

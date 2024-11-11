@@ -2,11 +2,9 @@ package br.com.onetec.application.views.main.financeiro.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
-import br.com.onetec.application.views.main.financeiro.div.TipoEventoFinanceiroDiv;
 import br.com.onetec.application.views.main.financeiro.div.TipopagamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetTipoPagamento;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;

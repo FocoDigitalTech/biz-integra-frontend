@@ -30,8 +30,8 @@ public class SetOrdemServico {
     private LocalDate datainicio_ordemservico;
     private String diasemanainicio_ordemservico;
     private LocalTime horarioinicio_ordemservico;
-    private String quantidade_ordemservico;
-    private String intervalo_ordemservico;
+    private Integer quantidade_ordemservico;
+    private Integer intervalo_ordemservico;
     private String nome_pontofocal;
     private Integer id_funcionarioassistente;
     private String confirmado_ordemservico;

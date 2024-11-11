@@ -1,7 +1,6 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.model.Endereco;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorContatoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
@@ -9,22 +8,20 @@ import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.infra.db.model.SetFornecedor;
+import br.com.onetec.infra.db.model.SetFornecedorContato;
+import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.accordion.Accordion;
-import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.crud.CrudGrid;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;

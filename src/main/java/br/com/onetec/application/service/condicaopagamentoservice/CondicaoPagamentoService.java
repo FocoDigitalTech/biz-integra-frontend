@@ -1,10 +1,7 @@
 package br.com.onetec.application.service.condicaopagamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.model.Departamento;
-import br.com.onetec.infra.db.model.*;
-import br.com.onetec.infra.db.repository.IDepartamentoRepository;
-import br.com.onetec.infra.db.repository.IFuncionarioRepository;
+import br.com.onetec.infra.db.model.SetCondicaoPagamento;
 import br.com.onetec.infra.db.repository.ISetCondicaoPagamentoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.ordemservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetOrcamento;
 import br.com.onetec.infra.db.model.SetOrdemServico;
-import br.com.onetec.infra.db.repository.ISetOrcamentoRepository;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,12 @@ public class OrdemServicoService {
     public Page<SetOrdemServico> list(Pageable pageable, Specification<SetOrdemServico> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetOrdemServico> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetOrdemServico> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetOrdemServico> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public List<SetOrdemServico> findAllByOrcamentoId(Integer orcamentoid){
@@ -64,5 +67,10 @@ public class OrdemServicoService {
         } catch (Exception e){
             throw new Exception();
         }
+    }
+
+    public SetOrdemServico findById(Integer value) {
+        Optional<SetOrdemServico> optional = repository.findById(value);
+        return optional.orElse(null);
     }
 }

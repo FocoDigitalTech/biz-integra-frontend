@@ -13,7 +13,10 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -97,7 +100,7 @@ public class HomeView extends VerticalLayout {
 
             SetEnderecos enderecos = enderecoService.findAllById(ordem.getId_endereco());
 
-            AccordionPanel personalInfoPanel = accordion.add(enderecos.getEndereco_imovel(),
+            AccordionPanel personalInfoPanel = accordion.add(enderecos.getEnderecoImovel(),
                     personalInformationLayout);
             personalInfoPanel.addThemeVariants(DetailsVariant.SMALL);
         });
@@ -267,7 +270,7 @@ public class HomeView extends VerticalLayout {
                 mapContent.setVisible(true);
                 String endereco1 = "Rua da Consolação, 1234, São Paulo, SP, Brasil";
                 if (Objects.nonNull(end)){
-                    endereco1 = end.getEndereco_imovel();
+                    endereco1 = end.getEnderecoImovel();
                 }
                 String endereco2 = endereco1;
                 loadOpenStreetMap(endereco1,endereco2);  // Carregar o mapa quando a aba for selecionada

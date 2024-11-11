@@ -5,19 +5,32 @@ import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.DeviceGray;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
-import com.itextpdf.kernel.geom.Rectangle;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class SetClienteTransiction {
 
     private static SetCliente cliente;
+
+    public static boolean isRecarregaPagina() {
+        return recarregaPagina;
+    }
+
+    public static void setRecarregaPagina(boolean recarregaPagina) {
+        SetClienteTransiction.recarregaPagina = recarregaPagina;
+    }
+
+    private static boolean recarregaPagina;
 
     public static SetCliente getCliente() {
         return cliente;
@@ -53,6 +66,7 @@ public class SetClienteTransiction {
                     // Obter a posição do texto original (você pode precisar ajustar a lógica aqui)
                     float x = 10;  // Ajuste a coordenada X conforme necessário
                     float y = 500; // Ajuste a coordenada Y conforme necessário
+
 
                     // Obter uma fonte padrão
                     PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);

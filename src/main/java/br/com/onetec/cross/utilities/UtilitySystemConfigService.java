@@ -2,8 +2,6 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
-import br.com.onetec.application.views.main.clientes.modal.CadastroClientesModal;
-import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetUsuarios;
@@ -24,6 +22,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -336,5 +336,11 @@ public class UtilitySystemConfigService {
         BigDecimal valorPorcentagem = valorSomado.multiply(fatorPorcentagem).setScale(2, RoundingMode.HALF_UP);
 
         return valorPorcentagem;
+    }
+
+    public static Object getDataFormatada(LocalDateTime data_inclusao) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        var data = data_inclusao.format(formatter);
+        return data;
     }
 }

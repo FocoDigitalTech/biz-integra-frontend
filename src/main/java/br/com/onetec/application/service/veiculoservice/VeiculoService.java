@@ -1,11 +1,7 @@
 package br.com.onetec.application.service.veiculoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetComissoes;
-import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetUsuarios;
 import br.com.onetec.infra.db.model.SetVeiculo;
-import br.com.onetec.infra.db.repository.ISetTipoEventoFinanceiroRepository;
 import br.com.onetec.infra.db.repository.ISetVeiculoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +27,12 @@ public class VeiculoService {
     public Page<SetVeiculo> list(Pageable pageable, Specification<SetVeiculo> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetVeiculo> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetVeiculo> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetVeiculo> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetVeiculo dto) throws Exception {

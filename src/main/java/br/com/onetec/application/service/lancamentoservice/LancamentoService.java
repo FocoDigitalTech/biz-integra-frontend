@@ -3,7 +3,6 @@ package br.com.onetec.application.service.lancamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetFluxoRecebimentoPagamento;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.repository.ISetFuxoRecebimentoPagamentoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,12 @@ public class LancamentoService {
     public Page<SetFluxoRecebimentoPagamento> list(Pageable pageable, Specification<SetFluxoRecebimentoPagamento> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetFluxoRecebimentoPagamento> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetFluxoRecebimentoPagamento> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetFluxoRecebimentoPagamento> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetFluxoRecebimentoPagamento dto) throws Exception {

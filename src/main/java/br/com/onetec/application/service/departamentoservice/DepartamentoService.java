@@ -2,10 +2,6 @@ package br.com.onetec.application.service.departamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Departamento;
-import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
-import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
-import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
-import br.com.onetec.infra.db.model.SetContrato;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.repository.IDepartamentoRepository;
@@ -51,8 +47,12 @@ public class DepartamentoService {
     public Page<SetDepartamento> list(Pageable pageable, Specification<SetDepartamento> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetDepartamento> page = repository.findAll(filter, pageable);
-
-        return repository.findAll(filter, pageable);
+        Specification<SetDepartamento> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetDepartamento> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void atualizar(Departamento dto) {

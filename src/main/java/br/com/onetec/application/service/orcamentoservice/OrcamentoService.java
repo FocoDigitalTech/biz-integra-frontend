@@ -1,12 +1,8 @@
 package br.com.onetec.application.service.orcamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.service.codigonumeracaoservice.CodigoNumeracaoService;
 import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetFluxoRecebimentoPagamento;
-import br.com.onetec.infra.db.model.SetNotaFiscal;
 import br.com.onetec.infra.db.model.SetOrcamento;
-import br.com.onetec.infra.db.repository.ISetFuxoRecebimentoPagamentoRepository;
 import br.com.onetec.infra.db.repository.ISetOrcamentoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,5 +89,18 @@ public class OrcamentoService {
 
     public Integer findAllMaxId() {
         return repository.findAllMaxId();
+    }
+
+    public SetOrcamento update(SetOrcamento dto) throws Exception {
+        try {
+            Optional<SetOrcamento> optional = repository.findById(dto.getId_orcamento());
+            SetOrcamento entity = optional.get();
+            entity = dto;
+            entity.setData_alteracao(LocalDateTime.now());
+            repository.save(entity);
+            return entity;
+        } catch (Exception e){
+            throw new Exception();
+        }
     }
 }

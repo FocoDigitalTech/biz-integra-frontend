@@ -2,13 +2,10 @@ package br.com.onetec.application.views.main.configuracoessistema.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.pragaservice.PragaService;
-import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.views.main.configuracoessistema.div.PragasDiv;
-import br.com.onetec.application.views.main.configuracoessistema.div.RegiaoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetPraga;
-import br.com.onetec.infra.db.model.SetRegiao;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

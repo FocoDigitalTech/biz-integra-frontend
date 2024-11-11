@@ -2,7 +2,8 @@ package br.com.onetec.application.service.enderecoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Endereco;
-import br.com.onetec.infra.db.model.SetDepartamento;
+import br.com.onetec.application.service.clientesservice.ClientesService;
+import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.repository.IEnderecosRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -10,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -20,6 +19,9 @@ public class EnderecoService {
 
     @Autowired
     IEnderecosRepository repository;
+
+    @Autowired
+    ClientesService clientesService;
 
     public void save(List<Endereco> enderecos,Integer idCliente, Integer idUsuario) {
         enderecos.forEach(e -> {
@@ -30,7 +32,7 @@ public class EnderecoService {
             et.setArea_imovel(e.getFieldEnderecosArea());
             et.setBairro_imovel(e.getFieldEnderecosBairro());
             et.setCep_imovel(e.getFieldEnderecosCEP());
-            et.setEndereco_imovel(e.getFieldEnderecosEndereço());
+            et.setEnderecoImovel(e.getFieldEnderecosEndereço());
             et.setCidade_imovel(e.getFieldEnderecosCidade());
             et.setComplemento_imovel(e.getFieldEnderecosComplemento());
             et.setData_inclusao(LocalDateTime.now());
@@ -62,7 +64,6 @@ public class EnderecoService {
     public SetEnderecos findAllById(Integer id_endereco) {
         Optional<SetEnderecos> optional = repository.findById(id_endereco);
         return optional.orElse(null);
-
     }
 
     public void deletar(SetEnderecos endereco) throws Exception {
@@ -88,7 +89,7 @@ public class EnderecoService {
             et.setArea_imovel(e.getFieldEnderecosArea());
             et.setBairro_imovel(e.getFieldEnderecosBairro());
             et.setCep_imovel(e.getFieldEnderecosCEP());
-            et.setEndereco_imovel(e.getFieldEnderecosEndereço());
+            et.setEnderecoImovel(e.getFieldEnderecosEndereço());
             et.setCidade_imovel(e.getFieldEnderecosCidade());
             et.setComplemento_imovel(e.getFieldEnderecosComplemento());
             et.setData_inclusao(LocalDateTime.now());
@@ -118,6 +119,37 @@ public class EnderecoService {
             log.info("Atualizado !");
         } catch (Exception e){
             throw new Exception();
+        }
+    }
+
+    public List<SetEnderecos> findAllByEnderecoNome(String value) {
+        List<SetEnderecos> lista = new ArrayList<>();
+        Set<Integer> idsClientesAdicionados = new HashSet<>(); // Set para armazenar IDs únicos de clientes
+
+        repository.findByEnderecoImovelContainingIgnoreCase(value).forEach(p -> {
+            if (p.getAtivo().equals("S") && validaClienteAtivo(p)) {
+                Integer idCliente = p.getId_cliente(); // Assumindo que esse seja o campo de ID do cliente
+                if (!idsClientesAdicionados.contains(idCliente)) {
+                    lista.add(p);
+                    idsClientesAdicionados.add(idCliente); // Marca o ID como adicionado
+                }
+            }
+        });
+
+        return lista;
+    }
+
+
+    private boolean validaClienteAtivo(SetEnderecos p) {
+        SetCliente cliente = clientesService.findById(p.getId_cliente());
+        if (Objects.nonNull(cliente)){
+            if (cliente.getAtivo().equals("S")){
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 }

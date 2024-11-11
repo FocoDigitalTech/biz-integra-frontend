@@ -1,7 +1,6 @@
 package br.com.onetec.application.service.setoratuacaoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetServico;
 import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import br.com.onetec.infra.db.repository.ISetSetorAtuacaoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,12 @@ public class SetorAtuacaoService {
     public Page<SetSetorAtuacao> list(Pageable pageable, Specification<SetSetorAtuacao> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetSetorAtuacao> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetSetorAtuacao> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetSetorAtuacao> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetSetorAtuacao dto) throws Exception {

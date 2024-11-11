@@ -1,10 +1,7 @@
 package br.com.onetec.application.service.tipopagamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetSituacaoPagamento;
-import br.com.onetec.infra.db.model.SetTipoMidia;
 import br.com.onetec.infra.db.model.SetTipoPagamento;
-import br.com.onetec.infra.db.repository.ISetSituacaoPagamentoRepository;
 import br.com.onetec.infra.db.repository.ISetTipoPagamentoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +28,12 @@ public class TipoPagamentoService {
     public Page<SetTipoPagamento> list(Pageable pageable, Specification<SetTipoPagamento> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetTipoPagamento> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetTipoPagamento> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetTipoPagamento> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetTipoPagamento dto) throws Exception {

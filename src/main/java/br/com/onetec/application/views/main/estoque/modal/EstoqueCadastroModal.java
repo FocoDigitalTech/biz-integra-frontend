@@ -7,7 +7,6 @@ import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssiste
 import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.model.SetTecnicoAssistente;
@@ -22,16 +21,13 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @UIScope

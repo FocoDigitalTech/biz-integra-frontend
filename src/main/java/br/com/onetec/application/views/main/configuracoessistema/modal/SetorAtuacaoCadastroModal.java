@@ -2,13 +2,10 @@ package br.com.onetec.application.views.main.configuracoessistema.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
-import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.views.main.configuracoessistema.div.SetorAtuacaoDiv;
-import br.com.onetec.application.views.main.configuracoessistema.div.SituacaoCadastroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetSetorAtuacao;
-import br.com.onetec.infra.db.model.SetSituacaoCadastro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

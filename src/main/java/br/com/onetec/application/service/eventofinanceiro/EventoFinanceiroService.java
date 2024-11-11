@@ -1,11 +1,8 @@
 package br.com.onetec.application.service.eventofinanceiro;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.repository.ISetEventoFinanceiroRepository;
-import br.com.onetec.infra.db.repository.ISetGrupoFinanceiroRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,7 +28,12 @@ public class EventoFinanceiroService {
     public Page<SetEventoFinanceiro> list(Pageable pageable, Specification<SetEventoFinanceiro> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetEventoFinanceiro> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetEventoFinanceiro> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetEventoFinanceiro> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetEventoFinanceiro dto) throws Exception {

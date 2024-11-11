@@ -6,7 +6,8 @@ import br.com.onetec.application.service.grupofinanceiroservice.GrupoFinanceiroS
 import br.com.onetec.application.views.main.financeiro.div.EventoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetEventoFinanceiro;
+import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

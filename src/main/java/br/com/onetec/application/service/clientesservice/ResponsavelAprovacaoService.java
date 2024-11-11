@@ -1,7 +1,6 @@
 package br.com.onetec.application.service.clientesservice;
 
 import br.com.onetec.infra.db.model.SetResponsavelAprovacao;
-import br.com.onetec.infra.db.model.SetResponsavelCobranca;
 import br.com.onetec.infra.db.repository.IResponsavelAprovacaoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,5 @@
 package br.com.onetec.application.service.clientesservice;
 
-import br.com.onetec.infra.db.model.SetResponsavelAgendamento;
 import br.com.onetec.infra.db.model.SetResponsavelCobranca;
 import br.com.onetec.infra.db.repository.IResponsavelCobrancaRepository;
 import lombok.extern.slf4j.Slf4j;

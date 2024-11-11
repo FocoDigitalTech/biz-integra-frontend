@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.contacorrenteservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetCondicaoPagamento;
 import br.com.onetec.infra.db.model.SetContaCorrente;
-import br.com.onetec.infra.db.repository.ISetCondicaoPagamentoRepository;
 import br.com.onetec.infra.db.repository.ISetContaCorrenteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,12 @@ public class ContaCorrenteService {
     public Page<SetContaCorrente> list(Pageable pageable, Specification<SetContaCorrente> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetContaCorrente> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetContaCorrente> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetContaCorrente> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetContaCorrente dto) throws Exception {

@@ -1,21 +1,14 @@
 package br.com.onetec.application.service.userservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.views.main.configuracoessistema.div.PragasDiv;
-import br.com.onetec.infra.db.model.SetGrupoUsuario;
-import br.com.onetec.infra.db.model.SetTipoPagamento;
 import br.com.onetec.infra.db.model.SetUsuarios;
-import br.com.onetec.infra.db.repository.ITipoMidiaRepository;
 import br.com.onetec.infra.db.repository.IUsuariosRepository;
-import com.github.javaparser.ast.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import br.com.onetec.application.security.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -41,7 +34,12 @@ public class UsuarioService {
     public Page<SetUsuarios> list(Pageable pageable, Specification<SetUsuarios> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetUsuarios> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetUsuarios> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetUsuarios> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void delete(SetUsuarios item) throws Exception {
@@ -72,6 +70,18 @@ public class UsuarioService {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public void update(SetUsuarios dto) throws Exception {
+        try {
+            Optional<SetUsuarios> optional = repository.findById(dto.getId_usuario());
+            SetUsuarios entity = optional.get();
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
         }
     }
 }

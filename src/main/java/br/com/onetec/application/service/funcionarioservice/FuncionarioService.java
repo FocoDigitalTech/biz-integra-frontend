@@ -1,16 +1,10 @@
 package br.com.onetec.application.service.funcionarioservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.views.main.administrativo.AdministrativoView;
-import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetDepartamento;
-import br.com.onetec.infra.db.model.SetFornecedor;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.repository.IFuncionarioRepository;
-import com.github.javaparser.ast.Node;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;

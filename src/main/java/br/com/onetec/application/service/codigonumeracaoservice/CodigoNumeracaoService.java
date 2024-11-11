@@ -73,4 +73,21 @@ public class CodigoNumeracaoService {
     public Integer verificaCodigoOrcamento() {
         return findAll().get(0).getOrcamento_codigonumeracao().intValue();
     }
+
+    public void update(SetCodigoNumeracao codigoNumeracao) throws Exception {
+        try {
+            Optional<SetCodigoNumeracao> optional = repository.findById(codigoNumeracao.getId_codigonumeracao().intValue());
+            SetCodigoNumeracao entity = optional.get();
+            entity.setOrcamento_codigonumeracao(codigoNumeracao.getOrcamento_codigonumeracao());
+            entity.setContrato_codigonumeracao(codigoNumeracao.getContrato_codigonumeracao());
+            entity.setOrdemservico_codigonumeracao(codigoNumeracao.getOrdemservico_codigonumeracao());
+            entity.setCliente_codigonumeracao(codigoNumeracao.getCliente_codigonumeracao());
+            entity.setData_alteracao(codigoNumeracao.getData_alteracao());
+            entity.setId_usuario(codigoNumeracao.getId_usuario());
+            repository.save(entity);
+            log.info("Atualizado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

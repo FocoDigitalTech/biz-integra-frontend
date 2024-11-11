@@ -6,7 +6,6 @@ import br.com.onetec.application.views.main.financeiro.div.CondicaoPagamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCondicaoPagamento;
-import br.com.onetec.infra.db.model.SetRegiao;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

@@ -1,7 +1,6 @@
 package br.com.onetec.infra.db.repository;
 
 import br.com.onetec.infra.db.model.SetArquivoOrcamento;
-import br.com.onetec.infra.db.model.SetResponsavelCobranca;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,4 +12,7 @@ public interface ISetArquivoOrcamentoRepository extends CrudRepository<SetArquiv
 
     @Query(value = "SELECT * FROM tb_arquivosorcamento where id_orcamento = ?1", nativeQuery = true)
     List<SetArquivoOrcamento> findAllByOrcamento(Integer id_orcamento);
+
+    @Query(value = "SELECT * FROM tb_arquivosorcamento where id_orcamento = ?1 and ativo = 'S'", nativeQuery = true)
+    List<SetArquivoOrcamento> listAllByOrcamentoId(Integer id_orcamento);
 }

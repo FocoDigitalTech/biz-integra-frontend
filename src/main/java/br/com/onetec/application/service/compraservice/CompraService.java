@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.compraservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetComissoes;
 import br.com.onetec.infra.db.model.SetCompra;
-import br.com.onetec.infra.db.repository.ISetComissoesRepository;
 import br.com.onetec.infra.db.repository.ISetCompraRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

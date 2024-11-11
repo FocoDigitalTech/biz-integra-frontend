@@ -1,7 +1,5 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.div;
 
-import br.com.onetec.application.configuration.OrcamentoTransiction;
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
@@ -21,6 +19,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.ItemDoubleClickEvent;
@@ -31,20 +30,24 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.vaadin.ui.Label;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -87,6 +90,10 @@ public class OrcamentoDiv extends Div {
 
     private ApplicationContext applicationContext;
 
+    private String possuiContrato;
+
+    private Boolean contractRequi = false;
+
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -117,7 +124,32 @@ public class OrcamentoDiv extends Div {
     }
 
     @Autowired
-    public OrcamentoDiv() {
+    public OrcamentoDiv(UtilitySystemConfigService service1,
+                        UsuarioService usuarioService1,
+                        ApplicationContext applicationContext1,
+                        OrcamentoService orcamentoService1,
+                        OrcamentoCadastroModal contaCorrenteCadastroModal1,
+                        OrcamentoDetalheModal orcamentoDetalheModal1,
+                        OrdemServicoService ordemServicoService1,
+                        OrdemServicoDadosModal ordemServicoDadosModal1,
+                        OrdemServicoCadastroModal ordemServicoCadastroModal1,
+                        SituacaoCadastroService situacaoCadastroService1,
+                        CondicaoPagamentoService condicaoPagamentoService1,
+                        EnderecoService enderecoService1,
+                        ContratoService contratoService1) {
+        this.orcamentoService = orcamentoService1;
+        this.service = service1;
+        this.usuarioService = usuarioService1;
+        this.orcamentoCadastroModal = contaCorrenteCadastroModal1;
+        this.orcamentoDetalheModal = orcamentoDetalheModal1;
+        this.ordemServicoService = ordemServicoService1;
+        this.ordemServicoDadosModal = ordemServicoDadosModal1;
+        this.ordemServicoCadastroModal = ordemServicoCadastroModal1;
+        this.situacaoCadastroService = situacaoCadastroService1;
+        this.condicaoPagamentoService = condicaoPagamentoService1;
+        this.enderecoService = enderecoService1;
+        this.contratoService = contratoService1;
+        this.applicationContext = applicationContext1;
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -215,7 +247,7 @@ public class OrcamentoDiv extends Div {
                 .setAutoWidth(true);
         grid.addColumn(cliente -> {
             SetEnderecos listaEnderecos = enderecoService.findAllById(cliente.getId_endereco());
-            return listaEnderecos == null ? "N/A" : listaEnderecos.getEndereco_imovel();
+            return listaEnderecos == null ? "N/A" : listaEnderecos.getEnderecoImovel();
         })
                 .setHeader("Endereço")
                 .setSortable(true)
@@ -230,7 +262,7 @@ public class OrcamentoDiv extends Div {
                 .setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(orc -> {
             SetContrato contrato = contratoService.findByIdOrcamento(orc.getId_orcamento());
-            String possuiContrato = contrato == null ? "NÃO" : "SIM";
+            possuiContrato = contrato == null ? "NÃO" : "SIM";
             Span span = new Span(possuiContrato);
             if ("SIM".equals(possuiContrato)) {
                 span.getStyle().set("color", "green");
@@ -295,6 +327,7 @@ public class OrcamentoDiv extends Div {
         sidebar.addClassName("v-sidebar");
 
 
+        final Registration[] btnExcluirClickListenerRegistration = {null};
 
         // Configura o item click listener para abrir o sidebar com detalhes
         grid.addItemClickListener(event -> {
@@ -302,8 +335,19 @@ public class OrcamentoDiv extends Div {
             // Cria o sidebar que será mostrado quando o item for clicado
             //sidebar.add(btnCloseSidebar,createBtnSidebar);
             sidebar.addClassName("v-sidebar");
-            createBtnSidebar.addClickListener(event1 -> {
-                openCadastroOrdemServicoModal(event.getItem());
+            if (btnExcluirClickListenerRegistration[0] != null) {
+                btnExcluirClickListenerRegistration[0].remove();
+                btnExcluirClickListenerRegistration[0] = null;
+            }
+            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+            btnExcluirClickListenerRegistration[0] = createBtnSidebar.addClickListener(event1 -> {
+                SetContrato contrato = contratoService.findByIdOrcamento(selectedConta.getId_orcamento());
+                possuiContrato = contrato == null ? "NÃO" : "SIM";
+                if (possuiContrato.equals("SIM")) {
+                    openCadastroOrdemServicoModal(event.getItem());
+                } else {
+                    service.notificaErro("OBRIGATÓRIO POSSUIR CONTRATO");
+                }
             });
 
             Grid<SetOrdemServico> gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
@@ -370,10 +414,13 @@ public class OrcamentoDiv extends Div {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
-        private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Descrição");
+        private final ComboBox<SetSituacaoCadastro> nome = new ComboBox<>("Situação");
+
 
 
         public Filter(Runnable onSearch) {
+            nome.setItems(situacaoCadastroService.listAll());
+            nome.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
 
             setWidthFull();
             addClassName("filter-layout");
@@ -416,42 +463,23 @@ public class OrcamentoDiv extends Div {
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_contacorrente"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_orcamento"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "nome_contacorrente";
+                String databaseColumn = "id_situacao";
                 String ignore = "- ()";
 
-                String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
-                Predicate phoneMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(phoneMatch);
+                Integer lowerCaseFilter = nome.getValue().getId_situacaocadastro();
+                Predicate phoneMatch = criteriaBuilder.equal(root.get("id_situacao"), lowerCaseFilter);
+                predicates.add(criteriaBuilder.or(phoneMatch));
 
             }
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         }
 
-        private String ignoreCharacters(String characters, String in) {
-            String result = in;
-            for (int i = 0; i < characters.length(); i++) {
-                result = result.replace("" + characters.charAt(i), "");
-            }
-            return result;
-        }
-
-        private Expression<String> ignoreCharacters(String characters, CriteriaBuilder criteriaBuilder,
-                                                    Expression<String> inExpression) {
-            Expression<String> expression = inExpression;
-            for (int i = 0; i < characters.length(); i++) {
-                expression = criteriaBuilder.function("replace", String.class, expression,
-                        criteriaBuilder.literal(characters.charAt(i)), criteriaBuilder.literal(""));
-            }
-            return expression;
-        }
 
     }
 

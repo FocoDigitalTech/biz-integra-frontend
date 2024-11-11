@@ -1,10 +1,8 @@
 package br.com.onetec.application.service.compraprodutoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetCompra;
 import br.com.onetec.infra.db.model.SetCompraProduto;
 import br.com.onetec.infra.db.repository.ISetCompraProdutoRepository;
-import br.com.onetec.infra.db.repository.ISetCompraRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -161,12 +162,21 @@ public class TipoMidiaDiv extends Div{
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
+        final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
-            // Configura o botão "Deletar" para deletar o item clicado
-            btnExcluir.addClickListener(event1 -> deleta(event.getItem()));
-
             // Torna o botão "Deletar" visível
             btnExcluir.setVisible(true);
+            // Verifica se existe um ClickListener registrado anteriormente e o remove
+            if (btnExcluirClickListenerRegistration[0] != null) {
+                btnExcluirClickListenerRegistration[0].remove();
+                btnExcluirClickListenerRegistration[0] = null;
+            }
+            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+                deleta(event.getItem());
+                // Torna o botão "Deletar" invisível após a ação ser concluída
+                btnExcluir.setVisible(false);
+            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);

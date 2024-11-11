@@ -1,10 +1,7 @@
 package br.com.onetec.application.service.notafiscalservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetFaturamento;
-import br.com.onetec.infra.db.model.SetFluxoRecebimentoPagamento;
 import br.com.onetec.infra.db.model.SetNotaFiscal;
-import br.com.onetec.infra.db.repository.ISetFaturamentoRepository;
 import br.com.onetec.infra.db.repository.ISetNotaFiscalRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -30,7 +28,12 @@ public class NotaFiscalService {
     public Page<SetNotaFiscal> list(Pageable pageable, Specification<SetNotaFiscal> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetNotaFiscal> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetNotaFiscal> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetNotaFiscal> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetNotaFiscal dto) throws Exception {
@@ -64,5 +67,9 @@ public class NotaFiscalService {
         } catch (Exception e){
             throw new Exception();
         }
+    }
+
+    public List<SetNotaFiscal> findAllByOrcamentoId(Integer id_orcamento) {
+        return repository.listAllByOrcamentoId(id_orcamento);
     }
 }

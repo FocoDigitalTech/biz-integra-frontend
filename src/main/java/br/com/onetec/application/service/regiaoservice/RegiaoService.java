@@ -1,11 +1,8 @@
 package br.com.onetec.application.service.regiaoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.model.SetRegiao;
-import br.com.onetec.infra.db.model.SetTipoImovel;
 import br.com.onetec.infra.db.repository.IRegiaoRepository;
-import br.com.onetec.infra.db.repository.ITipoImovelRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,7 +28,12 @@ public class RegiaoService {
     public Page<SetRegiao> list(Pageable pageable, Specification<SetRegiao> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetRegiao> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetRegiao> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetRegiao> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetRegiao dto) throws Exception {

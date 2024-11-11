@@ -6,7 +6,6 @@ import br.com.onetec.application.service.departamentoservice.DepartamentoService
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetFuncionario;
-import br.com.onetec.infra.db.repository.IFuncionarioRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

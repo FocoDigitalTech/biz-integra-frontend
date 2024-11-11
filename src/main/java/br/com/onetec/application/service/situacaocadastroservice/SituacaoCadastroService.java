@@ -2,12 +2,8 @@ package br.com.onetec.application.service.situacaocadastroservice;
 
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import br.com.onetec.infra.db.model.SetSituacaoCadastro;
-import br.com.onetec.infra.db.model.SetTipoAtendimento;
-import br.com.onetec.infra.db.model.SetUsuarios;
 import br.com.onetec.infra.db.repository.ISetSituacaoCadastroRepository;
-import br.com.onetec.infra.db.repository.ISetTipoAtendimentoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,7 +29,12 @@ public class SituacaoCadastroService {
     public Page<SetSituacaoCadastro> list(Pageable pageable, Specification<SetSituacaoCadastro> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetSituacaoCadastro> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetSituacaoCadastro> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetSituacaoCadastro> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetSituacaoCadastro dto) throws Exception {

@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.fornecedorcontatoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetFaturamento;
 import br.com.onetec.infra.db.model.SetFornecedorContato;
-import br.com.onetec.infra.db.repository.ISetFaturamentoRepository;
 import br.com.onetec.infra.db.repository.ISetFornecedorContatoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +27,12 @@ public class FornecedorContatoService {
     public Page<SetFornecedorContato> list(Pageable pageable, Specification<SetFornecedorContato> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetFornecedorContato> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetFornecedorContato> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetFornecedorContato> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetFornecedorContato dto) throws Exception {

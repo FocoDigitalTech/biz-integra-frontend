@@ -1,7 +1,6 @@
 package br.com.onetec.application.service.tipoeventofinanceiroservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetTipoAtendimento;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import br.com.onetec.infra.db.repository.ISetTipoEventoFinanceiroRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,12 @@ public class TipoEventoFinanceiroService {
     public Page<SetTipoEventoFinanceiro> list(Pageable pageable, Specification<SetTipoEventoFinanceiro> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetTipoEventoFinanceiro> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetTipoEventoFinanceiro> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetTipoEventoFinanceiro> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetTipoEventoFinanceiro dto) throws Exception {

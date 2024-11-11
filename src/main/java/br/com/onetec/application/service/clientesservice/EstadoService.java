@@ -3,7 +3,6 @@ package br.com.onetec.application.service.clientesservice;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.repository.IEstadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

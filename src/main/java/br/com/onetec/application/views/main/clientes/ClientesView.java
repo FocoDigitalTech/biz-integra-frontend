@@ -1,8 +1,10 @@
 package br.com.onetec.application.views.main.clientes;
 
 import br.com.onetec.application.service.clientesservice.*;
+import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
+import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.MainLayout;
@@ -11,43 +13,35 @@ import br.com.onetec.application.views.main.clientes.modal.CadastroClientesModal
 import br.com.onetec.application.views.main.clientes.modal.DadosClienteModal;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetEnderecos;
-import br.com.onetec.infra.db.model.SetOrcamento;
-import br.com.onetec.infra.db.model.SetSituacaoCadastro;
+import br.com.onetec.infra.db.model.*;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.UIScope;
-import jakarta.annotation.security.PermitAll;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-
-import java.util.*;
-
+import jakarta.annotation.security.PermitAll;
+import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.*;
 
 @Route(value = "clientes",layout = MainLayout.class)
 @PermitAll
@@ -85,6 +79,10 @@ public class ClientesView extends Div {
 
     private UtilitySystemConfigService service;
 
+    private ContratoService contratoService;
+
+    private OrdemServicoService ordemServicoService;
+
 
     @Autowired
     public void initServices(ClientesService clientesService1,
@@ -97,7 +95,9 @@ public class ClientesView extends Div {
                              CadastroClientesModal cadastroModal1,
                              DadosClienteModal detalhesClienteModal1,
                              OrcamentoService orcamentoService,
-                             SituacaoCadastroService situacaoCadastroService1) {
+                             SituacaoCadastroService situacaoCadastroService1,
+                             ContratoService contratoService1,
+                             OrdemServicoService ordemServicoService1) {
         this.estadoService = estadoService1;
         this.clientesService = clientesService1;
         this.usuarioService = usuarioService1;
@@ -110,6 +110,8 @@ public class ClientesView extends Div {
         this.service = new UtilitySystemConfigService();
         this.orcamentoService = orcamentoService;
         this.situacaoCadastroService = situacaoCadastroService1;
+        this.contratoService = contratoService1;
+        this.ordemServicoService = ordemServicoService1;
     }
 
     @Autowired
@@ -248,8 +250,6 @@ public class ClientesView extends Div {
         }
 
 
-
-
         @Override
         public Predicate toPredicate(Root<SetCliente> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
@@ -287,13 +287,25 @@ public class ClientesView extends Div {
                 predicates.add(criteriaBuilder.or(firstNameMatch));
             }
 
+            if (!numeroos.isEmpty()) {
+                SetOrdemServico ordemServico = ordemServicoService.findById(Integer.valueOf(numeroos.getValue()));
+                if (Objects.nonNull(ordemServico)) {
+                    String databaseColumn = "id_cliente";
+                    Integer lowerCaseFilter = ordemServico.getId_cliente();
+                    Predicate firstNameMatch = criteriaBuilder.equal(root.get(databaseColumn), lowerCaseFilter);
+                    predicates.add(firstNameMatch);
+                }
+            }
+
             if (!numerocontrato.isEmpty()) {
-                String lowerCaseFilter = numerocontrato.getValue().toString();
-                String ignore = "- ()";
-                Predicate firstNameMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get("nome_cliente"))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(criteriaBuilder.or(firstNameMatch));
+                SetContrato cont = contratoService.findById(numerocontrato.getValue());
+                if (Objects.nonNull(cont)) {
+                    String databaseColumn = "id_cliente";
+                    Integer lowerCaseFilter = cont.getId_cliente();
+                    Predicate firstNameMatch = criteriaBuilder.equal(root.get(databaseColumn), lowerCaseFilter);
+
+                    predicates.add(firstNameMatch);
+                }
             }
             if (!orcamento.isEmpty()) {
                 SetOrcamento listaOrc = orcamentoService.findAllById(orcamento.getValue());
@@ -306,7 +318,18 @@ public class ClientesView extends Div {
 
                     predicates.add(phoneMatch);
                 }
-
+            }
+            if (!endereco.isEmpty()) {
+                List<SetEnderecos> enderecoNome = enderecoService.findAllByEnderecoNome(endereco.getValue());
+                if (Objects.nonNull(enderecoNome)) {
+                    String databaseColumn = "id_cliente";
+                    List<Predicate> rolePredicates = new ArrayList<>();
+                    for (SetEnderecos setEnderecos : enderecoNome){
+                        rolePredicates.add(criteriaBuilder.equal
+                                (criteriaBuilder.literal(setEnderecos.getId_cliente()), root.get(databaseColumn)));
+                    }
+                    predicates.add(criteriaBuilder.or(rolePredicates.toArray(Predicate[]::new)));
+                }
             }
 
 
@@ -317,7 +340,7 @@ public class ClientesView extends Div {
                     List<SetOrcamento> orcClient = orcamentoService.findAllBySituacaoId(role.getId_situacaocadastro());
                     for (SetOrcamento orc : orcClient){
                         rolePredicates.add(criteriaBuilder.equal
-                          (criteriaBuilder.literal(orc.getId_cliente()), root.get(databaseColumn)));
+                                (criteriaBuilder.literal(orc.getId_cliente()), root.get(databaseColumn)));
                     }
                 }
                 predicates.add(criteriaBuilder.or(rolePredicates.toArray(Predicate[]::new)));
@@ -370,7 +393,7 @@ public class ClientesView extends Div {
             List<SetEnderecos> listaEnderecos = enderecoService.findAllClienteId(cliente.getId_cliente());
             Optional<SetEnderecos> setEnderecos = listaEnderecos.stream()
                     .max(Comparator.comparing(SetEnderecos::getData_inclusao));
-            return setEnderecos.isPresent() ? setEnderecos.get().getEndereco_imovel() : "N/A";
+            return setEnderecos.isPresent() ? setEnderecos.get().getEnderecoImovel() : "N/A";
         })
                 .setHeader("Endereço")
                 .setSortable(true)

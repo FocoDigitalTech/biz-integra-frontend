@@ -1,12 +1,8 @@
 package br.com.onetec.application.service.comissoesservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetComissoes;
-import br.com.onetec.infra.db.model.SetCondicaoPagamento;
-import br.com.onetec.infra.db.model.SetContrato;
 import br.com.onetec.infra.db.repository.ISetComissoesRepository;
-import br.com.onetec.infra.db.repository.ISetCondicaoPagamentoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

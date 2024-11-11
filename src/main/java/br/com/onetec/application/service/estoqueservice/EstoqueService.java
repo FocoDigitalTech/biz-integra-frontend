@@ -1,10 +1,7 @@
 package br.com.onetec.application.service.estoqueservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetRegiao;
-import br.com.onetec.infra.db.repository.IRegiaoRepository;
 import br.com.onetec.infra.db.repository.ISetEstoqueRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +27,12 @@ public class EstoqueService {
     public Page<SetEstoque> list(Pageable pageable, Specification<SetEstoque> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetEstoque> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetEstoque> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetEstoque> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetEstoque dto) throws Exception {

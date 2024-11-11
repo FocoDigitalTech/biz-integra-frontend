@@ -10,6 +10,7 @@ import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.main.clientes.ClientesView;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
@@ -147,6 +148,52 @@ public class DadosClienteModal extends Dialog {
         this.cliente = cliente1;
 
         UI.getCurrent().access(() -> {
+            administradora.setValue(null);
+            tipoMidia.setValue(null);
+            nomeField.clear();
+            telefoneField.clear();
+            celularField.clear();
+            dataField.clear();
+            horaField.clear();
+            contatoField.clear();
+            internetEmailField.clear();
+            inscEstatualField.clear();
+            observacaoField.clear();
+            nomeAgendamentoField.clear();
+            nomesocialAgendamentoField.clear();
+            telefoneAgendamentoField.clear();
+            celularAgendamentoField.clear();
+            internetEmailAgendamentoField.clear();
+            observacaoAgendamentoField.clear();
+            nomeAprovacaoField.clear();
+            nomesocialAprovacaoField.clear();
+            telefoneAprovacaoField.clear();
+            celularAprovacaoField.clear();
+            internetEmailAprovacaoField.clear();
+            observacaoAprovacaoField.clear();
+            nomeCobrancaField.clear();
+            nomesocialCobrancaField.clear();
+            telefoneCobrancaField.clear();
+            celularCobrancaField.clear();
+            internetEmailCobrancaField.clear();
+            observacaoCobrancaField.clear();
+            fieldEnderecosCEP.clear();
+            comboEnderecosTipoImovel.clear();
+            fieldEnderecosArea.clear();
+            fieldEnderecosEndereço.clear();
+            fieldEnderecosNumero.clear();
+            fieldEnderecosComplemento.clear();
+            fieldEnderecosBairro.clear();
+            fieldEnderecosCidade.clear();
+            comboEnderecosUF.clear();
+            fieldEnderecosTelefone.clear();
+            fieldEnderecosPagGuia.clear();
+            fieldEnderecosReponsavel.clear();
+            comboEnderecosRegiao.clear();
+            fieldEnderecosPontodeReferencia.clear();
+            enderecosLista = new ArrayList<>();
+            grid.setItems(enderecosLista);
+
             nomeField.setValue(cliente.getNome_cliente());
             telefoneField.setValue(cliente.getTelefone_cliente());
             celularField.setValue(cliente.getCelular_cliente());
@@ -207,10 +254,10 @@ public class DadosClienteModal extends Dialog {
                         .filter(midia -> midia.getId_regiao().equals(e.getId_regiao()))
                         .findFirst().orElse(null);
                 enderecos.add(new Endereco(e.getCep_imovel(), imovel, e.getArea_imovel(),
-                        e.getEndereco_imovel(), e.getNumero_imovel(), e.getComplemento_imovel(),
+                        e.getEnderecoImovel(), e.getNumero_imovel(), e.getComplemento_imovel(),
                         e.getBairro_imovel(), e.getCidade_imovel(),
                         uf, e.getTelefone_local(), e.getPagina_guia(),
-                        e.getEndereco_imovel(), regiao, e.getPonto_referencia()));
+                        e.getEnderecoImovel(), regiao, e.getPonto_referencia()));
                 grid.setItems(enderecosLista);
             });
             CGCCPFField.setValue(cliente.getCpf_cgc_cliente());
@@ -219,11 +266,24 @@ public class DadosClienteModal extends Dialog {
     }
 
     private void atendimentoAbrir(SetCliente cliente) {
-        close();
-        // Armazena o cliente na sessão do usuário
-        UI.getCurrent().getSession().setAttribute("cliente", cliente);
-        // Navega para a rota da view AtendimentoHistoricoView
-        UI.getCurrent().navigate("atendimentos_historico");
+        service = new UtilitySystemConfigService();
+        if (enderecosAtualizados.size() > 0) {
+            service.notificaErro("ERRO: Endereço cadastrado não foi salvo, clique em atualizar antes !");
+
+        } else {
+            List<SetEnderecos> verificaLista = enderecoService.findAllClienteId(cliente.getId_cliente());
+            if (verificaLista.size() > 0) {
+                close();
+                SetClienteTransiction.setRecarregaPagina(true);
+                // Armazena o cliente na sessão do usuário
+                UI.getCurrent().getSession().setAttribute("cliente", cliente);
+                // Navega para a rota da view AtendimentoHistoricoView
+                UI.getCurrent().navigate("atendimentos_historico");
+            } else {
+                service.notificaErro("ERRO: É obrigatório cadastrar um endereço, antes de iniciar o atendimento !");
+            }
+        }
+
     }
 
     @Autowired
@@ -301,7 +361,7 @@ public class DadosClienteModal extends Dialog {
         UI.getCurrent().access(() -> {
             addClassName("cadastro-modal");
 
-            saveButton = new Button("Salvar", eventbe -> save());
+            saveButton = new Button("Atualizar", eventbe -> save());
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             atendimentoButton = new Button("Atendimento e Histórico", event -> atendimentoAbrir(cliente));
             excluirBtn = new Button("Excluir", event -> excluirCliente(cliente));
@@ -412,6 +472,13 @@ public class DadosClienteModal extends Dialog {
         comboEnderecosRegiao  = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
+
+        comboEnderecosRegiao.setRequiredIndicatorVisible(true);
+
+        comboEnderecosTipoImovel.setRequiredIndicatorVisible(true);
+
+        fieldEnderecosCEP.setRequiredIndicatorVisible(true);
+
         // Configurar o Grid
         //grid.setItems(enderecos);
 //        grid.addColumn(endereco -> {
@@ -420,7 +487,7 @@ public class DadosClienteModal extends Dialog {
 //        })
 //                .setHeader("TipoImovel")
 //                .setAutoWidth(true);
-        grid.addColumn(SetEnderecos::getEndereco_imovel)
+        grid.addColumn(SetEnderecos::getEnderecoImovel)
                 .setHeader("Endereço")
                 .setAutoWidth(true);
 
@@ -472,6 +539,18 @@ public class DadosClienteModal extends Dialog {
 
         // Botão para salvar o endereço
         Button saveButton = new Button("Adicionar Endereço", event -> {
+            if (Objects.isNull(comboEnderecosTipoImovel.getValue())) {
+                service.notificaErro("Preencha o campo Tipo de imovel !");
+                return;
+            }
+            if (Objects.isNull(fieldEnderecosCEP.getValue())) {
+                service.notificaErro("Preencha o campo CEP !");
+                return;
+            }
+            if (Objects.isNull(comboEnderecosRegiao.getValue())) {
+                service.notificaErro("Preencha o campo Região !");
+                return;
+            }
             String CEP = fieldEnderecosCEP.getValue();
             SetTipoImovel TipoImovel = comboEnderecosTipoImovel.getValue();
             String Area = fieldEnderecosArea.getValue();
@@ -496,7 +575,29 @@ public class DadosClienteModal extends Dialog {
                         new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,UF,Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
                 enderecos.add(endereco);
                // grid.setItems(enderecos);
+                SetEnderecos et = new SetEnderecos();
+                et.setAtivo("S");
+                et.setId_regiao(endereco.getComboEnderecosRegiao().getId_regiao());
+                et.setId_tipoimovel(endereco.getComboEnderecosTipoImovel().getId_tipoimovel());
+                et.setArea_imovel(endereco.getFieldEnderecosArea());
+                et.setBairro_imovel(endereco.getFieldEnderecosBairro());
+                et.setCep_imovel(endereco.getFieldEnderecosCEP());
+                et.setEnderecoImovel(endereco.getFieldEnderecosEndereço());
+                et.setCidade_imovel(endereco.getFieldEnderecosCidade());
+                et.setComplemento_imovel(endereco.getFieldEnderecosComplemento());
+                et.setData_inclusao(LocalDateTime.now());
+                et.setId_cliente(cliente.getId_cliente());
+                et.setId_estado(endereco.getComboEnderecosUF().getId_estado());
+                et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                et.setNome_responsavel(endereco.getFieldEnderecosReponsavel());
+                et.setNumero_imovel(endereco.getFieldEnderecosNumero());
+                et.setPonto_referencia(endereco.getFieldEnderecosPontodeReferencia());
+                et.setPagina_guia(endereco.getFieldEnderecosPagGuia());
+                et.setTelefone_local(endereco.getFieldEnderecosTelefone());
+                et.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                et.setAtivo("S");
                 enderecosAtualizados.add(endereco);
+                enderecosLista.add(et);
                 Notification.show("Endereço Adicionado!");
                 fieldEnderecosCEP.clear();
                 comboEnderecosTipoImovel.clear();
@@ -512,7 +613,7 @@ public class DadosClienteModal extends Dialog {
                 fieldEnderecosReponsavel.clear();
                 comboEnderecosRegiao.clear();
                 fieldEnderecosPontodeReferencia.clear();
-                enderecosLista = enderecoService.findAllClienteId(cliente.getId_cliente());
+                //enderecosLista = enderecoService.findAllClienteId(cliente.getId_cliente());
                 grid.setItems(enderecosLista);
 
             } else {
@@ -523,7 +624,11 @@ public class DadosClienteModal extends Dialog {
 
 
         FormLayout formLayout =  new FormLayout(fieldEnderecosCEP,
-                comboEnderecosTipoImovel,fieldEnderecosArea,fieldEnderecosEndereço,fieldEnderecosNumero,fieldEnderecosComplemento,fieldEnderecosBairro,fieldEnderecosCidade,comboEnderecosUF,fieldEnderecosTelefone,fieldEnderecosPagGuia,fieldEnderecosReponsavel,comboEnderecosRegiao,fieldEnderecosPontodeReferencia
+                comboEnderecosTipoImovel,fieldEnderecosArea,fieldEnderecosEndereço,
+                fieldEnderecosNumero,fieldEnderecosComplemento,fieldEnderecosBairro,
+                fieldEnderecosCidade,comboEnderecosUF,fieldEnderecosTelefone,
+                fieldEnderecosPagGuia,fieldEnderecosReponsavel,comboEnderecosRegiao,
+                fieldEnderecosPontodeReferencia
                 , saveButton);
         formLayout.setWidthFull();
         Accordion accordion = new Accordion();
@@ -571,7 +676,7 @@ public class DadosClienteModal extends Dialog {
 
         enderecosCEP.setValue(item.getCep_imovel());
         enderecosArea.setValue(item.getArea_imovel());
-        enderecosEndereço.setValue(item.getEndereco_imovel());
+        enderecosEndereço.setValue(item.getEnderecoImovel());
         enderecosNumero.setValue(item.getNumero_imovel());
         enderecosComplemento.setValue(item.getComplemento_imovel());
         enderecosBairro.setValue(item.getBairro_imovel());
@@ -625,7 +730,7 @@ public class DadosClienteModal extends Dialog {
         //botoes
         Button saveBtn = new Button("Atualizar", eventbe -> {
             item.setData_alteracao(LocalDateTime.now());
-            item.setEndereco_imovel(enderecosEndereço.getValue());
+            item.setEnderecoImovel(enderecosEndereço.getValue());
             item.setCep_imovel(enderecosCEP.getValue());
             if (Objects.nonNull(enderecosTipoImovel.getValue().getId_tipoimovel())) {
                 item.setId_tipoimovel(enderecosTipoImovel.getValue().getId_tipoimovel());
@@ -1012,6 +1117,7 @@ public class DadosClienteModal extends Dialog {
     }
 
     private void save() {
+        service = new UtilitySystemConfigService();
         Cliente dto = newCliente();
         dto.setId_cliente(cliente.getId_cliente());
         SetCliente cliente = clientesService.update(dto);
@@ -1027,8 +1133,10 @@ public class DadosClienteModal extends Dialog {
         if (enderecosAtualizados.size() > 0) {
             enderecoService.updateListaNova(enderecosAtualizados, cliente.getId_cliente(),
                     UsuarioAutenticadoConfig.getUser().getId_usuario());
+            enderecosAtualizados = new ArrayList<>();
         }
-        close();
+        service.notificaSucesso("Atualizado com Sucesso !");
+        //close();
     }
 
     private SetResponsavelCobranca newPessoaCobranca(Integer id_cliente) {

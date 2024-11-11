@@ -1,6 +1,5 @@
 package br.com.onetec.application.security;
 
-import br.com.onetec.infra.db.model.SetUsuarios;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

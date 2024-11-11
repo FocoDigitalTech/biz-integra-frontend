@@ -1,10 +1,7 @@
 package br.com.onetec.application.service.produtoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetPraga;
 import br.com.onetec.infra.db.model.SetProduto;
-import br.com.onetec.infra.db.model.SetTipoMidia;
-import br.com.onetec.infra.db.repository.ISetPragaRepository;
 import br.com.onetec.infra.db.repository.ISetProdutoRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +30,12 @@ public class ProdutoService {
     public Page<SetProduto> list(Pageable pageable, Specification<SetProduto> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetProduto> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetProduto> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetProduto> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public void save(SetProduto dto) throws Exception {

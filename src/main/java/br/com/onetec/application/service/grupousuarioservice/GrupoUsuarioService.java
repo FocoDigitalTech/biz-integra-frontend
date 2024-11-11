@@ -1,7 +1,5 @@
 package br.com.onetec.application.service.grupousuarioservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
 import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +27,12 @@ public class GrupoUsuarioService {
     public Page<SetGrupoUsuario> list(Pageable pageable, Specification<SetGrupoUsuario> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetGrupoUsuario> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetGrupoUsuario> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetGrupoUsuario> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public SetGrupoUsuario findById (Integer idGrupoUsuario){
