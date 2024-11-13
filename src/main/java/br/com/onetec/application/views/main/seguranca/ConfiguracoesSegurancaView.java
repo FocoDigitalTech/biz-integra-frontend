@@ -1,6 +1,7 @@
 package br.com.onetec.application.views.main.seguranca;
 
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.main.seguranca.div.DadosEmpresaDiv;
 import br.com.onetec.application.views.main.seguranca.div.GrupoUsuariosDiv;
 import br.com.onetec.application.views.main.seguranca.div.UsuariosDiv;
 import br.com.onetec.cross.constants.ViewsTitleConst;
@@ -26,17 +27,17 @@ public class ConfiguracoesSegurancaView extends VerticalLayout {
 
     private UsuariosDiv usuariosDiv;
     private GrupoUsuariosDiv situacaoCadastroDiv;
-//    private PermissoesDiv setorAtuacaoDiv;
+    private DadosEmpresaDiv setorAtuacaoDiv;
 
 
     @Autowired
     public void initServices(UsuariosDiv usuariosDiv1,
-                            GrupoUsuariosDiv situacaoCadastroDiv1
-//                             PermissoesDiv setorAtuacaoDiv1
+                            GrupoUsuariosDiv situacaoCadastroDiv1,
+                             DadosEmpresaDiv setorAtuacaoDiv1
     ) {
         this.usuariosDiv = usuariosDiv1;
         this.situacaoCadastroDiv = situacaoCadastroDiv1;
-//        this.setorAtuacaoDiv = setorAtuacaoDiv1;
+        this.setorAtuacaoDiv = setorAtuacaoDiv1;
     }
 
     @Autowired
@@ -50,6 +51,8 @@ public class ConfiguracoesSegurancaView extends VerticalLayout {
                     usuariosDiv);
             tabSheet.add("Grupos de usuários",
                     situacaoCadastroDiv);
+            tabSheet.add("Dados Empresa",
+                    setorAtuacaoDiv);
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
             add(tabSheet);
         });

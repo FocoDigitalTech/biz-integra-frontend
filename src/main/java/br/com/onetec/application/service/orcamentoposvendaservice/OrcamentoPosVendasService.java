@@ -1,10 +1,11 @@
-package br.com.onetec.application.service.orcamentocontatoservice;
+package br.com.onetec.application.service.orcamentoposvendaservice;
+
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetNotaFiscal;
 import br.com.onetec.infra.db.model.SetOrcamentoContato;
-import br.com.onetec.infra.db.repository.ISetNotaFiscalRepository;
+import br.com.onetec.infra.db.model.SetOrcamentoPosVenda;
 import br.com.onetec.infra.db.repository.ISetOrcamentoContatoRepository;
+import br.com.onetec.infra.db.repository.ISetOrcamentoPosVendaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,29 +17,30 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+
 @Slf4j
 @Service
-public class OrcamentoContatoService {
+public class OrcamentoPosVendasService {
 
-    private ISetOrcamentoContatoRepository repository;
+    private ISetOrcamentoPosVendaRepository repository;
 
     @Autowired
-    public void initServices (ISetOrcamentoContatoRepository repository1){
+    public void initServices (ISetOrcamentoPosVendaRepository repository1){
         this.repository = repository1;
     }
 
-    public Page<SetOrcamentoContato> list(Pageable pageable, Specification<SetOrcamentoContato> filter) {
+    public Page<SetOrcamentoPosVenda> list(Pageable pageable, Specification<SetOrcamentoPosVenda> filter) {
         log.info("Pageable: {}", pageable);
-        Page<SetOrcamentoContato> page = repository.findAll(filter, pageable);
-        Specification<SetOrcamentoContato> novaCondicao = (root, query, criteriaBuilder) ->
+        Page<SetOrcamentoPosVenda> page = repository.findAll(filter, pageable);
+        Specification<SetOrcamentoPosVenda> novaCondicao = (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("ativo"), "S");
         // Combina a nova condição com o filtro existente usando and()
-        Specification<SetOrcamentoContato> filtroComCondicao = filter.and(novaCondicao);
+        Specification<SetOrcamentoPosVenda> filtroComCondicao = filter.and(novaCondicao);
         // Executa a consulta com o filtro combinado
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public void save(SetOrcamentoContato dto) throws Exception {
+    public void save(SetOrcamentoPosVenda dto) throws Exception {
         try {
             dto.setData_inclusao(LocalDateTime.now());
             dto.setAtivo("S");
@@ -49,10 +51,10 @@ public class OrcamentoContatoService {
         }
     }
 
-    public void delete(SetOrcamentoContato item) throws Exception {
+    public void delete(SetOrcamentoPosVenda item) throws Exception {
         try {
-            Optional<SetOrcamentoContato> optional = repository.findById(item.getId_orcamentocontato());
-            SetOrcamentoContato entity = optional.get();
+            Optional<SetOrcamentoPosVenda> optional = repository.findById(item.getId_orcamentoposvenda());
+            SetOrcamentoPosVenda entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
@@ -63,10 +65,11 @@ public class OrcamentoContatoService {
         }
     }
 
-    public void update(SetOrcamentoContato item) throws Exception {
+    public void update(SetOrcamentoPosVenda item) throws Exception {
         try {
-            Optional<SetOrcamentoContato> optional = repository.findById(item.getId_orcamentocontato());
-            SetOrcamentoContato entity = optional.get();
+            Optional<SetOrcamentoPosVenda> optional = repository.findById(item.getId_orcamentoposvenda());
+            SetOrcamentoPosVenda entity = optional.get();
+            entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
         } catch (Exception e){
@@ -74,12 +77,11 @@ public class OrcamentoContatoService {
         }
     }
 
-    public List<SetOrcamentoContato> findAllByOrcamentoId(Integer id_orcamento) {
+    public List<SetOrcamentoPosVenda> findAllByOrcamentoId(Integer id_orcamento) {
         return repository.listAllByOrcamentoId(id_orcamento);
     }
 
-    public List<SetOrcamentoContato> listAll() {
+    public List<SetOrcamentoPosVenda> listAll() {
         return repository.listAll();
     }
-
 }

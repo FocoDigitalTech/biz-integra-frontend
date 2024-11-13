@@ -52,11 +52,7 @@ import java.util.Objects;
 @Component
 @UIScope
 public class OrcamentoDiv extends Div {
-    private boolean sidebarCollapsed;
-//    private final Button button;
-//    private final Icon leftArrowIcon;
-//    private final Icon rightArrowIcon;
-//    private final SplitLayout splitLayout;
+
 
     private Grid<SetOrcamento> grid;
 
@@ -93,6 +89,7 @@ public class OrcamentoDiv extends Div {
     private String possuiContrato;
 
     private Boolean contractRequi = false;
+
 
     @Autowired
     public void initServices(UtilitySystemConfigService service1,

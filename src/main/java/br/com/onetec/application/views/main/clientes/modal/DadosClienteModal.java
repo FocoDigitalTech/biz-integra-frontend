@@ -12,6 +12,7 @@ import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.main.clientes.ClientesView;
+import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
@@ -61,7 +62,6 @@ public class DadosClienteModal extends Dialog {
     private DatePicker dataField;
     private TimePicker horaField;
     private TextField contatoField;
-    private ComboBox administradora;
     private ComboBox <SetTipoMidia>tipoMidia;
     private TextField midiaAntigaField;
     private EmailField internetEmailField;
@@ -92,6 +92,7 @@ public class DadosClienteModal extends Dialog {
     private TextArea observacaoCobrancaField;
     //Enderecos
     private TextField fieldEnderecosCEP;
+    Button buscaEnderecosCEPButton;
     private ComboBox <SetTipoImovel> comboEnderecosTipoImovel;
     private TextField fieldEnderecosArea;
     private TextField fieldEnderecosEndereço;
@@ -126,7 +127,6 @@ public class DadosClienteModal extends Dialog {
     private ResponsavelCobrancaService responsavelCobrancaService;
     private ResponsavelAgendamentoService responsavelAgendamentoService;
     private ResponsavelAprovacaoService responsavelAprovacaoService;
-
     private TipoMidiaService tipomidiaService;
 
     private TipoImovelService tipoimovelService;
@@ -148,7 +148,13 @@ public class DadosClienteModal extends Dialog {
         this.cliente = cliente1;
 
         UI.getCurrent().access(() -> {
-            administradora.setValue(null);
+            nomeCobrancaField = new TextField("Nome Cobrança");
+            nomesocialCobrancaField = new TextField("Nome Social");
+            telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
+            celularCobrancaField = new TextField("Celular Cobrança");
+            internetEmailCobrancaField = new EmailField("E-mail Cobrança");
+            observacaoCobrancaField = new TextArea("Observação Cobrança");
+
             tipoMidia.setValue(null);
             nomeField.clear();
             telefoneField.clear();
@@ -200,7 +206,6 @@ public class DadosClienteModal extends Dialog {
             dataField.setValue(cliente.getData_inclusao().toLocalDate());
             horaField.setValue(cliente.getHora_ligacao_cliente());
             contatoField.setValue(cliente.getNome_contato_cliente());
-            administradora.setValue(cliente.getAdministradora_cliente());
             tipoMidia.setValue(listamidia.stream()
                     .filter(midia -> midia.getId_tipomidia().equals(cliente.getId_anuncio()))
                     .findFirst().orElse(null));
@@ -332,7 +337,7 @@ public class DadosClienteModal extends Dialog {
                 }
             });
 
-
+            buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
             listamidia = tipomidiaService.findAllMidia();
             estadoList = estadoService.listAll();
             tipoMidia.setItems(tipomidiaService.findAllMidia());
@@ -347,12 +352,17 @@ public class DadosClienteModal extends Dialog {
     }
 
     private void buscarCep() {
-        EApiEnderecoResponse response = service.buscarCep(fieldEnderecosCEP);
-        fieldEnderecosEndereço.setValue(response.getLogradouro());
-        //complemento_funcionario.setValue(response.get);
-        fieldEnderecosBairro.setValue(response.getBairro());
-        fieldEnderecosCidade.setValue(response.getLocalidade());
-        comboEnderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
+        try {
+            service = new UtilitySystemConfigService();
+            EApiEnderecoResponse response = service.buscarCepTeste(fieldEnderecosCEP,apiEnderecoService);
+            fieldEnderecosEndereço.setValue(response.getLogradouro());
+            //complemento_funcionario.setValue(response.get);
+            fieldEnderecosBairro.setValue(response.getBairro());
+            fieldEnderecosCidade.setValue(response.getLocalidade());
+            comboEnderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
+        } catch (Exception e){
+            service.notificaErro("CEP NÃO ENCONTRADO !");
+        }
     }
 
     @Autowired
@@ -472,6 +482,9 @@ public class DadosClienteModal extends Dialog {
         comboEnderecosRegiao  = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
+        buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
+        HorizontalLayout fieldEnderecosCEPCustomized =
+                new CustomizedComboBox().customizeEnderecosCEP(fieldEnderecosCEP,buscaEnderecosCEPButton);
 
         comboEnderecosRegiao.setRequiredIndicatorVisible(true);
 
@@ -509,7 +522,11 @@ public class DadosClienteModal extends Dialog {
 
         grid.addItemClickListener(event -> {
             if (Objects.nonNull(event.getItem())) {
-                dadosEndereco(event.getItem());
+                if (Objects.nonNull(event.getItem().getId_endereco())) {
+                    dadosEndereco(event.getItem());
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo endereço !");
+                }
             } else {
                 service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
             }
@@ -623,7 +640,8 @@ public class DadosClienteModal extends Dialog {
         });
 
 
-        FormLayout formLayout =  new FormLayout(fieldEnderecosCEP,
+
+        FormLayout formLayout =  new FormLayout(fieldEnderecosCEPCustomized,
                 comboEnderecosTipoImovel,fieldEnderecosArea,fieldEnderecosEndereço,
                 fieldEnderecosNumero,fieldEnderecosComplemento,fieldEnderecosBairro,
                 fieldEnderecosCidade,comboEnderecosUF,fieldEnderecosTelefone,
@@ -754,8 +772,11 @@ public class DadosClienteModal extends Dialog {
             try {
                 enderecoService.update(item);
                 endereco.close();
+                List<SetEnderecos> listaEndere = enderecoService.findAllClienteId(item.getId_cliente());
+                grid.setItems(listaEndere);
                 service.notificaSucesso("Atualizado com sucesso !");
             } catch (Exception e) {
+                service.notificaErro("ERRO: Contate o Administrador !");
                 e.printStackTrace();
             }
         });
@@ -819,8 +840,6 @@ public class DadosClienteModal extends Dialog {
         dataField = new DatePicker("Data Cadastro");
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
-        administradora = new ComboBox("Administradora");
-        administradora.setItems(getItemsAdministradora());
         contatoField = new TextField("Contato");
         tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
@@ -893,7 +912,7 @@ public class DadosClienteModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(dataField,nomeField,administradora,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
+        formLayout.add(dataField,nomeField,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -1131,9 +1150,10 @@ public class DadosClienteModal extends Dialog {
         responsavelAgendamentoService.update(agendamento);
         responsavelAprovacaoService.update(aprovacao);
         if (enderecosAtualizados.size() > 0) {
-            enderecoService.updateListaNova(enderecosAtualizados, cliente.getId_cliente(),
+            List<SetEnderecos> listaSalva = enderecoService.updateListaNova(enderecosAtualizados, cliente.getId_cliente(),
                     UsuarioAutenticadoConfig.getUser().getId_usuario());
             enderecosAtualizados = new ArrayList<>();
+            grid.setItems(listaSalva);
         }
         service.notificaSucesso("Atualizado com Sucesso !");
         //close();
@@ -1195,7 +1215,6 @@ public class DadosClienteModal extends Dialog {
         cliente.setDataField(dataField.getValue());
         cliente.setHoraField(horaField.getValue());
         cliente.setContatoField(contatoField.getValue());
-        cliente.setAdministradora(administradora.getValue().toString());
         cliente.setTipoMidia(tipoMidia.getValue().getId_tipomidia());
         cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());

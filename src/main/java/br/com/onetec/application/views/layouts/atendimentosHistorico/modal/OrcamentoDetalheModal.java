@@ -10,6 +10,7 @@ import br.com.onetec.application.service.faturamentoservice.FaturamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.notafiscalservice.NotaFiscalService;
 import br.com.onetec.application.service.orcamentocontatoservice.OrcamentoContatoService;
+import br.com.onetec.application.service.orcamentoposvendaservice.OrcamentoPosVendasService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.pagamentoservice.PagamentoService;
 import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoService;
@@ -19,6 +20,7 @@ import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagame
 import br.com.onetec.application.service.tipopagamentoservice.AutoCrudTipoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.component.*;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.application.views.main.financeiro.modal.TipoPagamentoCadastroModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -39,6 +41,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -54,6 +57,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
+import com.vaadin.flow.data.provider.ListDataView;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -123,6 +128,8 @@ public class OrcamentoDetalheModal extends Dialog {
     private TextField valortotal_notafiscal;
     private TextField descricao_notafiscal;
     private List<SetNotaFiscal> listaNotas ;
+    List<SetNotaFiscal> listaNotasRemover = new ArrayList<>();
+    List<SetNotaFiscal> listaNotasNova = new ArrayList<>();
     private Grid<SetNotaFiscal> gridNotaFiscal;
 
     //formulario faturamento
@@ -150,10 +157,12 @@ public class OrcamentoDetalheModal extends Dialog {
     private TextArea descricao_pagamento;
     private Grid<SetPagamento> gridPagamento;
     private List<SetPagamento> listaPagamentos;
+    List<SetPagamento> listaPagamentosRemover = new ArrayList<>();
+    List<SetPagamento> listaPagamentosNova = new ArrayList<>();
     private IntegerField parcelamentoPagar;
 
     //formulario comissoes
-    private ComboBox<SetFuncionario> id_funcionario;
+    private ComboBox<SetFuncionario> id_funcionarioComissao;
     private ComboBox<String> parcelas_comissoes;
     private TextField porcentagem_comissoes;
     private DatePicker data_comissao;
@@ -164,10 +173,13 @@ public class OrcamentoDetalheModal extends Dialog {
     private TextArea descricao_comissao;
     private Grid<SetComissoes> gridComissoes;
     private List<SetComissoes> listaComissoes;
+    List<SetComissoes> listaComissoesRemover = new ArrayList<>();
+    List<SetComissoes> listaComissoesNova = new ArrayList<>();
 
     //cadastro contatos
     private DatePicker data_orcamentocontato;
     private TimePicker horario_orcamentocontato;
+    private ComboBox<SetFuncionario> id_funcionarioContato;
     private TextField nome_orcamentocontato;
     private TextField telefone_orcamentocontato;
     private DatePicker dataretorno_orcamentocontato;
@@ -230,9 +242,14 @@ public class OrcamentoDetalheModal extends Dialog {
     private ServicosOrcamentoService servicosOrcamentoService;
 
     private List<SetOrcamentoContato> listOrcamentoContato = new ArrayList<>();
+    List<SetOrcamentoContato> listOrcamentoContatoRemover = new ArrayList<>();
+    List<SetOrcamentoContato> listOrcamentoContatoNova = new ArrayList<>();
 
     @Autowired
     private OrcamentoContatoService orcamentoContatoService;
+
+    @Autowired
+    private OrcamentoPosVendasService orcamentoPosVendasService;
 
 
     @Autowired
@@ -305,17 +322,29 @@ public class OrcamentoDetalheModal extends Dialog {
                     datafim_garantia.setErrorMessage("Campo obrigatório");
                     datafim_garantia.setInvalid(true);
                 } else {
-                    // Criar o StreamResource para gerar e abrir o PDF
-                    StreamResource resource = new StreamResource("contrato.pdf", this::createPdf);
+                    try {
+                        String hora = String.valueOf(LocalDateTime.now().getSecond());
+                        String idorc = String.valueOf(orcamento.getId_orcamento()).concat(String.valueOf(orcamento.getId_cliente()));
+                        String nameClien = cliente.getNome_cliente();
+                        String compositeId = hora+idorc+nameClien;
+                        // Caminho do arquivo Word de entrada e dos arquivos de saída
+                        String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_sentricon.docx";
+                        String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_contrato_"+compositeId+"sentriconatualizado.docx";
+                        String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\documento_atualizado.pdf";
+                        String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                    // Criar o Anchor (link) para o StreamResource e definir o texto
+                        // Edita o documento Word
+                        SetClienteTransiction.editWordDocument(wordPath, updatedWordPath, "81038", clientId,orcamento,cliente);
 
-                    downloadLink.setHref(resource);  // Seta o recurso de download
-                    downloadLink.setText("Abrir Contrato PDF");  // Texto do link
+                        // Converte o documento editado para PDF
+                        SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
 
-                    // Definir o alvo para abrir em nova aba
-                    downloadLink.setTarget("_blank");
-                    // Adiciona o link de download ao layout
+                        // Baixa o PDF
+                        SetClienteTransiction.downloadPdf(pdfPath);
+                    } catch (IOException exa) {
+                        Notification.show("Erro ao gerar o PDF: " + exa.getMessage());
+                        exa.printStackTrace();
+                    }
                 }
             });
 
@@ -341,7 +370,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 // Tratar caso o objeto cliente não esteja presente na sessão
             }
 
-            saveButton = new Button("Salvar", eventbe -> save());
+            saveButton = new Button("Atualizar", eventbe -> save());
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
@@ -494,17 +523,19 @@ public class OrcamentoDetalheModal extends Dialog {
         });
     }
 
-    private RadioButtonGroup bomatendimento_orcamentoposvenda;
-    private RadioButtonGroup funcionariosuniformizados_orcamentoposvenda;
-    private RadioButtonGroup limpeza_orcamentoposvenda;
-    private RadioButtonGroup duvidas_orcamentoposvenda;
-    private RadioButtonGroup notegeral_orcamentoposvenda;
-    private RadioButtonGroup utilizarianovamente_orcamentoposvenda;
-    private RadioButtonGroup sugestao_orcamentoposvenda;
+    private RadioButtonGroup<String> bomatendimento_orcamentoposvenda;
+    private RadioButtonGroup<String> funcionariosuniformizados_orcamentoposvenda;
+    private RadioButtonGroup<String> limpeza_orcamentoposvenda;
+    private RadioButtonGroup<String> duvidas_orcamentoposvenda;
+    private RadioButtonGroup<String> notegeral_orcamentoposvenda;
+    private RadioButtonGroup<String> utilizarianovamente_orcamentoposvenda;
+    private RadioButtonGroup<String> sugestao_orcamentoposvenda;
     private TextArea descricaosugestao_orcamentoposvenda;
     private DatePicker data_orcamentoposvenda;
     private Grid<SetOrcamentoPosVenda> orcamentoposvendaGrid;
     List<SetOrcamentoPosVenda> listaSetOrcamentoPosVendas = new ArrayList<>();
+    List<SetOrcamentoPosVenda>  listaSetOrcamentoPosVendasNova = new ArrayList<>();
+    List<SetOrcamentoPosVenda> listaSetOrcamentoPosVendasRemover = new ArrayList<>();
 
 
     private Div createorcamentoPosVenda() {
@@ -533,18 +564,77 @@ public class OrcamentoDetalheModal extends Dialog {
 
         data_orcamentoposvenda = new DatePicker("Data Ligação");
 
+        // RadioButtonGroup tipo_cobranca
+        bomatendimento_orcamentoposvenda.setRequiredIndicatorVisible(true);
+        bomatendimento_orcamentoposvenda.addValueChangeListener(event -> {
+            if (event.getValue() == null) {
+                bomatendimento_orcamentoposvenda.setErrorMessage("Campo obrigatório");
+                bomatendimento_orcamentoposvenda.setInvalid(true);
+            } else {
+                bomatendimento_orcamentoposvenda.setInvalid(false);
+            }
+        });
+
+        notegeral_orcamentoposvenda.setRequiredIndicatorVisible(true);
+        notegeral_orcamentoposvenda.addValueChangeListener(event -> {
+            if (event.getValue() == null) {
+                notegeral_orcamentoposvenda.setErrorMessage("Campo obrigatório");
+                notegeral_orcamentoposvenda.setInvalid(true);
+            } else {
+                notegeral_orcamentoposvenda.setInvalid(false);
+            }
+        });
 
         orcamentoposvendaGrid = new Grid<>(SetOrcamentoPosVenda.class, false);
-        orcamentoposvendaGrid.addColumn(SetOrcamentoPosVenda::getBomatendimento_orcamentoposvenda)
-                .setHeader("Bem atendido")
+        orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
+            Span span = new Span(orc.getBomatendimento_orcamentoposvenda());
+            if ("SIM".equals(orc.getBomatendimento_orcamentoposvenda())) {
+                span.getStyle().set("color", "green");
+            } else {
+                span.getStyle().set("color", "red");
+            }
+            return span;
+        }))
+                .setHeader("Bem atendido ?")
                 .setSortable(true)
                 .setAutoWidth(true);
-        orcamentoposvendaGrid.addColumn(SetOrcamentoPosVenda::getFuncionariosuniformizados_orcamentoposvenda)
-                .setHeader("Funcionarios Uniformizados")
+        orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
+            Span span = new Span(orc.getFuncionariosuniformizados_orcamentoposvenda());
+            if ("SIM".equals(orc.getFuncionariosuniformizados_orcamentoposvenda())) {
+                span.getStyle().set("color", "green");
+            } else {
+                span.getStyle().set("color", "red");
+            }
+            return span;
+        }))
+                .setHeader("Funcionarios Uniformizados ?")
                 .setSortable(true)
                 .setAutoWidth(true);
-        orcamentoposvendaGrid.addColumn(SetOrcamentoPosVenda::getDuvidas_orcamentoposvenda)
-                .setHeader("Duvidas")
+        orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
+            Span span = new Span(orc.getDuvidas_orcamentoposvenda());
+            if ("SIM".equals(orc.getDuvidas_orcamentoposvenda())) {
+                span.getStyle().set("color", "green");
+            } else {
+                span.getStyle().set("color", "red");
+            }
+            return span;
+            }))
+                .setHeader("Duvidas ?")
+                .setSortable(true)
+                .setAutoWidth(true);
+        orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
+            Span span = new Span(String.valueOf(orc.getNotegeral_orcamentoposvenda()));
+            Integer nota = orc.getNotegeral_orcamentoposvenda();
+            if (nota >= 4 ) {
+                span.getStyle().set("color", "green");
+            }if (nota == 3) {
+                span.getStyle().set("color", "yellow");
+            } else {
+                span.getStyle().set("color", "red");
+            }
+            return span;
+        }))
+                .setHeader("Nota Geral")
                 .setSortable(true)
                 .setAutoWidth(true);
         orcamentoposvendaGrid.addColumn(data -> UtilitySystemConfigService.
@@ -552,16 +642,53 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
+        orcamentoposvendaGrid.addComponentColumn(e -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                if (Objects.nonNull(e.getId_orcamentoposvenda())){
+                    listaSetOrcamentoPosVendasRemover.add(e);
+                } else {
+                    listaSetOrcamentoPosVendasNova.add(e);
+                }
+                listaSetOrcamentoPosVendas.remove(e);
+                // Atualiza os itens da grid
+                orcamentoposvendaGrid.setItems(listaSetOrcamentoPosVendas);
+                // Feedback ao usuário
+                Notification.show("Questionário removido: " , 3000, Notification.Position.MIDDLE);
+            });
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
+        orcamentoposvendaGrid.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_orcamentoposvenda())) {
+                    PosVendaModal.openModalPosVenda(event.getItem(),orcamentoPosVendasService, service,orcamentoposvendaGrid);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Questionário !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
 
         Button saveAdicionarButton = new Button("Adicionar", event -> {
             SetOrcamentoPosVenda dto = new SetOrcamentoPosVenda();
-            dto.setBomatendimento_orcamentoposvenda("SIM");
-            dto.setFuncionariosuniformizados_orcamentoposvenda("SIM");
-            dto.setDuvidas_orcamentoposvenda("SIM");
+            dto.setBomatendimento_orcamentoposvenda(bomatendimento_orcamentoposvenda.getValue());
+            dto.setFuncionariosuniformizados_orcamentoposvenda(funcionariosuniformizados_orcamentoposvenda.getValue());
+            dto.setLimpeza_orcamentoposvenda(limpeza_orcamentoposvenda.getValue());
+            dto.setDuvidas_orcamentoposvenda(duvidas_orcamentoposvenda.getValue());
+            dto.setNotegeral_orcamentoposvenda(Integer.valueOf(notegeral_orcamentoposvenda.getValue()));
+            dto.setUtilizarianovamente_orcamentoposvenda(utilizarianovamente_orcamentoposvenda.getValue());
+            dto.setSugestao_orcamentoposvenda(sugestao_orcamentoposvenda.getValue());
+            dto.setDescricaosugestao_orcamentoposvenda(descricaosugestao_orcamentoposvenda.getValue());
+            dto.setData_orcamentoposvenda(data_orcamentoposvenda.getValue());
             dto.setData_inclusao(LocalDateTime.now());
             dto.setAtivo("S");
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             listaSetOrcamentoPosVendas.add(dto);
+            listaSetOrcamentoPosVendasNova.add(dto);
             orcamentoposvendaGrid.setItems(listaSetOrcamentoPosVendas);
         });
 
@@ -718,30 +845,39 @@ public class OrcamentoDetalheModal extends Dialog {
         horario_orcamentocontato = new TimePicker("Hora");
         nome_orcamentocontato = new TextField("Nome Contato");
         telefone_orcamentocontato = new TextField("Telefone");
-        id_funcionario = new ComboBox<>("Funcionario");
+        id_funcionarioContato = new ComboBox<>("Funcionario");
         dataretorno_orcamentocontato = new DatePicker("Data Retorno");
         unidade_orcamentocontato = new TextField("Unidade");
         descricao_orcamentocontato = new TextArea("O que foi contatado ?");
 
-        id_funcionario.setItems(funcionarioService.listAll());
-        id_funcionario.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
+        id_funcionarioContato.setItems(funcionarioService.listAll());
+        id_funcionarioContato.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
+        listOrcamentoContato = new ArrayList<>();
         // Configura a grid de SetOrcamentoContato
-        gridOrcamentoContato = new Grid<>(SetOrcamentoContato.class);
-        gridOrcamentoContato.removeAllColumns();// Remove as colunas automáticas
+        gridOrcamentoContato = new Grid<>(SetOrcamentoContato.class, false);
         gridOrcamentoContato.setItems(listOrcamentoContato);
         gridOrcamentoContato.addColumn(SetOrcamentoContato::getNome_orcamentocontato)
-                .setHeader("Nome Arquivo")
+                .setHeader("Nome Contato")
                 .setSortable(true)
                 .setAutoWidth(true);
         gridOrcamentoContato.addColumn(SetOrcamentoContato::getData_orcamentocontato)
-                .setHeader("Nome Arquivo")
+                .setHeader("Data")
+                .setSortable(true)
+                .setAutoWidth(true);
+        gridOrcamentoContato.addColumn(SetOrcamentoContato::getDescricao_orcamentocontato)
+                .setHeader("O que foi contatado ?")
                 .setSortable(true)
                 .setAutoWidth(true);
         gridOrcamentoContato.addComponentColumn(e -> {
             // Cria o botão de deletar com um ícone de lixeira
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
+                if (Objects.nonNull(e.getId_orcamentocontato())){
+                    listOrcamentoContatoRemover.add(e);
+                } else {
+                    listOrcamentoContatoNova.add(e);
+                }
                 listOrcamentoContato.remove(e);
                 // Atualiza os itens da grid
                 gridOrcamentoContato.setItems(listOrcamentoContato);
@@ -752,6 +888,17 @@ public class OrcamentoDetalheModal extends Dialog {
             del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
             return del;
         }).setSortable(false).setAutoWidth(true);
+        gridOrcamentoContato.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_orcamentocontato())) {
+                    ContatoModal.openModalContato(event.getItem(),orcamentoContatoService, funcionarioService,service);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+            });
 
         formLayout.setWidthFull();
         Accordion accordion = new Accordion();
@@ -773,13 +920,14 @@ public class OrcamentoDetalheModal extends Dialog {
             obj.setHorario_orcamentocontato(horario_orcamentocontato.getValue());
             obj.setNome_orcamentocontato(nome_orcamentocontato.getValue());
             obj.setTelefone_orcamentocontato(telefone_orcamentocontato.getValue());
-            if(Objects.nonNull(id_funcionario.getValue())) {
-                obj.setId_funcionario(id_funcionario.getValue().getId_funcionario());
+            if(Objects.nonNull(id_funcionarioContato.getValue())) {
+                obj.setId_funcionario(id_funcionarioContato.getValue().getId_funcionario());
             }
             obj.setDataretorno_orcamentocontato(dataretorno_orcamentocontato.getValue());
             obj.setUnidade_orcamentocontato(unidade_orcamentocontato.getValue());
             obj.setDescricao_orcamentocontato(descricao_orcamentocontato.getValue());
             listOrcamentoContato.add(obj);
+            listOrcamentoContatoNova.add(obj);
             service.notificaSucesso("Contato Adcionado");
             gridOrcamentoContato.setItems(listOrcamentoContato);
         });
@@ -789,7 +937,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 horario_orcamentocontato,
                 nome_orcamentocontato,
                 telefone_orcamentocontato,
-                id_funcionario,
+                id_funcionarioContato,
                 dataretorno_orcamentocontato,
                 unidade_orcamentocontato,
                 descricao_orcamentocontato,saveButton);
@@ -985,6 +1133,36 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Valor Total")
                 .setSortable(true)
                 .setAutoWidth(true);
+        gridNotaFiscal.addComponentColumn(e -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                if (Objects.nonNull(e.getId_notafiscal())){
+                    listaNotasRemover.add(e);
+                } else {
+                    listaNotasNova.add(e);
+                }
+                listaNotas.remove(e);
+                // Atualiza os itens da grid
+                gridNotaFiscal.setItems(listaNotas);
+                // Feedback ao usuário
+                Notification.show("Comissao removida: ", 3000, Notification.Position.MIDDLE);
+            });
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
+        gridNotaFiscal.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_notafiscal())) {
+                    NotaFiscalModal.openModalNota(event.getItem(),notaFiscalService, service);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar nova Nota Fiscal !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
         Button saveAdicionarButton = new Button("Adicionar Nota Fiscal", event -> {
             SetNotaFiscal nota = new SetNotaFiscal();
             nota.setNumero_notafiscal(numero_notafiscal.getValue());
@@ -996,7 +1174,7 @@ public class OrcamentoDetalheModal extends Dialog {
             nota.setValorunitario_notafiscal(service.getValorBigDecimal(valorunitario_notafiscal.getValue()));
             nota.setValortotal_notafiscal(service.getValorBigDecimal(valortotal_notafiscal.getValue()));
             nota.setDescricao_notafiscal(descricao_notafiscal.getValue());
-
+            listaNotasNova.add(nota);
             listaNotas.add(nota);
             numero_notafiscal.clear();
             serie_notafiscal.clear();
@@ -1155,6 +1333,37 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Baixado")
                 .setSortable(true)
                 .setAutoWidth(true);
+        gridPagamento.addComponentColumn(e -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                if (Objects.nonNull(e.getId_pagamento())){
+                    listaPagamentosRemover.add(e);
+                } else {
+                    listaPagamentosNova.add(e);
+                }
+                listaPagamentos.remove(e);
+                // Atualiza os itens da grid
+                gridPagamento.setItems(listaPagamentos);
+                // Feedback ao usuário
+                Notification.show("Comissao removida: ", 3000, Notification.Position.MIDDLE);
+            });
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
+        gridPagamento.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_pagamento())) {
+                    PagamentoModal.openModalPagamento(event.getItem(),pagamentoService, tipoPagamentoService
+                            ,situacaoPagamentoService);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar nova Comissão !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
         Button saveAdicionarButton = new Button("Adicionar Pagamento", event -> {
             SetPagamento pay = new SetPagamento();
             pay.setNumeroparcela_pagamento(numeroparcela_pagamento.getValue());
@@ -1172,6 +1381,7 @@ public class OrcamentoDetalheModal extends Dialog {
             pay.setAtivo("S");
             pay.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             listaPagamentos.add(pay);
+            listaPagamentosNova.add(pay);
             gridPagamento.setItems(listaPagamentos);
         });
 
@@ -1205,7 +1415,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
     private Div createFormCadastroComissoes() {
 
-        id_funcionario = new ComboBox<>("Funcionário");
+        id_funcionarioComissao = new ComboBox<>("Funcionário");
         parcelas_comissoes = new ComboBox<>("Pagamento Comissão ?");
         porcentagem_comissoes = new TextField("Porcentagem");
         data_comissao = new DatePicker("Data");
@@ -1217,9 +1427,9 @@ public class OrcamentoDetalheModal extends Dialog {
 
         parcelas_comissoes.setItems
                 (List.of("A Vista", "Parcelado"));
-        id_funcionario.setItems
+        id_funcionarioComissao.setItems
                 (funcionarioService.listAll());
-        id_funcionario.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
+        id_funcionarioComissao.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
         service.configuraCalendario(data_comissao);
         service.configuraCalendario(datapagamento_comissao);
@@ -1284,9 +1494,42 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Total Parcelas")
                 .setSortable(true)
                 .setAutoWidth(true);
+        gridComissoes.addComponentColumn(e -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                if (Objects.nonNull(e.getId_comissoes())){
+                    listaComissoesRemover.add(e);
+                } else {
+                    listaComissoesNova.add(e);
+                }
+                listaComissoes.remove(e);
+                // Atualiza os itens da grid
+                gridComissoes.setItems(listaComissoes);
+                // Feedback ao usuário
+                Notification.show("Comissao removida: ", 3000, Notification.Position.MIDDLE);
+            });
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
+        gridComissoes.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_comissoes())) {
+                    ComissoesModal.openModalComissoes(event.getItem(),comissoesService, funcionarioService,
+                            valor_nagasaki);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar nova Comissão !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
+
         Button saveAdicionarButton = new Button("Adicionar Endereço", event -> {
             SetComissoes comissoesNovo = new SetComissoes();
-            comissoesNovo.setId_funcionario(id_funcionario.getValue().getId_funcionario());
+            SetFuncionario fu = id_funcionarioComissao.getValue();
+            comissoesNovo.setId_funcionario(fu.getId_funcionario());
             comissoesNovo.setParcelas_comissoes(parcelas_comissoes.getValue());
             comissoesNovo.setPorcentagem_comissoes(service.getValorBigDecimal(porcentagem_comissoes.getValue()));
             comissoesNovo.setData_comissao(data_comissao.getValue());
@@ -1299,10 +1542,11 @@ public class OrcamentoDetalheModal extends Dialog {
             comissoesNovo.setAtivo("S");
             comissoesNovo.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             listaComissoes.add(comissoesNovo);
+            listaComissoesNova.add(comissoesNovo);
             gridComissoes.setItems(listaComissoes);
         });
 
-        formLayout.add(id_funcionario,
+        formLayout.add(id_funcionarioComissao,
                 parcelas_comissoes,
                 porcentagem_comissoes,
                 data_comissao,
@@ -1686,31 +1930,54 @@ public class OrcamentoDetalheModal extends Dialog {
                 });
             }
             if (contratoincluido) {
+                SetContrato getContrato = contratoService.findByIdOrcamento(dto.getId_orcamento());
                 SetContrato contrato = new SetContrato();
-                contrato.setId_orcamento(dto.getId_orcamento());
-                contrato.setId_cliente(dto.getId_cliente());
-                contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
-                contrato.setTipo_cobranca(tipo_cobranca.getValue());
-                contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
-                contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
-                contrato.setData_venda(data_venda.getValue());
-                contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
-                contrato.setDatainicio_execucao(datainicio_execucao.getValue());
-                contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
-                contrato.setMeses_garantia(meses_garantia.getValue());
-                contrato.setDatafim_garantia(datafim_garantia.getValue());
-                contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
-                contrato.setObservacoes_contrato(observacoes_contrato.getValue());
-                contrato.setData_inclusao(LocalDateTime.now());
-                contrato.setAtivo("S");
-                contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                contratoService.update(contrato);
-
-                if (listaComissoes.size() > 0) {
-                    listaComissoes.forEach(comissoes -> {
+                if (Objects.nonNull(getContrato)){
+                    contrato = getContrato;
+                    contrato.setId_orcamento(dto.getId_orcamento());
+                    contrato.setId_cliente(dto.getId_cliente());
+                    contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
+                    contrato.setTipo_cobranca(tipo_cobranca.getValue());
+                    contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
+                    contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
+                    contrato.setData_venda(data_venda.getValue());
+                    contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
+                    contrato.setDatainicio_execucao(datainicio_execucao.getValue());
+                    contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
+                    contrato.setMeses_garantia(meses_garantia.getValue());
+                    contrato.setDatafim_garantia(datafim_garantia.getValue());
+                    contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
+                    contrato.setObservacoes_contrato(observacoes_contrato.getValue());
+                    contrato.setData_inclusao(LocalDateTime.now());
+                    contrato.setAtivo("S");
+                    contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                    contratoService.update(contrato);
+                } else {
+                    contrato.setId_orcamento(dto.getId_orcamento());
+                    contrato.setId_cliente(dto.getId_cliente());
+                    contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
+                    contrato.setTipo_cobranca(tipo_cobranca.getValue());
+                    contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
+                    contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
+                    contrato.setData_venda(data_venda.getValue());
+                    contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
+                    contrato.setDatainicio_execucao(datainicio_execucao.getValue());
+                    contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
+                    contrato.setMeses_garantia(meses_garantia.getValue());
+                    contrato.setDatafim_garantia(datafim_garantia.getValue());
+                    contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
+                    contrato.setObservacoes_contrato(observacoes_contrato.getValue());
+                    contrato.setData_inclusao(LocalDateTime.now());
+                    contrato.setAtivo("S");
+                    contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                    contratoService.save(contrato);
+                }
+                if (listaComissoesNova.size() > 0) {
+                    SetContrato finalContrato = contrato;
+                    listaComissoesNova.forEach(comissoes -> {
                         comissoes.setId_orcamento(dto.getId_orcamento());
                         comissoes.setId_cliente(dto.getId_cliente());
-                        comissoes.setId_contrato(contrato.getId_contrato());
+                        comissoes.setId_contrato(finalContrato.getId_contrato());
                         try {
                             comissoesService.save(comissoes);
                         } catch (Exception e) {
@@ -1718,19 +1985,53 @@ public class OrcamentoDetalheModal extends Dialog {
                         }
                     });
                 }
-
-                if (listaPagamentos.size() > 0) {
-                    listaPagamentos.forEach(pag -> {
-                        pag.setId_orcamento(dto.getId_orcamento());
-                        pag.setId_contrato(contrato.getId_contrato());
-                        pag.setId_cliente(dto.getId_cliente());
+                if (listaComissoesRemover.size() > 0) {
+                    SetContrato finalContrato = contrato;
+                    listaComissoesRemover.forEach(comissoes -> {
+                        comissoes.setId_orcamento(dto.getId_orcamento());
+                        comissoes.setId_cliente(dto.getId_cliente());
+                        comissoes.setId_contrato(finalContrato.getId_contrato());
                         try {
-                            //pagamentoService.save(pag);
+                            comissoesService.delete(comissoes);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     });
                 }
+                listaComissoes = comissoesService.listAll(dto.getId_orcamento());
+                gridComissoes.setItems(listaComissoes);
+
+
+
+                if (listaPagamentosNova.size() > 0) {
+                    SetContrato finalContrato1 = contrato;
+                    listaPagamentosNova.forEach(pag -> {
+                        pag.setId_orcamento(dto.getId_orcamento());
+                        pag.setId_contrato(finalContrato1.getId_contrato());
+                        pag.setId_cliente(dto.getId_cliente());
+                        try {
+                            pagamentoService.save(pag);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if (listaPagamentosRemover.size() > 0) {
+                    SetContrato finalContrato1 = contrato;
+                    listaPagamentosRemover.forEach(pag -> {
+                        pag.setId_orcamento(dto.getId_orcamento());
+                        pag.setId_contrato(finalContrato1.getId_contrato());
+                        pag.setId_cliente(dto.getId_cliente());
+                        try {
+                            pagamentoService.delete(pag);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                listaPagamentos = pagamentoService.findAllByOrcamentoId(dto.getId_orcamento());
+                gridPagamento.setItems(listaPagamentos);
+
                 if (nome_faturamento.getValue() != null && cpfcnpf_faturamento.getValue() != null) {
                     SetFaturamento fatu = new SetFaturamento();
                     fatu.setId_orcamento(dto.getId_orcamento());
@@ -1749,34 +2050,96 @@ public class OrcamentoDetalheModal extends Dialog {
                     fatu.setData_inclusao(LocalDateTime.now());
                     fatu.setAtivo("S");
                     fatu.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    faturamentoService.update(fatu);
+                    //faturamentoService.update(fatu);
                 }
 
-                if(listaNotas.size() > 0) {
-                    listaNotas.forEach(nota -> {
+                if(listaNotasNova.size() > 0) {
+                    SetContrato finalContrato2 = contrato;
+                    listaNotasNova.forEach(nota -> {
                         nota.setId_orcamento(dto.getId_orcamento());
                         nota.setId_cliente(dto.getId_cliente());
-                        nota.setId_contrato(contrato.getId_contrato());
+                        nota.setId_contrato(finalContrato2.getId_contrato());
                         nota.setData_inclusao(LocalDateTime.now());
                         nota.setAtivo("S");
                         nota.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
                         try {
-                            //notaFiscalService.save(nota);
+                            notaFiscalService.save(nota);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if(listaNotasRemover.size() > 0) {
+                    SetContrato finalContrato2 = contrato;
+                    listaNotasRemover.forEach(nota -> {
+                        nota.setId_orcamento(dto.getId_orcamento());
+                        nota.setId_cliente(dto.getId_cliente());
+                        nota.setId_contrato(finalContrato2.getId_contrato());
+                        nota.setData_inclusao(LocalDateTime.now());
+                        nota.setAtivo("S");
+                        nota.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                        try {
+                            notaFiscalService.delete(nota);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                listaNotas = notaFiscalService.findAllByOrcamentoId(dto.getId_orcamento());
+                gridNotaFiscal.setItems(listaNotas);
+
+
+                if(listOrcamentoContatoNova.size() > 0 ){
+                    listOrcamentoContatoNova.forEach(p -> {
+                        try {
+                            p.setId_orcamento(dto.getId_orcamento());
+                            p.setId_cliente(dto.getId_cliente());
+                            orcamentoContatoService.save(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if(listOrcamentoContatoRemover.size() > 0 ){
+                    listOrcamentoContatoRemover.forEach(p -> {
+                        try {
+                            orcamentoContatoService.delete(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                listOrcamentoContato = orcamentoContatoService.findAllByOrcamentoId(dto.getId_orcamento());
+                gridOrcamentoContato.setItems(listOrcamentoContato);
+
+                if (listaSetOrcamentoPosVendasNova.size() > 0 ){
+                    listaSetOrcamentoPosVendasNova.forEach(p -> {
+                        try {
+                            p.setId_orcamento(dto.getId_orcamento());
+                            p.setId_cliente(dto.getId_cliente());
+                            p.setData_inclusao(LocalDateTime.now());
+                            p.setAtivo("S");
+                            p.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                            orcamentoPosVendasService.save(p);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     });
                 }
 
-                if(listOrcamentoContatoAtualizatos.size() > 0 ){
-                    listOrcamentoContatoAtualizatos.forEach(p -> {
+                if (listaSetOrcamentoPosVendasRemover.size() > 0 ){
+                    listaSetOrcamentoPosVendasRemover.forEach(p -> {
                         try {
-                            orcamentoContatoService.update(p);
+                            orcamentoPosVendasService.delete(p);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     });
                 }
+
+                listaSetOrcamentoPosVendas = orcamentoPosVendasService.findAllByOrcamentoId(dto.getId_orcamento());
+                orcamentoposvendaGrid.setItems(listaSetOrcamentoPosVendas);
+
 
             }
             orcamentoDiv.refreshGrid();
@@ -1928,14 +2291,17 @@ public class OrcamentoDetalheModal extends Dialog {
             List<SetComissoes> comissoes = comissoesService.listAll(item.getId_orcamento());
             if (comissoes.size() > 0) {
                 gridComissoes.setItems(comissoes);
+                listaComissoes = comissoes;
             }
             List<SetPagamento> setPagamentos = pagamentoService.findAllByOrcamentoId(item.getId_orcamento());
             if (setPagamentos.size() > 0){
                 gridPagamento.setItems(setPagamentos);
+                listaPagamentos = setPagamentos;
             }
             List<SetNotaFiscal> notaFiscal = notaFiscalService.findAllByOrcamentoId(item.getId_orcamento());
             if (notaFiscal.size() > 0){
                 gridNotaFiscal.setItems(notaFiscal);
+                listaNotas = notaFiscal;
             }
 //            List<SetArquivoOrcamento> arquivoOrcamentos = arquivoOrcamentoService.
 //                    findAllByOrcamentoId(item.getId_orcamento());
@@ -1961,7 +2327,13 @@ public class OrcamentoDetalheModal extends Dialog {
             List<SetOrcamentoContato> orcamentoContato = orcamentoContatoService.findAllByOrcamentoId(item.getId_orcamento());
             if (orcamentoContato.size() > 0) {
                 gridOrcamentoContato.setItems(orcamentoContato);
+               // listaContato
             }
+            List<SetOrcamentoPosVenda> listaPosVendas = orcamentoPosVendasService.findAllByOrcamentoId(item.getId_orcamento());
+            if (listaPosVendas.size() > 0){
+                orcamentoposvendaGrid.setItems(listaPosVendas);
+            }
+
 
         });
     }

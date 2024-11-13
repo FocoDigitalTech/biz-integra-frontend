@@ -24,10 +24,12 @@ public class SetOrcamentoPosVenda {
     private String sugestao_orcamentoposvenda;
     private Integer notegeral_orcamentoposvenda;
     private String utilizarianovamente_orcamentoposvenda;
+    private String descricaosugestao_orcamentoposvenda;
     private LocalDate data_orcamentoposvenda;
     private LocalDateTime data_inclusao;
     private LocalDateTime data_alteracao;
     private LocalDateTime data_exclusao;
     private Integer id_usuario;
     private String ativo;
+
 }

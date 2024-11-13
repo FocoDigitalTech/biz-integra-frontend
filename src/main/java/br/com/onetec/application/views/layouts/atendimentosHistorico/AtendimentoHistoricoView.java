@@ -28,13 +28,15 @@ public class AtendimentoHistoricoView extends  Div {
     @Autowired
     public void initServices(OrcamentoDiv orcamentoDiv1,
                              ServicosExecutadosDiv servicosExecutadosDiv1){
-        this.servicosExecutadosDiv = servicosExecutadosDiv1;
-        this.orcamentoDiv = orcamentoDiv1;
+            this.servicosExecutadosDiv = servicosExecutadosDiv1;
+            this.orcamentoDiv = orcamentoDiv1;
+
     }
 
     @Autowired
-    public AtendimentoHistoricoView(){
+    public AtendimentoHistoricoView(OrcamentoDiv orcamentoDiv1){
         UI.getCurrent().access(() -> {
+            this.orcamentoDiv = orcamentoDiv1;
             setSizeFull();
             SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
             if (entidade == null) {

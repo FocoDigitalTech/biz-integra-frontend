@@ -19,6 +19,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 public class CustomizedComboBox {
 
@@ -101,6 +102,14 @@ public class CustomizedComboBox {
         HorizontalLayout id_tipopagamentolayout = new HorizontalLayout(id_execucaoservico, addButtonTipoPagamento);
         id_tipopagamentolayout.setAlignItems(FlexComponent.Alignment.END);
         return id_tipopagamentolayout;
+    }
+
+    public HorizontalLayout customizeEnderecosCEP(TextField fieldEnderecosCEP, Button buscaEnderecosCEPButton) {
+        // Criação do botão com ícone de "plus"
+        buscaEnderecosCEPButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(fieldEnderecosCEP, buscaEnderecosCEPButton);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
     }
 }
 

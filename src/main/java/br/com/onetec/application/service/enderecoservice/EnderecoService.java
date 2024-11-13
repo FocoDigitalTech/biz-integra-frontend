@@ -80,7 +80,8 @@ public class EnderecoService {
         }
     }
 
-    public void updateListaNova(List<Endereco> enderecosLista, Integer id_cliente, Integer id_usuario) {
+    public List<SetEnderecos> updateListaNova(List<Endereco> enderecosLista, Integer id_cliente, Integer id_usuario) {
+        List<SetEnderecos> listaSalva  = new ArrayList<>();
         enderecosLista.forEach(e -> {
             SetEnderecos et = new SetEnderecos();
             et.setAtivo("S");
@@ -106,7 +107,8 @@ public class EnderecoService {
             log.info("Salvando novo endereço :" + et.toString());
             repository.save(et);
         });
-
+        listaSalva = findAllClienteId(id_cliente);
+            return listaSalva;
     }
 
     public void update(SetEnderecos item) throws Exception {

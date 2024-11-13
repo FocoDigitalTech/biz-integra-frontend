@@ -1088,7 +1088,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// TextField valor_total
+        // TextField valor_total
         valor_total.setRequiredIndicatorVisible(true);
         valor_total.addValueChangeListener(event -> {
             if (valor_total.isEmpty()) {
@@ -1099,7 +1099,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// TextField valor_nagasaki
+        // TextField valor_nagasaki
         valor_nagasaki.setRequiredIndicatorVisible(true);
         valor_nagasaki.addValueChangeListener(event -> {
             if (valor_nagasaki.isEmpty()) {
@@ -1110,7 +1110,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// DatePicker data_venda
+        // DatePicker data_venda
         data_venda.setRequiredIndicatorVisible(true);
         data_venda.addValueChangeListener(event -> {
             if (data_venda.isEmpty()) {
@@ -1121,7 +1121,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// RadioButtonGroup tipo_cobranca
+        // RadioButtonGroup tipo_cobranca
         tipo_cobranca.setRequiredIndicatorVisible(true);
         tipo_cobranca.addValueChangeListener(event -> {
             if (event.getValue() == null) {
@@ -1132,7 +1132,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// ComboBox id_condicaopagamento
+        // ComboBox id_condicaopagamento
         id_condicaopagamento.setRequiredIndicatorVisible(true);
         id_condicaopagamento.addValueChangeListener(event -> {
             if (id_condicaopagamento.isEmpty()) {
@@ -1143,7 +1143,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// DatePicker datainicio_execucao
+        // DatePicker datainicio_execucao
         datainicio_execucao.setRequiredIndicatorVisible(true);
         datainicio_execucao.addValueChangeListener(event -> {
             if (datainicio_execucao.isEmpty()) {
@@ -1154,7 +1154,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// DatePicker datainicio_vencimento
+        // DatePicker datainicio_vencimento
         datainicio_vencimento.setRequiredIndicatorVisible(true);
         datainicio_vencimento.addValueChangeListener(event -> {
             if (datainicio_vencimento.isEmpty()) {
@@ -1165,7 +1165,7 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-// IntegerField meses_garantia
+        // IntegerField meses_garantia
         meses_garantia.setRequiredIndicatorVisible(true);
         meses_garantia.addValueChangeListener(event -> {
             if (meses_garantia.isEmpty()) {

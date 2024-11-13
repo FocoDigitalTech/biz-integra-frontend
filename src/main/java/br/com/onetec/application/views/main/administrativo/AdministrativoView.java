@@ -111,7 +111,7 @@ public class AdministrativoView extends Div {
                 funcionarioDiv);
         tabSheet.add("Fornecedores",
                 fornecedorDiv);
-        tabSheet.add("Compras",
+        tabSheet.add("Pedidos de Compras",
                 comprasDiv);
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         add(tabSheet);

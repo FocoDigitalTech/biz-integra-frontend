@@ -12,6 +12,7 @@ import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.main.clientes.ClientesView;
+import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.*;
@@ -58,7 +59,6 @@ public class CadastroClientesModal extends Dialog {
     private DatePicker dataField;
     private TimePicker horaField;
     private TextField contatoField;
-    private ComboBox administradora;
     private ComboBox <SetTipoMidia>tipoMidia;
     private TextField midiaAntigaField;
     private EmailField internetEmailField;
@@ -89,6 +89,7 @@ public class CadastroClientesModal extends Dialog {
     private TextArea observacaoCobrancaField;
     //Enderecos
     private TextField fieldEnderecosCEP;
+    Button buscaEnderecosCEPButton;
     private ComboBox <SetTipoImovel> comboEnderecosTipoImovel;
     private TextField fieldEnderecosArea;
     private TextField fieldEnderecosEndereço;
@@ -184,7 +185,7 @@ public class CadastroClientesModal extends Dialog {
                 }
             });
 
-
+            buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
             estadoList = estadoService.listAll();
             tipoMidia.setItems(tipomidiaService.findAllMidia());
             tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
@@ -198,12 +199,17 @@ public class CadastroClientesModal extends Dialog {
     }
 
     private void buscarCep() {
-        EApiEnderecoResponse response = service.buscarCep(fieldEnderecosCEP);
-        fieldEnderecosEndereço.setValue(response.getLogradouro());
-        //complemento_funcionario.setValue(response.get);
-        fieldEnderecosBairro.setValue(response.getBairro());
-        fieldEnderecosCidade.setValue(response.getLocalidade());
-        comboEnderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
+        try {
+            service = new UtilitySystemConfigService();
+            EApiEnderecoResponse response = service.buscarCep(fieldEnderecosCEP);
+            fieldEnderecosEndereço.setValue(response.getLogradouro());
+            //complemento_funcionario.setValue(response.get);
+            fieldEnderecosBairro.setValue(response.getBairro());
+            fieldEnderecosCidade.setValue(response.getLocalidade());
+            comboEnderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
+        } catch (Exception e){
+            service.notificaErro("CEP NÃO ENCONTRADO !");
+        }
     }
 
     @Autowired
@@ -294,13 +300,13 @@ public class CadastroClientesModal extends Dialog {
         comboEnderecosRegiao  = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
-
         comboEnderecosRegiao.setRequiredIndicatorVisible(true);
-
         comboEnderecosTipoImovel.setRequiredIndicatorVisible(true);
-
         fieldEnderecosCEP.setRequiredIndicatorVisible(true);
 
+        buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
+        HorizontalLayout fieldEnderecosCEPCustomized =
+                new CustomizedComboBox().customizeEnderecosCEP(fieldEnderecosCEP,buscaEnderecosCEPButton);
 
         // Configurar o Grid
         grid.setItems(enderecos);
@@ -405,7 +411,7 @@ public class CadastroClientesModal extends Dialog {
                 //estadoError.setVisible(true);
             }
         });
-        FormLayout formLayout =  new FormLayout(fieldEnderecosCEP,
+        FormLayout formLayout =  new FormLayout(fieldEnderecosCEPCustomized,
                 comboEnderecosTipoImovel,fieldEnderecosArea,fieldEnderecosEndereço,fieldEnderecosNumero,fieldEnderecosComplemento,fieldEnderecosBairro,fieldEnderecosCidade,comboEnderecosUF,fieldEnderecosTelefone,fieldEnderecosPagGuia,fieldEnderecosReponsavel,comboEnderecosRegiao,fieldEnderecosPontodeReferencia
                 , saveButton);
         formLayout.setWidthFull();
@@ -427,8 +433,6 @@ public class CadastroClientesModal extends Dialog {
         dataField = new DatePicker("Data Cadastro");
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
-        administradora = new ComboBox("Administradora");
-        administradora.setItems(getItemsAdministradora());
         contatoField = new TextField("Contato");
         tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
@@ -470,7 +474,7 @@ public class CadastroClientesModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(dataField,nomeField,administradora,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
+        formLayout.add(dataField,nomeField,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -690,7 +694,6 @@ public class CadastroClientesModal extends Dialog {
         cliente.setDataField(dataField.getValue());
         cliente.setHoraField(horaField.getValue());
         cliente.setContatoField(contatoField.getValue());
-        cliente.setAdministradora(administradora.getValue().toString());
         cliente.setTipoMidia(tipoMidia.getValue().getId_tipomidia());
         cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());

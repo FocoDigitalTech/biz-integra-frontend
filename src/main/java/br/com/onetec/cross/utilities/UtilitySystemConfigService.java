@@ -3,8 +3,10 @@ package br.com.onetec.cross.utilities;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
+import br.com.onetec.domain.usecase.apienderecousecase.IApiEnderecoUseCase;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.collaborationengine.CollaborationBinder;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,6 +18,8 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -73,6 +77,8 @@ public class UtilitySystemConfigService {
     }
 
 
+
+    IApiEnderecoUseCase useCase;
 
     public EApiEnderecoResponse buscarCep(TextField cepField) {
         String cep = cepField.getValue().replaceAll("\\D", "");// Exemplo: limpa caracteres não numéricos
@@ -342,5 +348,23 @@ public class UtilitySystemConfigService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         var data = data_inclusao.format(formatter);
         return data;
+    }
+
+    public EApiEnderecoResponse buscarCepTeste(TextField fieldEnderecosCEP, ApiEnderecoService apiEnderecoService) {
+        String cep = fieldEnderecosCEP.getValue().replaceAll("\\D", "");// Exemplo: limpa caracteres não numéricos
+        if (cep.length() == 8) { // Verifica se o CEP tem 8 dígitos
+            EApiEnderecoResponse response = apiEnderecoService.get(cep);
+            if (response != null) {
+                return response;
+            } else {
+                // Handle case where address is not found
+                notificaErro("Endereço não encontrado !");
+                return null;
+            }
+        } else {
+            notificaErro("Cep deve conter 8 digitos !");
+            // Handle invalid CEP length
+            return null;
+        }
     }
 }

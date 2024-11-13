@@ -1,6 +1,7 @@
 package br.com.onetec.application.views.main.financeiro;
 
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.application.views.main.financeiro.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.UI;
@@ -29,6 +30,7 @@ public class FinanceiroView extends VerticalLayout {
     private EventoFinanceiroDiv eventoFinanceiroDiv;
     private ContaCorrenteDiv contaCorrenteDiv;
     private TipopagamentoDiv tipoPagamentoDiv;
+    private ComprasDiv comprasDiv;
 
 
 
@@ -39,7 +41,7 @@ public class FinanceiroView extends VerticalLayout {
                                  EventoFinanceiroDiv eventoFinanceiroDiv1,
                                  ContaCorrenteDiv contaCorrenteDiv1,
                                  LancamentoFinanceiroDiv lancamentoFinanceiroDiv,
-                                 TipopagamentoDiv tipoPagamentoDiv1){
+                                 TipopagamentoDiv tipoPagamentoDiv1,ComprasDiv comprasDiv1){
             this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
             this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
             this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
@@ -47,6 +49,7 @@ public class FinanceiroView extends VerticalLayout {
             this.contaCorrenteDiv = contaCorrenteDiv1;
             this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
             this.tipoPagamentoDiv = tipoPagamentoDiv1;
+            this.comprasDiv = comprasDiv1;
         }
 
         @Autowired
@@ -56,7 +59,7 @@ public class FinanceiroView extends VerticalLayout {
                               EventoFinanceiroDiv eventoFinanceiroDiv1,
                               ContaCorrenteDiv contaCorrenteDiv1,
                               LancamentoFinanceiroDiv lancamentoFinanceiroDiv,
-                              TipopagamentoDiv tipoPagamentoDiv1){
+                              TipopagamentoDiv tipoPagamentoDiv1,ComprasDiv comprasDiv1){
         this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
         this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
         this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
@@ -64,12 +67,15 @@ public class FinanceiroView extends VerticalLayout {
         this.contaCorrenteDiv = contaCorrenteDiv1;
         this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
         this.tipoPagamentoDiv = tipoPagamentoDiv1;
+        this.comprasDiv = comprasDiv1;
 
             UI.getCurrent().access(() -> {
                 setSizeFull();
                 TabSheet tabSheet = new TabSheet();
                 tabSheet.add("Lançamentos Financeiros",
                         lancamentoFinanceiro);
+                tabSheet.add("Pedidos de Compras",
+                        comprasDiv);
                 tabSheet.add("Condição de Pagamento",
                         condicaoPagamentoDiv);
                 tabSheet.add("Contas (Tipos Evento Financeiro)",
