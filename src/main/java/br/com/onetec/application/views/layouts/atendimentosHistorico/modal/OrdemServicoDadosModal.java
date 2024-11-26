@@ -284,7 +284,7 @@ public class OrdemServicoDadosModal extends Dialog {
         try {
             ordemServicoService.delete(ordemServico);
             service.notificaSucesso("Excluido com sucesso");
-            //clienteView.refreshGrid();
+            orcamentoDiv.refreshGrid();
             close();
         } catch (Exception e){
             service.notificaErro("Erro ao excluir.");
@@ -717,8 +717,11 @@ public class OrdemServicoDadosModal extends Dialog {
 
 
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
+        localTratamentoOrcamento.setItems
+                (enderecoService.findAllClienteId(cliente.getId_cliente()));
 
-        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEnderecoImovel);
+        localTratamentoOrcamento.setItemLabelGenerator(event ->
+                event.getEnderecoImovel() + "," + event.getNumero_imovel());
 
         id_orcamento = new TextField("Id Orçamento");
 
@@ -825,7 +828,6 @@ public class OrdemServicoDadosModal extends Dialog {
                 service.notificaErro("Necessário selecionar confimação SIM/NÃO");
                 return;
             }
-            // dto.setConfirmado_ordemservico(confirmado_ordemservico.getValue());
             dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
             dto.setNome_pontofocal(nome_pontofocal.getValue());
             dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
@@ -834,7 +836,7 @@ public class OrdemServicoDadosModal extends Dialog {
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             dto.setAtivo("S");
             service = new UtilitySystemConfigService();
-            ordemServicoService.save(dto);
+            ordemServicoService.update(dto);
             if(listaOrdemServicoFuncionarioAlocadosUpdate.size() > 0){
                 listaOrdemServicoFuncionarioAlocadosUpdate.forEach(p ->{
                     p.setId_cliente(dto.getId_cliente());
@@ -842,7 +844,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        funcionarioAlocadoService.save(p);
+                        funcionarioAlocadoService.update(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -855,7 +857,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        ordemServicoExecucaoServicoService.save(p);
+                        ordemServicoExecucaoServicoService.update(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -869,7 +871,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        ordemServicoMateriaisService.save(p);
+                        ordemServicoMateriaisService.update(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -882,7 +884,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        ordemServicoMisturaService.save(p);
+                        ordemServicoMisturaService.update(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -895,12 +897,13 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        ordemServicoPragaService.save(p);
+                        ordemServicoPragaService.update(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
             }
+            orcamentoDiv.refreshGrid();
             id_orcamento.clear();
             id_situacaoservico.clear();
             // datainicio_ordemservico.clear();

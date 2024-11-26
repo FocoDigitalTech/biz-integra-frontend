@@ -56,6 +56,8 @@ public class OrcamentoDiv extends Div {
 
     private Grid<SetOrcamento> grid;
 
+    Grid<SetOrdemServico> gridOrdemServico;
+
     private OrcamentoDiv.Filter filter;
 
     private UtilitySystemConfigService service;
@@ -192,6 +194,8 @@ public class OrcamentoDiv extends Div {
 
     public void refreshGrid() {
         grid.getDataProvider().refreshAll();
+        gridOrdemServico.getDataProvider().refreshAll();
+        sidebar.setVisible(false);
     }
 
     private HorizontalLayout createMobileFiltersFuncionario() {
@@ -236,9 +240,13 @@ public class OrcamentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(s -> {
-            SetCondicaoPagamento condicaoPagamento = condicaoPagamentoService.
-                    fidById(s.getId_condicaopagamento());
-            return condicaoPagamento == null ? "N/A" : condicaoPagamento.getDescricao_condicaopagamento();
+            if (Objects.nonNull(s.getId_condicaopagamento())) {
+                SetCondicaoPagamento condicaoPagamento = condicaoPagamentoService.
+                        fidById(s.getId_condicaopagamento());
+                return condicaoPagamento == null ? "N/A" : condicaoPagamento.getDescricao_condicaopagamento();
+            } else {
+                return  "N/A";
+            }
         }).setHeader("Condição Pagamento")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -304,10 +312,12 @@ public class OrcamentoDiv extends Div {
         return mainLayout;
     }
 
+    private VerticalLayout sidebar;
+
     private VerticalLayout buildSideBar() {
 
         // Cria o botão de fechar o sidebar
-        VerticalLayout sidebar = new VerticalLayout();
+        sidebar = new VerticalLayout();
         Button btnCloseSidebar = new Button(new Icon(VaadinIcon.ARROW_RIGHT), event -> {
             sidebar.setVisible(false);
         });
@@ -347,7 +357,7 @@ public class OrcamentoDiv extends Div {
                 }
             });
 
-            Grid<SetOrdemServico> gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
+            gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
             gridOrdemServico.addColumn(SetOrdemServico::getId_ordemservico)
                     .setHeader("Id")
                     .setSortable(true)

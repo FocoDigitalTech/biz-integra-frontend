@@ -333,8 +333,10 @@ public class OrcamentoDetalheModal extends Dialog {
                         String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\documento_atualizado.pdf";
                         String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
+                        SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                         // Edita o documento Word
-                        SetClienteTransiction.editWordDocument(wordPath, updatedWordPath, "81038", clientId,orcamento,cliente);
+                        SetClienteTransiction.editWordDocument(wordPath, updatedWordPath,
+                                "81038", clientId,orcamento,cliente,valor_total.getValue());
 
                         // Converte o documento editado para PDF
                         SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
@@ -1776,7 +1778,8 @@ public class OrcamentoDetalheModal extends Dialog {
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
         localTratamentoOrcamento.setItems
                 (enderecoService.findAllClienteId(cliente.getId_cliente()));
-        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEnderecoImovel);
+        localTratamentoOrcamento.setItemLabelGenerator(event ->
+                event.getEnderecoImovel() + "," + event.getNumero_imovel());
 
         problemaOrcamento = new TextArea("Problema");
         dataOrcamento = new DatePicker("Data");

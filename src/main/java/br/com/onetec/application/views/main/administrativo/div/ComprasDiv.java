@@ -4,6 +4,7 @@ import br.com.onetec.application.service.compraservice.CompraService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.administrativo.modal.CompraCadastroModal;
+import br.com.onetec.application.views.main.administrativo.modal.CompraDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCompra;
@@ -49,23 +50,26 @@ public class ComprasDiv extends Div {
 
     private UsuarioService usuarioService;
 
-    private Button btnExcluir;
 
     private CompraCadastroModal compraCadastroModal;
 
     private FornecedorService fornecedorService;
+
+    private CompraDetalhesModal detalhesModal;
 
     @Autowired
     public void initServices(CompraService compraService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              CompraCadastroModal compraCadastroModal1,
-                             FornecedorService fornecedorService1) {
+                             FornecedorService fornecedorService1,
+                             CompraDetalhesModal detalhesModal1) {
         this.compraService = compraService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.compraCadastroModal = compraCadastroModal1;
         this.fornecedorService = fornecedorService1;
+        this.detalhesModal = detalhesModal1;
     }
 
 
@@ -74,12 +78,14 @@ public class ComprasDiv extends Div {
                       UtilitySystemConfigService service1,
                       UsuarioService usuarioService1,
                       CompraCadastroModal compraCadastroModal1,
-                      FornecedorService fornecedorService1) {
+                      FornecedorService fornecedorService1,
+                      CompraDetalhesModal detalhesModal1) {
         this.compraService = compraService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.compraCadastroModal = compraCadastroModal1;
         this.fornecedorService = fornecedorService1;
+        this.detalhesModal = detalhesModal1;
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -139,16 +145,6 @@ public class ComprasDiv extends Div {
         return mobileFilters;
     }
 
-    private void deleta(SetCompra item) {
-        try {
-            compraService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
 
 
 
@@ -240,25 +236,33 @@ public class ComprasDiv extends Div {
 
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
+            openDetalheModal(event.getItem());
             // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
-            });
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
         return grid;
+    }
+
+    private void openDetalheModal(SetCompra item) {
+        UI.getCurrent().access(() -> {
+            detalhesModal.setComprarModel(item);
+            detalhesModal.open();
+        });
     }
 
 
@@ -294,11 +298,7 @@ public class ComprasDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-            btnExcluir = new Button("Excluir");
-            btnExcluir.setVisible(false);
-            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 

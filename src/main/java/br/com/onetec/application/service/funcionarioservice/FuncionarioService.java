@@ -66,4 +66,17 @@ public class FuncionarioService {
     }
 
 
+    public void update(SetFuncionario funcionario) throws Exception {
+        try {
+            Optional<SetFuncionario> optional = repository.findById(funcionario.getId_funcionario());
+            SetFuncionario entity = optional.get();
+            entity = funcionario;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

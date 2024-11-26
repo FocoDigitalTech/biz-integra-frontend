@@ -66,4 +66,18 @@ public class CondicaoPagamentoService {
         Optional<SetCondicaoPagamento> optional = repository.findById(id_condicaopagamento);
         return  optional.orElse(null);
     }
+
+    public void update(SetCondicaoPagamento dto) throws Exception {
+        try {
+            Optional<SetCondicaoPagamento> optional = repository.findById(dto.getId_condicaopagamento());
+            SetCondicaoPagamento entity = optional.get();
+            entity = dto;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Cliente Atualizado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
 import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.infra.db.model.SetContrato;
 import br.com.onetec.infra.db.model.SetOrcamento;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.DeviceGray;
@@ -46,7 +47,9 @@ public class SetClienteTransiction {
         SetClienteTransiction.cliente = cliente;
     }
 
-    public static void editWordDocument(String inputPath, String outputPath, String placeholder, String replacement, SetOrcamento orcamento, SetCliente cliente) throws IOException {
+    public static void editWordDocument(String inputPath, String outputPath, String placeholder,
+                                        String replacement, SetOrcamento orcamento, SetCliente cliente,
+                                        String valor) throws IOException {
         try (FileInputStream fis = new FileInputStream(inputPath);
              XWPFDocument document = new XWPFDocument(fis)) {
 
@@ -58,10 +61,18 @@ public class SetClienteTransiction {
                         text = text.replace(placeholder, replacement);
                         run.setText(text, 0);
                     }
-                    if (text != null && text.contains("CPF____CNPJ_CLIENTES")) {
-                        text = text.replace("CPF____CNPJ_CLIENTES", "22222223320223");
+                    if (text != null && text.contains("NOME_CLIENTE")) {
+                        text = text.replace("NOME_CLIENTE", cliente.getNome_cliente());
                         run.setText(text, 0);
                     }
+                    if (text != null && text.contains("VALOR_CONTRATO")) {
+                        text = text.replace("VALOR_CONTRATO", valor);
+                        run.setText(text, 0);
+                    }if (text != null && text.contains("VALOR_CONTRATO_TEXTO")) {
+                        text = text.replace("VALOR_CONTRATO_TEXTO", "Duzentos Reais");
+                        run.setText(text, 0);
+                    }
+
                 }
             }
 

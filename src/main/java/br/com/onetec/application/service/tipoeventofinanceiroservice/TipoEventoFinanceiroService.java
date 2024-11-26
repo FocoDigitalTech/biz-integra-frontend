@@ -58,4 +58,17 @@ public class TipoEventoFinanceiroService {
         }
     }
 
+    public void update(SetTipoEventoFinanceiro dto) throws Exception {
+        try {
+            Optional<SetTipoEventoFinanceiro> optional = repository.findById(dto.getId_tipoeventofinanceiro());
+            SetTipoEventoFinanceiro entity = optional.get();
+            entity = dto;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

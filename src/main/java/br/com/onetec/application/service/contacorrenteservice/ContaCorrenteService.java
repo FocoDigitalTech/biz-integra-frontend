@@ -62,4 +62,18 @@ public class ContaCorrenteService {
     public List<SetContaCorrente> findAll() {
         return repository.listAll();
     }
+
+    public void update(SetContaCorrente dto) throws Exception {
+        try {
+            Optional<SetContaCorrente> optional = repository.findById(dto.getId_contacorrente());
+            SetContaCorrente entity = optional.get();
+            entity = dto;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Cliente Atualizado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

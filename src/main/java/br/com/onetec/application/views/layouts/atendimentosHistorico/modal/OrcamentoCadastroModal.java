@@ -1268,7 +1268,9 @@ public class OrcamentoCadastroModal extends Dialog {
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
         localTratamentoOrcamento.setItems
                 (enderecoService.findAllClienteId(cliente.getId_cliente()));
-        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEnderecoImovel);
+
+        localTratamentoOrcamento.setItemLabelGenerator(event ->
+                event.getEnderecoImovel() + "," + event.getNumero_imovel());
 
         problemaOrcamento = new TextArea("Problema");
         dataOrcamento = new DatePicker("Data");

@@ -8,6 +8,7 @@ import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
+import br.com.onetec.application.views.main.administrativo.modal.DepartamentoDetalhesModal;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
@@ -46,10 +47,6 @@ import java.util.List;
 @UIScope
 public class AdministrativoView extends Div {
 
-
-//    @RolesAllowed("USER")
-//    @AccessDeniedErrorRouter(rerouteToError = NotFoundException.class)
-
     private  FuncionarioDiv funcionarioDiv;
 
     private FornecedorDiv fornecedorDiv;
@@ -71,6 +68,9 @@ public class AdministrativoView extends Div {
     private DepartamentoCadastroModal departamentoCadastroModal;
 
 
+    private DepartamentoDetalhesModal detalhesModal;
+
+
 
     @Autowired
     public void initServices(FuncionarioDiv funcionarioDiv,
@@ -78,13 +78,14 @@ public class AdministrativoView extends Div {
                              DepartamentoService departamentoService,
                              FuncionarioService funcionarioService,
                              DepartamentoCadastroModal departamentoCadastroModal,
-                             ComprasDiv comprasDiv1) {
+                             ComprasDiv comprasDiv1,DepartamentoDetalhesModal detalhesModal1) {
         this.fornecedorDiv = fornecedorDiv1;
         this.funcionarioDiv = funcionarioDiv;
         this.departamentoService = departamentoService;
         this.funcionarioService = funcionarioService;
         this.departamentoCadastroModal = departamentoCadastroModal;
         this.comprasDiv = comprasDiv1;
+        this.detalhesModal = detalhesModal1;
     }
 
 
@@ -94,13 +95,14 @@ public class AdministrativoView extends Div {
                               DepartamentoService departamentoService,
                               FuncionarioService funcionarioService,
                               DepartamentoCadastroModal departamentoCadastroModal,
-                              ComprasDiv comprasDiv1) {
+                              ComprasDiv comprasDiv1,DepartamentoDetalhesModal detalhesModal1) {
         this.fornecedorDiv = fornecedorDiv1;
         this.funcionarioDiv = funcionarioDiv;
         this.departamentoService = departamentoService;
         this.funcionarioService = funcionarioService;
         this.departamentoCadastroModal = departamentoCadastroModal;
         this.comprasDiv = comprasDiv1;
+        this.detalhesModal = detalhesModal1;
         UI.getCurrent().access(() -> {
         setSizeFull();
         TabSheet tabSheet = new TabSheet();
@@ -214,8 +216,11 @@ public class AdministrativoView extends Div {
     }
 
     private void openDetalhesClienteModal(SetDepartamento item) {
-
-
+        UI.getCurrent().access(() -> {
+            UI.getCurrent().getSession().setAttribute("departamento",item);
+            detalhesModal.setDepartamento(item);
+            detalhesModal.open();
+        });
     }
 
 

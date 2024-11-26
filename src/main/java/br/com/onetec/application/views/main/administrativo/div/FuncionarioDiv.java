@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.administrativo.div;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
+import br.com.onetec.application.views.main.administrativo.modal.FuncionarioDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
@@ -47,16 +48,20 @@ public class FuncionarioDiv extends Div {
 
     private  FuncionarioCadastroModal funcionarioCadastroModal;
 
+    private FuncionarioDetalhesModal funcionarioDetalhesModal;
+
     Button btnExcluir;
 
 
     @Autowired
     public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
                              DepartamentoService departamentoService1,
-                             FuncionarioService funcionarioService) {
+                             FuncionarioService funcionarioService,
+                             FuncionarioDetalhesModal funcionarioDetalhesModal1) {
         this.funcionarioCadastroModal = funcionarioCadastroModal;
         this.departamentoService = departamentoService1;
         this.funcionarioService = funcionarioService;
+        this.funcionarioDetalhesModal = funcionarioDetalhesModal1;
         funcionarioCadastroModal.addDialogCloseActionListener(event -> {
             // Código para atualizar a AdministrativoView
             refreshGridFuncionario();
@@ -174,18 +179,21 @@ public class FuncionarioDiv extends Div {
         // Adiciona o listener de clique nos itens da grade
         final Registration[] btnExcluirClickListenerRegistration = {null};
         funcionarioGrid.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
+            UI.getCurrent().access(() -> {
+            funcionarioDetalhesModal.setFuncionario(event.getItem());
+            funcionarioDetalhesModal.open();
+//            // Torna o botão "Deletar" visível
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
             });
         });
 

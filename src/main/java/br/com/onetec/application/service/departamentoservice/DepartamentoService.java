@@ -55,7 +55,19 @@ public class DepartamentoService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public void atualizar(Departamento dto) {
+    public void atualizar(Departamento dto, Integer id) throws Exception {
+        try {
+            Optional<SetDepartamento> optional = repository.findById(id);
+            SetDepartamento entity = optional.get();
+            entity.setDescricao_departamento(dto.getDescricao());
+            entity.setId_funcionario(dto.getResponsavel());
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Update !");
+        } catch (Exception e){
+            throw new Exception();
+        }
 
     }
 

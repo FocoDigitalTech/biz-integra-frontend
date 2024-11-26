@@ -6,7 +6,6 @@ import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.domain.usecase.apienderecousecase.IApiEnderecoUseCase;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetUsuarios;
-import com.vaadin.collaborationengine.CollaborationBinder;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,8 +17,6 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -38,6 +35,7 @@ public class UtilitySystemConfigService {
     private EstadoService estadoService ;
 
     private ApiEnderecoService cepApiService;
+
 
     @Autowired
     public void initServices(EstadoService serviceEstado, ApiEnderecoService cepApiService) {

@@ -69,4 +69,18 @@ public class OrdemServicoMateriaisService {
         Optional<SetOrdemServicoMateriais> optional = repository.findById(value);
         return optional.orElse(null);
     }
+
+    public void update(SetOrdemServicoMateriais p) throws Exception {
+        try {
+            Optional<SetOrdemServicoMateriais> optional = repository.findById(p.getId_ordemservico());
+            SetOrdemServicoMateriais entity = optional.get();
+            entity = p;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

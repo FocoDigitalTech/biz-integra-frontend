@@ -62,6 +62,7 @@ public class CompraService {
         try {
             Optional<SetCompra> optional = repository.findById(item.getId_compra());
             SetCompra entity = optional.get();
+            entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
         } catch (Exception e){

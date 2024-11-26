@@ -61,4 +61,18 @@ public class EventoFinanceiroService {
     public List<SetEventoFinanceiro> findAll() {
         return repository.listAll();
     }
+
+    public void update(SetEventoFinanceiro dto) throws Exception {
+        try {
+            Optional<SetEventoFinanceiro> optional = repository.findById(dto.getId_eventofinanceiro());
+            SetEventoFinanceiro entity = optional.get();
+            entity = dto;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Atualizado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

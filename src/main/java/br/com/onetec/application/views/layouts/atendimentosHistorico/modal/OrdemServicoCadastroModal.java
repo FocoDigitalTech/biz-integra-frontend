@@ -685,8 +685,11 @@ public class OrdemServicoCadastroModal extends Dialog {
 
 
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
+        localTratamentoOrcamento.setItems
+                (enderecoService.findAllClienteId(cliente.getId_cliente()));
 
-        localTratamentoOrcamento.setItemLabelGenerator(SetEnderecos::getEnderecoImovel);
+        localTratamentoOrcamento.setItemLabelGenerator(event ->
+                event.getEnderecoImovel() + "," + event.getNumero_imovel());
 
         id_situacaoservico = new ComboBox<>("Situação");
         id_situacaoservico.setItems
@@ -774,6 +777,7 @@ public class OrdemServicoCadastroModal extends Dialog {
 
             dto.setId_cliente(cliente.getId_cliente());
             dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
+
             dto.setDatainicio_ordemservico(datainicio_ordemservico.getValue());
             dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
             if(confirmado_ordemservico.getValue().equals("SIM")){
@@ -792,6 +796,7 @@ public class OrdemServicoCadastroModal extends Dialog {
             dto.setData_inclusao(LocalDateTime.now());
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             dto.setAtivo("S");
+            dto.setId_orcamento(orcamento.getId_orcamento());
             service = new UtilitySystemConfigService();
             ordemServicoService.save(dto);
             if(listaOrdemServicoFuncionarioAlocados.size() > 0){
@@ -860,6 +865,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                     }
                 });
             }
+            orcamentoDiv.refreshGrid();
             id_situacaoservico.clear();
            // datainicio_ordemservico.clear();
             diasemanainicio_ordemservico.clear();
@@ -883,11 +889,13 @@ public class OrdemServicoCadastroModal extends Dialog {
 
     }
 
-    public void setOrdemServico(SetOrcamento item) {
+    private SetOrcamento orcamento;
 
+    public void setOrdemServico(SetOrcamento item) {
+    this.orcamento = item;
         localTratamentoOrcamento.setItems
                 (enderecoService.findAllClienteId(item.getId_cliente()));
-        List<SetOrcamento> listaorcamentos = orcamentoService.findAllClienteId(item.getId_cliente());
+       // List<SetOrcamento> listaorcamentos = orcamentoService.findAllClienteId(item.getId_cliente());
 //                (listaorcamentos.stream()
 //                        .filter(objeto -> objeto.getId_orcamento().equals(item.getId_orcamento()))
 //                        .findFirst().orElse(null));

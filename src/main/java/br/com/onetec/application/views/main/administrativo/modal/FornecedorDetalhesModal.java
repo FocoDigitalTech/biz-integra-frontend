@@ -6,12 +6,10 @@ import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorCont
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
-import br.com.onetec.infra.db.model.SetEstado;
-import br.com.onetec.infra.db.model.SetFornecedor;
-import br.com.onetec.infra.db.model.SetFornecedorContato;
-import br.com.onetec.infra.db.model.SetSetorAtuacao;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -38,7 +36,7 @@ import java.util.List;
 
 @Component
 @UIScope
-public class FornecedorCadastroModal extends Dialog {
+public class FornecedorDetalhesModal extends Dialog {
 
 
 
@@ -85,10 +83,12 @@ public class FornecedorCadastroModal extends Dialog {
 
     private List<SetFornecedorContato> listaContatosFornecedor;
     private static List<SetEstado> estadoList;
+    Button btnExcluir;
 
     @Autowired
     @Lazy
     FornecedorDiv fornecedorDiv;
+    private SetFornecedor fornecedorModel;
 
     @Autowired
     public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
@@ -110,7 +110,7 @@ public class FornecedorCadastroModal extends Dialog {
 
 
     @Autowired
-    public FornecedorCadastroModal(EstadoService serviceEstado, UtilitySystemConfigService service,
+    public FornecedorDetalhesModal(EstadoService serviceEstado, UtilitySystemConfigService service,
                                    SetorAtuacaoService setorAtuacaoService1,
                                    FornecedorService fornecedorService1,
                                    FornecedorContatoService fornecedorContatoService1) {
@@ -127,11 +127,13 @@ public class FornecedorCadastroModal extends Dialog {
             id_estado.setItems(getUFList());
             id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
-
-            addClassName("cadastro-modal");
-            saveButton = new Button("Salvar", eventbe -> save());
+            saveButton = new Button("Atualizar", eventbe -> save());
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
+
+            btnExcluir = new Button("Excluir" ,eventbe -> deleta(fornecedorModel));
+            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                    ButtonVariant.LUMO_ERROR);
 
             Tabs tabs = new Tabs();
             Tab tab1 = new Tab("Dados Fornecedor");
@@ -168,7 +170,7 @@ public class FornecedorCadastroModal extends Dialog {
 
             // Criando o layout do rodapé e ajustando o alinhamento dos botões
 
-            getFooter().add(saveButton, cancelButton);
+            getFooter().add(btnExcluir,saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
@@ -177,7 +179,6 @@ public class FornecedorCadastroModal extends Dialog {
     private void save() {
 
         try {
-            SetFornecedor fornecedor = new SetFornecedor();
             if (id_estado.isEmpty()) {
                 id_estado.setRequiredIndicatorVisible(true);
                 id_estado.setErrorMessage("Campo obrigatório");
@@ -209,34 +210,34 @@ public class FornecedorCadastroModal extends Dialog {
             } else {
 
                 if (id_estado.getValue() != null) {
-                    fornecedor.setId_estado(id_estado.getValue().getId_estado());
+                    fornecedorModel.setId_estado(id_estado.getValue().getId_estado());
                 }
                 if (id_setoratuacao.getValue() != null) {
-                    fornecedor.setId_setoratuacao(id_setoratuacao.getValue().getId_setoratuacao());
+                    fornecedorModel.setId_setoratuacao(id_setoratuacao.getValue().getId_setoratuacao());
                 }
 
                 // Define os valores dos campos no objeto SetFuncionario
-                fornecedor.setData_cadastro(data_cadastro.getValue());
-                fornecedor.setTipo_naturezajuridica(tipo_naturezajuridica.getValue());
-                fornecedor.setNumero_naturezajuridica(numero_naturezajuridica.getValue());
-                fornecedor.setNomecontato_fornecedor(nomecontato_fornecedor.getValue());
-                fornecedor.setRazaosocial_fornecedor(razaosocial_fornecedor.getValue());
-                fornecedor.setNomefantasia_fornecedor(nomefantasia_fornecedor.getValue());
-                fornecedor.setCep_fornecedor(cep_fornecedor.getValue());
-                fornecedor.setEndereco_fornecedor(endereco_fornecedor.getValue());
-                fornecedor.setNumero_endereco(numero_endereco.getValue());
-                fornecedor.setBairro_fornecedor(bairro_fornecedor.getValue());
-                fornecedor.setCidade_fornecedor(cidade_fornecedor.getValue());
-                fornecedor.setTelefone_fornecedor(telefone_fornecedor.getValue());
-                fornecedor.setEmail_fornecedor(email_fornecedor.getValue());
-                fornecedor.setCargocontato_fornecedor(cargocontato_fornecedor.getValue());
-                fornecedor.setInscicaoestadual_fornecedor(inscicaoestadual_fornecedor.getValue());
-                fornecedor.setObservacao_fornecedor(observacao_fornecedor.getValue());
-                fornecedor.setData_inclusao(LocalDateTime.now());
-                fornecedor.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                fornecedor.setAtivo("S");
-                fornecedorService.save(fornecedor);
-                service.notificaSucesso("Cadastrado com sucesso");
+                fornecedorModel.setData_cadastro(data_cadastro.getValue());
+                fornecedorModel.setTipo_naturezajuridica(tipo_naturezajuridica.getValue());
+                fornecedorModel.setNumero_naturezajuridica(numero_naturezajuridica.getValue());
+                fornecedorModel.setNomecontato_fornecedor(nomecontato_fornecedor.getValue());
+                fornecedorModel.setRazaosocial_fornecedor(razaosocial_fornecedor.getValue());
+                fornecedorModel.setNomefantasia_fornecedor(nomefantasia_fornecedor.getValue());
+                fornecedorModel.setCep_fornecedor(cep_fornecedor.getValue());
+                fornecedorModel.setEndereco_fornecedor(endereco_fornecedor.getValue());
+                fornecedorModel.setNumero_endereco(numero_endereco.getValue());
+                fornecedorModel.setBairro_fornecedor(bairro_fornecedor.getValue());
+                fornecedorModel.setCidade_fornecedor(cidade_fornecedor.getValue());
+                fornecedorModel.setTelefone_fornecedor(telefone_fornecedor.getValue());
+                fornecedorModel.setEmail_fornecedor(email_fornecedor.getValue());
+                fornecedorModel.setCargocontato_fornecedor(cargocontato_fornecedor.getValue());
+                fornecedorModel.setInscicaoestadual_fornecedor(inscicaoestadual_fornecedor.getValue());
+                fornecedorModel.setObservacao_fornecedor(observacao_fornecedor.getValue());
+                fornecedorModel.setData_alteracao(LocalDateTime.now());
+                fornecedorModel.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                fornecedorModel.setAtivo("S");
+                fornecedorService.update(fornecedorModel);
+                service.notificaSucesso("Atualizado com sucesso");
                 fornecedorDiv.refreshGrid();
                 close();
             }
@@ -294,7 +295,7 @@ public class FornecedorCadastroModal extends Dialog {
 
 
         cep_fornecedor.addBlurListener(event -> buscarCep());
-         FormLayout formLayout = new FormLayout();
+        FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(data_cadastro,
                 id_setoratuacao,
@@ -345,14 +346,14 @@ public class FornecedorCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-          nome_fornecedorcontato = new TextField("Nome");
-          cargo_fornecedorcontato = new TextField("Cargo");
-          departamento_fornecedorcontato = new TextField("Departamento");
-          telefone_fornecedorcontato = new TextField("Telefone");
-          email_fornecedorcontato = new TextField("E-mail");
-          observacoes_fornecedorcontato = new TextArea("Observções");
+        nome_fornecedorcontato = new TextField("Nome");
+        cargo_fornecedorcontato = new TextField("Cargo");
+        departamento_fornecedorcontato = new TextField("Departamento");
+        telefone_fornecedorcontato = new TextField("Telefone");
+        email_fornecedorcontato = new TextField("E-mail");
+        observacoes_fornecedorcontato = new TextArea("Observções");
 
-          service.configureTelefoneResidencialField(telefone_fornecedorcontato);
+        service.configureTelefoneResidencialField(telefone_fornecedorcontato);
 
 
 
@@ -421,4 +422,47 @@ public class FornecedorCadastroModal extends Dialog {
         id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
     }
 
+    public void setFornecedorModel(SetFornecedor item) {
+        UI.getCurrent().access(() -> {
+            this.fornecedorModel = item;
+            gridContatos.setItems(new ArrayList<>());
+
+            data_cadastro.setValue(item.getData_cadastro());
+            tipo_naturezajuridica.setValue(item.getTipo_naturezajuridica());
+            numero_naturezajuridica.setValue(item.getNumero_naturezajuridica());
+            razaosocial_fornecedor.setValue(item.getRazaosocial_fornecedor());
+            nomefantasia_fornecedor.setValue(item.getNomefantasia_fornecedor());
+            cep_fornecedor.setValue(item.getCep_fornecedor());
+            endereco_fornecedor.setValue(item.getEndereco_fornecedor());
+            numero_endereco.setValue(item.getNumero_endereco());
+            bairro_fornecedor.setValue(item.getBairro_fornecedor());
+            cidade_fornecedor.setValue(item.getCidade_fornecedor());
+            telefone_fornecedor.setValue(item.getTelefone_fornecedor());
+            email_fornecedor.setValue(item.getEmail_fornecedor());
+            nomecontato_fornecedor.setValue(item.getNomecontato_fornecedor());
+            cargocontato_fornecedor.setValue(item.getCargocontato_fornecedor());
+            inscicaoestadual_fornecedor.setValue(item.getInscicaoestadual_fornecedor());
+            observacao_fornecedor.setValue(item.getObservacao_fornecedor());
+
+            List<SetFornecedorContato> listaContato =
+                    fornecedorContatoService.listAllByFornecedorId(item.getId_fornecedor());
+            gridContatos.setItems(listaContato);
+
+//            id_setoratuacao.setValue();
+//            id_estado.setValue();
+//            responsavelield.setItems(funcionarioLista);
+//            responsavelield.setValue(funcionarioLista.stream()
+//                    .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
+//                    .findFirst().orElse(null));
+        });
+    }
+
+    private void deleta(SetFornecedor item) {
+        try {
+            fornecedorService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
 }

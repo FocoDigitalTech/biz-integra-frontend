@@ -4,6 +4,7 @@ package br.com.onetec.application.views.main.administrativo.div;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.views.main.administrativo.modal.FornecedorCadastroModal;
+import br.com.onetec.application.views.main.administrativo.modal.FornecedorDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
@@ -50,6 +51,8 @@ public class FornecedorDiv extends Div {
 
     private FornecedorCadastroModal fornecedorCadastroModal;
 
+    private FornecedorDetalhesModal fornecedorDetalhesModal;
+
     Button btnExcluir;
 
 
@@ -57,10 +60,12 @@ public class FornecedorDiv extends Div {
     public void initServices(FornecedorCadastroModal fornecedorCadastroModal1,
                              DepartamentoService departamentoService1,
                              FornecedorService funcionarioService,
-                             UtilitySystemConfigService service1) {
+                             UtilitySystemConfigService service1,
+                             FornecedorDetalhesModal fornecedorDetalhesModal1) {
         this.fornecedorCadastroModal = fornecedorCadastroModal1;
         this.departamentoService = departamentoService1;
         this.fornecedorService = funcionarioService;
+        this.fornecedorDetalhesModal = fornecedorDetalhesModal1;
         this.service = service1;
     }
 
@@ -191,19 +196,21 @@ public class FornecedorDiv extends Div {
         // Adiciona o listener de clique nos itens da grade
         final Registration[] btnExcluirClickListenerRegistration = {null};
         gridFornecedor.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
-            });
+            fornecedorDetalhesModal.setFornecedorModel(event.getItem());
+            fornecedorDetalhesModal.open();
+//            // Torna o botão "Deletar" visível
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+                //deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
 

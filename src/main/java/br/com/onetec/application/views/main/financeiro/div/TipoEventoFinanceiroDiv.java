@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.financeiro.div;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.financeiro.modal.TipoEventoFinanceiroCadastroModal;
+import br.com.onetec.application.views.main.financeiro.modal.TipoEventoFinanceiroDetalheModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
@@ -46,6 +47,8 @@ public class TipoEventoFinanceiroDiv extends Div {
 
     private TipoEventoFinanceiroCadastroModal tipoPagamentoCadastroModal;
 
+    private TipoEventoFinanceiroDetalheModal tipoPagamentoDetalheModal;
+
     private UsuarioService usuarioService;
 
     private Button btnExcluir;
@@ -54,11 +57,13 @@ public class TipoEventoFinanceiroDiv extends Div {
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              TipoEventoFinanceiroService tipoEventoFinanceiroService1,
-                             TipoEventoFinanceiroCadastroModal tipoPagamentoCadastroModal1) {
+                             TipoEventoFinanceiroCadastroModal tipoPagamentoCadastroModal1,
+                             TipoEventoFinanceiroDetalheModal tipoPagamentoDetalheModal1) {
         this.tipoEventoFinanceiroService = tipoEventoFinanceiroService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.tipoPagamentoCadastroModal = tipoPagamentoCadastroModal1;
+        this.tipoPagamentoDetalheModal = tipoPagamentoDetalheModal1;
     }
 
 
@@ -162,18 +167,23 @@ public class TipoEventoFinanceiroDiv extends Div {
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
             // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
+            UI.getCurrent().access(() -> {
+                tipoPagamentoDetalheModal.setTipoEventoFinanceiro(event.getItem());
+                tipoPagamentoDetalheModal.open();
             });
+
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);

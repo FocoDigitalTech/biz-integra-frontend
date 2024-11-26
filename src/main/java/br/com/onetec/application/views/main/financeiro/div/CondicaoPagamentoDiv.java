@@ -4,6 +4,7 @@ import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagame
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.estoque.modal.EstoqueCadastroModal;
 import br.com.onetec.application.views.main.financeiro.modal.CondicaoPagamentoCadastroModal;
+import br.com.onetec.application.views.main.financeiro.modal.CondicaoPagamentoDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCondicaoPagamento;
@@ -50,6 +51,8 @@ public class CondicaoPagamentoDiv extends Div {
 
     private CondicaoPagamentoCadastroModal condicaoPagamentoCadastroModal;
 
+    private CondicaoPagamentoDetalhesModal condicaoPagamentoDetalhesModal;
+
     private UsuarioService usuarioService;
 
     private Button btnExcluir;
@@ -60,11 +63,13 @@ public class CondicaoPagamentoDiv extends Div {
                              EstoqueCadastroModal estoqueCadastroModal1,
                              ApplicationContext applicationContext1,
                              CondicaoPagamentoService condicaoPagamentoService1,
-                             CondicaoPagamentoCadastroModal condicaoPagamentoCadastroModal1) {
+                             CondicaoPagamentoCadastroModal condicaoPagamentoCadastroModal1,
+                             CondicaoPagamentoDetalhesModal condicaoPagamentoDetalhesModal1) {
         this.condicaoPagamentoService = condicaoPagamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.condicaoPagamentoCadastroModal = condicaoPagamentoCadastroModal1;
+        this.condicaoPagamentoDetalhesModal = condicaoPagamentoDetalhesModal1;
     }
 
 
@@ -168,19 +173,23 @@ public class CondicaoPagamentoDiv extends Div {
 
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
+            UI.getCurrent().access(() -> {
+                condicaoPagamentoDetalhesModal.setCondicaoPagamento(event.getItem());
+                condicaoPagamentoDetalhesModal.open();
             });
+            // Torna o botão "Deletar" visível
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+                //deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);

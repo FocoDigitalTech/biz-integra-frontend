@@ -61,4 +61,19 @@ public class TipoPagamentoService {
     public List<SetTipoPagamento> listAll() {
         return repository.listAll();
     }
+
+    public void update(SetTipoPagamento dto) throws Exception {
+        try {
+            Optional<SetTipoPagamento> optional = repository.findById(dto.getId_tipopagamento());
+            SetTipoPagamento entity = optional.get();
+            entity = dto;
+
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Atualizado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

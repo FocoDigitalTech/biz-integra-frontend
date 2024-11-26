@@ -66,4 +66,18 @@ public class FornecedorService {
             Optional<SetFornecedor> optionalSetFornecedor = repository.findById(id_usuario);
             return optionalSetFornecedor.get();
         }
+
+    public void update(SetFornecedor fornecedor) throws Exception {
+        try {
+            Optional<SetFornecedor> optional = repository.findById(fornecedor.getId_fornecedor());
+            SetFornecedor entity = optional.get();
+            entity = fornecedor;
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("Alterado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

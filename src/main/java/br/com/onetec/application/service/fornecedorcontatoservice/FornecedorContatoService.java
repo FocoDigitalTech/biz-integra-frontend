@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -66,5 +67,9 @@ public class FornecedorContatoService {
         } catch (Exception e){
             throw new Exception();
         }
+    }
+
+    public List<SetFornecedorContato> listAllByFornecedorId(Integer id_fornecedor) {
+        return repository.listAllByFornecedor(id_fornecedor);
     }
 }
