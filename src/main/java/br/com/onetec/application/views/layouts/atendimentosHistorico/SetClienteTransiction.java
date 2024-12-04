@@ -1,8 +1,6 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
-import br.com.onetec.infra.db.model.SetCliente;
-import br.com.onetec.infra.db.model.SetContrato;
-import br.com.onetec.infra.db.model.SetOrcamento;
+import br.com.onetec.infra.db.model.*;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.DeviceGray;
 import com.itextpdf.kernel.font.PdfFont;
@@ -14,7 +12,9 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.itextpdf.kernel.pdf.canvas.parser.listener.LocationTextExtractionStrategy;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.server.StreamResource;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -24,6 +24,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import java.io.*;
+import java.time.LocalDate;
 
 public class SetClienteTransiction {
 
@@ -49,32 +50,90 @@ public class SetClienteTransiction {
 
     public static void editWordDocument(String inputPath, String outputPath, String placeholder,
                                         String replacement, SetOrcamento orcamento, SetCliente cliente,
-                                        String valor) throws IOException {
+                                        String value, String valor, Integer numeroparcela_pagamentoValue, SetCondicaoPagamento id_condicaopagamentoValue, SetEnderecos enderecos) throws IOException {
         try (FileInputStream fis = new FileInputStream(inputPath);
              XWPFDocument document = new XWPFDocument(fis)) {
 
             // Itera por cada parágrafo e executa a substituição
+            // Itera pelos parágrafos do documento
             for (XWPFParagraph paragraph : document.getParagraphs()) {
                 for (XWPFRun run : paragraph.getRuns()) {
                     String text = run.getText(0);
-                    if (text != null && text.contains(placeholder)) {
-                        text = text.replace(placeholder, replacement);
-                        run.setText(text, 0);
-                    }
-                    if (text != null && text.contains("NOME_CLIENTE")) {
-                        text = text.replace("NOME_CLIENTE", cliente.getNome_cliente());
-                        run.setText(text, 0);
-                    }
-                    if (text != null && text.contains("VALOR_CONTRATO")) {
-                        text = text.replace("VALOR_CONTRATO", valor);
-                        run.setText(text, 0);
-                    }if (text != null && text.contains("VALOR_CONTRATO_TEXTO")) {
-                        text = text.replace("VALOR_CONTRATO_TEXTO", "Duzentos Reais");
-                        run.setText(text, 0);
-                    }
+                    if (text != null) {
+                        if (text.contains(placeholder)) {
+                            text = text.replace(placeholder, replacement);
+                        }
 
+                        if (text.contains("Rua Cabedelo, 301 – Butantã – São Paulo - SP")) {
+                            text = text.replace("Rua Cabedelo, 301 – Butantã – São Paulo - SP", enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                        }
+                        if (text.contains("VALOR_CONTRATO")) {
+                            text = text.replace("VALOR_CONTRATO", valor);
+                        }
+                        if (text.contains("VALOR_CONTRATO_TEXTO")) {
+                            text = text.replace("VALOR_CONTRATO_TEXTO", valor);
+                        }
+                        if (text.contains("VALOR_ENTRADA")) {
+                            text = text.replace("VALOR_ENTRADA", valor);
+                        }
+                        if (text.contains("NUM_PARCELA")) {
+                            text = text.replace("NUM_PARCELA", ""+numeroparcela_pagamentoValue);
+                        }
+                        if (text.contains("VALOR_PARCELA")) {
+                            text = text.replace("VALOR_PARCELA", ""+valor);
+                        }
+                        if (text.contains("TIPO_PAGAMENTO")) {
+                            text = text.replace("TIPO_PAGAMENTO", ""+id_condicaopagamentoValue.getDescricao_condicaopagamento());
+                        }
+                        if (text.contains("VENCIMENTOS_PAGAMENTO")) {
+                            text = text.replace("VENCIMENTOS_PAGAMENTO", ""+LocalDate.now().getDayOfMonth());
+                        }
+                        if (text.contains("DIA_HOJE")) {
+                            text = text.replace("DIA_HOJE", ""+LocalDate.now().getDayOfMonth());
+                        }
+                        if (text.contains("MES_HOJE")) {
+                            text = text.replace("MES_HOJE", ""+LocalDate.now().getMonth());
+                        }
+                        if (text.contains("2018")) {
+                            text = text.replace("2018", ""+LocalDate.now().getYear());
+                        }
+                        if (text.contains("NOME_CLIENTE_ASSINATURA")) {
+                            text = text.replace("NOME_CLIENTE_ASSINATURA", cliente.getNome_cliente());
+                        }
+
+                        run.setText(text, 0);
+                    }
                 }
             }
+
+            // Itera pelas tabelas do documento
+            document.getTables().forEach(table -> {
+                table.getRows().forEach(row -> {
+                    row.getTableCells().forEach(cell -> {
+                        // Itera pelos parágrafos dentro da célula da tabela
+                        for (XWPFParagraph paragraph : cell.getParagraphs()) {
+                            for (XWPFRun run : paragraph.getRuns()) {
+                                String text = run.getText(0);
+                                if (text != null) {
+                                    if (text.contains(placeholder)) {
+                                        text = text.replace(placeholder, replacement);
+                                    }
+                                    if (text.contains("NOME_CLIENTE")) {
+                                        text = text.replace("NOME_CLIENTE", cliente.getNome_cliente());
+                                    }
+                                    if (text.contains("ENDERECO_CLIENTE")) {
+                                        text = text.replace("ENDERECO_CLIENTE", enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                                    }
+                                    if (text.contains("CPF____CNPJ_CLIENTES")) {
+                                        text = text.replace("CPF____CNPJ_CLIENTES", cliente.getCpf_cgc_cliente());
+                                    }
+                                    run.setText(text, 0);
+                                }
+                            }
+                        }
+                    });
+                });
+            });
 
             // Salva o documento editado
             try (FileOutputStream fos = new FileOutputStream(outputPath)) {
@@ -89,29 +148,33 @@ public class SetClienteTransiction {
              XWPFDocument document = new XWPFDocument(fis);
              PDDocument pdfDocument = new PDDocument()) {
 
-            // Criar uma nova página PDF e adicionar o conteúdo do Word
             PDPage page = new PDPage();
             pdfDocument.addPage(page);
 
-            // Fluxo de conteúdo para a nova página
             try (PDPageContentStream contentStream = new PDPageContentStream(pdfDocument, page)) {
                 contentStream.beginText();
                 contentStream.setFont(PDType1Font.HELVETICA, 12);
                 contentStream.setLeading(14.5f);
-                contentStream.newLineAtOffset(25, 700);
+                contentStream.newLineAtOffset(25, 750);
 
-                // Itera por cada parágrafo do documento Word e escreve o texto no PDF
                 for (XWPFParagraph paragraph : document.getParagraphs()) {
-                    //contentStream.showText(paragraph.getText());
-                    contentStream.newLine();
+                    String text = paragraph.getText();
+
+                    if (text != null && !text.isEmpty()) {
+                        // Remova ou substitua caracteres de controle não suportados
+                        text = text.replaceAll("[\\t\\n\\r]+", " "); // Substituir TAB e quebras de linha por espaço
+                        contentStream.showText(text);
+                        contentStream.newLine();
+                    }
                 }
 
-                contentStream.endText();
+                contentStream.endText(); // Certifique-se de encerrar o texto corretamente
             }
 
             pdfDocument.save(pdfFilePath);
         }
     }
+
 
     // Método para fazer o download do PDF gerado
     public static void downloadPdf(String pdfPath) throws IOException {
@@ -120,6 +183,33 @@ public class SetClienteTransiction {
             Notification.show("PDF gerado com sucesso em: " + pdfFile.getAbsolutePath());
         } else {
             Notification.show("Erro: PDF não encontrado.");
+        }
+    }
+
+    public static void downloadWord(String wordFilePath) throws IOException {
+        File wordFile = new File(wordFilePath);
+
+        if (wordFile.exists()) {
+            // Cria um recurso de fluxo para o arquivo Word
+            StreamResource resource = new StreamResource(wordFile.getName(), () -> {
+                try {
+                    return new FileInputStream(wordFile);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            });
+
+            // Adiciona um link para download na interface
+            Anchor downloadLink = new Anchor(resource, "Baixar Contrato");
+            downloadLink.getElement().setAttribute("download", true);
+            downloadLink.getStyle().set("margin-top", "20px");
+            downloadLink.getStyle().set("font-size", "18px");
+
+            // Exibe uma notificação de sucesso
+            Notification.show("Documento Word disponível para download.");
+        } else {
+            Notification.show("Erro: Documento Word não encontrado.");
         }
     }
 

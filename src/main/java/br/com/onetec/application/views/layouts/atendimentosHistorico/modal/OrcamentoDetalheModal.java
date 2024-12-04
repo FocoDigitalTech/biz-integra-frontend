@@ -35,15 +35,20 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -83,7 +88,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
     private Button saveButton;
     private Button cancelButton;
-    private Button botaoContrato;
+    private MenuBar botaoContrato;
     private Button botaoPagamento;
 
     // Formulario Orçamento.
@@ -284,71 +289,114 @@ public class OrcamentoDetalheModal extends Dialog {
     }
 
 
+    private void gerarSentricon() {
+        if (valor_total.isEmpty()) {
+            valor_total.setRequiredIndicatorVisible(true);
+            valor_total.setErrorMessage("Campo obrigatório");
+            valor_total.setInvalid(true);
+        }else if (valor_nagasaki.isEmpty()) {
+            valor_nagasaki.setRequiredIndicatorVisible(true);
+            valor_nagasaki.setErrorMessage("Campo obrigatório");
+            valor_nagasaki.setInvalid(true);
+        }else if (data_venda.isEmpty()) {
+            data_venda.setRequiredIndicatorVisible(true);
+            data_venda.setErrorMessage("Campo obrigatório");
+            data_venda.setInvalid(true);
+        }else if  (id_condicaopagamento.isEmpty()) {
+            id_condicaopagamento.setRequiredIndicatorVisible(true);
+            id_condicaopagamento.setErrorMessage("Campo obrigatório");
+            id_condicaopagamento.setInvalid(true);
+        }else if (datainicio_execucao.isEmpty()) {
+            datainicio_execucao.setRequiredIndicatorVisible(true);
+            datainicio_execucao.setErrorMessage("Campo obrigatório");
+            datainicio_execucao.setInvalid(true);
+        }else if (datainicio_vencimento.isEmpty()) {
+            datainicio_vencimento.setRequiredIndicatorVisible(true);
+            datainicio_vencimento.setErrorMessage("Campo obrigatório");
+            datainicio_vencimento.setInvalid(true);
+        }else if  (meses_garantia.isEmpty()) {
+            meses_garantia.setRequiredIndicatorVisible(true);
+            meses_garantia.setErrorMessage("Campo obrigatório");
+            meses_garantia.setInvalid(true);
+        } else if (datafim_garantia.isEmpty()) {
+            datafim_garantia.setRequiredIndicatorVisible(true);
+            datafim_garantia.setErrorMessage("Campo obrigatório");
+            datafim_garantia.setInvalid(true);
+        } else {
+            try {
+                String hora = String.valueOf(LocalDateTime.now().getSecond());
+                String idorc = String.valueOf(orcamento.getId_orcamento()).concat(String.valueOf(orcamento.getId_cliente()));
+                String nameClien = cliente.getNome_cliente();
+                String compositeId = hora+idorc+nameClien;
+                // Caminho do arquivo Word de entrada e dos arquivos de saída
+                String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_sentricon.docx";
+                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_contrato_"+compositeId+"sentriconatualizado.docx";
+                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\documento_atualizado.pdf";
+                String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
+
+                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+
+                SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+                // Edita o documento Word
+                SetClienteTransiction.editWordDocument(wordPath, updatedWordPath,
+                        "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
+                        numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos);
+
+                // Converte o documento editado para PDF
+                SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
+
+                // Baixa o PDF
+                File wordFile = new File(updatedWordPath);
+
+                if (wordFile.exists()) {
+                    // Cria um recurso de fluxo para o arquivo Word
+                    StreamResource resource = new StreamResource(wordFile.getName(), () -> {
+                        try {
+                            return new FileInputStream(wordFile);
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                            return null;
+                        }
+                    });
+
+                    // Adiciona um link para download na interface
+                    downloadLink.setText("Baixar Contrato");
+                    //downloadLink.getElement().setAttribute("download", true);
+                    downloadLink.getStyle().set("margin-top", "20px");
+                    downloadLink.getStyle().set("font-size", "18px");
+                    downloadLink.setHref(resource);  // Seta o recurso de download
+                    downloadLink.setVisible(true);
+
+                    // Exibe uma notificação de sucesso
+                    Notification.show("Documento Word disponível para download. : "+ updatedWordPath);
+                    // Definir o alvo para abrir em nova aba
+                    downloadLink.setTarget("_blank");
+                } else {
+                    Notification.show("Erro: Documento Word não encontrado.");
+                }
+            } catch (IOException exa) {
+                Notification.show("Erro ao gerar o Word: " + exa.getMessage());
+                exa.printStackTrace();
+            }
+        }
+    }
+
     public OrcamentoDetalheModal() {
         UI.getCurrent().access(() -> {
             downloadLink = new Anchor();
-            botaoContrato = new Button("Gerar Contrato", e -> {
-
-                if (valor_total.isEmpty()) {
-                    valor_total.setRequiredIndicatorVisible(true);
-                    valor_total.setErrorMessage("Campo obrigatório");
-                    valor_total.setInvalid(true);
-                }else if (valor_nagasaki.isEmpty()) {
-                    valor_nagasaki.setRequiredIndicatorVisible(true);
-                    valor_nagasaki.setErrorMessage("Campo obrigatório");
-                    valor_nagasaki.setInvalid(true);
-                }else if (data_venda.isEmpty()) {
-                    data_venda.setRequiredIndicatorVisible(true);
-                    data_venda.setErrorMessage("Campo obrigatório");
-                    data_venda.setInvalid(true);
-                }else if  (id_condicaopagamento.isEmpty()) {
-                    id_condicaopagamento.setRequiredIndicatorVisible(true);
-                    id_condicaopagamento.setErrorMessage("Campo obrigatório");
-                    id_condicaopagamento.setInvalid(true);
-                }else if (datainicio_execucao.isEmpty()) {
-                    datainicio_execucao.setRequiredIndicatorVisible(true);
-                    datainicio_execucao.setErrorMessage("Campo obrigatório");
-                    datainicio_execucao.setInvalid(true);
-                }else if (datainicio_vencimento.isEmpty()) {
-                    datainicio_vencimento.setRequiredIndicatorVisible(true);
-                    datainicio_vencimento.setErrorMessage("Campo obrigatório");
-                    datainicio_vencimento.setInvalid(true);
-                }else if  (meses_garantia.isEmpty()) {
-                    meses_garantia.setRequiredIndicatorVisible(true);
-                    meses_garantia.setErrorMessage("Campo obrigatório");
-                    meses_garantia.setInvalid(true);
-                } else if (datafim_garantia.isEmpty()) {
-                    datafim_garantia.setRequiredIndicatorVisible(true);
-                    datafim_garantia.setErrorMessage("Campo obrigatório");
-                    datafim_garantia.setInvalid(true);
-                } else {
-                    try {
-                        String hora = String.valueOf(LocalDateTime.now().getSecond());
-                        String idorc = String.valueOf(orcamento.getId_orcamento()).concat(String.valueOf(orcamento.getId_cliente()));
-                        String nameClien = cliente.getNome_cliente();
-                        String compositeId = hora+idorc+nameClien;
-                        // Caminho do arquivo Word de entrada e dos arquivos de saída
-                        String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_sentricon.docx";
-                        String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_contrato_"+compositeId+"sentriconatualizado.docx";
-                        String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\documento_atualizado.pdf";
-                        String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
-
-                        SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
-                        // Edita o documento Word
-                        SetClienteTransiction.editWordDocument(wordPath, updatedWordPath,
-                                "81038", clientId,orcamento,cliente,valor_total.getValue());
-
-                        // Converte o documento editado para PDF
-                        SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
-
-                        // Baixa o PDF
-                        SetClienteTransiction.downloadPdf(pdfPath);
-                    } catch (IOException exa) {
-                        Notification.show("Erro ao gerar o PDF: " + exa.getMessage());
-                        exa.printStackTrace();
-                    }
-                }
+            botaoContrato = new MenuBar();
+            botaoContrato.addThemeVariants(MenuBarVariant.LUMO_ICON,
+                    MenuBarVariant.LUMO_PRIMARY);
+            //botaoContrato.addItem("Gerar Contrato");
+            MenuItem item = botaoContrato.addItem("Gerar Contrato");
+            SubMenu subItems = item.getSubMenu();
+            subItems.addItem("Geral");
+            subItems.addItem("Sentricon", event -> {
+                gerarSentricon();
             });
+            subItems.addItem("Anual");
+
+            //botaoContrato = new Button("Gerar Contrato", e -> {});
 
             botaoPagamento = new Button("Gerar Pagamentos", eventbe -> {
 
@@ -524,6 +572,7 @@ public class OrcamentoDetalheModal extends Dialog {
             add(layout);
         });
     }
+
 
     private RadioButtonGroup<String> bomatendimento_orcamentoposvenda;
     private RadioButtonGroup<String> funcionariosuniformizados_orcamentoposvenda;
@@ -1582,7 +1631,7 @@ public class OrcamentoDetalheModal extends Dialog {
         id_condicaopagamento = new ComboBox<>("Condição de Pagamento");
         datainicio_execucao = new DatePicker("Data Inicio Execução");
         datainicio_vencimento = new DatePicker("Data Inicio Vencimento");
-        meses_garantia = new IntegerField("Meses de Garantia");
+        meses_garantia = new IntegerField("Dias de Garantia");
         datafim_garantia = new DatePicker("Data fim garantia");
         quantidade_aplicacoes = new IntegerField("Quantidade de Aplicações");
         observacoes_contrato = new TextArea("Observações");
@@ -1733,7 +1782,7 @@ public class OrcamentoDetalheModal extends Dialog {
         datainicio_vencimento.setValue(LocalDate.now());
 
         meses_garantia.addValueChangeListener(event -> {
-            datafim_garantia.setValue(datainicio_execucao.getValue().plusMonths(event.getValue()));
+            datafim_garantia.setValue(datainicio_execucao.getValue().plusDays(event.getValue()));
         });
 
 

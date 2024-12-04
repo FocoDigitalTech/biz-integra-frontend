@@ -27,6 +27,7 @@ public class SetOrdemServico {
     private Integer id_contrato;
     private Integer id_cliente;
     private Integer id_situacaoservico;
+    private Integer id_tipoatendimento;
     private LocalDate datainicio_ordemservico;
     private String diasemanainicio_ordemservico;
     private LocalTime horarioinicio_ordemservico;

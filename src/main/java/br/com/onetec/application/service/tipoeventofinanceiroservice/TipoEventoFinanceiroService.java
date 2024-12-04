@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -70,5 +71,9 @@ public class TipoEventoFinanceiroService {
         } catch (Exception e){
             throw new Exception();
         }
+    }
+
+    public List<SetTipoEventoFinanceiro> findAll() {
+            return repository.listAll();
     }
 }

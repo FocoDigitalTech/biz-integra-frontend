@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -57,4 +58,7 @@ public class TipoAtendimentoService {
         }
     }
 
+    public List<SetTipoAtendimento> listAll() {
+        return repository.listAll();
+    }
 }

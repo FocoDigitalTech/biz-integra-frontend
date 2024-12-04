@@ -10,6 +10,7 @@ import br.com.onetec.application.service.ordemservicoservice.*;
 import br.com.onetec.application.service.pragaservice.PragaService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
+import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -25,6 +26,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -47,6 +49,7 @@ import org.w3c.dom.Text;
 
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -54,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @UIScope
@@ -69,6 +73,7 @@ public class OrdemServicoCadastroModal extends Dialog {
     // Formulario Ordem servico
     private Div cadastroOrcamantosDadosFinanceiros;
     private ComboBox<SetSituacaoCadastro> id_situacaoservico;
+    private ComboBox<SetTipoAtendimento> id_tipoatendimento;
     private DatePicker datainicio_ordemservico;
     private TextField diasemanainicio_ordemservico;
     private TimePicker horarioinicio_ordemservico;
@@ -175,6 +180,9 @@ public class OrdemServicoCadastroModal extends Dialog {
     @Autowired
     private OrcamentoService orcamentoService;
 
+    @Autowired
+    private TipoAtendimentoService tipoAtendimentoService;
+
 
     @Autowired
     @Lazy
@@ -261,6 +269,8 @@ public class OrdemServicoCadastroModal extends Dialog {
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             getFooter().add(saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
+            H2 title = new H2("Cadastro Ordem de Serviço");
+            getHeader().add(title);
             add(layout);
         });
     }
@@ -685,8 +695,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
 
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
-        localTratamentoOrcamento.setItems
-                (enderecoService.findAllClienteId(cliente.getId_cliente()));
+//        localTratamentoOrcamento.setItems
+//                (enderecoService.findAllClienteId(cliente.getId_cliente()));
 
         localTratamentoOrcamento.setItemLabelGenerator(event ->
                 event.getEnderecoImovel() + "," + event.getNumero_imovel());
@@ -695,6 +705,14 @@ public class OrdemServicoCadastroModal extends Dialog {
         id_situacaoservico.setItems
                 (situacaoCadastroService.listAll());
         id_situacaoservico.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
+
+        id_tipoatendimento = new ComboBox<>("Tipo Atendimento");
+        id_tipoatendimento.setItems
+                (tipoAtendimentoService.listAll());
+        id_tipoatendimento.setItemLabelGenerator(SetTipoAtendimento::getDescricao_tipoatendimento);
+        HorizontalLayout tipoeventofinanceirolayout =
+                new CustomizedComboBox().customizeTipoAtendimento
+                        (id_tipoatendimento, tipoAtendimentoService);
 
         datainicio_ordemservico = new DatePicker("Data Inicio");
         service.configuraCalendario(datainicio_ordemservico);
@@ -710,10 +728,10 @@ public class OrdemServicoCadastroModal extends Dialog {
         });
 
         horarioinicio_ordemservico = new TimePicker("Horario");
-        quantidade_ordemservico = new IntegerField("Quantidade");
+        quantidade_ordemservico = new IntegerField("Quantidade Aplicações");
         quantidade_ordemservico.setStepButtonsVisible(true);
 
-        intervalo_ordemservico = new IntegerField("Intervalo");
+        intervalo_ordemservico = new IntegerField("Intervalo Dias");
         intervalo_ordemservico.setStepButtonsVisible(true);
 
         nome_pontofocal = new TextField("Responsável no Local");
@@ -734,11 +752,10 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         confirmado_ordemservico.setItems(List.of("SIM","NÃO"));
 
-        HorizontalLayout situacaoOrcamentolayout =
-                new CustomizedComboBox().customizeSituacaoCadastro(id_situacaoservico,situacaoCadastroService);
+
 
         formLayout.add(localTratamentoOrcamento,
-                situacaoOrcamentolayout,
+                tipoeventofinanceirolayout,
                 datainicio_ordemservico,
                 diasemanainicio_ordemservico,
                 horarioinicio_ordemservico,
@@ -768,8 +785,8 @@ public class OrdemServicoCadastroModal extends Dialog {
             if (id_funcionariotecnico.getValue() != null) {
                 dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
             }
-            if (id_situacaoservico.getValue() != null) {
-                dto.setId_situacaoservico(id_situacaoservico.getValue().getId_situacaocadastro());
+            if (id_tipoatendimento.getValue() != null) {
+                dto.setId_situacaoservico(id_tipoatendimento.getValue().getId_tipoatendimento());
             }
             if (localTratamentoOrcamento.getValue() != null) {
                 dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
@@ -798,72 +815,115 @@ public class OrdemServicoCadastroModal extends Dialog {
             dto.setAtivo("S");
             dto.setId_orcamento(orcamento.getId_orcamento());
             service = new UtilitySystemConfigService();
-            ordemServicoService.save(dto);
-            if(listaOrdemServicoFuncionarioAlocados.size() > 0){
-                listaOrdemServicoFuncionarioAlocados.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        funcionarioAlocadoService.save(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if (quantidade_ordemservico.getValue()>0){
+                LocalDate inicio = datainicio_ordemservico.getValue();
+                for (int i = 0; i < quantidade_ordemservico.getValue(); i++) {
+                    datainicio_ordemservico.setValue(inicio);
+                    dto = new SetOrdemServico();
+                    dto.setId_cliente(cliente.getId_cliente());
+                    dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
+                    if(confirmado_ordemservico.getValue().equals("SIM")){
+                        dto.setConfirmado_ordemservico("S");
+                    } else if(confirmado_ordemservico.getValue().equals("NÃO")) {
+                        dto.setConfirmado_ordemservico("N");
                     }
-                });
-            }
-            if(listaOrdemServicoExecucaoServico.size() > 0){
-                listaOrdemServicoExecucaoServico.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoExecucaoServicoService.save(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (id_funcionarioassistente.getValue() != null) {
+                        dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
                     }
+                    if (id_funcionariotecnico.getValue() != null) {
+                        dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
+                    }
+                    if (id_tipoatendimento.getValue() != null) {
+                        dto.setId_situacaoservico(id_tipoatendimento.getValue().getId_tipoatendimento());
+                    }
+                    if (localTratamentoOrcamento.getValue() != null) {
+                        dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+                    }
+                    dto.setDatainicio_ordemservico(inicio);
+                    dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
+                    dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
+                    dto.setNome_pontofocal(nome_pontofocal.getValue());
+                    dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
+                    dto.setIntervalo_ordemservico(intervalo_ordemservico.getValue());
+                    dto.setData_inclusao(LocalDateTime.now());
+                    dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                    dto.setAtivo("S");
+                    dto.setId_orcamento(orcamento.getId_orcamento());
+                    inicio = inicio.plusDays(intervalo_ordemservico.getValue());
+                    ordemServicoService.save(dto);
 
-                });
-            }
-            if(listaOrdemServicoMateriais.size() > 0){
-                listaOrdemServicoMateriais.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoMateriaisService.save(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if(listaOrdemServicoFuncionarioAlocados.size() > 0){
+                        SetOrdemServico finalDto = dto;
+                        listaOrdemServicoFuncionarioAlocados.forEach(p ->{
+                            p.setId_cliente(finalDto.getId_cliente());
+                            p.setId_orcamento(finalDto.getId_orcamento());
+                            p.setId_contrato(finalDto.getId_contrato());
+                            p.setId_ordemservico(finalDto.getId_ordemservico());
+                            try {
+                                funcionarioAlocadoService.save(p);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
                     }
-                });
-            }
-            if(listaOrdemServicoMisturas.size() > 0){
-                listaOrdemServicoMisturas.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoMisturaService.save(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if(listaOrdemServicoExecucaoServico.size() > 0){
+                        SetOrdemServico finalDto1 = dto;
+                        listaOrdemServicoExecucaoServico.forEach(p ->{
+                            p.setId_cliente(finalDto1.getId_cliente());
+                            p.setId_orcamento(finalDto1.getId_orcamento());
+                            p.setId_contrato(finalDto1.getId_contrato());
+                            p.setId_ordemservico(finalDto1.getId_ordemservico());
+                            try {
+                                ordemServicoExecucaoServicoService.save(p);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        });
                     }
-                });
-            }
-            if(listaOrdemServicoPraga.size() > 0){
-                listaOrdemServicoPraga.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoPragaService.save(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if(listaOrdemServicoMateriais.size() > 0){
+                        SetOrdemServico finalDto2 = dto;
+                        listaOrdemServicoMateriais.forEach(p ->{
+                            p.setId_cliente(finalDto2.getId_cliente());
+                            p.setId_orcamento(finalDto2.getId_orcamento());
+                            p.setId_contrato(finalDto2.getId_contrato());
+                            p.setId_ordemservico(finalDto2.getId_ordemservico());
+                            try {
+                                ordemServicoMateriaisService.save(p);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
                     }
-                });
+                    if(listaOrdemServicoMisturas.size() > 0){
+                        SetOrdemServico finalDto3 = dto;
+                        listaOrdemServicoMisturas.forEach(p ->{
+                            p.setId_cliente(finalDto3.getId_cliente());
+                            p.setId_orcamento(finalDto3.getId_orcamento());
+                            p.setId_contrato(finalDto3.getId_contrato());
+                            p.setId_ordemservico(finalDto3.getId_ordemservico());
+                            try {
+                                ordemServicoMisturaService.save(p);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                    if(listaOrdemServicoPraga.size() > 0){
+                        SetOrdemServico finalDto4 = dto;
+                        listaOrdemServicoPraga.forEach(p ->{
+                            p.setId_cliente(finalDto4.getId_cliente());
+                            p.setId_orcamento(finalDto4.getId_orcamento());
+                            p.setId_contrato(finalDto4.getId_contrato());
+                            p.setId_ordemservico(finalDto4.getId_ordemservico());
+                            try {
+                                ordemServicoPragaService.save(p);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
             }
             orcamentoDiv.refreshGrid();
             id_situacaoservico.clear();
@@ -891,10 +951,15 @@ public class OrdemServicoCadastroModal extends Dialog {
 
     private SetOrcamento orcamento;
 
-    public void setOrdemServico(SetOrcamento item) {
+    public void setOrdemServico(SetOrcamento item, SetContrato contrato) {
     this.orcamento = item;
+        var enderecos = enderecoService.findAllClienteId(item.getId_cliente());
+        List<SetEnderecos> novosEnderecos = enderecos.stream()
+                .filter(endereco -> endereco.getId_endereco().equals(item.getId_endereco()))
+                .collect(Collectors.toList());
         localTratamentoOrcamento.setItems
-                (enderecoService.findAllClienteId(item.getId_cliente()));
+                (novosEnderecos);
+        quantidade_ordemservico.setValue(contrato.getQuantidade_aplicacoes());
        // List<SetOrcamento> listaorcamentos = orcamentoService.findAllClienteId(item.getId_cliente());
 //                (listaorcamentos.stream()
 //                        .filter(objeto -> objeto.getId_orcamento().equals(item.getId_orcamento()))

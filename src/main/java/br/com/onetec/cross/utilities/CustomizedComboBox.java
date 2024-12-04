@@ -3,14 +3,20 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.service.condicaopagamentoservice.AutoCrudCondicaoPagamentoService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
+import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
+import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
 import br.com.onetec.application.service.execucaoservico.AutoCrudExecucaoServicoService;
+import br.com.onetec.application.service.execucaoservico.AutoCrudTipoAtendimentoService;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.AutoCrudSituacaoCadastroService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.situacaopagamentoservice.AutoCrudSituacaoPagamentoService;
 import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagamentoService;
+import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.service.tipopagamentoservice.AutoCrudTipoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
+import br.com.onetec.application.service.utilservices.AutoCrudEventoFinanceiroService;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -32,6 +38,14 @@ public class CustomizedComboBox {
     private AutoCrudCondicaoPagamentoService autoCrudCondicaoPagamentoService;
 
     private AutoCrudSituacaoCadastroService autoCrudSituacaoCadastroService;
+
+    private AutoCrudEventoFinanceiroService autoCrudEventoFinanceiroService;
+
+    private AutoCrudContaCorrenteService autoCrudContaCorrenteService;
+
+    private AutoCrudTipoEventoFinanceiroService autoCrudTipoEventoFinanceiroService;
+
+    private AutoCrudTipoAtendimentoService autoCrudTipoAtendimentoService;
 
 
     public HorizontalLayout customizeSituacaoCadastro
@@ -108,6 +122,58 @@ public class CustomizedComboBox {
         // Criação do botão com ícone de "plus"
         buscaEnderecosCEPButton.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(fieldEnderecosCEP, buscaEnderecosCEPButton);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeEventoFinanceiro(ComboBox<SetEventoFinanceiro> id_eventofinanceiro, EventoFinanceiroService eventoFinanceiroService) {
+        // Criação do botão com ícone de "plus"
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudEventoFinanceiroService = new AutoCrudEventoFinanceiroService();
+            autoCrudEventoFinanceiroService.openFormDialog(id_eventofinanceiro, eventoFinanceiroService);
+        });
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(id_eventofinanceiro, addButtonTipoPagamento);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeContaCorrente(ComboBox<SetContaCorrente> id_contacorrente, ContaCorrenteService contaCorrenteService) {
+        // Criação do botão com ícone de "plus"
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudContaCorrenteService = new AutoCrudContaCorrenteService();
+            autoCrudContaCorrenteService.openFormDialog(id_contacorrente, contaCorrenteService);
+        });
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(id_contacorrente, addButtonTipoPagamento);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeTipoEventoFinanceiro(ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro,
+                                                          TipoEventoFinanceiroService tipoEventoFinanceiroService) {
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudTipoEventoFinanceiroService = new AutoCrudTipoEventoFinanceiroService();
+            autoCrudTipoEventoFinanceiroService.openFormDialog(id_tipoeventofinanceiro, tipoEventoFinanceiroService);
+        });
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(id_tipoeventofinanceiro, addButtonTipoPagamento);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeTipoAtendimento(ComboBox<SetTipoAtendimento> id_tipoatendimento,
+                                                     TipoAtendimentoService situacaoCadastroService) {
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudTipoAtendimentoService = new AutoCrudTipoAtendimentoService();
+            autoCrudTipoAtendimentoService.openFormDialog(id_tipoatendimento, situacaoCadastroService);
+        });
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(id_tipoatendimento, addButtonTipoPagamento);
         horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
         return horizontalLayout;
     }

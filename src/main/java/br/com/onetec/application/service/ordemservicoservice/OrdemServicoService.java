@@ -78,6 +78,7 @@ public class OrdemServicoService {
         try {
             Optional<SetOrdemServico> optional = repository.findById(dto.getId_ordemservico());
             SetOrdemServico entity = optional.get();
+            entity = dto;
             entity.setData_alteracao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);

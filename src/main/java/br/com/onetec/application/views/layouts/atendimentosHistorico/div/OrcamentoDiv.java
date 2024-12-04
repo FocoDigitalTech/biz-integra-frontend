@@ -194,7 +194,7 @@ public class OrcamentoDiv extends Div {
 
     public void refreshGrid() {
         grid.getDataProvider().refreshAll();
-        gridOrdemServico.getDataProvider().refreshAll();
+        //gridOrdemServico.getDataProvider().refreshAll();
         sidebar.setVisible(false);
     }
 
@@ -351,7 +351,7 @@ public class OrcamentoDiv extends Div {
                 SetContrato contrato = contratoService.findByIdOrcamento(selectedConta.getId_orcamento());
                 possuiContrato = contrato == null ? "NÃO" : "SIM";
                 if (possuiContrato.equals("SIM")) {
-                    openCadastroOrdemServicoModal(event.getItem());
+                    openCadastroOrdemServicoModal(event.getItem(),contrato);
                 } else {
                     service.notificaErro("OBRIGATÓRIO POSSUIR CONTRATO");
                 }
@@ -393,15 +393,17 @@ public class OrcamentoDiv extends Div {
         return sidebar;
     }
 
-    private void openCadastroOrdemServicoModal(SetOrcamento item) {
-         ordemServicoCadastroModal.setOrdemServico(item);
+    private void openCadastroOrdemServicoModal(SetOrcamento item, SetContrato contrato) {
+         ordemServicoCadastroModal.setOrdemServico(item,contrato);
          ordemServicoCadastroModal.open();
     }
 
 
     private void openDetalhesOrdemServico(SetOrdemServico item) {
-        ordemServicoDadosModal.setOrdemServico(item);
-        ordemServicoDadosModal.open();
+        UI.getCurrent().access(() -> {
+            ordemServicoDadosModal.setOrdemServico(item);
+            ordemServicoDadosModal.open();
+        });
     }
 
 

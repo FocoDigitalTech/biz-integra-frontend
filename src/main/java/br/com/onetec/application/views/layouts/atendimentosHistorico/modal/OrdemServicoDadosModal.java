@@ -9,7 +9,7 @@ import br.com.onetec.application.service.ordemservicoexecucaoservicoservice.Orde
 import br.com.onetec.application.service.ordemservicoservice.*;
 import br.com.onetec.application.service.pragaservice.PragaService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
-import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
+import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -26,6 +26,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -66,18 +67,16 @@ public class OrdemServicoDadosModal extends Dialog {
 
     // Formulario
     private TextField id_orcamento;
-    private ComboBox<SetSituacaoCadastro> id_situacaoservico;
+    private ComboBox<SetTipoAtendimento> id_tipoatendimento;
     private DatePicker datainicio_ordemservico;
     private TextField diasemanainicio_ordemservico;
     private TimePicker horarioinicio_ordemservico;
-    private IntegerField quantidade_ordemservico;
-    private IntegerField intervalo_ordemservico;
     private TextField nome_pontofocal;
     private ComboBox<SetFuncionario> id_funcionarioassistente;
     private ComboBox<SetFuncionario> id_funcionariotecnico;
     private TextArea ocorrencias_ordemservico;
     private ComboBox<SetEnderecos> localTratamentoOrcamento;
-    final CheckboxGroup<String> confirmado_ordemservico = new CheckboxGroup<>("Confirmado ?");
+    final RadioButtonGroup<String> confirmado_ordemservico = new RadioButtonGroup<>("Confirmado ?");
 
     private UtilitySystemConfigService service;
 
@@ -173,7 +172,7 @@ public class OrdemServicoDadosModal extends Dialog {
     private FuncionarioService funcionarioService;
 
     @Autowired
-    private SituacaoCadastroService situacaoCadastroService;
+    private TipoAtendimentoService tipoAtendimentoService;
 
     @Autowired
     private OrdemServicoService ordemServicoService;
@@ -187,15 +186,19 @@ public class OrdemServicoDadosModal extends Dialog {
     OrcamentoDiv orcamentoDiv;
 
 
-    @Autowired
+
     public void initServices (){
         UI.getCurrent().access(() -> {
+            //new OrdemServicoDadosModal();
             cliente = SetClienteTransiction.getCliente();
         });
     }
 
+
     public OrdemServicoDadosModal() {
+
         UI.getCurrent().access(() -> {
+
             addClassName(LumoUtility.Gap.SMALL);
             // Recupera o objeto Cliente da sessão
 
@@ -276,6 +279,8 @@ public class OrdemServicoDadosModal extends Dialog {
             getFooter().add(rightButtons); // Alinha à direita
 
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
+            H2 title = new H2("Dados Ordem de Serviço");
+            getHeader().add(title);
             add(layout);
         });
     }
@@ -717,8 +722,7 @@ public class OrdemServicoDadosModal extends Dialog {
 
 
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
-        localTratamentoOrcamento.setItems
-                (enderecoService.findAllClienteId(cliente.getId_cliente()));
+
 
         localTratamentoOrcamento.setItemLabelGenerator(event ->
                 event.getEnderecoImovel() + "," + event.getNumero_imovel());
@@ -728,10 +732,13 @@ public class OrdemServicoDadosModal extends Dialog {
         //id_orcamento.setItemLabelGenerator(item -> item.getId_orcamento().toString());
 
 
-        id_situacaoservico = new ComboBox<>("Situação");
-        id_situacaoservico.setItems
-                (situacaoCadastroService.listAll());
-        id_situacaoservico.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
+        id_tipoatendimento = new ComboBox<>("Tipo Atendimento");
+        id_tipoatendimento.setItems
+                (tipoAtendimentoService.listAll());
+        id_tipoatendimento.setItemLabelGenerator(SetTipoAtendimento::getDescricao_tipoatendimento);
+        HorizontalLayout tipoeventofinanceirolayout =
+                new CustomizedComboBox().customizeTipoAtendimento
+                        (id_tipoatendimento, tipoAtendimentoService);
 
         datainicio_ordemservico = new DatePicker("Data Inicio");
         service.configuraCalendario(datainicio_ordemservico);
@@ -747,11 +754,6 @@ public class OrdemServicoDadosModal extends Dialog {
         });
 
         horarioinicio_ordemservico = new TimePicker("Horario");
-        quantidade_ordemservico = new IntegerField("Quantidade");
-        quantidade_ordemservico.setStepButtonsVisible(true);
-
-        intervalo_ordemservico = new IntegerField("Intervalo");
-        intervalo_ordemservico.setStepButtonsVisible(true);
 
         nome_pontofocal = new TextField("Responsável no Local");
         id_orcamento.setReadOnly(true);
@@ -772,16 +774,12 @@ public class OrdemServicoDadosModal extends Dialog {
 
         confirmado_ordemservico.setItems(List.of("SIM","NÃO"));
 
-        HorizontalLayout situacaoOrcamentolayout =
-                new CustomizedComboBox().customizeSituacaoCadastro(id_situacaoservico,situacaoCadastroService);
 
         formLayout.add(localTratamentoOrcamento,
-                situacaoOrcamentolayout,
+                tipoeventofinanceirolayout,
                 datainicio_ordemservico,
                 diasemanainicio_ordemservico,
                 horarioinicio_ordemservico,
-                quantidade_ordemservico,
-                intervalo_ordemservico,
                 nome_pontofocal,
                 id_funcionarioassistente,id_funcionariotecnico,
                 confirmado_ordemservico,
@@ -797,7 +795,7 @@ public class OrdemServicoDadosModal extends Dialog {
 
     private void save() {
         // Lógica para salvar o cadastro
-        SetOrdemServico dto = new SetOrdemServico();
+        SetOrdemServico dto = ordemServico;
 
         try {
             if (id_orcamento.getValue() != null) {
@@ -809,14 +807,14 @@ public class OrdemServicoDadosModal extends Dialog {
             if (id_funcionariotecnico.getValue() != null) {
                 dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
             }
-            if (id_situacaoservico.getValue() != null) {
-                dto.setId_situacaoservico(id_situacaoservico.getValue().getId_situacaocadastro());
+            if (id_tipoatendimento.getValue() != null) {
+                dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
             }
             if (localTratamentoOrcamento.getValue() != null) {
                 dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
             }
 
-            dto.setId_cliente(cliente.getId_cliente());
+            dto.setId_cliente(dto.getId_cliente());
             dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
             dto.setDatainicio_ordemservico(datainicio_ordemservico.getValue());
             dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
@@ -830,9 +828,7 @@ public class OrdemServicoDadosModal extends Dialog {
             }
             dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
             dto.setNome_pontofocal(nome_pontofocal.getValue());
-            dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
-            dto.setIntervalo_ordemservico(intervalo_ordemservico.getValue());
-            dto.setData_inclusao(LocalDateTime.now());
+            dto.setData_alteracao(LocalDateTime.now());
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             dto.setAtivo("S");
             service = new UtilitySystemConfigService();
@@ -905,12 +901,10 @@ public class OrdemServicoDadosModal extends Dialog {
             }
             orcamentoDiv.refreshGrid();
             id_orcamento.clear();
-            id_situacaoservico.clear();
+            //id_situacaoservico.clear();
             // datainicio_ordemservico.clear();
             diasemanainicio_ordemservico.clear();
             horarioinicio_ordemservico.clear();
-            quantidade_ordemservico.clear();
-            intervalo_ordemservico.clear();
             nome_pontofocal.clear();
             id_funcionarioassistente.clear();
             id_funcionariotecnico.clear();
@@ -930,20 +924,24 @@ public class OrdemServicoDadosModal extends Dialog {
 
     public void setOrdemServico(SetOrdemServico item) {
     this.ordemServico = item;
-
-        List<SetSituacaoCadastro> listasituacao = situacaoCadastroService.listAll();
+    //this.id_orcamento = item.getId_orcamento();
+        open();
+        UI.getCurrent().access(() -> {
+        List<SetTipoAtendimento> listasituacao = tipoAtendimentoService.listAll();
         List<SetFuncionario> listafuncionario = funcionarioService.listAll();
         List<SetEnderecos> enderecosList = enderecoService.findAllClienteId(item.getId_cliente());
-        id_orcamento.setValue(String.valueOf(item.getId_orcamento()));
+            localTratamentoOrcamento.setItems
+                    (enderecoService.findAllClienteId(item.getId_cliente()));
+          id_orcamento.setValue(String.valueOf(item.getId_orcamento()));
 
-        id_situacaoservico.setValue(listasituacao.stream()
-                .filter(midia -> midia.getId_situacaocadastro().equals(ordemServico.getId_situacaoservico()))
+        id_tipoatendimento.setValue(listasituacao.stream()
+                .filter(midia -> midia.getId_tipoatendimento().equals(ordemServico.getId_tipoatendimento()))
                 .findFirst().orElse(null));
         id_funcionarioassistente.setValue(listafuncionario.stream()
                 .filter(midia -> midia.getId_funcionario().equals(ordemServico.getId_funcionarioassistente()))
                 .findFirst().orElse(null));
         id_funcionariotecnico.setValue(listafuncionario.stream()
-                .filter(midia -> midia.getNome_funcionario().equals(ordemServico.getId_funcionariotecnico()))
+                .filter(midia -> midia.getId_funcionario().equals(ordemServico.getId_funcionariotecnico()))
                 .findFirst().orElse(null));
 
         localTratamentoOrcamento.setItems(enderecosList);
@@ -954,16 +952,14 @@ public class OrdemServicoDadosModal extends Dialog {
         confirmado_ordemservico.setItems(List.of("SIM","NÃO"));
 
         if(ordemServico.getConfirmado_ordemservico().equals("S")){
-            confirmado_ordemservico.setValue(Set.of("SIM"));
+            confirmado_ordemservico.setValue(("SIM"));
         } else if(ordemServico.getConfirmado_ordemservico().equals("N")) {
-            confirmado_ordemservico.setValue(Set.of("NÃO"));
+            confirmado_ordemservico.setValue(("NÃO"));
         }
 
         datainicio_ordemservico.setValue(ordemServico.getDatainicio_ordemservico());
         diasemanainicio_ordemservico.setValue(ordemServico.getDiasemanainicio_ordemservico());
         horarioinicio_ordemservico.setValue(ordemServico.getHorarioinicio_ordemservico());
-        quantidade_ordemservico.setValue(ordemServico.getQuantidade_ordemservico());
-        intervalo_ordemservico.setValue(ordemServico.getIntervalo_ordemservico());
         nome_pontofocal.setValue(ordemServico.getNome_pontofocal());
         ocorrencias_ordemservico.setValue(ordemServico.getOcorrencias_ordemservico());
 
@@ -1018,6 +1014,7 @@ public class OrdemServicoDadosModal extends Dialog {
             nivelinfestacao_ordemservicopraga.clear();
             descricao_ordemservicopraga.clear();
         }
-
+     });
     }
+
 }
