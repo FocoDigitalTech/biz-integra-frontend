@@ -1,7 +1,6 @@
 package br.com.onetec.application.views;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.views.layouts.AccessDeniedView;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.application.views.main.clientes.ClientesView;
 import br.com.onetec.application.views.main.configuracoessistema.ConfiguracoesSistemaView;
@@ -22,19 +21,17 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.Scroller;
-import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
-import com.vaadin.flow.router.HighlightCondition;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -146,6 +143,7 @@ public class MainLayout extends AppLayout {
                 VaadinIcon.COG_O));
         nav.addItem(createNavItem(MenuNavItemVerticalTitleConst.NAME_SEGURANCA, ConfiguracoesSegurancaView.class,
                 VaadinIcon.GROUP));
+
 
         nav.setCollapsible(false);
 

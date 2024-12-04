@@ -1,7 +1,7 @@
 package br.com.onetec.application.views.main.financeiro.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.service.tipopagamentoservice.TipoEventoFinanceiroService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.TipoEventoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
@@ -48,7 +48,9 @@ public class TipoEventoFinanceiroCadastroModal extends Dialog {
                 } catch (Exception e) {
                 }
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

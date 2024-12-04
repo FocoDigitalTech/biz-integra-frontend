@@ -3,13 +3,12 @@ package br.com.onetec.application.views.main.seguranca.div;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.grupousuarioservice.GrupoUsuarioService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.configuracoessistema.modal.PragaCadastroModal;
 import br.com.onetec.application.views.main.seguranca.modal.UsuarioCadastroModal;
+import br.com.onetec.application.views.main.seguranca.modal.UsuarioDadosModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
-import br.com.onetec.infra.db.model.SetPraga;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -23,6 +22,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -55,9 +55,12 @@ public class UsuariosDiv extends Div {
 
     private GrupoUsuarioService grupoUsuarioService;
 
+    private UsuarioDadosModal usuarioDadosModal;
+
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
+                             UsuarioDadosModal usuarioDadosModal1,
                              UsuarioCadastroModal usuarioCadastroModal1,
                              FuncionarioService funcionarioService1,
                              GrupoUsuarioService grupoUsuarioService1) {
@@ -67,6 +70,7 @@ public class UsuariosDiv extends Div {
         this.usuarioCadastroModal = usuarioCadastroModal1;
         this.funcionarioService = funcionarioService1;
         this.grupoUsuarioService = grupoUsuarioService1;
+        this.usuarioDadosModal =usuarioDadosModal1;
     }
 
     @Autowired
@@ -145,33 +149,45 @@ public class UsuariosDiv extends Div {
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
+        final Registration[] btnExcluirClickListenerRegistration = {null};
+        grid.addItemClickListener(event ->
+                {
+                    usuarioDadosModal.setUsuario(event.getItem());
+                    usuarioDadosModal.open();
+                }
+//        {
+//            // Torna o botão "Deletar" visível
+//            btnExcluir.setVisible(true);
+//            Dialog dialog = new Dialog();
+//
+//            dialog.setHeaderTitle(
+//                    String.format("Delete user \"%s\"?", event.getItem().getNome_usuario()));
+//            dialog.add("Are you sure you want to delete this user permanently?");
+//
+//            // tag::snippet1[]
+//            Button deleteButton = new Button("Delete", (e) -> deleta(event.getItem(),dialog));
+//            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//                    ButtonVariant.LUMO_ERROR);
+//            deleteButton.getStyle().set("margin-right", "auto");
+//            dialog.getFooter().add(deleteButton);
+//
+//            Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+//            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+//            dialog.getFooter().add(cancelButton);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                dialog.open();
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
+//        }
+        );
 
-
-        grid.addItemClickListener(event -> {
-
-            Dialog dialog = new Dialog();
-
-            dialog.setHeaderTitle(
-                    String.format("Delete user \"%s\"?", event.getItem().getNome_usuario()));
-            dialog.add("Are you sure you want to delete this user permanently?");
-
-            // tag::snippet1[]
-            Button deleteButton = new Button("Delete", (e) -> deleta(event.getItem(),dialog));
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            deleteButton.getStyle().set("margin-right", "auto");
-            dialog.getFooter().add(deleteButton);
-
-            Button cancelButton = new Button("Cancel", (e) -> dialog.close());
-            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            dialog.getFooter().add(cancelButton);
-
-            // Configura o botão "Deletar" para deletar o item clicado
-            btnExcluir.addClickListener(event1 -> dialog.open());
-
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-        });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);

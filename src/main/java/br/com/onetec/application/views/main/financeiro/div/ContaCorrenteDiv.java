@@ -1,14 +1,14 @@
 package br.com.onetec.application.views.main.financeiro.div;
 
-import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.estoque.modal.EstoqueCadastroModal;
-import br.com.onetec.application.views.main.financeiro.modal.CondicaoPagamentoCadastroModal;
 import br.com.onetec.application.views.main.financeiro.modal.ContaCorrenteCadastroModal;
+import br.com.onetec.application.views.main.financeiro.modal.ContaCorrenteDetalheModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetContaCorrente;
+import br.com.onetec.infra.db.model.SetEstoque;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,6 +20,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -47,6 +48,8 @@ public class ContaCorrenteDiv extends Div {
 
     private ContaCorrenteCadastroModal contaCorrenteCadastroModal;
 
+    private ContaCorrenteDetalheModal contaCorrenteDetalheModalModal;
+
     private UsuarioService usuarioService;
 
     private Button btnExcluir;
@@ -56,11 +59,13 @@ public class ContaCorrenteDiv extends Div {
                              UsuarioService usuarioService1,
                              ApplicationContext applicationContext1,
                              ContaCorrenteService contaCorrenteService1,
-                             ContaCorrenteCadastroModal contaCorrenteCadastroModal1) {
+                             ContaCorrenteCadastroModal contaCorrenteCadastroModal1,
+                             ContaCorrenteDetalheModal contaCorrenteDetalheModalModal1) {
         this.contaCorrenteService = contaCorrenteService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.contaCorrenteCadastroModal = contaCorrenteCadastroModal1;
+        this.contaCorrenteDetalheModalModal = contaCorrenteDetalheModalModal1;
     }
 
 
@@ -162,12 +167,26 @@ public class ContaCorrenteDiv extends Div {
         grid.addItemDoubleClickListener(event -> {
         });
 
+        final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
-            // Configura o botão "Deletar" para deletar o item clicado
-            btnExcluir.addClickListener(event1 -> deleta(event.getItem()));
-
             // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
+            UI.getCurrent().access(() -> {
+                contaCorrenteDetalheModalModal.setContaCorrente(event.getItem());
+                contaCorrenteDetalheModalModal.open();
+            });
+
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+                //deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);

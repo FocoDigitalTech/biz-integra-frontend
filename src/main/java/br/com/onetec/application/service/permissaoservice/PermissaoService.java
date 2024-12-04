@@ -1,8 +1,7 @@
 package br.com.onetec.application.service.permissaoservice;
 
-import br.com.onetec.infra.db.model.SetGrupoUsuario;
+import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetPermissao;
-import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
 import br.com.onetec.infra.db.repository.ISetPermissaoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +29,12 @@ public class PermissaoService {
     public Page<SetPermissao> list(Pageable pageable, Specification<SetPermissao> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetPermissao> page = repository.findAll(filter, pageable);
-        return repository.findAll(filter, pageable);
+        Specification<SetPermissao> novaCondicao = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("ativo"), "S");
+        // Combina a nova condição com o filtro existente usando and()
+        Specification<SetPermissao> filtroComCondicao = filter.and(novaCondicao);
+        // Executa a consulta com o filtro combinado
+        return repository.findAll(filtroComCondicao, pageable);
     }
 
     public SetPermissao findById (Integer idGrupoUsuario){
@@ -39,7 +44,13 @@ public class PermissaoService {
 
     public void delete(SetPermissao item) throws Exception {
         try {
-            repository.delete(item);
+            Optional<SetPermissao> optional = repository.findById(item.getId_permissao());
+            SetPermissao entity = optional.get();
+            entity.setAtivo("N");
+            entity.setData_exclusao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            repository.save(entity);
+            log.info("excluido !");
         } catch (Exception e){
             throw new Exception();
         }

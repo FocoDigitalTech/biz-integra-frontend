@@ -1,7 +1,6 @@
 package br.com.onetec.application.security;
 
 import br.com.onetec.infra.db.model.SetUsuarios;
-import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
 import br.com.onetec.infra.db.repository.IUsuariosRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

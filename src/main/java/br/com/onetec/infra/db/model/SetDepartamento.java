@@ -2,6 +2,7 @@ package br.com.onetec.infra.db.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data

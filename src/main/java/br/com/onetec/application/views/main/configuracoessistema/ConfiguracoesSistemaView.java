@@ -1,23 +1,13 @@
 package br.com.onetec.application.views.main.configuracoessistema;
 
 
-import br.com.onetec.application.service.departamentoservice.DepartamentoService;
-import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
-import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
-import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
 import br.com.onetec.application.views.main.configuracoessistema.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -39,6 +29,8 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
         private SetorAtuacaoDiv setorAtuacaoDiv;
         private ServicoDiv servicoDiv;
         private PragasDiv pragasDiv;
+        private CodigoNumeracaoDiv codigoNumeracaoDiv;
+        private ExecucaoServicoDiv execucaoServicoDiv;
 
 
         @Autowired
@@ -49,7 +41,10 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
                                  SituacaoCadastroDiv situacaoCadastroDiv1,
                                  SetorAtuacaoDiv setorAtuacaoDiv1,
                                  ServicoDiv servicoDiv1,
-                                 PragasDiv pragasDiv) {
+                                 PragasDiv pragasDiv,
+                                 CodigoNumeracaoDiv codigoNumeracaoDiv1,
+                                 ExecucaoServicoDiv execucaoServicoDiv1) {
+            this.execucaoServicoDiv = execucaoServicoDiv1;
             this.tipomidiaDiv = tipomidiaDiv1;
             this.tipoimovelDiv = tipoimovelDiv1;
             this.regiaoDiv = regiaoDiv1;
@@ -58,16 +53,31 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
             this.setorAtuacaoDiv = setorAtuacaoDiv1;
             this.servicoDiv = servicoDiv1;
             this.pragasDiv = pragasDiv;
+            this.codigoNumeracaoDiv = codigoNumeracaoDiv1;
         }
 
 
         @Autowired
-        public ConfiguracoesSistemaView(TipoMidiaDiv tipomidiaDiv1,
-                                        TipoImovelDiv tipoimovelDiv1,
-                                        RegiaoDiv regiaoDiv1) {
+        public ConfiguracoesSistemaView (TipoMidiaDiv tipomidiaDiv1,
+                                         TipoImovelDiv tipoimovelDiv1,
+                                         RegiaoDiv regiaoDiv1,
+                                         TipoAtendimentoDiv tipoAtendimentoDiv1,
+                                         SituacaoCadastroDiv situacaoCadastroDiv1,
+                                         SetorAtuacaoDiv setorAtuacaoDiv1,
+                                         ServicoDiv servicoDiv1,
+                                         PragasDiv pragasDiv,
+                                         CodigoNumeracaoDiv codigoNumeracaoDiv1,
+                                         ExecucaoServicoDiv execucaoServicoDiv1) {
+            this.execucaoServicoDiv = execucaoServicoDiv1;
             this.tipomidiaDiv = tipomidiaDiv1;
             this.tipoimovelDiv = tipoimovelDiv1;
             this.regiaoDiv = regiaoDiv1;
+            this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
+            this.situacaoCadastroDiv = situacaoCadastroDiv1;
+            this.setorAtuacaoDiv = setorAtuacaoDiv1;
+            this.servicoDiv = servicoDiv1;
+            this.pragasDiv = pragasDiv;
+            this.codigoNumeracaoDiv = codigoNumeracaoDiv1;
             UI.getCurrent().access(() -> {
                 setSizeFull();
                 TabSheet tabSheet = new TabSheet();
@@ -76,6 +86,10 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
                         tipomidiaDiv);
                 tabSheet.add("Tipos de Imóvel",
                         tipoimovelDiv);
+                tabSheet.add("Serviços OS",
+                        execucaoServicoDiv);
+                tabSheet.add("Códigos e Numeração",
+                        codigoNumeracaoDiv);
                 tabSheet.add("Regiões",
                         regiaoDiv);
                 tabSheet.add("Tipo de Atendimento",
@@ -88,8 +102,6 @@ public class ConfiguracoesSistemaView extends VerticalLayout {
                         servicoDiv);
                 tabSheet.add("Pragas",
                         pragasDiv);
-                tabSheet.add("Tecnicos e Assistentes",
-                        new Div(new Text("This is the Shipping tab content")));
                 tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
                 add(tabSheet);
             });

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,7 +14,15 @@ import java.time.LocalTime;
 public class SetOrcamento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "orcamento_seq")
+    @TableGenerator(
+            name = "orcamento_seq",
+            table = "tb_codigonumeracao",
+            pkColumnName = "sequence_name",
+            valueColumnName = "orcamento_codigonumeracao",
+            pkColumnValue = "incremento",
+            allocationSize = 1
+    )
     private Integer id_orcamento;
     private Integer id_cliente;
     private Integer id_endereco;

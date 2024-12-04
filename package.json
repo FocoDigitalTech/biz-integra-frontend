@@ -4,21 +4,26 @@
   "type": "module",
   "dependencies": {
     "@polymer/polymer": "3.5.1",
+    "@vaadin/board": "24.4.2",
     "@vaadin/bundles": "24.4.2",
+    "@vaadin/charts": "24.4.2",
     "@vaadin/common-frontend": "0.0.19",
+    "@vaadin/cookie-consent": "24.4.2",
+    "@vaadin/crud": "24.4.2",
+    "@vaadin/grid-pro": "24.4.2",
     "@vaadin/polymer-legacy-adapter": "24.4.2",
     "@vaadin/react-components": "24.4.2",
-    "@vaadin/react-components-pro": "24.4.2",
+    "@vaadin/rich-text-editor": "24.4.2",
     "@vaadin/router": "1.7.5",
     "@vaadin/vaadin-development-mode-detector": "2.0.7",
     "@vaadin/vaadin-lumo-styles": "24.4.2",
     "@vaadin/vaadin-material-styles": "24.4.2",
+    "@vaadin/vaadin-shrinkwrap": "21.0.0",
     "@vaadin/vaadin-themable-mixin": "24.4.2",
     "@vaadin/vaadin-usage-statistics": "2.1.2",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
     "lit": "3.1.4",
-    "proj4": "2.11.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.23.1"
@@ -46,21 +51,26 @@
   "vaadin": {
     "dependencies": {
       "@polymer/polymer": "3.5.1",
+      "@vaadin/board": "24.4.2",
       "@vaadin/bundles": "24.4.2",
+      "@vaadin/charts": "24.4.2",
       "@vaadin/common-frontend": "0.0.19",
+      "@vaadin/cookie-consent": "24.4.2",
+      "@vaadin/crud": "24.4.2",
+      "@vaadin/grid-pro": "24.4.2",
       "@vaadin/polymer-legacy-adapter": "24.4.2",
       "@vaadin/react-components": "24.4.2",
-      "@vaadin/react-components-pro": "24.4.2",
+      "@vaadin/rich-text-editor": "24.4.2",
       "@vaadin/router": "1.7.5",
       "@vaadin/vaadin-development-mode-detector": "2.0.7",
       "@vaadin/vaadin-lumo-styles": "24.4.2",
       "@vaadin/vaadin-material-styles": "24.4.2",
+      "@vaadin/vaadin-shrinkwrap": "21.0.0",
       "@vaadin/vaadin-themable-mixin": "24.4.2",
       "@vaadin/vaadin-usage-statistics": "2.1.2",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
       "lit": "3.1.4",
-      "proj4": "2.11.0",
       "react": "18.3.1",
       "react-dom": "18.3.1",
       "react-router-dom": "6.23.1"
@@ -85,7 +95,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "bc805cfa117879aab579993d9ddf9ed70f0b33ecccea3a6cc5c4f766048e3ee5"
+    "hash": "f7866845bbd0c60119c78bc5a3ba4c9885de5d01c3dc6436f319b2ef119d47f0"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -94,7 +104,6 @@
     "@vaadin/router": "$@vaadin/router",
     "@vaadin/vaadin-usage-statistics": "$@vaadin/vaadin-usage-statistics",
     "@vaadin/react-components": "$@vaadin/react-components",
-    "@vaadin/react-components-pro": "$@vaadin/react-components-pro",
     "@vaadin/common-frontend": "$@vaadin/common-frontend",
     "react-dom": "$react-dom",
     "construct-style-sheets-polyfill": "$construct-style-sheets-polyfill",
@@ -103,9 +112,15 @@
     "@polymer/polymer": "$@polymer/polymer",
     "react": "$react",
     "date-fns": "$date-fns",
-    "proj4": "$proj4",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
-    "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles"
+    "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles",
+    "@vaadin/cookie-consent": "$@vaadin/cookie-consent",
+    "@vaadin/crud": "$@vaadin/crud",
+    "@vaadin/board": "$@vaadin/board",
+    "@vaadin/rich-text-editor": "$@vaadin/rich-text-editor",
+    "@vaadin/charts": "$@vaadin/charts",
+    "@vaadin/grid-pro": "$@vaadin/grid-pro",
+    "@vaadin/vaadin-shrinkwrap": "$@vaadin/vaadin-shrinkwrap"
   }
 }

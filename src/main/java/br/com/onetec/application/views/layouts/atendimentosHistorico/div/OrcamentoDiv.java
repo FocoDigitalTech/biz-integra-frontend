@@ -1,53 +1,62 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.div;
 
-import br.com.onetec.application.configuration.OrcamentoTransiction;
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
+import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoCadastroModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoDetalheModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrdemServicoCadastroModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrdemServicoDadosModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetOrcamento;
-import br.com.onetec.infra.db.model.SetOrdemServico;
-import br.com.onetec.infra.db.model.SetUsuarios;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.ItemDoubleClickEvent;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
 public class OrcamentoDiv extends Div {
-    private boolean sidebarCollapsed;
-//    private final Button button;
-//    private final Icon leftArrowIcon;
-//    private final Icon rightArrowIcon;
-//    private final SplitLayout splitLayout;
+
 
     private Grid<SetOrcamento> grid;
+
+    Grid<SetOrdemServico> gridOrdemServico;
 
     private OrcamentoDiv.Filter filter;
 
@@ -65,6 +74,25 @@ public class OrcamentoDiv extends Div {
 
     private Button btnExcluir;
 
+    private OrdemServicoDadosModal ordemServicoDadosModal;
+
+    private OrdemServicoCadastroModal ordemServicoCadastroModal;
+
+    private SituacaoCadastroService situacaoCadastroService;
+
+    private CondicaoPagamentoService condicaoPagamentoService;
+
+    private ContratoService contratoService;
+
+    private EnderecoService enderecoService;
+
+    private ApplicationContext applicationContext;
+
+    private String possuiContrato;
+
+    private Boolean contractRequi = false;
+
+
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -72,47 +100,58 @@ public class OrcamentoDiv extends Div {
                              OrcamentoService orcamentoService1,
                              OrcamentoCadastroModal contaCorrenteCadastroModal1,
                              OrcamentoDetalheModal orcamentoDetalheModal1,
-                             OrdemServicoService ordemServicoService1) {
+                             OrdemServicoService ordemServicoService1,
+                             OrdemServicoDadosModal ordemServicoDadosModal1,
+                             OrdemServicoCadastroModal ordemServicoCadastroModal1,
+                             SituacaoCadastroService situacaoCadastroService1,
+                             CondicaoPagamentoService condicaoPagamentoService1,
+                             EnderecoService enderecoService1,
+                             ContratoService contratoService1) {
         this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.orcamentoCadastroModal = contaCorrenteCadastroModal1;
         this.orcamentoDetalheModal = orcamentoDetalheModal1;
         this.ordemServicoService = ordemServicoService1;
+        this.ordemServicoDadosModal = ordemServicoDadosModal1;
+        this.ordemServicoCadastroModal = ordemServicoCadastroModal1;
+        this.situacaoCadastroService = situacaoCadastroService1;
+        this.condicaoPagamentoService = condicaoPagamentoService1;
+        this.enderecoService = enderecoService1;
+        this.contratoService = contratoService1;
+        this.applicationContext = applicationContext1;
     }
 
     @Autowired
-    public OrcamentoDiv() {
-//        button = new Button();
-//        leftArrowIcon = VaadinIcon.ARROW_LEFT.create();
-//        rightArrowIcon = VaadinIcon.ARROW_RIGHT.create();
-//        Div masterContainer = new Div();
-//        Div detailContent = new Div();
-//        detailContent.add(new H3("Texto"));
-//        masterContainer.setSizeFull();
-//
-//        sidebarCollapsed = true;
-//
-//        button.addClickListener(event -> {
-//            sidebarCollapsed = !sidebarCollapsed;
-//            updateSidebar();
-//        });
-//        button.setAriaLabel("Expand/collapse sidebar");
-//        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-//        button.getStyle().set("float", "right");
-//
-//        masterContainer.add(button, telaDiv());
-//        masterContainer.setWidthFull();
-//
-//       // masterContainer.getStyle().set("overflow", "auto");
-//
-//        splitLayout = new SplitLayout(masterContainer, detailContent);
-//
-//        updateSidebar();
-//
-//        splitLayout.setSizeFull();
-//        splitLayout.setWidthFull();
-        add(telaDiv());
+    public OrcamentoDiv(UtilitySystemConfigService service1,
+                        UsuarioService usuarioService1,
+                        ApplicationContext applicationContext1,
+                        OrcamentoService orcamentoService1,
+                        OrcamentoCadastroModal contaCorrenteCadastroModal1,
+                        OrcamentoDetalheModal orcamentoDetalheModal1,
+                        OrdemServicoService ordemServicoService1,
+                        OrdemServicoDadosModal ordemServicoDadosModal1,
+                        OrdemServicoCadastroModal ordemServicoCadastroModal1,
+                        SituacaoCadastroService situacaoCadastroService1,
+                        CondicaoPagamentoService condicaoPagamentoService1,
+                        EnderecoService enderecoService1,
+                        ContratoService contratoService1) {
+        this.orcamentoService = orcamentoService1;
+        this.service = service1;
+        this.usuarioService = usuarioService1;
+        this.orcamentoCadastroModal = contaCorrenteCadastroModal1;
+        this.orcamentoDetalheModal = orcamentoDetalheModal1;
+        this.ordemServicoService = ordemServicoService1;
+        this.ordemServicoDadosModal = ordemServicoDadosModal1;
+        this.ordemServicoCadastroModal = ordemServicoCadastroModal1;
+        this.situacaoCadastroService = situacaoCadastroService1;
+        this.condicaoPagamentoService = condicaoPagamentoService1;
+        this.enderecoService = enderecoService1;
+        this.contratoService = contratoService1;
+        this.applicationContext = applicationContext1;
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
     }
 //
 //    private void updateSidebar() {
@@ -122,28 +161,41 @@ public class OrcamentoDiv extends Div {
 
     private Div telaDiv() {
         /* constuir a tela funcionarios*/
-        setSizeFull();
-        addClassNames("telarelatorios-view");
+        SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+        entidade = SetClienteTransiction.getCliente();
+        if (Objects.nonNull(entidade)) {
+            setSizeFull();
+            addClassNames("telarelatorios-view");
 
-        com.vaadin.flow.component.Component gridFuncionario = createGrid();
-        filter = new OrcamentoDiv.Filter(() -> refreshGrid());
-        HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
+            com.vaadin.flow.component.Component gridFuncionario = createGrid(entidade);
+            filter = new OrcamentoDiv.Filter(() -> refreshGrid());
+            HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
-        VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
-        layout.setSizeFull();
-        layout.setPadding(false);
-        layout.setSpacing(false);
+            VerticalLayout layout = new VerticalLayout(mobileFiltersFuncionario, filter, gridFuncionario);
+            layout.setSizeFull();
+            layout.setPadding(false);
+            layout.setSpacing(false);
 
-        add(layout);
-        Div div = new Div(layout);
-        div.setSizeFull();
 
-        return div;
+            add(layout);
+            Div div = new Div(layout);
+            div.setSizeFull();
+
+            return div;
+        } else {
+            ProgressBar progressBar = new ProgressBar();
+            progressBar.setIndeterminate(true);
+            add(progressBar);
+
+            return new Div(progressBar);
+        }
 
     }
 
     public void refreshGrid() {
         grid.getDataProvider().refreshAll();
+        //gridOrdemServico.getDataProvider().refreshAll();
+        sidebar.setVisible(false);
     }
 
     private HorizontalLayout createMobileFiltersFuncionario() {
@@ -170,7 +222,7 @@ public class OrcamentoDiv extends Div {
         return mobileFilters;
     }
 
-    private com.vaadin.flow.component.Component createGrid() {
+    private com.vaadin.flow.component.Component createGrid(SetCliente entidade) {
         // Cria o layout principal
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
@@ -181,18 +233,57 @@ public class OrcamentoDiv extends Div {
                 .setHeader("Id")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetOrcamento::getId_cliente)
-                .setHeader("Apelido da Conta")
+        grid.addColumn(s -> {
+            SetSituacaoCadastro situacaoCadastro = situacaoCadastroService.fidById(s.getId_situacao());
+            return situacaoCadastro == null ? "N/A" : situacaoCadastro.getDescricao_situacaocadastro();
+              }).setHeader("Situação Orçamento")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetOrcamento::getGarantia_orcamento)
-                .setHeader("Banco")
+        grid.addColumn(s -> {
+            if (Objects.nonNull(s.getId_condicaopagamento())) {
+                SetCondicaoPagamento condicaoPagamento = condicaoPagamentoService.
+                        fidById(s.getId_condicaopagamento());
+                return condicaoPagamento == null ? "N/A" : condicaoPagamento.getDescricao_condicaopagamento();
+            } else {
+                return  "N/A";
+            }
+        }).setHeader("Condição Pagamento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(cliente -> {
+            SetEnderecos listaEnderecos = enderecoService.findAllById(cliente.getId_endereco());
+            return listaEnderecos == null ? "N/A" : listaEnderecos.getEnderecoImovel();
+        })
+                .setHeader("Endereço")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(valor -> {
+            String valorOrcamento = service.stringMoedaBrasileira
+                    (valor.getValor_orcamento().toString());
+            return valorOrcamento;
+        })
+                .setHeader("Valor do Orçamento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(new ComponentRenderer<>(orc -> {
+            SetContrato contrato = contratoService.findByIdOrcamento(orc.getId_orcamento());
+            possuiContrato = contrato == null ? "NÃO" : "SIM";
+            Span span = new Span(possuiContrato);
+            if ("SIM".equals(possuiContrato)) {
+                span.getStyle().set("color", "green");
+            } else {
+                span.getStyle().set("color", "red");
+            }
+            return span;
+        }))
+                .setHeader("Possui Contrato ?")
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(SetOrcamento::getData_inclusao)
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
+
         grid.addColumn(midia -> {
             SetUsuarios usuarios = usuarioService.findById(midia.getId_usuario());
             return usuarios == null ? "N/A" : usuarios.getNome_usuario();
@@ -201,9 +292,9 @@ public class OrcamentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.setItems(query -> orcamentoService.list(
+        grid.setItems(query -> orcamentoService.listByCustomer(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filter).stream());
+                filter,entidade).stream());
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
@@ -221,30 +312,58 @@ public class OrcamentoDiv extends Div {
         return mainLayout;
     }
 
+    private VerticalLayout sidebar;
+
     private VerticalLayout buildSideBar() {
 
         // Cria o botão de fechar o sidebar
-        VerticalLayout sidebar = new VerticalLayout();
-        Button btnCloseSidebar = new Button("Fechar", event -> {
+        sidebar = new VerticalLayout();
+        Button btnCloseSidebar = new Button(new Icon(VaadinIcon.ARROW_RIGHT), event -> {
             sidebar.setVisible(false);
+        });
+        btnCloseSidebar.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR);
+        Button createBtnSidebar = new Button(new Icon(VaadinIcon.PLUS));
+        createBtnSidebar.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_PRIMARY);
+        createBtnSidebar.setAriaLabel("Add ordem de serviço");
+
+        Button btnNovaOrdem = new Button("Novo", event -> {
         });
 
         // Cria o sidebar que será mostrado quando o item for clicado
-        sidebar.add(btnCloseSidebar);
+        sidebar.add(btnCloseSidebar,btnNovaOrdem);
         sidebar.addClassName("v-sidebar");
 
 
+        final Registration[] btnExcluirClickListenerRegistration = {null};
 
         // Configura o item click listener para abrir o sidebar com detalhes
         grid.addItemClickListener(event -> {
             SetOrcamento selectedConta = event.getItem();
             // Cria o sidebar que será mostrado quando o item for clicado
-            sidebar.add(btnCloseSidebar);
+            //sidebar.add(btnCloseSidebar,createBtnSidebar);
             sidebar.addClassName("v-sidebar");
+            if (btnExcluirClickListenerRegistration[0] != null) {
+                btnExcluirClickListenerRegistration[0].remove();
+                btnExcluirClickListenerRegistration[0] = null;
+            }
+            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+            btnExcluirClickListenerRegistration[0] = createBtnSidebar.addClickListener(event1 -> {
+                SetContrato contrato = contratoService.findByIdOrcamento(selectedConta.getId_orcamento());
+                possuiContrato = contrato == null ? "NÃO" : "SIM";
+                if (possuiContrato.equals("SIM")) {
+                    openCadastroOrdemServicoModal(event.getItem(),contrato);
+                } else {
+                    service.notificaErro("OBRIGATÓRIO POSSUIR CONTRATO");
+                }
+            });
 
-            Grid<SetOrdemServico> gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
+            gridOrdemServico = new Grid<>(SetOrdemServico.class, false);
             gridOrdemServico.addColumn(SetOrdemServico::getId_ordemservico)
                     .setHeader("Id")
+                    .setSortable(true)
+                    .setAutoWidth(true);
+            gridOrdemServico.addColumn(SetOrdemServico::getNome_pontofocal)
+                    .setHeader("Ponto Focal")
                     .setSortable(true)
                     .setAutoWidth(true);
             gridOrdemServico.addColumn(SetOrdemServico::getDatainicio_ordemservico)
@@ -253,12 +372,16 @@ public class OrcamentoDiv extends Div {
                     .setAutoWidth(true);
             gridOrdemServico.setItems(ordemServicoService.findAllByOrcamentoId(selectedConta.getId_orcamento()));
 
+            gridOrdemServico.addItemClickListener(event1 -> {
+                openDetalhesOrdemServico(event1.getItem());
+            });
+
             // Atualiza o conteúdo do sidebar com as informações da conta corrente
             sidebar.removeAll();
             sidebar.add(
-                    new Text("Ordems Serviço Aberta "),
+                    new Text("Ordems de Serviço Aberta: "),
                     gridOrdemServico,
-                    btnCloseSidebar
+                    new HorizontalLayout(btnCloseSidebar,createBtnSidebar)
             );
 
             sidebar.addClassName("visible");
@@ -270,12 +393,19 @@ public class OrcamentoDiv extends Div {
         return sidebar;
     }
 
-
-    private void abrirDetalhesDoEstoque(SetEstoque estoque) {
-        //  lógica para abrir modal
-        // ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
-        //dialog.open();
+    private void openCadastroOrdemServicoModal(SetOrcamento item, SetContrato contrato) {
+         ordemServicoCadastroModal.setOrdemServico(item,contrato);
+         ordemServicoCadastroModal.open();
     }
+
+
+    private void openDetalhesOrdemServico(SetOrdemServico item) {
+        UI.getCurrent().access(() -> {
+            ordemServicoDadosModal.setOrdemServico(item);
+            ordemServicoDadosModal.open();
+        });
+    }
+
 
     private void deleta(SetOrcamento item) {
         try {
@@ -293,10 +423,13 @@ public class OrcamentoDiv extends Div {
 
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
-        private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Descrição");
+        private final ComboBox<SetSituacaoCadastro> nome = new ComboBox<>("Situação");
+
 
 
         public Filter(Runnable onSearch) {
+            nome.setItems(situacaoCadastroService.listAll());
+            nome.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
 
             setWidthFull();
             addClassName("filter-layout");
@@ -339,42 +472,23 @@ public class OrcamentoDiv extends Div {
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_contacorrente"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("id_orcamento"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "nome_contacorrente";
+                String databaseColumn = "id_situacao";
                 String ignore = "- ()";
 
-                String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
-                Predicate phoneMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(phoneMatch);
+                Integer lowerCaseFilter = nome.getValue().getId_situacaocadastro();
+                Predicate phoneMatch = criteriaBuilder.equal(root.get("id_situacao"), lowerCaseFilter);
+                predicates.add(criteriaBuilder.or(phoneMatch));
 
             }
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
         }
 
-        private String ignoreCharacters(String characters, String in) {
-            String result = in;
-            for (int i = 0; i < characters.length(); i++) {
-                result = result.replace("" + characters.charAt(i), "");
-            }
-            return result;
-        }
-
-        private Expression<String> ignoreCharacters(String characters, CriteriaBuilder criteriaBuilder,
-                                                    Expression<String> inExpression) {
-            Expression<String> expression = inExpression;
-            for (int i = 0; i < characters.length(); i++) {
-                expression = criteriaBuilder.function("replace", String.class, expression,
-                        criteriaBuilder.literal(characters.charAt(i)), criteriaBuilder.literal(""));
-            }
-            return expression;
-        }
 
     }
 
@@ -386,13 +500,15 @@ public class OrcamentoDiv extends Div {
 
     private void openCadastroModal() {
         UI.getCurrent().access(() -> {
+            orcamentoCadastroModal = applicationContext.getBean(OrcamentoCadastroModal.class);
             orcamentoCadastroModal.open();
         });
     }
 
     private void openDetalheCadastroModal(ItemDoubleClickEvent<SetOrcamento> event) {
         UI.getCurrent().access(() -> {
-            OrcamentoTransiction.setOrcamento(event.getItem());
+            UI.getCurrent().getSession().setAttribute("orcamento", event.getItem());
+            orcamentoDetalheModal.setOrcamento(event.getItem());
             orcamentoDetalheModal.open();
         });
     }

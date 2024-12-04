@@ -8,6 +8,7 @@ import java.time.LocalTime;
 @Data
 public class Cliente {
 
+    private Integer id_cliente;
     private String nomeField;
     private String telefoneField;
     private String celularField;
@@ -15,7 +16,7 @@ public class Cliente {
     private LocalTime horaField;
     private String contatoField;
     private String administradora;
-    private String tipoMidia;
+    private Integer tipoMidia;
     private String nomeIndicacaoField;
     private String faxField;
     private String internetEmailField;

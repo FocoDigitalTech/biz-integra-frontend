@@ -6,8 +6,10 @@ import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroServic
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.lancamentoservice.LancamentoService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.LancamentoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
+import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
@@ -16,9 +18,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.dialog.DialogVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -26,8 +29,10 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -37,6 +42,7 @@ public class LancamentoFinanceiroModal extends Dialog {
     private ComboBox<SetEventoFinanceiro> id_eventofinanceiro;
     private ComboBox<SetContaCorrente> id_contacorrente;
     private ComboBox<SetFornecedor> id_fornecedor;
+    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
     //private ComboBox<> id_tipopagamento;
     private TextField nome_fluxorecebimentopagamento;
     private TextField quantidade_parcelas;
@@ -52,6 +58,7 @@ public class LancamentoFinanceiroModal extends Dialog {
     private TextField valor_previsto;
     private DatePicker datahora_lancamento;
     private TextField id_funcionariolancamento;
+    private ComboBox<String> status_pagamento;
 
     private static SetFuncionario funcionario;
 
@@ -66,6 +73,9 @@ public class LancamentoFinanceiroModal extends Dialog {
 
     @Autowired
     ContaCorrenteService contaCorrenteService;
+
+    @Autowired
+    TipoEventoFinanceiroService tipoEventoFinanceiroService;
 
     @Autowired
     @Lazy
@@ -97,7 +107,9 @@ public class LancamentoFinanceiroModal extends Dialog {
                 try { save();}
                 catch (Exception e) {}
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             Div contentTabs = new Div(createFormCadastroEmpresa());
@@ -106,9 +118,12 @@ public class LancamentoFinanceiroModal extends Dialog {
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             getFooter().add(saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
+            H2 title = new H2("Cadastro Lançamento Financeiro");
+            getHeader().add(title);
             add(layout);
         });
     }
+
 
 
     private Div createFormCadastroEmpresa() {
@@ -131,6 +146,10 @@ public class LancamentoFinanceiroModal extends Dialog {
         valor_previsto = new TextField("Valor Previsto");
         datahora_lancamento = new DatePicker("Data Lançamento");
         id_funcionariolancamento = new TextField("Responsável Lançamento");
+        status_pagamento = new ComboBox<>("Status Atual Pagamento");
+        id_tipoeventofinanceiro = new ComboBox<>("Nome Conta (Tipo Evento Financeiro)");
+
+        status_pagamento.setItems(List.of("Previsão (P)", "Real (R)"));
 
         datahora_lancamento.setValue(LocalDate.now());
         datahora_lancamento.setReadOnly(true);
@@ -153,12 +172,21 @@ public class LancamentoFinanceiroModal extends Dialog {
 
         id_eventofinanceiro.setItems(eventoFinanceiroService.findAll());
         id_eventofinanceiro.setItemLabelGenerator(SetEventoFinanceiro::getNome_eventofinanceiro);
+        HorizontalLayout eventofinanceirolayout =
+                new CustomizedComboBox().customizeEventoFinanceiro(id_eventofinanceiro,eventoFinanceiroService);
 
         id_contacorrente.setItems(contaCorrenteService.findAll());
         id_contacorrente.setItemLabelGenerator(SetContaCorrente::getNome_contacorrente);
+        HorizontalLayout contacorrentelayout =
+                new CustomizedComboBox().customizeContaCorrente(id_contacorrente,contaCorrenteService);
 
         id_fornecedor.setItems(fornecedorService.findAll());
         id_fornecedor.setItemLabelGenerator(SetFornecedor::getNomefantasia_fornecedor);
+
+        id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
+        id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
+        HorizontalLayout tipoeventofinanceirolayout =
+            new CustomizedComboBox().customizeTipoEventoFinanceiro(id_tipoeventofinanceiro,tipoEventoFinanceiroService);
 
         //id_funcionariolancamento.setEnabled(false);
         funcionario = funcionarioService.findById(UsuarioAutenticadoConfig.getUser().getId_funcionario());
@@ -169,8 +197,9 @@ public class LancamentoFinanceiroModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_eventofinanceiro,
-                    id_contacorrente,
+        formLayout.add(tipoeventofinanceirolayout,
+                eventofinanceirolayout,status_pagamento,
+                    contacorrentelayout,
                     id_fornecedor,
                     nome_fluxorecebimentopagamento,
                     quantidade_parcelas,

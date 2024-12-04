@@ -1,7 +1,6 @@
 package br.com.onetec.infra.db.repository;
 
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

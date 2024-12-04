@@ -5,7 +5,6 @@ import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoS
 import br.com.onetec.application.views.main.configuracoessistema.div.TipoAtendimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetRegiao;
 import br.com.onetec.infra.db.model.SetTipoAtendimento;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -45,7 +44,9 @@ public class TipoAtendimentoCadastroModal extends Dialog {
                 } catch (Exception e) {
                 }
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

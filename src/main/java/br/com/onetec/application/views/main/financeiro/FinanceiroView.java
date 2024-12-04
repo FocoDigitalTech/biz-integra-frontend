@@ -1,23 +1,26 @@
 package br.com.onetec.application.views.main.financeiro;
 
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.application.views.main.financeiro.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
 @Route(value = "financeiro", layout = MainLayout.class)
 @PageTitle(ViewsTitleConst.FINANCEIRO_NAV_TITLE)
 @PermitAll
+@Component
+@UIScope
 public class FinanceiroView extends VerticalLayout {
 
     private LancamentoFinanceiroDiv lancamentoFinanceiro;
@@ -26,6 +29,7 @@ public class FinanceiroView extends VerticalLayout {
     private GrupoFinanceiroDiv grupoFinanceiroDiv;
     private EventoFinanceiroDiv eventoFinanceiroDiv;
     private ContaCorrenteDiv contaCorrenteDiv;
+    private TipopagamentoDiv tipoPagamentoDiv;
 
 
 
@@ -35,13 +39,15 @@ public class FinanceiroView extends VerticalLayout {
                                  GrupoFinanceiroDiv grupoFinanceiroDiv1,
                                  EventoFinanceiroDiv eventoFinanceiroDiv1,
                                  ContaCorrenteDiv contaCorrenteDiv1,
-                                 LancamentoFinanceiroDiv lancamentoFinanceiroDiv){
+                                 LancamentoFinanceiroDiv lancamentoFinanceiroDiv,
+                                 TipopagamentoDiv tipoPagamentoDiv1){
             this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
             this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
             this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
             this.eventoFinanceiroDiv = eventoFinanceiroDiv1;
             this.contaCorrenteDiv = contaCorrenteDiv1;
             this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
+            this.tipoPagamentoDiv = tipoPagamentoDiv1;
         }
 
         @Autowired
@@ -50,13 +56,15 @@ public class FinanceiroView extends VerticalLayout {
                               GrupoFinanceiroDiv grupoFinanceiroDiv1,
                               EventoFinanceiroDiv eventoFinanceiroDiv1,
                               ContaCorrenteDiv contaCorrenteDiv1,
-                              LancamentoFinanceiroDiv lancamentoFinanceiroDiv){
-            this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
-            this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
-            this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
-            this.eventoFinanceiroDiv = eventoFinanceiroDiv1;
-            this.contaCorrenteDiv = contaCorrenteDiv1;
-            this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
+                              LancamentoFinanceiroDiv lancamentoFinanceiroDiv,
+                              TipopagamentoDiv tipoPagamentoDiv1){
+        this.condicaoPagamentoDiv = condicaoPagamentoDiv1;
+        this.tipoEventoFinanceiroDiv = tipoEventoFinanceiroDiv1;
+        this.grupoFinanceiroDiv = grupoFinanceiroDiv1;
+        this.eventoFinanceiroDiv = eventoFinanceiroDiv1;
+        this.contaCorrenteDiv = contaCorrenteDiv1;
+        this.lancamentoFinanceiro = lancamentoFinanceiroDiv;
+        this.tipoPagamentoDiv = tipoPagamentoDiv1;
 
             UI.getCurrent().access(() -> {
                 setSizeFull();
@@ -70,7 +78,7 @@ public class FinanceiroView extends VerticalLayout {
                 tabSheet.add("Grupos",
                         grupoFinanceiroDiv);
                 tabSheet.add("Tipo Pagamento",
-                        new Div(new Text("This is the Shipping tab content")));
+                        tipoPagamentoDiv);
                 tabSheet.add("Sub-Contas (Evento Financeiro)",
                         eventoFinanceiroDiv);
 //            tabSheet.add("Novo Plano de Contas",

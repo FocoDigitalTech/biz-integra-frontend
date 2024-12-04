@@ -5,12 +5,10 @@ import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.views.main.estoque.div.ProdutosDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetPraga;
 import br.com.onetec.infra.db.model.SetProduto;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -22,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Component
@@ -66,7 +63,9 @@ public class ProdutoCadastroModal extends Dialog {
                 } catch (Exception e) {
                 }
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastro());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

@@ -1,7 +1,6 @@
 package br.com.onetec.application.configuration;
 
 import br.com.onetec.infra.db.model.SetOrcamento;
-import br.com.onetec.infra.db.model.SetUsuarios;
 
 public class OrcamentoTransiction {
 

@@ -66,7 +66,9 @@ public class ProdutoDetalheModal extends Dialog {
                 } catch (Exception e) {
                 }
             });
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);

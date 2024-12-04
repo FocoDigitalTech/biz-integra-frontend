@@ -96,7 +96,9 @@ public class FuncionarioCadastroModal extends Dialog {
 
             addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
-            cancelButton = new Button("Cancelar", event -> close());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
 
             Div contentTabs = new Div(createFormCadastroFuncionario());
 
