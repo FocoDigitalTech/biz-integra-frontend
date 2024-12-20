@@ -63,4 +63,8 @@ public class TipoMidiaService {
     public List<SetTipoMidia> findAllMidia() {
         return repository.listAll();
     }
+
+    public SetTipoMidia findByIdMidia(Integer id_anuncio) {
+        return repository.findById(id_anuncio).orElse(null);
+    }
 }

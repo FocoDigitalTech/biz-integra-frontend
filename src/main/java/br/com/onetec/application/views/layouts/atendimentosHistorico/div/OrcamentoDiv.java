@@ -232,12 +232,14 @@ public class OrcamentoDiv extends Div {
         grid.addColumn(SetOrcamento::getId_orcamento)
                 .setHeader("Id")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(s -> {
             SetSituacaoCadastro situacaoCadastro = situacaoCadastroService.fidById(s.getId_situacao());
             return situacaoCadastro == null ? "N/A" : situacaoCadastro.getDescricao_situacaocadastro();
               }).setHeader("Situação Orçamento")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(s -> {
             if (Objects.nonNull(s.getId_condicaopagamento())) {
@@ -249,6 +251,7 @@ public class OrcamentoDiv extends Div {
             }
         }).setHeader("Condição Pagamento")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(cliente -> {
             SetEnderecos listaEnderecos = enderecoService.findAllById(cliente.getId_endereco());
@@ -256,6 +259,7 @@ public class OrcamentoDiv extends Div {
         })
                 .setHeader("Endereço")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(valor -> {
             String valorOrcamento = service.stringMoedaBrasileira
@@ -264,6 +268,7 @@ public class OrcamentoDiv extends Div {
         })
                 .setHeader("Valor do Orçamento")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(orc -> {
             SetContrato contrato = contratoService.findByIdOrcamento(orc.getId_orcamento());
@@ -278,6 +283,7 @@ public class OrcamentoDiv extends Div {
         }))
                 .setHeader("Possui Contrato ?")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(SetOrcamento::getData_inclusao)
                 .setHeader("Data de Inclusão")
@@ -290,6 +296,7 @@ public class OrcamentoDiv extends Div {
         })
                 .setHeader("Usuario")
                 .setSortable(true)
+                .setResizable(true)
                 .setAutoWidth(true);
 
         grid.setItems(query -> orcamentoService.listByCustomer(
@@ -303,7 +310,7 @@ public class OrcamentoDiv extends Div {
 
         VerticalLayout sidebar = buildSideBar();
         sidebar.setWidth("300px");
-        sidebar.setVisible(false); // Inicialmente escondido
+        sidebar.setVisible(false);// Inicialmente escondido
 
 
         // Adiciona o grid e o sidebar ao layout principal
@@ -361,14 +368,17 @@ public class OrcamentoDiv extends Div {
             gridOrdemServico.addColumn(SetOrdemServico::getId_ordemservico)
                     .setHeader("Id")
                     .setSortable(true)
+                    .setResizable(true)
                     .setAutoWidth(true);
             gridOrdemServico.addColumn(SetOrdemServico::getNome_pontofocal)
                     .setHeader("Ponto Focal")
                     .setSortable(true)
+                    .setResizable(true)
                     .setAutoWidth(true);
             gridOrdemServico.addColumn(SetOrdemServico::getDatainicio_ordemservico)
                     .setHeader("Data Atendimento")
                     .setSortable(true)
+                    .setResizable(true)
                     .setAutoWidth(true);
             gridOrdemServico.setItems(ordemServicoService.findAllByOrcamentoId(selectedConta.getId_orcamento()));
 

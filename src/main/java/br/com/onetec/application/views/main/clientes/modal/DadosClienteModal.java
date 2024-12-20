@@ -279,11 +279,13 @@ public class DadosClienteModal extends Dialog {
             List<SetEnderecos> verificaLista = enderecoService.findAllClienteId(cliente.getId_cliente());
             if (verificaLista.size() > 0) {
                 close();
+                System.out.println("Navegando para atendimento ...");
                 SetClienteTransiction.setRecarregaPagina(true);
                 // Armazena o cliente na sessão do usuário
                 UI.getCurrent().getSession().setAttribute("cliente", cliente);
                 // Navega para a rota da view AtendimentoHistoricoView
                 UI.getCurrent().navigate("atendimentos_historico");
+                UI.getCurrent().getPage().setLocation("atendimentos_historico");
             } else {
                 service.notificaErro("ERRO: É obrigatório cadastrar um endereço, antes de iniciar o atendimento !");
             }

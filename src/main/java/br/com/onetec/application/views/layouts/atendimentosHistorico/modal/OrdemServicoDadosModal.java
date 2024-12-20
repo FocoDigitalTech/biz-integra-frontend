@@ -1,15 +1,24 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.clientesservice.ClientesService;
+import br.com.onetec.application.service.clientesservice.EstadoService;
+import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaService;
+import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.service.orcamentocontatoservice.OrcamentoContatoService;
+import br.com.onetec.application.service.orcamentoposvendaservice.OrcamentoPosVendasService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoexecucaoservicoservice.OrdemServicoExecucaoServicoService;
 import br.com.onetec.application.service.ordemservicoservice.*;
 import br.com.onetec.application.service.pragaservice.PragaService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
+import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
+import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -25,6 +34,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
@@ -40,12 +50,17 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -53,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @UIScope
@@ -198,15 +214,20 @@ public class OrdemServicoDadosModal extends Dialog {
     public OrdemServicoDadosModal() {
 
         UI.getCurrent().access(() -> {
+            downloadLink = new Anchor();
 
             addClassName(LumoUtility.Gap.SMALL);
             // Recupera o objeto Cliente da sessão
 
             saveButton = new Button("Salvar", eventbe -> save());
             deleteButton = new Button("Excluir", e -> deletaOrdem(ordemServico));
+            Button botaoinspecao = new Button("Gerar Ficha Ordem de Serviço", event -> gerarFichaOs());
+            botaoinspecao.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST);
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
+
+            botaoinspecao.setVisible(true);
 
             Tabs tabs = new Tabs();
             Tab tab1 = new Tab("Dados Principais");
@@ -246,6 +267,7 @@ public class OrdemServicoDadosModal extends Dialog {
                 Tab selectedTab = tabs.getSelectedTab();
                 if (selectedTab.equals(tab1)) {
                     cadastroOrcamantosDadosFinanceiros.setVisible(true);
+                    botaoinspecao.setVisible(true);
                 } else if (selectedTab.equals(tab2)) {
                     cadastroOrdemServicoFuncionarioAlocado.setVisible(true);
                 } else if (selectedTab.equals(tab3)) {
@@ -275,14 +297,121 @@ public class OrdemServicoDadosModal extends Dialog {
             //getFooter().add(saveButton, cancelButton,deleteButton);
 
             getFooter().add(deleteButton); // Alinha à esquerda
-            HorizontalLayout rightButtons = new HorizontalLayout(saveButton, cancelButton);
-            getFooter().add(rightButtons); // Alinha à direita
+            HorizontalLayout rightButtons = new HorizontalLayout(botaoinspecao,saveButton, cancelButton);
+            getFooter().add(rightButtons,downloadLink); // Alinha à direita
 
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             H2 title = new H2("Dados Ordem de Serviço");
             getHeader().add(title);
             add(layout);
         });
+    }
+
+    @Autowired
+    private RegiaoService regiaoService;
+
+    @Autowired
+    private TipoMidiaService tipoMidiaService;
+
+    @Autowired
+    private ResponsavelCobrancaService responsavelCobrancaService;
+
+    @Autowired
+    private TipoImovelService tipoImovelService;
+
+    @Autowired
+    private OrcamentoContatoService orcamentoContatoService;
+
+    @Autowired
+    private OrcamentoPosVendasService orcamentoPosVendasService;
+
+    @Autowired
+    private ContratoService contratoService;
+
+    @Autowired
+    private EstadoService estadoService;
+
+    @Autowired
+    private ClientesService clientesService;
+
+    private Anchor downloadLink;
+
+    private List<SetServico> servicosFilter;
+
+    private void gerarFichaOs() {
+
+       if (localTratamentoOrcamento.isEmpty()) {
+            localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+            localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+            localTratamentoOrcamento.setInvalid(true);
+        } else {
+            try {
+                cliente = clientesService.findById(ordemServico.getId_cliente());
+                String hora = String.valueOf(LocalDateTime.now().getSecond());
+                String idorc = String.valueOf(ordemServico.getId_orcamento()).concat(String.valueOf(ordemServico.getId_cliente()));
+                String nameClien = cliente.getNome_cliente();
+                String compositeId = hora+idorc+nameClien;
+                // Caminho do arquivo Word de entrada e dos arquivos de saída
+                String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ordem_serviço.docx";
+                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_ordem_serviço"+compositeId+"ordem_serviço.docx";
+                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ordem_serviço"+compositeId+"ordem_serviço.pdf";
+                String clientId = ordemServico.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
+
+                SetEnderecos enderecos = enderecoService.findAllById(ordemServico.getId_endereco());
+
+                SetContrato contrato = contratoService.findByIdOrcamento(ordemServico.getId_orcamento());
+                // Edita o documento Word
+                SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
+                SetTipoMidia midia = tipoMidiaService.findByIdMidia(cliente.getId_anuncio()
+                );
+                SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
+                SetEstado uf = estadoService.findById(enderecos.getId_estado());
+                SetTipoImovel tipoImovel = tipoImovelService.findByIdImovel(enderecos.getId_tipoimovel());
+
+                SetFuncionario funcionario = funcionarioService.findById(ordemServico.getId_funcionariotecnico());
+
+                SetClienteTransiction.editWordFichaOrdemDocument(wordPath, updatedWordPath,
+                        "81038",ordemServico, cliente,
+                        enderecos,contrato,uf,cobranca,midia,funcionario,regiao,tipoImovel
+                ,diasemanainicio_ordemservico.getValue());
+
+                // Converte o documento editado para PDF
+                SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
+
+                // Baixa o PDF
+                File wordFile = new File(updatedWordPath);
+
+                if (wordFile.exists()) {
+                    // Cria um recurso de fluxo para o arquivo Word
+                    StreamResource resource = new StreamResource(wordFile.getName(), () -> {
+                        try {
+                            return new FileInputStream(wordFile);
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                            return null;
+                        }
+                    });
+
+                    // Adiciona um link para download na interface
+                    downloadLink.setText("Baixar Ficha Ordem de Serviço");
+                    //downloadLink.getElement().setAttribute("download", true);
+                    downloadLink.getStyle().set("margin-top", "20px");
+                    downloadLink.getStyle().set("font-size", "18px");
+                    downloadLink.setHref(resource);  // Seta o recurso de download
+                    downloadLink.setVisible(true);
+
+                    // Exibe uma notificação de sucesso
+                    Notification.show("Documento Word disponível para download. : "+ updatedWordPath);
+                    // Definir o alvo para abrir em nova aba
+                    downloadLink.setTarget("_blank");
+                } else {
+                    Notification.show("Erro: Documento Word não encontrado.");
+                }
+            } catch (IOException exa) {
+                Notification.show("Erro ao gerar o Word: " + exa.getMessage());
+                exa.printStackTrace();
+            }
+        }
     }
 
     private void deletaOrdem(SetOrdemServico ordemServico) {

@@ -62,4 +62,8 @@ public class RegiaoService {
     public List<SetRegiao> findAllRegiao() {
         return repository.listAll();
     }
+
+    public SetRegiao findByIdRegiao(Integer id_regiao) {
+        return repository.findById(id_regiao).orElse(null);
+    }
 }

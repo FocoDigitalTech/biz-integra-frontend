@@ -63,4 +63,7 @@ public class TipoImovelService {
     }
 
 
+    public SetTipoImovel findByIdImovel(Integer id_tipoimovel) {
+        return repository.findById(id_tipoimovel).orElse(null);
+    }
 }
