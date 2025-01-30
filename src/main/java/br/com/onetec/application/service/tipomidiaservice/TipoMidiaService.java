@@ -67,4 +67,15 @@ public class TipoMidiaService {
     public SetTipoMidia findByIdMidia(Integer id_anuncio) {
         return repository.findById(id_anuncio).orElse(null);
     }
+
+    public void update(SetTipoMidia dto) throws Exception {
+        try {
+            Optional<SetTipoMidia> optional = repository.findById(dto.getId_tipomidia());
+            SetTipoMidia entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

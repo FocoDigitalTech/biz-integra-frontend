@@ -7,6 +7,7 @@ import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaServ
 import br.com.onetec.application.service.comissoesservice.ComissoesService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.dadosempresaservice.DadosEmpresaService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.faturamentoservice.FaturamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
@@ -83,6 +84,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @UIScope
@@ -770,9 +772,16 @@ public class OrcamentoDetalheModal extends Dialog {
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                 // Edita o documento Word
 
+                LocalDate data= datainicio_execucao.getValue();
+              // meses_garantia;
+
+
+                Integer meses = quantidade_aplicacoes.getValue();
+
                 SetClienteTransiction.editWordGeralDocument(wordPath, updatedWordPath,
                         "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
-                        numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos,contrato,servicosFilter);
+                        numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos,contrato
+                        ,servicosFilter, meses);
 
                 // Converte o documento editado para PDF
                 SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
@@ -812,6 +821,11 @@ public class OrcamentoDetalheModal extends Dialog {
             }
         }
     }
+
+    @Autowired
+    private DadosEmpresaService dadosEmpresaService;
+
+    SetDadosEmpresa setDadosEmpresa;
 
     private void gerarFichaIspecaoGeral() {
         if (servicoOrcamentoChekBox.isEmpty()) {
@@ -860,6 +874,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
                 SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
 
+
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                 // Edita o documento Word
                 SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
@@ -869,12 +884,14 @@ public class OrcamentoDetalheModal extends Dialog {
                 SetEstado uf = estadoService.findById(enderecos.getId_estado());
                 SetTipoImovel tipoImovel = tipoImovelService.findByIdImovel(enderecos.getId_tipoimovel());
 
+                setDadosEmpresa = dadosEmpresaService.getDados(1);
+
                 SetClienteTransiction.editWordFichaInspecaoDocument(wordPath, updatedWordPath,
                         "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
                         numeroparcela_pagamento.getValue(),
                         id_condicaopagamento.getValue(),
                         enderecos,contrato,
-                        servicosFilter,uf,cobranca,midia,regiao,tipoImovel);
+                        servicosFilter,uf,cobranca,midia,regiao,tipoImovel,setDadosEmpresa.getNomequimico_dadosempresa());
 
                 // Converte o documento editado para PDF
                 SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
@@ -1243,6 +1260,8 @@ public class OrcamentoDetalheModal extends Dialog {
         unidade_orcamentocontato = new TextField("Unidade");
         descricao_orcamentocontato = new TextArea("O que foi contatado ?");
 
+        service.configuraCalendario(data_orcamentocontato);
+
         id_funcionarioContato.setItems(funcionarioService.listAll());
         id_funcionarioContato.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
@@ -1284,7 +1303,7 @@ public class OrcamentoDetalheModal extends Dialog {
         gridOrcamentoContato.addItemClickListener(event -> {
             if (Objects.nonNull(event.getItem())) {
                 if (Objects.nonNull(event.getItem().getId_orcamentocontato())) {
-                    ContatoModal.openModalContato(event.getItem(),orcamentoContatoService, funcionarioService,service);
+                    ContatoModal.openModalContato(event.getItem(),orcamentoContatoService, funcionarioService,service,gridOrcamentoContato);
                 } else {
                     service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
                 }
@@ -2233,6 +2252,36 @@ public class OrcamentoDetalheModal extends Dialog {
         servicoOrcamentoChekBox.setItemLabelGenerator(SetServico::getDescricao_servico);
         servicoOrcamentoChekBox.addClassName("double-width");
 
+        servicoOrcamentoChekBox.addValueChangeListener(event -> {
+            // Conjuntos de valores antes e depois da mudança
+            Set<SetServico> selecionadosAntes = event.getOldValue();
+            Set<SetServico> selecionadosDepois = event.getValue();
+
+            // Identificar itens desmarcados
+            Set<SetServico> desmarcados = new HashSet<>(selecionadosAntes);
+            desmarcados.removeAll(selecionadosDepois);
+            if (desmarcados.size() > 0){
+                // Executar ação para itens desmarcados
+                // Executar ação para itens desmarcados
+                desmarcados.forEach(item -> {
+                    System.out.println("Desmarcado: " + item.getDescricao_servico());
+
+                    // Filtrar os serviços que devem ser excluídos
+                    List<SetServicosOrcamento> listaNova = servicoOrcamentolist.stream()
+                            .filter(servico -> servico.getId_servico().equals(item.getId_servico()))
+                            .collect(Collectors.toList());
+                    servicosOrcamentosListaExclusao = listaNova;
+
+                    // Exibir os serviços filtrados (opcional)
+                    listaNova.forEach(servico ->
+                            System.out.println("Serviço a ser excluído: " + servico.getId_servico())
+                    );
+                });
+            } else {
+                servicosOrcamentosListaExclusao = new ArrayList<>();
+            }
+        });
+
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
 
@@ -2248,6 +2297,7 @@ public class OrcamentoDetalheModal extends Dialog {
         return div;
     }
 
+    List<SetServicosOrcamento> servicosOrcamentosListaExclusao;
 
     private AutoCrudTipoPagamentoService autoCrudServiceImp;
 
@@ -2312,22 +2362,63 @@ public class OrcamentoDetalheModal extends Dialog {
             listArquivo.clear();
             gridArquivos.setItems(listArquivo);
             problemaOrcamento.clear();
-            if (servicoOrcamentoChekBox.getValue().size() > 0) {
-                servicoOrcamentoChekBox.getValue().forEach(p -> {
-                    SetServicosOrcamento obj = new SetServicosOrcamento();
-                    obj.setAtivo("S");
-                    obj.setData_inclusao(LocalDateTime.now());
-                    obj.setId_orcamento(orc.getId_orcamento());
-                    obj.setId_servico(p.getId_servico());
-                    obj.setId_cliente(orc.getId_cliente());
-                    obj.setId_usuario(orc.getId_usuario());
+
+            if(listOrcamentoContatoNova.size() > 0 ){
+                listOrcamentoContatoNova.forEach(p -> {
                     try {
-                       // setServicosOrcamentoservice.update(obj);
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_cliente(dto.getId_cliente());
+                        orcamentoContatoService.save(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
             }
+            if(listOrcamentoContatoRemover.size() > 0 ){
+                listOrcamentoContatoRemover.forEach(p -> {
+                    try {
+                        orcamentoContatoService.delete(p);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+            if (!servicoOrcamentoChekBox.getValue().isEmpty()) {
+                Set<Integer> servicosExistentes = servicoOrcamentolist.stream()
+                        .map(SetServicosOrcamento::getId_servico)
+                        .collect(Collectors.toSet());
+
+                servicoOrcamentoChekBox.getValue().forEach(p -> {
+                    if (!servicosExistentes.contains(p.getId_servico())) {
+                        SetServicosOrcamento obj = criarNovoServicoOrcamento(p.getId_servico(), orc);
+                        try {
+                            setServicosOrcamentoservice.save(obj);
+                        } catch (Exception e) {
+                            // Log mais detalhado pode ser usado aqui
+                            System.err.println("Erro ao salvar serviço de orçamento: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            if(servicosOrcamentosListaExclusao.size() > 0) {
+                for (SetServicosOrcamento item : servicosOrcamentosListaExclusao) {
+                    try {
+                        setServicosOrcamentoservice.delete(item);
+                    } catch (Exception e) {
+                        // Log mais detalhado pode ser usado aqui
+                        System.err.println("Erro ao salvar serviço de orçamento: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                servicosOrcamentosListaExclusao = new ArrayList<>();
+            }
+
+            listOrcamentoContato = orcamentoContatoService.findAllByOrcamentoId(dto.getId_orcamento());
+            gridOrcamentoContato.setItems(listOrcamentoContato);
+
             if (contratoincluido) {
                 SetContrato getContrato = contratoService.findByIdOrcamento(dto.getId_orcamento());
                 SetContrato contrato = new SetContrato();
@@ -2537,30 +2628,6 @@ public class OrcamentoDetalheModal extends Dialog {
                 listaNotas = notaFiscalService.findAllByOrcamentoId(dto.getId_orcamento());
                 gridNotaFiscal.setItems(listaNotas);
 
-
-                if(listOrcamentoContatoNova.size() > 0 ){
-                    listOrcamentoContatoNova.forEach(p -> {
-                        try {
-                            p.setId_orcamento(dto.getId_orcamento());
-                            p.setId_cliente(dto.getId_cliente());
-                            orcamentoContatoService.save(p);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-                if(listOrcamentoContatoRemover.size() > 0 ){
-                    listOrcamentoContatoRemover.forEach(p -> {
-                        try {
-                            orcamentoContatoService.delete(p);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-                listOrcamentoContato = orcamentoContatoService.findAllByOrcamentoId(dto.getId_orcamento());
-                gridOrcamentoContato.setItems(listOrcamentoContato);
-
                 if (listaSetOrcamentoPosVendasNova.size() > 0 ){
                     listaSetOrcamentoPosVendasNova.forEach(p -> {
                         try {
@@ -2628,6 +2695,19 @@ public class OrcamentoDetalheModal extends Dialog {
 
     }
 
+    private SetServicosOrcamento criarNovoServicoOrcamento(Integer idServico, SetOrcamento orc) {
+        SetServicosOrcamento obj = new SetServicosOrcamento();
+        obj.setAtivo("S");
+        obj.setData_inclusao(LocalDateTime.now());
+        obj.setId_orcamento(orc.getId_orcamento());
+        obj.setId_servico(idServico);
+        obj.setId_cliente(orc.getId_cliente());
+        obj.setId_usuario(orc.getId_usuario());
+        return obj;
+    }
+
+    List<SetServicosOrcamento> servicoOrcamentolist;
+
 
     public void setOrcamento(SetOrcamento item) {
         this.orcamento = item;
@@ -2670,6 +2750,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
             List<SetServicosOrcamento> servicosListOrcamneto = servicosOrcamentoService.listByOrcamento(item.getId_orcamento());
             List<SetServico> servicos = servicoService.listAll();
+            this.servicoOrcamentolist = servicosListOrcamneto;
 
             Set<Integer> idsServicosOrcamento = servicosListOrcamneto.stream()
                     .map(SetServicosOrcamento::getId_servico)  // Extrair os IDs de servicosListOrcamento
@@ -2778,6 +2859,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 observacao_faturamento.setValue(faturamento.getObservacao_faturamento());
             }
 
+            gridOrcamentoContato.setItems(new ArrayList<>());
             List<SetOrcamentoContato> orcamentoContato = orcamentoContatoService.findAllByOrcamentoId(item.getId_orcamento());
             if (orcamentoContato.size() > 0) {
                 gridOrcamentoContato.setItems(orcamentoContato);

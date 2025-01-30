@@ -61,4 +61,15 @@ public class ServicoService {
     public List<SetServico> listAll() {
         return repository.listAll();
     }
+
+    public void update(SetServico dto) throws Exception {
+        try {
+            Optional<SetServico> optional = repository.findById(dto.getId_servico());
+            SetServico entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

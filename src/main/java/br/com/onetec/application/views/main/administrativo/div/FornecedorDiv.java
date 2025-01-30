@@ -196,8 +196,9 @@ public class FornecedorDiv extends Div {
         // Adiciona o listener de clique nos itens da grade
         final Registration[] btnExcluirClickListenerRegistration = {null};
         gridFornecedor.addItemClickListener(event -> {
-            fornecedorDetalhesModal.setFornecedorModel(event.getItem());
-            fornecedorDetalhesModal.open();
+            UI.getCurrent().access(() -> {
+                fornecedorDetalhesModal.setFornecedorModel(event.getItem());
+                fornecedorDetalhesModal.open();
 //            // Torna o botão "Deletar" visível
 //            btnExcluir.setVisible(true);
 //            // Verifica se existe um ClickListener registrado anteriormente e o remove
@@ -211,6 +212,7 @@ public class FornecedorDiv extends Div {
 //                // Torna o botão "Deletar" invisível após a ação ser concluída
 //                btnExcluir.setVisible(false);
 //            });
+            });
         });
 
 

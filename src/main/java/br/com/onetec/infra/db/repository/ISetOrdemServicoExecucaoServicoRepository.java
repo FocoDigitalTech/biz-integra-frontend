@@ -13,4 +13,5 @@ public interface ISetOrdemServicoExecucaoServicoRepository extends CrudRepositor
 
     @Query(value = "SELECT * FROM tb_ordemservicoexecucaoservico where ativo = 'S' and id_ordemservico = ?1", nativeQuery = true)
     List<SetOrdemServicoExecucaoServico> listAllByOrdemServicoId(Integer id_ordemservico);
+
 }

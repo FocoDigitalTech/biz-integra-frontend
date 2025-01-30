@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.ServicoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.ServicoDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetServico;
@@ -51,15 +52,19 @@ public class ServicoDiv extends Div {
 
     private ServicoCadastroModal servicoCadastroModal;
 
+    private ServicoDetalhesModal servicoDetalhesModal;
+
     @Autowired
     public void initServices(ServicoService servicoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             ServicoCadastroModal servicoCadastroModal1) {
+                             ServicoCadastroModal servicoCadastroModal1,
+                             ServicoDetalhesModal servicoDetalhesModal1) {
         this.servicoService = servicoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.servicoCadastroModal = servicoCadastroModal1;
+        this.servicoDetalhesModal = servicoDetalhesModal1;
     }
 
     @Autowired
@@ -166,6 +171,13 @@ public class ServicoDiv extends Div {
                 deleta(event.getItem());
                 // Torna o botão "Deletar" invisível após a ação ser concluída
                 btnExcluir.setVisible(false);
+            });
+        });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                servicoDetalhesModal.setPraga(event.getItem());
+                servicoDetalhesModal.open();
             });
         });
 

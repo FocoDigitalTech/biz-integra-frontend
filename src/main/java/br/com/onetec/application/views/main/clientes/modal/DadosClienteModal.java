@@ -1157,6 +1157,7 @@ public class DadosClienteModal extends Dialog {
             enderecosAtualizados = new ArrayList<>();
             grid.setItems(listaSalva);
         }
+        clienteView.refreshGrid();
         service.notificaSucesso("Atualizado com Sucesso !");
         //close();
     }

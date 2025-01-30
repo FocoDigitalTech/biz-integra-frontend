@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.TipoImovelCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.TipoImovelDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoImovel;
@@ -50,16 +51,20 @@ public class TipoImovelDiv extends Div {
 
     private TipoImovelCadastroModal tipoMidiaCadastroModal;
 
+    private TipoImovelDetalhesModal tipoImovelDetalhesModal;
+
 
     @Autowired
     public void initServices(TipoImovelService tipoImovelService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             TipoImovelCadastroModal tipoImovelCadastroModal1) {
+                             TipoImovelCadastroModal tipoImovelCadastroModal1,
+                             TipoImovelDetalhesModal tipoImovelDetalhesModal1) {
         this.tipoMidiaService = tipoImovelService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.tipoMidiaCadastroModal = tipoImovelCadastroModal1;
+        this.tipoImovelDetalhesModal = tipoImovelDetalhesModal1;
 //        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
 //            // Código para atualizar a AdministrativoView
 //            refreshGridFuncionario();
@@ -177,6 +182,14 @@ public class TipoImovelDiv extends Div {
                 btnExcluir.setVisible(false);
             });
         });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                tipoImovelDetalhesModal.setTipoImove(event.getItem());
+                tipoImovelDetalhesModal.open();
+            });
+        });
+
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);

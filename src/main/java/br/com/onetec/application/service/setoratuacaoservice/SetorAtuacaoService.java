@@ -61,4 +61,15 @@ public class SetorAtuacaoService {
     public List<SetSetorAtuacao> listAll() {
         return repository.listAll();
     }
+
+    public void update(SetSetorAtuacao dto) throws Exception {
+        try {
+            Optional<SetSetorAtuacao> optional = repository.findById(dto.getId_setoratuacao());
+            SetSetorAtuacao entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

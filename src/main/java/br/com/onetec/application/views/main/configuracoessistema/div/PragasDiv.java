@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.pragaservice.PragaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.PragaCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.PragaDetalheModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetPraga;
@@ -50,15 +51,19 @@ public class PragasDiv extends Div {
 
     private PragaCadastroModal pragaCadastroModal;
 
+    private PragaDetalheModal pragaDetalheModal;
+
     @Autowired
     public void initServices(PragaService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             PragaCadastroModal pragaCadastroModal1) {
+                             PragaCadastroModal pragaCadastroModal1,
+                             PragaDetalheModal pragaDetalheModal1) {
         this.pragaService = pragaService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.pragaCadastroModal = pragaCadastroModal1;
+        this.pragaDetalheModal = pragaDetalheModal1;
     }
 
 
@@ -185,6 +190,12 @@ public class PragasDiv extends Div {
         });
 
 
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                pragaDetalheModal.setPraga(event.getItem());
+                pragaDetalheModal.open();
+            });
+        });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);

@@ -66,4 +66,15 @@ public class RegiaoService {
     public SetRegiao findByIdRegiao(Integer id_regiao) {
         return repository.findById(id_regiao).orElse(null);
     }
+
+    public void update(SetRegiao dto) throws Exception {
+        try {
+            Optional<SetRegiao> optional = repository.findById(dto.getId_regiao());
+            SetRegiao entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

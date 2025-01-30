@@ -4,6 +4,7 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -65,6 +67,10 @@ public class FuncionarioDetalhesModal extends Dialog {
     private UtilitySystemConfigService service;
 
     private static List<SetEstado> estadoList;
+
+    @Autowired
+    @Lazy
+    FuncionarioDiv funcionarioDiv;
 
     @Autowired
     public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
@@ -115,7 +121,7 @@ public class FuncionarioDetalhesModal extends Dialog {
     private void save() {
 
         try {
-            SetFuncionario funcionario = new SetFuncionario();
+            SetFuncionario funcionario = funcionarioPoint;
 
             SetDepartamento departamento = id_departamento.getValue();
             if (departamento != null) {
@@ -145,12 +151,11 @@ public class FuncionarioDetalhesModal extends Dialog {
             funcionario.setVencimento_cnh(vencimento_cnh.getValue());
             funcionario.setData_admissao(data_admissao.getValue());
             funcionario.setNumeroimovel_funcionario(numero_imovel.getValue());
-            funcionario.setData_inclusao(LocalDateTime.now());
-            funcionario.setId_funcionario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             funcionario.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             funcionario.setAtivo("S");
             funcionarioService.update(funcionario);
             service.notificaSucesso("Atualizado com sucesso");
+            funcionarioDiv.refreshGridFuncionario();
             close();
         } catch (Exception e){
             Notification.show("Erro ao Salvar");
@@ -224,9 +229,11 @@ public class FuncionarioDetalhesModal extends Dialog {
         id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
     }
 
+    private SetFuncionario funcionarioPoint = null;
 
     public void setFuncionario(SetFuncionario item) {
         UI.getCurrent().access(() -> {
+        this.funcionarioPoint = item;
         nome_funcionario.setValue(item.getNome_funcionario());
         nome_carteira.setValue(item.getNome_carteira());
         endereco_funcionario.setValue(item.getEndereco_funcionario());
@@ -251,7 +258,7 @@ public class FuncionarioDetalhesModal extends Dialog {
         List<SetDepartamento> departamentoLista = departamentoService.findAllDepartamento();
 
         id_departamento.setValue(departamentoLista.stream()
-                .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
+                .filter(objeto -> objeto.getId_departamento().equals(item.getId_departamento()))
                 .findFirst().orElse(null));
 
         List<SetEstado> listaEstado = estadoService.listAll();

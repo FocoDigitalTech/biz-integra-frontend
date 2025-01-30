@@ -2,6 +2,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.views.main.configuracoessistema.modal.ExecucaoServicoDetalheModal;
 import br.com.onetec.application.views.main.configuracoessistema.modal.ExecucaoServicoModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
@@ -51,15 +52,19 @@ public class ExecucaoServicoDiv extends Div {
 
     private ExecucaoServicoModal modal;
 
+    private ExecucaoServicoDetalheModal execucaoServicoDetalheModal;
+
     @Autowired
     public void initServices(ExecucaoServicoService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             ExecucaoServicoModal execucaoServicoModal) {
+                             ExecucaoServicoModal execucaoServicoModal,
+                             ExecucaoServicoDetalheModal execucaoServicoDetalheModal1) {
         this.execucaoServicoService = pragaService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.modal = execucaoServicoModal;
+        this.execucaoServicoDetalheModal = execucaoServicoDetalheModal1;
     }
 
 
@@ -185,6 +190,15 @@ public class ExecucaoServicoDiv extends Div {
                 btnExcluir.setVisible(false);
             });
         });
+
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                execucaoServicoDetalheModal.setExecucaoservico(event.getItem());
+                execucaoServicoDetalheModal.open();
+            });
+        });
+
 
 
 

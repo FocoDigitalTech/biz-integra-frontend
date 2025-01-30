@@ -1,7 +1,7 @@
 package br.com.onetec.application.views.main.relatorios;
 
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.application.views.main.relatorios.div.RelatorioClienteDiv;
+import br.com.onetec.application.views.main.relatorios.div.RelatorioAgendamentoDiv;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.details.Details;
@@ -13,11 +13,15 @@ import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
 
 @Route(value = "relatorios", layout = MainLayout.class)
 @PageTitle(ViewsTitleConst.REPORT_NAV_TITLE)
@@ -28,14 +32,14 @@ public class RelatoriosView extends VerticalLayout {
 
 
 
-        private RelatorioClienteDiv overviewDiv;
+        private RelatorioAgendamentoDiv agendamentoDiv;
 
 
 
 
         @Autowired
-        public void initServices(RelatorioClienteDiv overviewDiv1){
-                this.overviewDiv=overviewDiv1;
+        public void initServices(RelatorioAgendamentoDiv agendamentoDiv1){
+                this.agendamentoDiv =agendamentoDiv1;
         }
 
         @Autowired
@@ -43,19 +47,20 @@ public class RelatoriosView extends VerticalLayout {
                 UI.getCurrent().access(() -> {
                         setSizeFull();
                         TabSheet tabSheet = new TabSheet();
+                        tabSheet.setSizeFull();
 
                         // Corrigir a adição da MetricsView retornando um componente
                         tabSheet.add("Overview", MetricsView());
 
                         // Adicionar o overviewDiv na aba de Clientes
-                        tabSheet.add("Clientes", overviewDiv);
+                        tabSheet.add("Agendamentos", agendamentoDiv);
 
-                        // Adicionar estilos ao TabSheet
                         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-
                         add(tabSheet);
                 });
         }
+
+
 
         public VerticalLayout MetricsView() {
                 // Criar um layout para conter os cards
@@ -87,10 +92,121 @@ public class RelatoriosView extends VerticalLayout {
 
                 cardsLayout.add(card1, card2, card3, card4);
 
+                HorizontalLayout chartLayout = new HorizontalLayout();
+                chartLayout.setWidthFull();
+                chartLayout.setSpacing(true);
+
+                // Container do gráfico de pizza
+                Div pieChartContainer = new Div();
+                pieChartContainer.setId("pieChartContainer");
+                pieChartContainer.getElement().setProperty("innerHTML", "<canvas id='pieChart'></canvas>");
+                pieChartContainer.setWidth("50%");
+
+                // Container do gráfico de colunas
+                Div barChartContainer = new Div();
+                barChartContainer.setId("barChartContainer");
+                barChartContainer.getElement().setProperty("innerHTML", "<canvas id='barChart'></canvas>");
+                barChartContainer.setWidth("50%");
+
+                // Adiciona os gráficos ao layout
+                chartLayout.add(pieChartContainer, barChartContainer);
+
+                // Adiciona o layout à view principal
+                //add(chartLayout);
+
+                // Cria os gráficos
+                createPieChart();
+                createBarChart();
+
                 // Adicionar o layout dos cards ao layout principal
-                metricsLayout.add(cardsLayout);
+                metricsLayout.add(cardsLayout,chartLayout);
+
 
                 return metricsLayout; // Retornar o layout contendo os cards
+        }
+
+        private void createPieChart() {
+                getElement().executeJs(
+                        "window.createPieChart('pieChart', $0, $1)",
+                        getPieChartData(), getChartOptions()
+                );
+        }
+
+        private void createBarChart() {
+                getElement().executeJs(
+                        "window.createBarChart('barChart', $0, $1)",
+                        getBarChartData(), getChartOptions()
+                );
+        }
+
+        private JsonObject getPieChartData() {
+                JsonObject data = Json.createObject();
+
+                JsonArray labels = Json.createArray();
+                labels.set(0, "Category A");
+                labels.set(1, "Category B");
+                labels.set(2, "Category C");
+                data.put("labels", labels);
+
+                JsonArray datasetData = Json.createArray();
+                datasetData.set(0, 12);
+                datasetData.set(1, 19);
+                datasetData.set(2, 3);
+
+                JsonObject dataset = Json.createObject();
+                dataset.put("label", "Categories");
+                dataset.put("backgroundColor", createColorArray());
+                dataset.put("data", datasetData);
+
+                JsonArray datasets = Json.createArray();
+                datasets.set(0, dataset);
+                data.put("datasets", datasets);
+
+                return data;
+        }
+
+        private JsonObject getBarChartData() {
+                JsonObject data = Json.createObject();
+
+                JsonArray labels = Json.createArray();
+                labels.set(0, "January");
+                labels.set(1, "February");
+                labels.set(2, "March");
+                labels.set(3, "April");
+                labels.set(4, "May");
+                data.put("labels", labels);
+
+                JsonArray datasetData = Json.createArray();
+                datasetData.set(0, 30);
+                datasetData.set(1, 20);
+                datasetData.set(2, 50);
+                datasetData.set(3, 40);
+                datasetData.set(4, 60);
+
+                JsonObject dataset = Json.createObject();
+                dataset.put("label", "Monthly Sales");
+                dataset.put("backgroundColor", "#36A2EB");
+                dataset.put("data", datasetData);
+
+                JsonArray datasets = Json.createArray();
+                datasets.set(0, dataset);
+                data.put("datasets", datasets);
+
+                return data;
+        }
+
+        private JsonArray createColorArray() {
+                JsonArray colors = Json.createArray();
+                colors.set(0, "#FF6384");
+                colors.set(1, "#36A2EB");
+                colors.set(2, "#FFCE56");
+                return colors;
+        }
+
+        private JsonObject getChartOptions() {
+                JsonObject options = Json.createObject();
+                options.put("responsive", true);
+                return options;
         }
 
 

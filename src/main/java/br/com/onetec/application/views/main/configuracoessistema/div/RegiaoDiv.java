@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.RegiaoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.RegiaoDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetRegiao;
@@ -50,16 +51,20 @@ public class RegiaoDiv extends Div {
 
     private RegiaoCadastroModal regiaoCadastroModal;
 
+    private RegiaoDetalhesModal regiaoDetalhesModal;
+
 
     @Autowired
     public void initServices(RegiaoService regiaoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             RegiaoCadastroModal regiaoCadastroModal1) {
+                             RegiaoCadastroModal regiaoCadastroModal1,
+                             RegiaoDetalhesModal regiaoDetalhesModal1) {
         this.regiaoService = regiaoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.regiaoCadastroModal = regiaoCadastroModal1;
+        this.regiaoDetalhesModal = regiaoDetalhesModal1;
 //        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
 //            // Código para atualizar a AdministrativoView
 //            refreshGridFuncionario();
@@ -175,6 +180,13 @@ public class RegiaoDiv extends Div {
                 deleta(event.getItem());
                 // Torna o botão "Deletar" invisível após a ação ser concluída
                 btnExcluir.setVisible(false);
+            });
+        });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                regiaoDetalhesModal.setPraga(event.getItem());
+                regiaoDetalhesModal.open();
             });
         });
 

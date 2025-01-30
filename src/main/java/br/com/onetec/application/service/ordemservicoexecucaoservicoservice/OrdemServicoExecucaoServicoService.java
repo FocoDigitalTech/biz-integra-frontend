@@ -71,15 +71,16 @@ public class OrdemServicoExecucaoServicoService {
 
     public void update(SetOrdemServicoExecucaoServico p) throws Exception {
         try {
-            Optional<SetOrdemServicoExecucaoServico> optional = repository.findById(p.getId_ordemservico());
+            Optional<SetOrdemServicoExecucaoServico> optional = repository.findById(p.getId_ordemservicoexecucaoservico());
             SetOrdemServicoExecucaoServico entity = optional.get();
             entity = p;
             entity.setData_alteracao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
-            log.info("excluido !");
+            log.info("Atualizado !");
         } catch (Exception e){
             throw new Exception();
         }
     }
+
 }

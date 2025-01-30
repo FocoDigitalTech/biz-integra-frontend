@@ -5,6 +5,7 @@ import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetExecucaoServico;
 import br.com.onetec.infra.db.repository.ISetEventoFinanceiroRepository;
 import br.com.onetec.infra.db.repository.ISetExecucaoServicoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -67,5 +68,18 @@ public class ExecucaoServicoService {
     public SetExecucaoServico findById(Integer id_execucaoservico) {
         Optional<SetExecucaoServico> optional = repository.findById(id_execucaoservico);
         return optional.orElse(null);
+    }
+
+    @SneakyThrows
+    public void update(SetExecucaoServico dto) {
+        try {
+            Optional<SetExecucaoServico> optional = repository.findById(dto.getId_execucaoservico());
+            SetExecucaoServico entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e){
+            throw new Exception();
+        }
     }
 }

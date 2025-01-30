@@ -1,11 +1,11 @@
 package br.com.onetec.application.views.main.configuracoessistema.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
-import br.com.onetec.application.views.main.configuracoessistema.div.ExecucaoServicoDiv;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
+import br.com.onetec.application.views.main.configuracoessistema.div.RegiaoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetExecucaoServico;
+import br.com.onetec.infra.db.model.SetRegiao;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -13,7 +13,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,23 +23,22 @@ import java.time.LocalDateTime;
 
 @Component
 @UIScope
-public class ExecucaoServicoModal extends Dialog {
+public class RegiaoDetalhesModal extends Dialog {
 
-    private TextArea decricaoField;
-    private TextField nomeField;
+    private com.vaadin.flow.component.textfield.TextField decricaoField;
 
     @Autowired
-    ExecucaoServicoService execucaoServicoService;
+    RegiaoService regiaoService;
 
     @Autowired
     @Lazy
-    ExecucaoServicoDiv execucaoServicoDiv;
-
+    RegiaoDiv regiaoDiv;
     private com.vaadin.flow.component.button.Button saveButton;
     private com.vaadin.flow.component.button.Button cancelButton;
 
 
-    public ExecucaoServicoModal() {
+
+    public RegiaoDetalhesModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
                 try {
@@ -63,36 +61,40 @@ public class ExecucaoServicoModal extends Dialog {
 
 
     private Div createFormCadastroEmpresa() {
-        nomeField = new TextField("Nome");
-        decricaoField = new TextArea("Descrição");
+        decricaoField = new TextField("Nome ou Descrição");
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(nomeField,decricaoField);
+        formLayout.add(decricaoField);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
 
 
+    SetRegiao setRegiao;
     UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
-        SetExecucaoServico dto = new SetExecucaoServico();
-        dto.setDescricao_execucaoservico(decricaoField.getValue());
-        dto.setNome_execucaoservico(nomeField.getValue());
+        SetRegiao dto = setRegiao;
+        dto.setDescricao_regiao(decricaoField.getValue());
         dto.setAtivo("S");
-        dto.setData_inclusao(LocalDateTime.now());
+        dto.setData_alteracao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         service = new UtilitySystemConfigService();
         try {
-            execucaoServicoService.save(dto);
-            execucaoServicoDiv.refreshGrid();
+            regiaoService.update(dto);
+            regiaoDiv.refreshGrid();
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e) {
+        } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
+    }
+
+    public void setPraga(SetRegiao item) {
+        this.setRegiao = item;
+        decricaoField.setValue(item.getDescricao_regiao());
     }
 }

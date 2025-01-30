@@ -289,7 +289,7 @@ public class OrcamentoCadastroModal extends Dialog {
             addClassName(LumoUtility.Gap.SMALL);
             // Recupera o objeto Cliente da sessão
             cliente = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
-            setHeaderTitle("Cadastro Orçamento e Dados Financeiros");
+            //setHeaderTitle("Cadastro Orçamento e Dados Financeiros");
             if (cliente != null) {
                 loadClienteData(cliente);
             } else {

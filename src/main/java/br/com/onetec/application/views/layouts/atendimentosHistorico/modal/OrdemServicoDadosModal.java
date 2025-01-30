@@ -5,6 +5,7 @@ import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.dadosempresaservice.DadosEmpresaService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
@@ -20,6 +21,8 @@ import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoS
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ContatoModal;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ServicoModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.CustomizedComboBox;
@@ -64,10 +67,7 @@ import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -338,12 +338,25 @@ public class OrdemServicoDadosModal extends Dialog {
 
     private List<SetServico> servicosFilter;
 
+    private List<SetOrdemServicoExecucaoServico> listaservicosexecucaodetalhadas;
+
+    @Autowired
+    private DadosEmpresaService dadosEmpresaService;
+
+    SetDadosEmpresa setDadosEmpresa;
+
+
     private void gerarFichaOs() {
 
        if (localTratamentoOrcamento.isEmpty()) {
             localTratamentoOrcamento.setRequiredIndicatorVisible(true);
             localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
             localTratamentoOrcamento.setInvalid(true);
+        }
+        if (id_tipoatendimento.isEmpty()) {
+            id_tipoatendimento.setRequiredIndicatorVisible(true);
+            id_tipoatendimento.setErrorMessage("Campo obrigatório");
+            id_tipoatendimento.setInvalid(true);
         } else {
             try {
                 cliente = clientesService.findById(ordemServico.getId_cliente());
@@ -370,10 +383,22 @@ public class OrdemServicoDadosModal extends Dialog {
 
                 SetFuncionario funcionario = funcionarioService.findById(ordemServico.getId_funcionariotecnico());
 
+                listaservicosexecucaodetalhadas = listaOrdemServicoExecucaoServico;
+
+                List<SetExecucaoServico> servicoList = execucaoServicoService.findAll();
+
+
+                SetTipoAtendimento tipoordem = id_tipoatendimento.getValue();
+
+                setDadosEmpresa = dadosEmpresaService.getDados(1);
+
+
+
                 SetClienteTransiction.editWordFichaOrdemDocument(wordPath, updatedWordPath,
                         "81038",ordemServico, cliente,
                         enderecos,contrato,uf,cobranca,midia,funcionario,regiao,tipoImovel
-                ,diasemanainicio_ordemservico.getValue());
+                ,diasemanainicio_ordemservico.getValue(),listaservicosexecucaodetalhadas,tipoordem,servicoList,
+                        setDadosEmpresa.getNomequimico_dadosempresa());
 
                 // Converte o documento editado para PDF
                 SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
@@ -646,6 +671,18 @@ public class OrdemServicoDadosModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
 
+        ordemServicoExecucaoGrid.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_ordemservicoexecucaoservico())) {
+                    ServicoModal.openServicoContato(event.getItem(),execucaoServicoService, service,ordemServicoExecucaoGrid,ordemServicoExecucaoServicoService);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Serviço !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
+
         Button saveAdicionarButton = new Button("Adicionar", event -> {
             SetOrdemServicoExecucaoServico dto = new SetOrdemServicoExecucaoServico();
             dto.setId_execucaoservico(id_execucaoservico.getValue().getId_execucaoservico());
@@ -678,14 +715,28 @@ public class OrdemServicoDadosModal extends Dialog {
 
         HorizontalLayout id_execucaoservicolayout =
                 new CustomizedComboBox().customizeExecucaoServico(id_execucaoservico,execucaoServicoService);
+        //id_execucaoservicolayout.setSizeFull();
 
+        descricao_ordemservicoexecucaoservico.setWidth("1000px"); // Ajuste conforme necessário
+        descricao_ordemservicoexecucaoservico.getStyle().set("max-width", "1000px");
 
+        valor_ordemservicoexecucaoservico.setWidth("480px"); // Ajuste conforme necessário
+        valor_ordemservicoexecucaoservico.getStyle().set("max-width", "480px");
+
+        garantia_ordemservicoexecucaoservico.setWidth("480px"); // Ajuste conforme necessário
+        garantia_ordemservicoexecucaoservico.getStyle().set("max-width", "480px");
+        //id_execucaoservico.getStyle().set("white-space", "normal");
+        //id_execucaoservico.getStyle().set("word-wrap", "break-word");
+
+        HorizontalLayout horizontalLayout = new HorizontalLayout(valor_ordemservicoexecucaoservico,
+                garantia_ordemservicoexecucaoservico);
+
+        VerticalLayout design = new VerticalLayout(id_execucaoservicolayout,
+                horizontalLayout,
+                descricao_ordemservicoexecucaoservico,saveAdicionarButton);
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_execucaoservicolayout,
-                valor_ordemservicoexecucaoservico,
-                garantia_ordemservicoexecucaoservico,
-                descricao_ordemservicoexecucaoservico,saveAdicionarButton);
+        formLayout.add(design);
         Div div = new Div(formLayout,ordemServicoExecucaoGrid);
         div.setSizeFull();
 
@@ -869,6 +920,15 @@ public class OrdemServicoDadosModal extends Dialog {
                 new CustomizedComboBox().customizeTipoAtendimento
                         (id_tipoatendimento, tipoAtendimentoService);
 
+
+        tipoeventofinanceirolayout.setWidthFull();
+
+        localTratamentoOrcamento.addClassName("combo-box-item");
+
+        // Configuração do layout ou overlay se necessário
+        localTratamentoOrcamento.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "auto");
+
+
         datainicio_ordemservico = new DatePicker("Data Inicio");
         service.configuraCalendario(datainicio_ordemservico);
 
@@ -981,8 +1041,11 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_orcamento(dto.getId_orcamento());
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
+                    p.setData_inclusao(LocalDateTime.now());
+                    p.setAtivo("S");
+                    p.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
                     try {
-                        ordemServicoExecucaoServicoService.update(p);
+                        ordemServicoExecucaoServicoService.save(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1033,6 +1096,9 @@ public class OrdemServicoDadosModal extends Dialog {
             //id_situacaoservico.clear();
             // datainicio_ordemservico.clear();
             diasemanainicio_ordemservico.clear();
+            ordemServicoExecucaoGrid.getDataProvider().refreshAll();
+            listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
+            listaOrdemServicoExecucaoServico = new ArrayList<>();
             horarioinicio_ordemservico.clear();
             nome_pontofocal.clear();
             id_funcionarioassistente.clear();
@@ -1093,6 +1159,7 @@ public class OrdemServicoDadosModal extends Dialog {
         ocorrencias_ordemservico.setValue(ordemServico.getOcorrencias_ordemservico());
 
         List<SetExecucaoServico> servicoList = execucaoServicoService.findAll();
+        ordemServicoExecucaoGrid.setItems(new ArrayList<>());
         List<SetOrdemServicoExecucaoServico> ordemServicoExecucaoServicoList = ordemServicoExecucaoServicoService.
                 listAllByOrdemServicoId(item.getId_ordemservico());
         if (ordemServicoExecucaoServicoList.size() > 0){

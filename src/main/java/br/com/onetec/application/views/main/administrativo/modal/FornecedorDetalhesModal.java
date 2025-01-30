@@ -88,7 +88,8 @@ public class FornecedorDetalhesModal extends Dialog {
     @Autowired
     @Lazy
     FornecedorDiv fornecedorDiv;
-    private SetFornecedor fornecedorModel;
+
+    private SetFornecedor fornecedorModel = null;
 
     @Autowired
     public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
@@ -179,6 +180,20 @@ public class FornecedorDetalhesModal extends Dialog {
     private void save() {
 
         try {
+
+            if (listaContatosFornecedor.size() > 0){
+                listaContatosFornecedor.forEach(setFornecedorContato -> {
+                    setFornecedorContato.setData_inclusao(LocalDateTime.now());
+                    setFornecedorContato.setAtivo("S");
+                    setFornecedorContato.setId_fornecedor(fornecedorModel.getId_fornecedor());
+                    setFornecedorContato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                    try {
+                        fornecedorContatoService.save(setFornecedorContato);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
             if (id_estado.isEmpty()) {
                 id_estado.setRequiredIndicatorVisible(true);
                 id_estado.setErrorMessage("Campo obrigatório");
@@ -428,8 +443,6 @@ public class FornecedorDetalhesModal extends Dialog {
             gridContatos.setItems(new ArrayList<>());
 
             data_cadastro.setValue(item.getData_cadastro());
-            tipo_naturezajuridica.setValue(item.getTipo_naturezajuridica());
-            numero_naturezajuridica.setValue(item.getNumero_naturezajuridica());
             razaosocial_fornecedor.setValue(item.getRazaosocial_fornecedor());
             nomefantasia_fornecedor.setValue(item.getNomefantasia_fornecedor());
             cep_fornecedor.setValue(item.getCep_fornecedor());
@@ -448,12 +461,19 @@ public class FornecedorDetalhesModal extends Dialog {
                     fornecedorContatoService.listAllByFornecedorId(item.getId_fornecedor());
             gridContatos.setItems(listaContato);
 
-//            id_setoratuacao.setValue();
-//            id_estado.setValue();
-//            responsavelield.setItems(funcionarioLista);
-//            responsavelield.setValue(funcionarioLista.stream()
-//                    .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
-//                    .findFirst().orElse(null));
+            List<SetEstado> listaEstado = getUFList();
+            id_estado.setValue(listaEstado.stream()
+                    .filter(objeto -> objeto.getId_estado().equals(item.getId_estado()))
+                    .findFirst().orElse(null));
+
+            List<SetSetorAtuacao> setoratualcaoLista = setorAtuacaoService.listAll();
+            id_setoratuacao.setItems(setoratualcaoLista);
+            id_setoratuacao.setValue(setoratualcaoLista.stream()
+                    .filter(objeto -> objeto.getId_setoratuacao().equals(item.getId_setoratuacao()))
+                    .findFirst().orElse(null));
+            tipo_naturezajuridica.setValue(item.getTipo_naturezajuridica());
+            numero_naturezajuridica.setValue(item.getNumero_naturezajuridica());
+
         });
     }
 

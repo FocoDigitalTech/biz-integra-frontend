@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.TipoMidiaCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.TipoMidiaDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoMidia;
@@ -51,16 +52,20 @@ public class TipoMidiaDiv extends Div{
 
     private TipoMidiaCadastroModal tipoMidiaCadastroModal;
 
+    private TipoMidiaDetalhesModal tipoMidiaDetalhesModal;
+
 
     @Autowired
     public void initServices(TipoMidiaService tipoMidiaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             TipoMidiaCadastroModal tipoMidiaCadastroModal1) {
+                             TipoMidiaCadastroModal tipoMidiaCadastroModal1,
+                             TipoMidiaDetalhesModal tipoMidiaDetalhesModal1) {
         this.tipoMidiaService = tipoMidiaService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.tipoMidiaCadastroModal = tipoMidiaCadastroModal1;
+        this.tipoMidiaDetalhesModal = tipoMidiaDetalhesModal1;
 //        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
 //            // Código para atualizar a AdministrativoView
 //            refreshGridFuncionario();
@@ -176,6 +181,13 @@ public class TipoMidiaDiv extends Div{
                 deleta(event.getItem());
                 // Torna o botão "Deletar" invisível após a ação ser concluída
                 btnExcluir.setVisible(false);
+            });
+        });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                tipoMidiaDetalhesModal.setTipoMidi(event.getItem());
+                tipoMidiaDetalhesModal.open();
             });
         });
 
