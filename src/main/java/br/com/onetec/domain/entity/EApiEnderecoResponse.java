@@ -2,7 +2,6 @@ package br.com.onetec.domain.entity;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @Builder

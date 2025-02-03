@@ -1,192 +1,90 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.div.ServicosExecutadosDiv;
+import br.com.onetec.application.views.main.financeiro.div.TipoEventoFinanceiroDiv;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.Uses;
-import com.vaadin.flow.component.details.Details;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.tabs.TabSheetVariant;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Route(value = "atendimentos_historico",layout = MainLayout.class)
 @PermitAll
-@Uses(Icon.class)
-public class AtendimentoHistoricoView extends Div {
+@UIScope
+public class AtendimentoHistoricoView extends  Div {
 
-    private SetCliente cliente;
+    private OrcamentoDiv orcamentoDiv;
+    private ServicosExecutadosDiv servicosExecutadosDiv;
+    private TipoEventoFinanceiroDiv tipoEventoFinanceiroDiv;
 
 
-    private Tabs tabs;
-    private Div cadastroOrcamantosDadosFinanceiros;
-    private Div cadastroServicosExecutados;
-    private Div cadastroOutros;
-    private Button saveButton;
-    private Button cancelButton;
 
-    // Formulario Orçamento
-    private TextField numeroOrcamento;
-    private TextField clienteNomeOrcamento;
-    private ComboBox localTratamentoOrcamento;
-    private TextField problemaOrcamento;
-    private DatePicker dataOrcamento;
-    private ComboBox atendenteOrcamento;
-    private ComboBox situacaoOrcamento;
-    private TextField dataInspecaoOrcamento;
-    private TimePicker horarioOrcamento;
-    private ComboBox consultorOrcamento;
-    private ComboBox condicaoOrcamento;
-    private TextField garantiaOrcamento;
-    private TextField valorOrcamento;
-    private Button buttonAdcionar;
-    private Button buttonRemover;
-    private Button buttonImprimir;
-    private final CheckboxGroup<String> servicoOrcamentoChekBox = new CheckboxGroup<>("Serviço");
+    @Autowired
+    public void initServices(OrcamentoDiv orcamentoDiv1,
+                             ServicosExecutadosDiv servicosExecutadosDiv1){
+            this.servicosExecutadosDiv = servicosExecutadosDiv1;
+            this.orcamentoDiv = orcamentoDiv1;
 
-        private void loadClienteData(SetCliente cliente) {
-            // Lógica para carregar os dados do cliente usando o objeto cliente
-        }
+    }
 
-        public AtendimentoHistoricoView() {
-            addClassName(LumoUtility.Gap.SMALL);
-            // Recupera o objeto Cliente da sessão
-            cliente = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
-
-            if (cliente != null) {
-                loadClienteData(cliente);
-            } else {
-                // Tratar caso o objeto cliente não esteja presente na sessão
+    @Autowired
+    public AtendimentoHistoricoView(OrcamentoDiv orcamentoDiv1){
+        UI.getCurrent().access(() -> {
+            this.orcamentoDiv = orcamentoDiv1;
+            setSizeFull();
+            SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+            if (entidade == null) {
+                add(new Div("Cliente não encontrado na sessão."));
+                return;
             }
 
-            addClassName("cadastro-modal");
-            saveButton = new Button("Salvar", eventbe -> save());
-            cancelButton = new Button("Cancelar", event -> close());
-            tabs = new Tabs();
-            Tab tab1 = new Tab("Orçamentos e Dados Financeiros");
-            Tab tab2 = new Tab("Serviços Executados");
-            Tab tab3 = new Tab("Outros");
+            TabSheet tabSheet = new TabSheet();
+            tabSheet.add("Orçamento e Dados Financeiros",
+                    orcamentoDiv);
+//            tabSheet.add("Serviços Executados",
+//                    this.servicosExecutadosDiv);
+//            tabSheet.add("Contatos",
+//                    new Div());
+            tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
 
-            tabs.add(tab1, tab2, tab3);
-//            cadastroOrcamantosDadosFinanceiros = createFormCadastroEmpresa();
-//            cadastroServicosExecutados = createFormCadastroAgendamento();
-//            cadastroOutros = createFormCadastroAprovacaoeCobranca();
-//            cadastroEnderecos = createFormEnderecos();
-
-            cadastroOrcamantosDadosFinanceiros = createFormCadastroOrcamantosDadosFinanceiros();
-            cadastroServicosExecutados = createFormCadastroServicosExecutados();
-            cadastroOutros = createFormCadastroOutros();
-
-
-            Div content = new Div(cadastroOrcamantosDadosFinanceiros,
-                    cadastroServicosExecutados, cadastroOutros);
-            content.setSizeFull();
-            cadastroOrcamantosDadosFinanceiros.setVisible(true);
-            cadastroServicosExecutados.setVisible(false);
-            cadastroOutros.setVisible(false);
-
-            tabs.addSelectedChangeListener(event -> {
-                cadastroOrcamantosDadosFinanceiros.setVisible(false);
-                cadastroServicosExecutados.setVisible(false);
-                cadastroOutros.setVisible(false);
-
-                Tab selectedTab = tabs.getSelectedTab();
-                if (selectedTab.equals(tab1)) {
-                    cadastroOrcamantosDadosFinanceiros.setVisible(true);
-                } else if (selectedTab.equals(tab2)) {
-                    cadastroServicosExecutados.setVisible(true);
-                } else if (selectedTab.equals(tab3)) {
-                    cadastroOutros.setVisible(true);
-                }
-            });
-
-            Div contentTabs = new Div(cadastroOrcamantosDadosFinanceiros,
-                    cadastroServicosExecutados, cadastroOutros);
-            contentTabs.setSizeFull();
-
-            VerticalLayout layout = new VerticalLayout(tabs,contentTabs, saveButton, cancelButton);
-            add(layout);
-        }
-
-    private Div createFormCadastroOutros() {
-            return new Div();
+            add(tabSheet);
+        });
     }
 
-    private Div createFormCadastroServicosExecutados() {
-            return new Div();
-    }
 
-    private Div createFormCadastroOrcamantosDadosFinanceiros() {
 
-        numeroOrcamento = new TextField("N° Orçamento");
-        numeroOrcamento.isReadOnly();
-        clienteNomeOrcamento = new TextField("Nome Cliente");
-        clienteNomeOrcamento.isReadOnly();
-
-        localTratamentoOrcamento = new ComboBox("Local Tratamento");
-        problemaOrcamento = new TextField("Problema");
-        dataOrcamento = new DatePicker("Data");
-        atendenteOrcamento = new ComboBox("Atendente");
-        situacaoOrcamento = new ComboBox("Situação");
-        dataInspecaoOrcamento = new TextField("Dt Inspeção");
-        horarioOrcamento = new TimePicker("Horário");
-        consultorOrcamento = new ComboBox("Consultor");
-        condicaoOrcamento = new ComboBox("Condição");
-        garantiaOrcamento = new TextField("Garantia");
-        valorOrcamento = new TextField("Valor Orçamento");
-
-        localTratamentoOrcamento.setWidth("auto");
-        atendenteOrcamento.setWidth("auto");
-        situacaoOrcamento.setWidth("auto");
-        consultorOrcamento.setWidth("auto");
-        condicaoOrcamento.setWidth("auto");
-
-        valorOrcamento.setWidth("auto");
-
-        buttonAdcionar = new Button("Adcionar");
-        buttonRemover = new Button("Remover");
-        buttonImprimir = new Button("Imprimir");
-
-        servicoOrcamentoChekBox.setItems("Cupins", "Insetos Rasteiros", "Roedores", "Vazamentos", "Desobstrução", "Limp.Cx D'água", "Outros");
-        servicoOrcamentoChekBox.addClassName("double-width");
-
-        FormLayout formLayout = new FormLayout();
-        formLayout.setWidthFull();
-
-        FormLayout formLayout1 = new FormLayout();
-        formLayout1.setWidthFull();
-
-        Details details = new Details("Orçamentos e Dados Financeiros", formLayout1);
-        details.setOpened(false);
-
-        formLayout.add(numeroOrcamento,clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,dataOrcamento,atendenteOrcamento,situacaoOrcamento,dataInspecaoOrcamento,horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,valorOrcamento,buttonAdcionar,buttonRemover,buttonImprimir,servicoOrcamentoChekBox,details);
-
-        Div div = new Div(formLayout);
-        div.setSizeFull();
+//    @Override
+//    public void afterNavigation(AfterNavigationEvent event) {
+//        //new AtendimentoHistoricoView();
+//       // UI.getCurrent().getPage().executeJs("location.reload();");
+//    }
+//
+//    @PostConstruct
+//    public void init() {
+//        // Este método será chamado após a injeção de dependências
+//        // e após a construção da view.
+//        if(SetClienteTransiction.isRecarregaPagina()) {
+//            SetClienteTransiction.setRecarregaPagina(false);
+//           // UI.getCurrent().getPage().executeJs("location.reload();");
+//            UI.getCurrent().getElement().executeJs("setTimeout(() => { this.$0.callMethod(); }, 5000)", this);
+//            System.out.println("Teste");
+//            // Aqui você pode executar a lógica que deseja após a navegação
+//        }
+//    }
 
 
 
-        return div;
-    }
 
-    private void close() {
-        UI.getCurrent().navigate("clientes");
-        removeAll();
-    }
-
-    private void save() {
-        // Lógica para salvar o cadastro
-
-    }
 }

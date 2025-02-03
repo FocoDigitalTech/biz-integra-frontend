@@ -4,29 +4,35 @@ import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.layouts.notificationAlert.NotificationForm;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-
+@Component
+@UIScope
 public class DepartamentoDetalhesModal extends Dialog {
 
     //campos
     private TextField codigoField;
     private TextField decricaoField;
-    private ComboBox responsavelield;
+    private ComboBox<SetFuncionario> responsavelield;
 
     //botoes
     private Button saveButton;
@@ -47,40 +53,52 @@ public class DepartamentoDetalhesModal extends Dialog {
     private SetDepartamento departamento;
 
 
+    private UtilitySystemConfigService service;
 
     public DepartamentoDetalhesModal() {
-        SetDepartamento departamento = new SetDepartamento();
-        addClassName("cadastro-modal");
-        saveButton = new Button("Atualizar", eventbe -> update());
-        cancelButton = new Button("Cancelar", event -> close());
-        deleteButton = new Button("Excluir", event -> delete(departamento));
+        UI.getCurrent().access(() -> {
+
+            service = new UtilitySystemConfigService();
+            saveButton = new Button("Atualizar", eventbe -> save());
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
 
 
-
-
-        Div contentTabs = new Div(createForm(departamento));
-        contentTabs.setSizeFull();
-
-        VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton, deleteButton);
-        add(layout);
+            Div contentTabs = new Div(createFormCadastroEmpresa());
+            contentTabs.setSizeFull();
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
+            VerticalLayout layout = new VerticalLayout(contentTabs);
+            add(layout);
+        });
 
     }
 
+    private void save() {
+        SetFuncionario selectedFuncionario = responsavelield.getValue();
+        // Lógica para salvar o cadastro
+        Departamento dto = new Departamento();
+        dto.setDescricao(decricaoField.getValue());
+        if (selectedFuncionario != null) {
+            dto.setResponsavel(selectedFuncionario.getId_funcionario());
+        }
 
-    private Div createForm(SetDepartamento departamento) {
-        codigoField = new TextField("Código Departamento");
+        try {
+            departamentoService.atualizar(dto, departamento.getId_departamento());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        close();
+    }
+
+    private Div createFormCadastroEmpresa() {
+        //codigoField = new TextField("Código Departamento");
         decricaoField = new TextField("Nome ou Descrição");
-        responsavelield = new ComboBox("Responsável");
-        responsavelield.setItems(getFuncionarioNome(departamento.getId_funcionario()));
+        responsavelield = new ComboBox<>("Responsável");
 
-
-        codigoField.setValue(String.valueOf(departamento.getId_departamento()));
-        decricaoField.setValue(departamento.getDescricao_departamento());
-
-        responsavelield.addValueChangeListener(event -> {
-            selectedValue = (String) event.getValue();
-        });
-
+        responsavelield.setItems(funcionarioService.listAll());
+        responsavelield.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
@@ -119,14 +137,7 @@ public class DepartamentoDetalhesModal extends Dialog {
     }
 
 
-    private void update() {
-        // Lógica para atualizar o cadastro
-        Departamento dto = new Departamento();
-        dto.setDescricao(decricaoField.getValue());
-        dto.setCodigo(Integer.valueOf(codigoField.getValue()));
-        departamentoService.atualizar(dto);
-        close();
-    }
+
 
     private Integer getFuncionarioId() {
 
@@ -143,12 +154,28 @@ public class DepartamentoDetalhesModal extends Dialog {
 
     private void delete(SetDepartamento departamento) {
         // Lógica para deletar o cadastro
-        departamentoService.deletar(departamento);
+        try {
+            departamentoService.deletar(departamento);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         close();
         new NotificationForm().showSuccessNotification("Deletado com sucesso");
     }
 
 
-
-
+    public void setDepartamento(SetDepartamento item) {
+        UI.getCurrent().access(() -> {
+            this.departamento = item;
+            if(Objects.nonNull(item.getId_departamento()))
+          //  codigoField.setValue(item.getId_departamento().toString());
+            if(Objects.nonNull(item.getDescricao_departamento()))
+            decricaoField.setValue(item.getDescricao_departamento());
+            List<SetFuncionario> funcionarioLista = funcionarioService.listAll();
+            if(Objects.nonNull(item.getId_funcionario()))
+            responsavelield.setValue(funcionarioLista.stream()
+                    .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
+                    .findFirst().orElse(null));
+        });
+    }
 }

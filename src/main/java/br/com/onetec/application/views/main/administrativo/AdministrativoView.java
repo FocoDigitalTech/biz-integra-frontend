@@ -1,19 +1,19 @@
 package br.com.onetec.application.views.main.administrativo;
 
 
-import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.MainLayout;
+import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
 import br.com.onetec.application.views.main.administrativo.modal.DepartamentoCadastroModal;
+import br.com.onetec.application.views.main.administrativo.modal.DepartamentoDetalhesModal;
 import br.com.onetec.cross.constants.ViewsTitleConst;
-import br.com.onetec.cross.utilities.Servicos;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
@@ -28,6 +28,7 @@ import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
@@ -43,13 +44,14 @@ import java.util.List;
 @PageTitle(ViewsTitleConst.ADMINISTRATIVO_NAV_TITLE)
 @PermitAll
 @org.springframework.stereotype.Component
+@UIScope
 public class AdministrativoView extends Div {
-
-
 
     private  FuncionarioDiv funcionarioDiv;
 
     private FornecedorDiv fornecedorDiv;
+
+    private ComprasDiv comprasDiv;
 
     private Grid<SetDepartamento> departamentoGrid;
 
@@ -65,39 +67,57 @@ public class AdministrativoView extends Div {
 
     private DepartamentoCadastroModal departamentoCadastroModal;
 
+
+    private DepartamentoDetalhesModal detalhesModal;
+
+
+
     @Autowired
     public void initServices(FuncionarioDiv funcionarioDiv,
                              FornecedorDiv fornecedorDiv1,
                              DepartamentoService departamentoService,
                              FuncionarioService funcionarioService,
-                             DepartamentoCadastroModal departamentoCadastroModal) {
+                             DepartamentoCadastroModal departamentoCadastroModal,
+                             ComprasDiv comprasDiv1,DepartamentoDetalhesModal detalhesModal1) {
         this.fornecedorDiv = fornecedorDiv1;
         this.funcionarioDiv = funcionarioDiv;
         this.departamentoService = departamentoService;
         this.funcionarioService = funcionarioService;
         this.departamentoCadastroModal = departamentoCadastroModal;
+        this.comprasDiv = comprasDiv1;
+        this.detalhesModal = detalhesModal1;
     }
 
 
     @Autowired
-    public AdministrativoView(FuncionarioDiv funcionarioDiv1,
-                                FornecedorDiv fornecedorDiv1) {
-        this.funcionarioDiv = funcionarioDiv1;
+    public AdministrativoView(FuncionarioDiv funcionarioDiv,
+                              FornecedorDiv fornecedorDiv1,
+                              DepartamentoService departamentoService,
+                              FuncionarioService funcionarioService,
+                              DepartamentoCadastroModal departamentoCadastroModal,
+                              ComprasDiv comprasDiv1,DepartamentoDetalhesModal detalhesModal1) {
         this.fornecedorDiv = fornecedorDiv1;
-
+        this.funcionarioDiv = funcionarioDiv;
+        this.departamentoService = departamentoService;
+        this.funcionarioService = funcionarioService;
+        this.departamentoCadastroModal = departamentoCadastroModal;
+        this.comprasDiv = comprasDiv1;
+        this.detalhesModal = detalhesModal1;
+        UI.getCurrent().access(() -> {
+        setSizeFull();
         TabSheet tabSheet = new TabSheet();
+        tabSheet.setSizeFull();
         tabSheet.add("Departamentos",
                 departamentosDiv());
         tabSheet.add("Funcionarios",
                 funcionarioDiv);
         tabSheet.add("Fornecedores",
                 fornecedorDiv);
-        tabSheet.add("Compras",
-                new Div(new Text("This is the Shipping tab content")));
-        tabSheet.add("Tabelas de Serviço",
-                new Div(new Text("This is the Shipping tab content")));
+        tabSheet.add("Pedidos de Compras",
+                comprasDiv);
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         add(tabSheet);
+        });
     }
 
 
@@ -196,7 +216,11 @@ public class AdministrativoView extends Div {
     }
 
     private void openDetalhesClienteModal(SetDepartamento item) {
-
+        UI.getCurrent().access(() -> {
+            UI.getCurrent().getSession().setAttribute("departamento",item);
+            detalhesModal.setDepartamento(item);
+            detalhesModal.open();
+        });
     }
 
 

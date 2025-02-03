@@ -1,15 +1,14 @@
 package br.com.onetec.application.views.main.configuracoessistema.div;
 
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
-import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.TipoImovelCadastroModal;
-import br.com.onetec.application.views.main.configuracoessistema.modal.TipoMidiaCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.TipoImovelDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoImovel;
-import br.com.onetec.infra.db.model.SetTipoMidia;
 import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -20,6 +19,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.persistence.criteria.*;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@UIScope
 public class TipoImovelDiv extends Div {
 
     List<SetTipoImovel> list = new ArrayList<>();
@@ -39,7 +41,7 @@ public class TipoImovelDiv extends Div {
 
     private TipoImovelDiv.Filter filter;
 
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private TipoImovelService tipoMidiaService;
 
@@ -49,16 +51,20 @@ public class TipoImovelDiv extends Div {
 
     private TipoImovelCadastroModal tipoMidiaCadastroModal;
 
+    private TipoImovelDetalhesModal tipoImovelDetalhesModal;
+
 
     @Autowired
     public void initServices(TipoImovelService tipoImovelService1,
-                             Servicos service1,
+                             UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             TipoImovelCadastroModal tipoImovelCadastroModal1) {
+                             TipoImovelCadastroModal tipoImovelCadastroModal1,
+                             TipoImovelDetalhesModal tipoImovelDetalhesModal1) {
         this.tipoMidiaService = tipoImovelService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.tipoMidiaCadastroModal = tipoImovelCadastroModal1;
+        this.tipoImovelDetalhesModal = tipoImovelDetalhesModal1;
 //        funcionarioCadastroModal.addDialogCloseActionListener(event -> {
 //            // Código para atualizar a AdministrativoView
 //            refreshGridFuncionario();
@@ -68,7 +74,9 @@ public class TipoImovelDiv extends Div {
 
     @Autowired
     public TipoImovelDiv( ) {
-        add(telaDiv());
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
 
     }
 
@@ -158,13 +166,30 @@ public class TipoImovelDiv extends Div {
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
+        final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
-            // Configura o botão "Deletar" para deletar o item clicado
-            btnExcluir.addClickListener(event1 -> deleta(event.getItem()));
-
             // Torna o botão "Deletar" visível
             btnExcluir.setVisible(true);
+            // Verifica se existe um ClickListener registrado anteriormente e o remove
+            if (btnExcluirClickListenerRegistration[0] != null) {
+                btnExcluirClickListenerRegistration[0].remove();
+                btnExcluirClickListenerRegistration[0] = null;
+            }
+            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+                deleta(event.getItem());
+                // Torna o botão "Deletar" invisível após a ação ser concluída
+                btnExcluir.setVisible(false);
+            });
         });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                tipoImovelDetalhesModal.setTipoImove(event.getItem());
+                tipoImovelDetalhesModal.open();
+            });
+        });
+
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
@@ -284,7 +309,9 @@ public class TipoImovelDiv extends Div {
 
 
     private void openCadastroModal() {
-        tipoMidiaCadastroModal.open();
+        UI.getCurrent().access(() -> {
+            tipoMidiaCadastroModal.open();
+        });
     }
 
 

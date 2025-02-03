@@ -1,16 +1,17 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetFuncionario;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -19,25 +20,24 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 
 @Component
+@UIScope
 public class FuncionarioCadastroModal extends Dialog {
 
 
     private final FuncionarioService funcionarioService;
     private final DepartamentoService departamentoService;
 
-    private final Button saveButton;
-    private final Button cancelButton;
+    private  Button saveButton;
+    private  Button cancelButton;
     private ComboBox<SetDepartamento> id_departamento;
     private TextField nome_funcionario;
     private TextField nome_carteira;
@@ -63,20 +63,22 @@ public class FuncionarioCadastroModal extends Dialog {
 
     private EstadoService estadoService ;
 
-    private Servicos service;
+    private UtilitySystemConfigService service;
 
     private static List<SetEstado> estadoList;
 
     @Autowired
-    public void initServices(EstadoService serviceEstado, Servicos service) {
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
         this.estadoService = serviceEstado;
         this.service = service;
         //configurações dos fields:
-        service.configureCEPField(cep_funcionario);
-        service.configureCelularField(celular_funcionario);
-        service.configureCPFField(cpf_funcionario);
-        service.configuraCalendario(data_admissao);
-        service.configuraCalendario(vencimento_cnh);
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_funcionario);
+            service.configureCelularField(celular_funcionario);
+            service.configureCPFField(cpf_funcionario);
+            service.configuraCalendario(data_admissao);
+            service.configuraCalendario(vencimento_cnh);
+        });
     }
 
 
@@ -86,24 +88,29 @@ public class FuncionarioCadastroModal extends Dialog {
         this.funcionarioService = funcionarioService;
         this.departamentoService = departamentoService;
         this.estadoService = estadoService;
-        id_estado = new ComboBox<>("UF");
-        id_estado.setItems(getUFList());
-        id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
+        UI.getCurrent().access(() -> {
+            id_estado = new ComboBox<>("UF");
+            id_estado.setItems(getUFList());
+            id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
 
+            addClassName("cadastro-modal");
+            saveButton = new Button("Salvar", eventbe -> save());
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
+
+            Div contentTabs = new Div(createFormCadastroFuncionario());
 
 
-        addClassName("cadastro-modal");
-        saveButton = new Button("Salvar", eventbe -> save());
-        cancelButton = new Button("Cancelar", event -> close());
+            contentTabs.setSizeFull();
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
 
-        Div contentTabs = new Div(createFormCadastroFuncionario());
-
-
-        contentTabs.setSizeFull();
-
-        VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton);
-        add(layout);
+            VerticalLayout layout = new VerticalLayout(contentTabs);
+            add(layout);
+        });
     }
 
     private void save() {

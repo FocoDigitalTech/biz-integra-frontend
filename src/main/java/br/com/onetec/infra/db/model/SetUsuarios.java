@@ -18,6 +18,7 @@ public class SetUsuarios{
     private String email_usuario;
     private String nome_usuario;
     private String senha_usuario;
+    private Integer id_grupousuario;
     private LocalDateTime data_inclusao;
     private LocalDateTime data_alteracao;
     private LocalDateTime data_exclusao;

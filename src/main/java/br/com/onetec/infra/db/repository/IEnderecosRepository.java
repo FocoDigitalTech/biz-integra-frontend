@@ -12,6 +12,8 @@ import java.util.List;
 public interface IEnderecosRepository extends CrudRepository<SetEnderecos, Integer>
         , JpaSpecificationExecutor<SetEnderecos> {
 
-    @Query(value = "SELECT * FROM tb_enderecos where id_cliente = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM tb_enderecos where id_cliente = ?1 and ativo = 'S' ", nativeQuery = true)
     List<SetEnderecos> findAllByCliente(Integer id_cliente);
+
+    List<SetEnderecos> findByEnderecoImovelContainingIgnoreCase(String enderecoImovel);
 }

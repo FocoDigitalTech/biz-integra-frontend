@@ -1,0 +1,40 @@
+.listbox-container {
+    width: 500px;
+    height: 250px;
+    justify-content: auto;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.listbox {
+    width: 500px;
+    height: 250px;
+    border: 1px solid #000;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+}
+
+.listbox-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.listbox-item:last-child {
+    border-bottom: none;
+}
+
+.move-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 20px;
+}
+
+button {
+    margin-bottom: 10px;
+}

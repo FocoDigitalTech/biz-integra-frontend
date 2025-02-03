@@ -4,15 +4,17 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.views.main.configuracoessistema.div.RegiaoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
-import br.com.onetec.cross.utilities.Servicos;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetRegiao;
-import br.com.onetec.infra.db.model.SetTipoImovel;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
+@UIScope
 public class RegiaoCadastroModal extends Dialog {
 
     private com.vaadin.flow.component.textfield.TextField decricaoField;
@@ -36,17 +39,24 @@ public class RegiaoCadastroModal extends Dialog {
 
 
     public RegiaoCadastroModal() {
-        addClassName("cadastro-modal");
-        saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-            try {
-                save();
-            } catch (Exception e) {}
+        UI.getCurrent().access(() -> {
+            saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
+                try {
+                    save();
+                } catch (Exception e) {
+                }
+                });
+            service = new UtilitySystemConfigService();
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
+            Div contentTabs = new Div(createFormCadastroEmpresa());
+            contentTabs.setSizeFull();
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            getFooter().add(saveButton, cancelButton);
+            VerticalLayout layout = new VerticalLayout(contentTabs);
+            add(layout);
         });
-        cancelButton = new Button("Cancelar", event -> close());
-        Div contentTabs = new Div(createFormCadastroEmpresa());
-        contentTabs.setSizeFull();
-        VerticalLayout layout = new VerticalLayout(contentTabs, saveButton, cancelButton);
-        add(layout);
     }
 
 
@@ -61,7 +71,7 @@ public class RegiaoCadastroModal extends Dialog {
     }
 
 
-    Servicos service;
+    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -70,7 +80,7 @@ public class RegiaoCadastroModal extends Dialog {
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-        service = new Servicos();
+        service = new UtilitySystemConfigService();
         try {
             regiaoService.save(dto);
             regiaoDiv.refreshGrid();

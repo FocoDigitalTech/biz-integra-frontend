@@ -3,7 +3,6 @@ package br.com.onetec.infra.db.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -13,7 +12,15 @@ import java.time.LocalTime;
 public class SetCliente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "cliente_seq")
+    @TableGenerator(
+            name = "cliente_seq",
+            table = "tb_codigonumeracao",
+            pkColumnName = "sequence_name",
+            valueColumnName = "cliente_codigonumeracao",
+            pkColumnValue = "incremento",
+            allocationSize = 1
+    )
     private Integer id_cliente;
     private String nome_cliente;
     private String nome_fantasia_cliente;

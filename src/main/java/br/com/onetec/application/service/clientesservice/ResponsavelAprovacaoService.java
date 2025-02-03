@@ -1,11 +1,13 @@
 package br.com.onetec.application.service.clientesservice;
 
 import br.com.onetec.infra.db.model.SetResponsavelAprovacao;
-import br.com.onetec.infra.db.model.SetResponsavelCobranca;
 import br.com.onetec.infra.db.repository.IResponsavelAprovacaoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,5 +28,14 @@ public class ResponsavelAprovacaoService {
         } else {
             return null;
         }
+    }
+
+    public void update(SetResponsavelAprovacao aprovacao) {
+        Optional<SetResponsavelAprovacao> optional = repository.findById(aprovacao.getId_responsavelaprovacao());
+        SetResponsavelAprovacao entity = optional.orElse(null);
+        assert entity != null;
+        entity = aprovacao;
+        entity.setData_alteracao(LocalDateTime.now());
+        repository.save(entity);
     }
 }

@@ -3,9 +3,13 @@ package br.com.onetec.application.views.main.administrativo.div;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.modal.FuncionarioCadastroModal;
+import br.com.onetec.application.views.main.administrativo.modal.FuncionarioDetalhesModal;
+import br.com.onetec.cross.constants.ModalMessageConst;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -17,19 +21,20 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @org.springframework.stereotype.Component
+@UIScope
 public class FuncionarioDiv extends Div {
 
     List<SetDepartamento> departamentoLista = new ArrayList<>();
@@ -43,16 +48,20 @@ public class FuncionarioDiv extends Div {
 
     private  FuncionarioCadastroModal funcionarioCadastroModal;
 
+    private FuncionarioDetalhesModal funcionarioDetalhesModal;
+
     Button btnExcluir;
 
 
     @Autowired
     public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
                              DepartamentoService departamentoService1,
-                             FuncionarioService funcionarioService) {
+                             FuncionarioService funcionarioService,
+                             FuncionarioDetalhesModal funcionarioDetalhesModal1) {
         this.funcionarioCadastroModal = funcionarioCadastroModal;
         this.departamentoService = departamentoService1;
         this.funcionarioService = funcionarioService;
+        this.funcionarioDetalhesModal = funcionarioDetalhesModal1;
         funcionarioCadastroModal.addDialogCloseActionListener(event -> {
             // Código para atualizar a AdministrativoView
             refreshGridFuncionario();
@@ -62,7 +71,9 @@ public class FuncionarioDiv extends Div {
 
     @Autowired
     public FuncionarioDiv( ) {
+        UI.getCurrent().access(() -> {
         add(telaDiv());
+        });
 
     }
 
@@ -166,7 +177,25 @@ public class FuncionarioDiv extends Div {
 
 
         // Adiciona o listener de clique nos itens da grade
-        funcionarioGrid.addItemClickListener(event -> openDetalhesFuncionarioModal(event.getItem()));
+        final Registration[] btnExcluirClickListenerRegistration = {null};
+        funcionarioGrid.addItemClickListener(event -> {
+            UI.getCurrent().access(() -> {
+            funcionarioDetalhesModal.setFuncionario(event.getItem());
+            funcionarioDetalhesModal.open();
+//            // Torna o botão "Deletar" visível
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+            });
+        });
 
 
         funcionarioGrid.setItems(query -> funcionarioService.list(
@@ -179,6 +208,22 @@ public class FuncionarioDiv extends Div {
 
         return funcionarioGrid;
     }
+    public void refreshGrid() {
+        funcionarioGrid.getDataProvider().refreshAll();
+    }
+
+    private void deleta(SetFuncionario item) {
+        UtilitySystemConfigService service = new UtilitySystemConfigService();
+        try {
+            funcionarioService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            refreshGrid();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
     private void openDetalhesFuncionarioModal(SetFuncionario item) {
         btnExcluir = new Button();
         btnExcluir.setVisible(true);
@@ -220,12 +265,14 @@ public class FuncionarioDiv extends Div {
             });
             com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
             com.vaadin.flow.component.button.Button searchBtn = new com.vaadin.flow.component.button.Button("Buscar");
+            btnExcluir = new Button("Excluir");
+            btnExcluir.setVisible(false);
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
 
 
 
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(btnExcluir,resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 

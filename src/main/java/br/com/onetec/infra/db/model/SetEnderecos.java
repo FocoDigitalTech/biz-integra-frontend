@@ -18,7 +18,10 @@ public class SetEnderecos{
     private String area_imovel;
     private String numero_imovel;
     private Integer id_estado;
-    private String endereco_imovel;
+
+    @Column(name = "endereco_imovel")
+    private String enderecoImovel;
+
     private String complemento_imovel;
     private String bairro_imovel;
     private String cep_imovel;
