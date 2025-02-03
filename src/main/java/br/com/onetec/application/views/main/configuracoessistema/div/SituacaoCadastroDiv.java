@@ -4,6 +4,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.SituacaoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.SituacaoDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetSituacaoCadastro;
@@ -51,15 +52,19 @@ public class SituacaoCadastroDiv extends Div {
 
     private SituacaoCadastroModal situacaoCadastroModal;
 
+    private SituacaoDetalhesModal situacaoDetalhesModal;
+
     @Autowired
     public void initServices(SituacaoCadastroService situacaoCadastroService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             SituacaoCadastroModal situacaoCadastroModal1) {
+                             SituacaoCadastroModal situacaoCadastroModal1,
+                             SituacaoDetalhesModal situacaoDetalhesModal1) {
         this.situacaoCadastroService = situacaoCadastroService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.situacaoCadastroModal = situacaoCadastroModal1;
+        this.situacaoDetalhesModal = situacaoDetalhesModal1;
     }
 
     @Autowired
@@ -166,6 +171,13 @@ public class SituacaoCadastroDiv extends Div {
                 deleta(event.getItem());
                 // Torna o botão "Deletar" invisível após a ação ser concluída
                 btnExcluir.setVisible(false);
+            });
+        });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                situacaoDetalhesModal.setSituacaoCadastro(event.getItem());
+                situacaoDetalhesModal.open();
             });
         });
 

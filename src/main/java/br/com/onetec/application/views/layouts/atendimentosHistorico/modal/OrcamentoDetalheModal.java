@@ -2,9 +2,12 @@ package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.arquivoorcamentoservice.ArquivoOrcamentoService;
+import br.com.onetec.application.service.clientesservice.EstadoService;
+import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaService;
 import br.com.onetec.application.service.comissoesservice.ComissoesService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.dadosempresaservice.DadosEmpresaService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.faturamentoservice.FaturamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
@@ -13,16 +16,20 @@ import br.com.onetec.application.service.orcamentocontatoservice.OrcamentoContat
 import br.com.onetec.application.service.orcamentoposvendaservice.OrcamentoPosVendasService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.pagamentoservice.PagamentoService;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoService;
 import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagamentoService;
+import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
+import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.tipopagamentoservice.AutoCrudTipoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.component.*;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.application.views.main.financeiro.modal.TipoPagamentoCadastroModal;
+import br.com.onetec.cross.constants.MessageNotificationConst;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
@@ -43,7 +50,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -62,7 +68,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
-import com.vaadin.flow.data.provider.ListDataView;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
@@ -79,6 +84,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @UIScope
@@ -91,8 +97,10 @@ public class OrcamentoDetalheModal extends Dialog {
     private MenuBar botaoContrato;
     private Button botaoPagamento;
 
+
     // Formulario Orçamento.
     private TextField clienteNomeOrcamento;
+    private ComboBox<SetFuncionario> id_funcionarioinspecao;
     private ComboBox<SetEnderecos> localTratamentoOrcamento;
     private TextArea problemaOrcamento;
     private DatePicker dataOrcamento;
@@ -199,6 +207,9 @@ public class OrcamentoDetalheModal extends Dialog {
     private EnderecoService enderecoService;
 
     @Autowired
+    private EstadoService estadoService;
+
+    @Autowired
     private FuncionarioService funcionarioService;
 
     @Autowired
@@ -246,6 +257,18 @@ public class OrcamentoDetalheModal extends Dialog {
     @Autowired
     private ServicosOrcamentoService servicosOrcamentoService;
 
+    @Autowired
+    private RegiaoService regiaoService;
+
+    @Autowired
+    private TipoMidiaService tipoMidiaService;
+
+    @Autowired
+    private ResponsavelCobrancaService responsavelCobrancaService;
+
+    @Autowired
+    private TipoImovelService tipoImovelService;
+
     private List<SetOrcamentoContato> listOrcamentoContato = new ArrayList<>();
     List<SetOrcamentoContato> listOrcamentoContatoRemover = new ArrayList<>();
     List<SetOrcamentoContato> listOrcamentoContatoNova = new ArrayList<>();
@@ -283,6 +306,7 @@ public class OrcamentoDetalheModal extends Dialog {
     private Tab tab8;
     private Tab tab9;
     private SetOrcamento orcamento;
+    private List<SetServico> servicosFilter;
 
     private void loadClienteData(SetCliente cliente) {
         // Lógica para carregar os dados do cliente usando o objeto cliente
@@ -338,7 +362,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                 // Edita o documento Word
-                SetClienteTransiction.editWordDocument(wordPath, updatedWordPath,
+                SetClienteTransiction.editWordSentriconDocument(wordPath, updatedWordPath,
                         "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
                         numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos);
 
@@ -387,14 +411,35 @@ public class OrcamentoDetalheModal extends Dialog {
             botaoContrato = new MenuBar();
             botaoContrato.addThemeVariants(MenuBarVariant.LUMO_ICON,
                     MenuBarVariant.LUMO_PRIMARY);
+
+            Button botaoinspecao = new Button("Gerar inspecao", event -> gerarFichaIspecaoGeral());
+            botaoinspecao.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_CONTRAST);
             //botaoContrato.addItem("Gerar Contrato");
             MenuItem item = botaoContrato.addItem("Gerar Contrato");
             SubMenu subItems = item.getSubMenu();
-            subItems.addItem("Geral");
-            subItems.addItem("Sentricon", event -> {
-                gerarSentricon();
+
+            MenuItem geralItem = subItems.addItem("Geral", event -> gerarContratoGeral());
+            MenuItem sentriconItem = subItems.addItem("Sentricon", event -> gerarSentricon());
+            MenuItem anualItem = subItems.addItem("Anual", event -> gerarContratoAnual());
+
+            geralItem.setVisible(false);
+            sentriconItem.setVisible(false);
+            anualItem.setVisible(false);
+
+            item.addClickListener(event1 -> {
+                SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+                if (Objects.nonNull(contrato)) {
+                    // Torna os itens do submenu visíveis
+                    geralItem.setVisible(true);
+                    sentriconItem.setVisible(true);
+                    anualItem.setVisible(true);
+                } else {
+                    service.notificaErro("Antes de gerar o documento é necessário atualizar a primeira vez, clique em ATUALIZAR!");
+                }
             });
-            subItems.addItem("Anual");
+
+
+
 
             //botaoContrato = new Button("Gerar Contrato", e -> {});
 
@@ -407,6 +452,7 @@ public class OrcamentoDetalheModal extends Dialog {
                     ButtonVariant.LUMO_SUCCESS);
 
 
+            botaoinspecao.setVisible(true);
             botaoContrato.setVisible(false);
             botaoPagamento.setVisible(false);
 
@@ -460,6 +506,7 @@ public class OrcamentoDetalheModal extends Dialog {
                     tab8.setVisible(true);
                     tab9.setVisible(true);
                     System.out.println("Contrato será incluído.");
+                    tabs.setSelectedTab(tab2);
                 } else {
                     contratoincluido = false;
                     tab2.setVisible(false);
@@ -515,38 +562,47 @@ public class OrcamentoDetalheModal extends Dialog {
                     cadastroOrcamantosDadosFinanceiros.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(true);
                 } else if (selectedTab.equals(tab2)) {
                     cadastroFechamentodeContrado.setVisible(true);
                     botaoContrato.setVisible(true);
                     botaoPagamento.setVisible(true);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab3)) {
                     cadastroComissoes.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab4)) {
                     cadastroPagamentos.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(true);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab5)) {
                     cadastroFaturamento.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab6)) {
                     cadastroNotaFiscal.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab7)) {
                     cadastroArquivosOrcamento.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab8)) {
                     cadastroContatoOrcamento.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(false);
                 } else if (selectedTab.equals(tab9)) {
                     cadastroOrcamentoPosVenda.setVisible(true);
                     botaoContrato.setVisible(false);
                     botaoPagamento.setVisible(false);
+                    botaoinspecao.setVisible(false);
                 }
             });
 
@@ -567,10 +623,313 @@ public class OrcamentoDetalheModal extends Dialog {
             // Alinha à esquerda
             HorizontalLayout rightButtons = new HorizontalLayout(checkbox,saveButton, cancelButton);
             footerLayout.add(rightButtons); // Alinha à direita
-            getFooter().add(botaoContrato,botaoPagamento,downloadLink,footerLayout);
+            getFooter().add(botaoinspecao,botaoContrato,botaoPagamento,downloadLink,footerLayout);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
+    }
+
+    private void gerarContratoAnual() {
+        if (valor_total.isEmpty()) {
+            valor_total.setRequiredIndicatorVisible(true);
+            valor_total.setErrorMessage("Campo obrigatório");
+            valor_total.setInvalid(true);
+        }else if (valor_nagasaki.isEmpty()) {
+            valor_nagasaki.setRequiredIndicatorVisible(true);
+            valor_nagasaki.setErrorMessage("Campo obrigatório");
+            valor_nagasaki.setInvalid(true);
+        }else if (data_venda.isEmpty()) {
+            data_venda.setRequiredIndicatorVisible(true);
+            data_venda.setErrorMessage("Campo obrigatório");
+            data_venda.setInvalid(true);
+        }else if  (id_condicaopagamento.isEmpty()) {
+            id_condicaopagamento.setRequiredIndicatorVisible(true);
+            id_condicaopagamento.setErrorMessage("Campo obrigatório");
+            id_condicaopagamento.setInvalid(true);
+        }else if (datainicio_execucao.isEmpty()) {
+            datainicio_execucao.setRequiredIndicatorVisible(true);
+            datainicio_execucao.setErrorMessage("Campo obrigatório");
+            datainicio_execucao.setInvalid(true);
+        }else if (datainicio_vencimento.isEmpty()) {
+            datainicio_vencimento.setRequiredIndicatorVisible(true);
+            datainicio_vencimento.setErrorMessage("Campo obrigatório");
+            datainicio_vencimento.setInvalid(true);
+        }else if  (meses_garantia.isEmpty()) {
+            meses_garantia.setRequiredIndicatorVisible(true);
+            meses_garantia.setErrorMessage("Campo obrigatório");
+            meses_garantia.setInvalid(true);
+        } else if (datafim_garantia.isEmpty()) {
+            datafim_garantia.setRequiredIndicatorVisible(true);
+            datafim_garantia.setErrorMessage("Campo obrigatório");
+            datafim_garantia.setInvalid(true);
+        } else {
+            try {
+                String hora = String.valueOf(LocalDateTime.now().getSecond());
+                String idorc = String.valueOf(orcamento.getId_orcamento()).concat(String.valueOf(orcamento.getId_cliente()));
+                String nameClien = cliente.getNome_cliente();
+                String compositeId = hora+idorc+nameClien;
+                // Caminho do arquivo Word de entrada e dos arquivos de saída
+                String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_anual.docx";
+                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_contrato_"+compositeId+"anualatualizado.docx";
+                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_"+compositeId+"anualatualizado.pdf";
+                String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
+
+                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+
+                SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+                // Edita o documento Word
+                SetClienteTransiction.editWordAnualDocument(wordPath, updatedWordPath,
+                        "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
+                        numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos,
+                        servicosFilter,contrato);
+
+                // Converte o documento editado para PDF
+                SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
+
+                // Baixa o PDF
+                File wordFile = new File(updatedWordPath);
+
+                if (wordFile.exists()) {
+                    // Cria um recurso de fluxo para o arquivo Word
+                    StreamResource resource = new StreamResource(wordFile.getName(), () -> {
+                        try {
+                            return new FileInputStream(wordFile);
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                            return null;
+                        }
+                    });
+
+                    // Adiciona um link para download na interface
+                    downloadLink.setText("Baixar Contrato Anual");
+                    //downloadLink.getElement().setAttribute("download", true);
+                    downloadLink.getStyle().set("margin-top", "20px");
+                    downloadLink.getStyle().set("font-size", "18px");
+                    downloadLink.setHref(resource);  // Seta o recurso de download
+                    downloadLink.setVisible(true);
+
+                    // Exibe uma notificação de sucesso
+                    Notification.show("Documento Word disponível para download. : "+ updatedWordPath);
+                    // Definir o alvo para abrir em nova aba
+                    downloadLink.setTarget("_blank");
+                } else {
+                    Notification.show("Erro: Documento Word não encontrado.");
+                }
+            } catch (IOException exa) {
+                Notification.show("Erro ao gerar o Word: " + exa.getMessage());
+                exa.printStackTrace();
+            }
+        }
+    }
+
+    private void gerarContratoGeral() {
+        if (valor_total.isEmpty()) {
+            valor_total.setRequiredIndicatorVisible(true);
+            valor_total.setErrorMessage("Campo obrigatório");
+            valor_total.setInvalid(true);
+        }else if (valor_nagasaki.isEmpty()) {
+            valor_nagasaki.setRequiredIndicatorVisible(true);
+            valor_nagasaki.setErrorMessage("Campo obrigatório");
+            valor_nagasaki.setInvalid(true);
+        }else if (data_venda.isEmpty()) {
+            data_venda.setRequiredIndicatorVisible(true);
+            data_venda.setErrorMessage("Campo obrigatório");
+            data_venda.setInvalid(true);
+        }else if  (id_condicaopagamento.isEmpty()) {
+            id_condicaopagamento.setRequiredIndicatorVisible(true);
+            id_condicaopagamento.setErrorMessage("Campo obrigatório");
+            id_condicaopagamento.setInvalid(true);
+        }else if (datainicio_execucao.isEmpty()) {
+            datainicio_execucao.setRequiredIndicatorVisible(true);
+            datainicio_execucao.setErrorMessage("Campo obrigatório");
+            datainicio_execucao.setInvalid(true);
+        }else if (datainicio_vencimento.isEmpty()) {
+            datainicio_vencimento.setRequiredIndicatorVisible(true);
+            datainicio_vencimento.setErrorMessage("Campo obrigatório");
+            datainicio_vencimento.setInvalid(true);
+        }else if  (meses_garantia.isEmpty()) {
+            meses_garantia.setRequiredIndicatorVisible(true);
+            meses_garantia.setErrorMessage("Campo obrigatório");
+            meses_garantia.setInvalid(true);
+        } else if (datafim_garantia.isEmpty()) {
+            datafim_garantia.setRequiredIndicatorVisible(true);
+            datafim_garantia.setErrorMessage("Campo obrigatório");
+            datafim_garantia.setInvalid(true);
+        } else {
+            try {
+                String hora = String.valueOf(LocalDateTime.now().getSecond());
+                String idorc = String.valueOf(orcamento.getId_orcamento()).concat(String.valueOf(orcamento.getId_cliente()));
+                String nameClien = cliente.getNome_cliente();
+                String compositeId = hora+idorc+nameClien;
+                // Caminho do arquivo Word de entrada e dos arquivos de saída
+                String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matrix_contrato_geral.docx";
+                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_contrato_"+compositeId+"geralatualizado.docx";
+                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_"+compositeId+"documento_atualizado.pdf";
+                String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
+
+                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+
+                SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+                // Edita o documento Word
+
+                LocalDate data= datainicio_execucao.getValue();
+              // meses_garantia;
+
+
+                Integer meses = quantidade_aplicacoes.getValue();
+
+                SetClienteTransiction.editWordGeralDocument(wordPath, updatedWordPath,
+                        "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
+                        numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos,contrato
+                        ,servicosFilter, meses);
+
+                // Converte o documento editado para PDF
+                SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
+
+                // Baixa o PDF
+                File wordFile = new File(updatedWordPath);
+
+                if (wordFile.exists()) {
+                    // Cria um recurso de fluxo para o arquivo Word
+                    StreamResource resource = new StreamResource(wordFile.getName(), () -> {
+                        try {
+                            return new FileInputStream(wordFile);
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                            return null;
+                        }
+                    });
+
+                    // Adiciona um link para download na interface
+                    downloadLink.setText("Baixar Contrato");
+                    //downloadLink.getElement().setAttribute("download", true);
+                    downloadLink.getStyle().set("margin-top", "20px");
+                    downloadLink.getStyle().set("font-size", "18px");
+                    downloadLink.setHref(resource);  // Seta o recurso de download
+                    downloadLink.setVisible(true);
+
+                    // Exibe uma notificação de sucesso
+                    Notification.show("Documento Word disponível para download. : "+ updatedWordPath);
+                    // Definir o alvo para abrir em nova aba
+                    downloadLink.setTarget("_blank");
+                } else {
+                    Notification.show("Erro: Documento Word não encontrado.");
+                }
+            } catch (IOException exa) {
+                Notification.show("Erro ao gerar o Word: " + exa.getMessage());
+                exa.printStackTrace();
+            }
+        }
+    }
+
+    @Autowired
+    private DadosEmpresaService dadosEmpresaService;
+
+    SetDadosEmpresa setDadosEmpresa;
+
+    private void gerarFichaIspecaoGeral() {
+        if (servicoOrcamentoChekBox.isEmpty()) {
+            servicoOrcamentoChekBox.setRequiredIndicatorVisible(true);
+            servicoOrcamentoChekBox.setErrorMessage("Campo obrigatório");
+            servicoOrcamentoChekBox.setInvalid(true);
+        }else if (id_funcionarioinspecao.isEmpty()) {
+            id_funcionarioinspecao.setRequiredIndicatorVisible(true);
+            id_funcionarioinspecao.setErrorMessage("Campo obrigatório");
+            id_funcionarioinspecao.setInvalid(true);
+        }else if (localTratamentoOrcamento.isEmpty()) {
+            localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+            localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+            localTratamentoOrcamento.setInvalid(true);
+        }else if  (problemaOrcamento.isEmpty()) {
+            problemaOrcamento.setRequiredIndicatorVisible(true);
+            problemaOrcamento.setErrorMessage("Campo obrigatório");
+            problemaOrcamento.setInvalid(true);
+        }else if (dataOrcamento.isEmpty()) {
+            dataOrcamento.setRequiredIndicatorVisible(true);
+            dataOrcamento.setErrorMessage("Campo obrigatório");
+            dataOrcamento.setInvalid(true);
+        }else if (atendenteOrcamento.isEmpty()) {
+            atendenteOrcamento.setRequiredIndicatorVisible(true);
+            atendenteOrcamento.setErrorMessage("Campo obrigatório");
+            atendenteOrcamento.setInvalid(true);
+        }else if  (dataInspecaoOrcamento.isEmpty()) {
+            dataInspecaoOrcamento.setRequiredIndicatorVisible(true);
+            dataInspecaoOrcamento.setErrorMessage("Campo obrigatório");
+            dataInspecaoOrcamento.setInvalid(true);
+        } else if (horarioOrcamento.isEmpty()) {
+            horarioOrcamento.setRequiredIndicatorVisible(true);
+            horarioOrcamento.setErrorMessage("Campo obrigatório");
+            horarioOrcamento.setInvalid(true);
+        } else {
+            try {
+                String hora = String.valueOf(LocalDateTime.now().getSecond());
+                String idorc = String.valueOf(orcamento.getId_orcamento()).concat(String.valueOf(orcamento.getId_cliente()));
+                String nameClien = cliente.getNome_cliente();
+                String compositeId = hora+idorc+nameClien;
+                // Caminho do arquivo Word de entrada e dos arquivos de saída
+                String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ficha_inspecao.docx";
+                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_contrato_"+compositeId+"ficha_inspecao.docx";
+                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_"+compositeId+"ficha_inspecao.pdf";
+                String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
+
+                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+
+
+                SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+                // Edita o documento Word
+                SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
+                SetTipoMidia midia = tipoMidiaService.findByIdMidia(cliente.getId_anuncio()
+                 );
+                SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
+                SetEstado uf = estadoService.findById(enderecos.getId_estado());
+                SetTipoImovel tipoImovel = tipoImovelService.findByIdImovel(enderecos.getId_tipoimovel());
+
+                setDadosEmpresa = dadosEmpresaService.getDados(1);
+
+                SetClienteTransiction.editWordFichaInspecaoDocument(wordPath, updatedWordPath,
+                        "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
+                        numeroparcela_pagamento.getValue(),
+                        id_condicaopagamento.getValue(),
+                        enderecos,contrato,
+                        servicosFilter,uf,cobranca,midia,regiao,tipoImovel,setDadosEmpresa.getNomequimico_dadosempresa());
+
+                // Converte o documento editado para PDF
+                SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
+
+                // Baixa o PDF
+                File wordFile = new File(updatedWordPath);
+
+                if (wordFile.exists()) {
+                    // Cria um recurso de fluxo para o arquivo Word
+                    StreamResource resource = new StreamResource(wordFile.getName(), () -> {
+                        try {
+                            return new FileInputStream(wordFile);
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                            return null;
+                        }
+                    });
+
+                    // Adiciona um link para download na interface
+                    downloadLink.setText("Baixar Ficha de inspeção técnica");
+                    //downloadLink.getElement().setAttribute("download", true);
+                    downloadLink.getStyle().set("margin-top", "20px");
+                    downloadLink.getStyle().set("font-size", "18px");
+                    downloadLink.setHref(resource);  // Seta o recurso de download
+                    downloadLink.setVisible(true);
+
+                    // Exibe uma notificação de sucesso
+                    Notification.show("Documento Word disponível para download. : "+ updatedWordPath);
+                    // Definir o alvo para abrir em nova aba
+                    downloadLink.setTarget("_blank");
+                } else {
+                    Notification.show("Erro: Documento Word não encontrado.");
+                }
+            } catch (IOException exa) {
+                Notification.show("Erro ao gerar o Word: " + exa.getMessage());
+                exa.printStackTrace();
+            }
+        }
     }
 
 
@@ -901,6 +1260,8 @@ public class OrcamentoDetalheModal extends Dialog {
         unidade_orcamentocontato = new TextField("Unidade");
         descricao_orcamentocontato = new TextArea("O que foi contatado ?");
 
+        service.configuraCalendario(data_orcamentocontato);
+
         id_funcionarioContato.setItems(funcionarioService.listAll());
         id_funcionarioContato.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
@@ -942,7 +1303,7 @@ public class OrcamentoDetalheModal extends Dialog {
         gridOrcamentoContato.addItemClickListener(event -> {
             if (Objects.nonNull(event.getItem())) {
                 if (Objects.nonNull(event.getItem().getId_orcamentocontato())) {
-                    ContatoModal.openModalContato(event.getItem(),orcamentoContatoService, funcionarioService,service);
+                    ContatoModal.openModalContato(event.getItem(),orcamentoContatoService, funcionarioService,service,gridOrcamentoContato);
                 } else {
                     service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
                 }
@@ -1823,6 +2184,9 @@ public class OrcamentoDetalheModal extends Dialog {
         clienteNomeOrcamento.setValue(cliente.getNome_cliente());
 
 
+        id_funcionarioinspecao = new ComboBox<>("Funcionario Inspeção");
+        id_funcionarioinspecao.setItems(funcionarioService.listAll());
+        id_funcionarioinspecao.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
         localTratamentoOrcamento = new ComboBox<>("Local Tratamento");
         localTratamentoOrcamento.setItems
@@ -1888,12 +2252,42 @@ public class OrcamentoDetalheModal extends Dialog {
         servicoOrcamentoChekBox.setItemLabelGenerator(SetServico::getDescricao_servico);
         servicoOrcamentoChekBox.addClassName("double-width");
 
+        servicoOrcamentoChekBox.addValueChangeListener(event -> {
+            // Conjuntos de valores antes e depois da mudança
+            Set<SetServico> selecionadosAntes = event.getOldValue();
+            Set<SetServico> selecionadosDepois = event.getValue();
+
+            // Identificar itens desmarcados
+            Set<SetServico> desmarcados = new HashSet<>(selecionadosAntes);
+            desmarcados.removeAll(selecionadosDepois);
+            if (desmarcados.size() > 0){
+                // Executar ação para itens desmarcados
+                // Executar ação para itens desmarcados
+                desmarcados.forEach(item -> {
+                    System.out.println("Desmarcado: " + item.getDescricao_servico());
+
+                    // Filtrar os serviços que devem ser excluídos
+                    List<SetServicosOrcamento> listaNova = servicoOrcamentolist.stream()
+                            .filter(servico -> servico.getId_servico().equals(item.getId_servico()))
+                            .collect(Collectors.toList());
+                    servicosOrcamentosListaExclusao = listaNova;
+
+                    // Exibir os serviços filtrados (opcional)
+                    listaNova.forEach(servico ->
+                            System.out.println("Serviço a ser excluído: " + servico.getId_servico())
+                    );
+                });
+            } else {
+                servicosOrcamentosListaExclusao = new ArrayList<>();
+            }
+        });
+
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
 
 
         formLayout.add(clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,
-                dataOrcamento,atendenteOrcamento,situacaoOrcamentolayout,dataInspecaoOrcamento,
+                dataOrcamento,atendenteOrcamento,situacaoOrcamentolayout,dataInspecaoOrcamento,id_funcionarioinspecao,
                 horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,
                 valorOrcamento,servicoOrcamentoChekBox);
 
@@ -1903,6 +2297,7 @@ public class OrcamentoDetalheModal extends Dialog {
         return div;
     }
 
+    List<SetServicosOrcamento> servicosOrcamentosListaExclusao;
 
     private AutoCrudTipoPagamentoService autoCrudServiceImp;
 
@@ -1925,6 +2320,8 @@ public class OrcamentoDetalheModal extends Dialog {
             }
             if (localTratamentoOrcamento.getValue() != null) {
                 dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+            } if (id_funcionarioinspecao.getValue() != null){
+            dto.setId_funcionarioinspecao(id_funcionarioinspecao.getValue().getId_funcionario());
             }
 
 
@@ -1965,64 +2362,155 @@ public class OrcamentoDetalheModal extends Dialog {
             listArquivo.clear();
             gridArquivos.setItems(listArquivo);
             problemaOrcamento.clear();
-            if (servicoOrcamentoChekBox.getValue().size() > 0) {
-                servicoOrcamentoChekBox.getValue().forEach(p -> {
-                    SetServicosOrcamento obj = new SetServicosOrcamento();
-                    obj.setAtivo("S");
-                    obj.setData_inclusao(LocalDateTime.now());
-                    obj.setId_orcamento(orc.getId_orcamento());
-                    obj.setId_servico(p.getId_servico());
-                    obj.setId_cliente(orc.getId_cliente());
-                    obj.setId_usuario(orc.getId_usuario());
+
+            if(listOrcamentoContatoNova.size() > 0 ){
+                listOrcamentoContatoNova.forEach(p -> {
                     try {
-                       // setServicosOrcamentoservice.update(obj);
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_cliente(dto.getId_cliente());
+                        orcamentoContatoService.save(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
             }
+            if(listOrcamentoContatoRemover.size() > 0 ){
+                listOrcamentoContatoRemover.forEach(p -> {
+                    try {
+                        orcamentoContatoService.delete(p);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+            if (!servicoOrcamentoChekBox.getValue().isEmpty()) {
+                Set<Integer> servicosExistentes = servicoOrcamentolist.stream()
+                        .map(SetServicosOrcamento::getId_servico)
+                        .collect(Collectors.toSet());
+
+                servicoOrcamentoChekBox.getValue().forEach(p -> {
+                    if (!servicosExistentes.contains(p.getId_servico())) {
+                        SetServicosOrcamento obj = criarNovoServicoOrcamento(p.getId_servico(), orc);
+                        try {
+                            setServicosOrcamentoservice.save(obj);
+                        } catch (Exception e) {
+                            // Log mais detalhado pode ser usado aqui
+                            System.err.println("Erro ao salvar serviço de orçamento: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+
+            if(servicosOrcamentosListaExclusao.size() > 0) {
+                for (SetServicosOrcamento item : servicosOrcamentosListaExclusao) {
+                    try {
+                        setServicosOrcamentoservice.delete(item);
+                    } catch (Exception e) {
+                        // Log mais detalhado pode ser usado aqui
+                        System.err.println("Erro ao salvar serviço de orçamento: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+                servicosOrcamentosListaExclusao = new ArrayList<>();
+            }
+
+            listOrcamentoContato = orcamentoContatoService.findAllByOrcamentoId(dto.getId_orcamento());
+            gridOrcamentoContato.setItems(listOrcamentoContato);
+
             if (contratoincluido) {
                 SetContrato getContrato = contratoService.findByIdOrcamento(dto.getId_orcamento());
                 SetContrato contrato = new SetContrato();
-                if (Objects.nonNull(getContrato)){
-                    contrato = getContrato;
-                    contrato.setId_orcamento(dto.getId_orcamento());
-                    contrato.setId_cliente(dto.getId_cliente());
-                    contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
-                    contrato.setTipo_cobranca(tipo_cobranca.getValue());
-                    contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
-                    contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
-                    contrato.setData_venda(data_venda.getValue());
-                    contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
-                    contrato.setDatainicio_execucao(datainicio_execucao.getValue());
-                    contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
-                    contrato.setMeses_garantia(meses_garantia.getValue());
-                    contrato.setDatafim_garantia(datafim_garantia.getValue());
-                    contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
-                    contrato.setObservacoes_contrato(observacoes_contrato.getValue());
-                    contrato.setData_inclusao(LocalDateTime.now());
-                    contrato.setAtivo("S");
-                    contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    contratoService.update(contrato);
+                if (valor_total.isEmpty()) {
+                    valor_total.setRequiredIndicatorVisible(true);
+                    valor_total.setErrorMessage(MessageNotificationConst.REQUIRED_FIELD);
+                    valor_total.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                }else if (valor_nagasaki.isEmpty()) {
+                    valor_nagasaki.setRequiredIndicatorVisible(true);
+                    valor_nagasaki.setErrorMessage("Campo obrigatório");
+                    valor_nagasaki.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                }else if (data_venda.isEmpty()) {
+                    data_venda.setRequiredIndicatorVisible(true);
+                    data_venda.setErrorMessage("Campo obrigatório");
+                    data_venda.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                }else if  (id_condicaopagamento.isEmpty()) {
+                    id_condicaopagamento.setRequiredIndicatorVisible(true);
+                    id_condicaopagamento.setErrorMessage("Campo obrigatório");
+                    id_condicaopagamento.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                }else if (datainicio_execucao.isEmpty()) {
+                    datainicio_execucao.setRequiredIndicatorVisible(true);
+                    datainicio_execucao.setErrorMessage("Campo obrigatório");
+                    datainicio_execucao.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                }else if (datainicio_vencimento.isEmpty()) {
+                    datainicio_vencimento.setRequiredIndicatorVisible(true);
+                    datainicio_vencimento.setErrorMessage("Campo obrigatório");
+                    datainicio_vencimento.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                }else if  (meses_garantia.isEmpty()) {
+                    meses_garantia.setRequiredIndicatorVisible(true);
+                    meses_garantia.setErrorMessage("Campo obrigatório");
+                    meses_garantia.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
+                } else if (datafim_garantia.isEmpty()) {
+                    datafim_garantia.setRequiredIndicatorVisible(true);
+                    datafim_garantia.setErrorMessage("Campo obrigatório");
+                    datafim_garantia.setInvalid(true);
+                    service.notificaErro(MessageNotificationConst.COMPLETE_REQUIRED_FIELDS);
+                    return;
                 } else {
-                    contrato.setId_orcamento(dto.getId_orcamento());
-                    contrato.setId_cliente(dto.getId_cliente());
-                    contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
-                    contrato.setTipo_cobranca(tipo_cobranca.getValue());
-                    contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
-                    contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
-                    contrato.setData_venda(data_venda.getValue());
-                    contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
-                    contrato.setDatainicio_execucao(datainicio_execucao.getValue());
-                    contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
-                    contrato.setMeses_garantia(meses_garantia.getValue());
-                    contrato.setDatafim_garantia(datafim_garantia.getValue());
-                    contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
-                    contrato.setObservacoes_contrato(observacoes_contrato.getValue());
-                    contrato.setData_inclusao(LocalDateTime.now());
-                    contrato.setAtivo("S");
-                    contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    contratoService.save(contrato);
+                    if (Objects.nonNull(getContrato)) {
+                        contrato = getContrato;
+                        contrato.setId_orcamento(dto.getId_orcamento());
+                        contrato.setId_cliente(dto.getId_cliente());
+                        contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
+                        contrato.setTipo_cobranca(tipo_cobranca.getValue());
+                        contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
+                        contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
+                        contrato.setData_venda(data_venda.getValue());
+                        contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
+                        contrato.setDatainicio_execucao(datainicio_execucao.getValue());
+                        contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
+                        contrato.setMeses_garantia(meses_garantia.getValue());
+                        contrato.setDatafim_garantia(datafim_garantia.getValue());
+                        contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
+                        contrato.setObservacoes_contrato(observacoes_contrato.getValue());
+                        contrato.setData_inclusao(LocalDateTime.now());
+                        contrato.setAtivo("S");
+                        contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                        contratoService.update(contrato);
+                    } else {
+                        contrato.setId_orcamento(dto.getId_orcamento());
+                        contrato.setId_cliente(dto.getId_cliente());
+                        contrato.setAplicacoes_periodicas(aplicacoes_periodicas.getValue());
+                        contrato.setTipo_cobranca(tipo_cobranca.getValue());
+                        contrato.setValor_total(service.getValorBigDecimal(valor_total.getValue()));
+                        contrato.setValor_nagasaki(service.getValorBigDecimal(valor_nagasaki.getValue()));
+                        contrato.setData_venda(data_venda.getValue());
+                        contrato.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
+                        contrato.setDatainicio_execucao(datainicio_execucao.getValue());
+                        contrato.setDatainicio_vencimento(datainicio_vencimento.getValue());
+                        contrato.setMeses_garantia(meses_garantia.getValue());
+                        contrato.setDatafim_garantia(datafim_garantia.getValue());
+                        contrato.setQuantidade_aplicacoes(quantidade_aplicacoes.getValue());
+                        contrato.setObservacoes_contrato(observacoes_contrato.getValue());
+                        contrato.setData_inclusao(LocalDateTime.now());
+                        contrato.setAtivo("S");
+                        contrato.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                        contratoService.save(contrato);
+                    }
                 }
                 if (listaComissoesNova.size() > 0) {
                     SetContrato finalContrato = contrato;
@@ -2140,30 +2628,6 @@ public class OrcamentoDetalheModal extends Dialog {
                 listaNotas = notaFiscalService.findAllByOrcamentoId(dto.getId_orcamento());
                 gridNotaFiscal.setItems(listaNotas);
 
-
-                if(listOrcamentoContatoNova.size() > 0 ){
-                    listOrcamentoContatoNova.forEach(p -> {
-                        try {
-                            p.setId_orcamento(dto.getId_orcamento());
-                            p.setId_cliente(dto.getId_cliente());
-                            orcamentoContatoService.save(p);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-                if(listOrcamentoContatoRemover.size() > 0 ){
-                    listOrcamentoContatoRemover.forEach(p -> {
-                        try {
-                            orcamentoContatoService.delete(p);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-                listOrcamentoContato = orcamentoContatoService.findAllByOrcamentoId(dto.getId_orcamento());
-                gridOrcamentoContato.setItems(listOrcamentoContato);
-
                 if (listaSetOrcamentoPosVendasNova.size() > 0 ){
                     listaSetOrcamentoPosVendasNova.forEach(p -> {
                         try {
@@ -2231,6 +2695,19 @@ public class OrcamentoDetalheModal extends Dialog {
 
     }
 
+    private SetServicosOrcamento criarNovoServicoOrcamento(Integer idServico, SetOrcamento orc) {
+        SetServicosOrcamento obj = new SetServicosOrcamento();
+        obj.setAtivo("S");
+        obj.setData_inclusao(LocalDateTime.now());
+        obj.setId_orcamento(orc.getId_orcamento());
+        obj.setId_servico(idServico);
+        obj.setId_cliente(orc.getId_cliente());
+        obj.setId_usuario(orc.getId_usuario());
+        return obj;
+    }
+
+    List<SetServicosOrcamento> servicoOrcamentolist;
+
 
     public void setOrcamento(SetOrcamento item) {
         this.orcamento = item;
@@ -2273,6 +2750,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
             List<SetServicosOrcamento> servicosListOrcamneto = servicosOrcamentoService.listByOrcamento(item.getId_orcamento());
             List<SetServico> servicos = servicoService.listAll();
+            this.servicoOrcamentolist = servicosListOrcamneto;
 
             Set<Integer> idsServicosOrcamento = servicosListOrcamneto.stream()
                     .map(SetServicosOrcamento::getId_servico)  // Extrair os IDs de servicosListOrcamento
@@ -2281,6 +2759,7 @@ public class OrcamentoDetalheModal extends Dialog {
             List<SetServico> servicosFiltrados = servicos.stream()
                     .filter(servico -> idsServicosOrcamento.contains(servico.getId_servico()))
                     .collect(Collectors.toList());
+            this.servicosFilter = servicosFiltrados;
 
             servicoOrcamentoChekBox.setItems(servicos);
 
@@ -2294,6 +2773,10 @@ public class OrcamentoDetalheModal extends Dialog {
             List<SetSituacaoCadastro> listaSituacao = situacaoCadastroService.listAll();
             List<SetEnderecos> listaenderecos = enderecoService.findAllClienteId(item.getId_cliente());
             List<SetCondicaoPagamento> listaCondicaoPagamento = condicaoPagamentoService.listAll();
+
+            id_funcionarioinspecao.setValue(listafuncionarios.stream()
+                    .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionarioinspecao()))
+                    .findFirst().orElse(null));
 
 
             atendenteOrcamento.setValue(listafuncionarios.stream()
@@ -2376,6 +2859,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 observacao_faturamento.setValue(faturamento.getObservacao_faturamento());
             }
 
+            gridOrcamentoContato.setItems(new ArrayList<>());
             List<SetOrcamentoContato> orcamentoContato = orcamentoContatoService.findAllByOrcamentoId(item.getId_orcamento());
             if (orcamentoContato.size() > 0) {
                 gridOrcamentoContato.setItems(orcamentoContato);

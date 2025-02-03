@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.SetorAtuacaoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.SetorAtuacaoDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetSetorAtuacao;
@@ -50,15 +51,19 @@ public class SetorAtuacaoDiv extends Div {
 
     private SetorAtuacaoCadastroModal setorAtuacaoCadastroModal;
 
+    private SetorAtuacaoDetalhesModal setorAtuacaoDetalhesModal;
+
     @Autowired
     public void initServices(SetorAtuacaoService setorAtuacaoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             SetorAtuacaoCadastroModal setorAtuacaoCadastroModal1) {
+                             SetorAtuacaoCadastroModal setorAtuacaoCadastroModal1,
+                             SetorAtuacaoDetalhesModal setorAtuacaoDetalhesModal1) {
         this.setorAtuacaoService = setorAtuacaoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.setorAtuacaoCadastroModal = setorAtuacaoCadastroModal1;
+        this.setorAtuacaoDetalhesModal = setorAtuacaoDetalhesModal1;
     }
 
     @Autowired
@@ -165,6 +170,13 @@ public class SetorAtuacaoDiv extends Div {
                 deleta(event.getItem());
                 // Torna o botão "Deletar" invisível após a ação ser concluída
                 btnExcluir.setVisible(false);
+            });
+        });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                setorAtuacaoDetalhesModal.setSetorAtuacao(event.getItem());
+                setorAtuacaoDetalhesModal.open();
             });
         });
 

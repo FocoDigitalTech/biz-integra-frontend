@@ -66,4 +66,15 @@ public class PragaService {
         Optional<SetPraga> optional = repository.findById(id_praga);
         return optional.orElse(null);
     }
+
+    public void update(SetPraga dto) throws Exception {
+        try {
+            Optional<SetPraga> optional = repository.findById(dto.getId_praga());
+            SetPraga entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

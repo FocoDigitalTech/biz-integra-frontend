@@ -56,6 +56,10 @@ public class CustomizedComboBox {
             autoCrudSituacaoCadastroService = new AutoCrudSituacaoCadastroService();
             autoCrudSituacaoCadastroService.openFormDialog(combo, servicoBean);
         });
+        combo.setWidth("900px"); // Ajuste conforme necessário
+        combo.getStyle().set("max-width", "900px");
+        combo.getStyle().set("white-space", "normal");
+        combo.getStyle().set("word-wrap", "break-word");
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(combo, addButtonTipoPagamento);
         horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
@@ -112,6 +116,10 @@ public class CustomizedComboBox {
             autoCrudExecucaoServicoService = new AutoCrudExecucaoServicoService();
             autoCrudExecucaoServicoService.openFormDialog(id_execucaoservico, execucaoServicoService);
         });
+        id_execucaoservico.setWidth("1000px"); // Ajuste conforme necessário
+        id_execucaoservico.getStyle().set("max-width", "1000px");
+        id_execucaoservico.getStyle().set("white-space", "normal");
+        id_execucaoservico.getStyle().set("word-wrap", "break-word");
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout id_tipopagamentolayout = new HorizontalLayout(id_execucaoservico, addButtonTipoPagamento);
         id_tipopagamentolayout.setAlignItems(FlexComponent.Alignment.END);
@@ -172,6 +180,10 @@ public class CustomizedComboBox {
             autoCrudTipoAtendimentoService = new AutoCrudTipoAtendimentoService();
             autoCrudTipoAtendimentoService.openFormDialog(id_tipoatendimento, situacaoCadastroService);
         });
+        id_tipoatendimento.setWidth("900px"); // Ajuste conforme necessário
+        id_tipoatendimento.getStyle().set("max-width", "900px");
+        id_tipoatendimento.getStyle().set("white-space", "normal");
+        id_tipoatendimento.getStyle().set("word-wrap", "break-word");
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(id_tipoatendimento, addButtonTipoPagamento);
         horizontalLayout.setAlignItems(FlexComponent.Alignment.END);

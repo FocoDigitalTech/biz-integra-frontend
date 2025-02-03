@@ -786,7 +786,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
             }
             if (id_tipoatendimento.getValue() != null) {
-                dto.setId_situacaoservico(id_tipoatendimento.getValue().getId_tipoatendimento());
+                dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
             }
             if (localTratamentoOrcamento.getValue() != null) {
                 dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
@@ -834,7 +834,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                         dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
                     }
                     if (id_tipoatendimento.getValue() != null) {
-                        dto.setId_situacaoservico(id_tipoatendimento.getValue().getId_tipoatendimento());
+                        dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
                     }
                     if (localTratamentoOrcamento.getValue() != null) {
                         dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());

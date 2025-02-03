@@ -88,6 +88,7 @@ public class OrcamentoCadastroModal extends Dialog {
 
     // Formulario Orçamento.
     private TextField clienteNomeOrcamento;
+    private ComboBox<SetFuncionario> id_funcionarioinspecao;
     private ComboBox<SetEnderecos> localTratamentoOrcamento;
     private TextArea problemaOrcamento;
     private DatePicker dataOrcamento;
@@ -261,11 +262,15 @@ public class OrcamentoCadastroModal extends Dialog {
             //botaoContrato.addItem("Gerar Contrato");
             MenuItem item = botaoContrato.addItem("Gerar Contrato");
             SubMenu subItems = item.getSubMenu();
-            subItems.addItem("Geral");
+            subItems.addItem("Geral", event -> {
+                gerarSentricon();
+            });
             subItems.addItem("Sentricon", event -> {
                 gerarSentricon();
             });
-            subItems.addItem("Anual");
+            subItems.addItem("Anual", event -> {
+                gerarSentricon();
+            });
 
             //botaoContrato = new Button("Gerar Contrato", e -> {});
 
@@ -284,7 +289,7 @@ public class OrcamentoCadastroModal extends Dialog {
             addClassName(LumoUtility.Gap.SMALL);
             // Recupera o objeto Cliente da sessão
             cliente = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
-            setHeaderTitle("Cadastro Orçamento e Dados Financeiros");
+            //setHeaderTitle("Cadastro Orçamento e Dados Financeiros");
             if (cliente != null) {
                 loadClienteData(cliente);
             } else {
@@ -327,6 +332,7 @@ public class OrcamentoCadastroModal extends Dialog {
                     tab5.setVisible(true);
                     tab6.setVisible(true);
                     tab7.setVisible(true);
+                    tabs.setSelectedTab(tab2);
                     System.out.println("Contrato será incluído.");
                 } else {
                     contratoincluido = false;
@@ -1310,6 +1316,10 @@ public class OrcamentoCadastroModal extends Dialog {
         consultorOrcamento.setItems(funcionarioService.listAll());
         consultorOrcamento.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
+        id_funcionarioinspecao = new ComboBox<>("Funcionario Inspeção");
+        id_funcionarioinspecao.setItems(funcionarioService.listAll());
+        id_funcionarioinspecao.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
+
         consultorOrcamento.setRequiredIndicatorVisible(true);
         consultorOrcamento.addValueChangeListener(event -> {
             if (consultorOrcamento.isEmpty()) {
@@ -1370,6 +1380,7 @@ public class OrcamentoCadastroModal extends Dialog {
 
         formLayout.add(clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,
                 dataOrcamento,atendenteOrcamento,situacaoOrcamentolayout,dataInspecaoOrcamento,
+                id_funcionarioinspecao,
                 horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,
                 valorOrcamento,servicoOrcamentoChekBox);
 
@@ -1409,6 +1420,8 @@ public class OrcamentoCadastroModal extends Dialog {
         }
         if (localTratamentoOrcamento.getValue() != null) {
             dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+        }if (id_funcionarioinspecao.getValue() != null){
+            dto.setId_funcionarioinspecao(id_funcionarioinspecao.getValue().getId_funcionario());
         }
 
 

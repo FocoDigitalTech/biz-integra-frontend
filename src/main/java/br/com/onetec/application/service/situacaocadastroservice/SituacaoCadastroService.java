@@ -68,4 +68,15 @@ public class SituacaoCadastroService {
         Optional<SetSituacaoCadastro> optional = repository.findById(id_situacao);
         return optional.orElse(null);
     }
+
+    public void update(SetSituacaoCadastro dto) throws Exception {
+        try {
+            Optional<SetSituacaoCadastro> optional = repository.findById(dto.getId_situacaocadastro());
+            SetSituacaoCadastro entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

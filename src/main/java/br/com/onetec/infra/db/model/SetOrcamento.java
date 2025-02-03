@@ -26,6 +26,7 @@ public class SetOrcamento {
     private Integer id_orcamento;
     private Integer id_cliente;
     private Integer id_endereco;
+    private Integer id_funcionarioinspecao;
     private String descricao_problema;
     private LocalDate data_orcamento;
     private Integer id_funcionarioatendimento;

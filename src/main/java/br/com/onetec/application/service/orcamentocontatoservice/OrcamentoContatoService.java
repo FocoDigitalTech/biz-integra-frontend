@@ -67,6 +67,7 @@ public class OrcamentoContatoService {
         try {
             Optional<SetOrcamentoContato> optional = repository.findById(item.getId_orcamentocontato());
             SetOrcamentoContato entity = optional.get();
+            entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
         } catch (Exception e){

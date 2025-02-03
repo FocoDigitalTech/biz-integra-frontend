@@ -20,6 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -175,7 +176,7 @@ public class ClientesView extends Div {
         private final IntegerField numerocontrato = new IntegerField("N° Contrato");
         private final TextField numeroos = new TextField("N° Ordem de Serviço");
         private final TextField endereco = new TextField("Endereço");
-        private final CheckboxGroup<SetSituacaoCadastro> stringCheckboxGroup = new CheckboxGroup<>("Situação");
+        private final MultiSelectComboBox<SetSituacaoCadastro> stringCheckboxGroup = new MultiSelectComboBox<>("Situação");
         private final ComboBox<String> FJFieldCombo = new ComboBox<>("Natureza Juridica");
 
 

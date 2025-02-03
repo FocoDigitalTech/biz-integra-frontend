@@ -21,6 +21,7 @@
     "@vaadin/vaadin-shrinkwrap": "21.0.0",
     "@vaadin/vaadin-themable-mixin": "24.4.2",
     "@vaadin/vaadin-usage-statistics": "2.1.2",
+    "chart.js": "^4.4.7",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
     "lit": "3.1.4",
@@ -95,7 +96,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "f7866845bbd0c60119c78bc5a3ba4c9885de5d01c3dc6436f319b2ef119d47f0"
+    "hash": "0600a3f2a1b91289e5a3ad43816d6c3ff0a5dcdb5498b0c6f765fa13515ada02"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -121,6 +122,7 @@
     "@vaadin/rich-text-editor": "$@vaadin/rich-text-editor",
     "@vaadin/charts": "$@vaadin/charts",
     "@vaadin/grid-pro": "$@vaadin/grid-pro",
-    "@vaadin/vaadin-shrinkwrap": "$@vaadin/vaadin-shrinkwrap"
+    "@vaadin/vaadin-shrinkwrap": "$@vaadin/vaadin-shrinkwrap",
+    "chart.js": "$chart.js"
   }
 }

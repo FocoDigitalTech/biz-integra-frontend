@@ -1,12 +1,12 @@
 package br.com.onetec.application.views.main.home;
 
+import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.views.MainLayout;
-import br.com.onetec.infra.db.model.SetEnderecos;
-import br.com.onetec.infra.db.model.SetFuncionario;
-import br.com.onetec.infra.db.model.SetOrdemServico;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
@@ -43,6 +43,9 @@ public class HomeView extends VerticalLayout {
 
     private OrdemServicoService ordemServicoService;
 
+    private OrcamentoService orcamentoService;
+
+    private ClientesService clientesService;
 
     private FuncionarioService funcionarioService;
 
@@ -51,18 +54,22 @@ public class HomeView extends VerticalLayout {
 
     @Autowired
     public void initServices(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
-                             EnderecoService enderecoService1) {
+                             EnderecoService enderecoService1,OrcamentoService orcamentoService1,ClientesService clientesService1) {
         this.enderecoService = enderecoService1;
         this.ordemServicoService = ordemServicoServicev1;
         this.funcionarioService = funcionarioService1;
+        this.orcamentoService = orcamentoService1;
+        this.clientesService = clientesService1;
     }
 
     @Autowired
     public HomeView(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
-                    EnderecoService enderecoService1) {
+                    EnderecoService enderecoService1,OrcamentoService orcamentoService1,ClientesService clientesService1) {
         this.enderecoService = enderecoService1;
         this.ordemServicoService = ordemServicoServicev1;
         this.funcionarioService = funcionarioService1;
+        this.orcamentoService = orcamentoService1;
+        this.clientesService = clientesService1;
         UI.getCurrent().access(() -> {
 //        // Logo
 
@@ -85,25 +92,49 @@ public class HomeView extends VerticalLayout {
         });
     }
 
-    private Accordion getlist1(List<SetOrdemServico> listaPorFuncionario) {
+    private Accordion getlist1(List<SetOrdemServico> listaPorFuncionario, List<SetOrcamento> listaOrcamentoPorFuncionario) {
         Accordion accordion = new Accordion();
 
-        listaPorFuncionario.forEach(ordem -> {
-            Span name = new Span("OS: " + ordem.getId_ordemservico().toString());
-            Span email = new Span(ordem.getHorarioinicio_ordemservico().toString());
-            Span pontoFocal = new Span (ordem.getNome_pontofocal());
-            Span phone = new Span(ordem.getOcorrencias_ordemservico());
-            VerticalLayout personalInformationLayout = new VerticalLayout(name,
-                    email,pontoFocal, phone);
-            personalInformationLayout.setSpacing(false);
-            personalInformationLayout.setPadding(false);
+        if (listaPorFuncionario.size() > 0) {
+            listaPorFuncionario.forEach(ordem -> {
+                SetCliente cliente = clientesService.findById(ordem.getId_cliente());
+                Span name = new Span("N° OS: " + ordem.getId_ordemservico().toString());
+                Span customer = new Span("Nome Cliente: "+ cliente.getNome_cliente());
+                Span email = new Span("Horario:"+ordem.getHorarioinicio_ordemservico().toString());
+                Span pontoFocal = new Span("Ponto Focal: "+ordem.getNome_pontofocal());
+                Span phone = new Span("Ocorrencia: "+ordem.getOcorrencias_ordemservico());
+                VerticalLayout personalInformationLayout = new VerticalLayout(name,customer,
+                        email, pontoFocal, phone);
+                personalInformationLayout.setSpacing(false);
+                personalInformationLayout.setPadding(false);
 
-            SetEnderecos enderecos = enderecoService.findAllById(ordem.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findAllById(ordem.getId_endereco());
 
-            AccordionPanel personalInfoPanel = accordion.add(enderecos.getEnderecoImovel(),
-                    personalInformationLayout);
-            personalInfoPanel.addThemeVariants(DetailsVariant.SMALL);
-        });
+                AccordionPanel personalInfoPanel = accordion.add(enderecos.getEnderecoImovel(),
+                        personalInformationLayout);
+                personalInfoPanel.addThemeVariants(DetailsVariant.SMALL);
+            });
+        }
+        if (listaOrcamentoPorFuncionario.size() > 0) {
+            listaOrcamentoPorFuncionario.forEach(orcamento -> {
+                SetCliente cliente = clientesService.findById(orcamento.getId_cliente());
+                Span name = new Span("Inspeção Técnica N° Orçamento: " + orcamento.getId_orcamento().toString());
+                Span customer = new Span("Nome Cliente: "+ cliente.getNome_cliente());
+                Span email = new Span("Horario:"+orcamento.getHorario_inspecao().toString());
+                Span pontoFocal = new Span("Ponto Focal: "+cliente.getResponsavel_cliente());
+                Span phone = new Span("Ocorrencia: "+orcamento.getDescricao_problema());
+                VerticalLayout personalInformationLayout = new VerticalLayout(name,customer,
+                        email, pontoFocal, phone);
+                personalInformationLayout.setSpacing(false);
+                personalInformationLayout.setPadding(false);
+
+                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+
+                AccordionPanel personalInfoPanel = accordion.add(enderecos.getEnderecoImovel(),
+                        personalInformationLayout);
+                personalInfoPanel.addThemeVariants(DetailsVariant.SMALL);
+            });
+        }
 
         return accordion;
     }
@@ -126,8 +157,10 @@ public class HomeView extends VerticalLayout {
     private HorizontalLayout createCardSection() {
         List<VerticalLayout> cards = new ArrayList<>();
         List<SetOrdemServico> listaOrdens = ordemServicoService.findAll();
+        List<SetOrcamento> listaInspecao = orcamentoService.findAllBySituacaoId(1);;
 
         List<SetOrdemServico> novaLista = new ArrayList<>();
+        List<SetOrcamento> listaInspecaoNova = new ArrayList<>();
         List<SetFuncionario> listaAssistente = funcionarioService.listAll();
 
         addClassName("carousel-section");
@@ -137,19 +170,36 @@ public class HomeView extends VerticalLayout {
                 novaLista.add(ordem);
             }
         });
-        if (novaLista.size() > 0) {
+        listaInspecao.forEach(orcamento -> {
+            if (orcamento.getData_inspecao().equals(LocalDate.now())) {
+                listaInspecaoNova.add(orcamento);
+            }
+        });
+        if (novaLista.size() > 0 || listaInspecaoNova.size() > 0) {
             listaAssistente.forEach(assistente -> {
                 List<SetOrdemServico> listaPorFuncionario = new ArrayList<>();
+                List<SetOrcamento> listaOrcamentoPorFuncionario = new ArrayList<>();
                 Boolean existe;
                 SetFuncionario assist = assistente;
-                novaLista.forEach(ordem -> {
-                    if (assist.getId_funcionario().equals(ordem.getId_funcionariotecnico())) {
-                        listaPorFuncionario.add(ordem);
-                    }
-                });
+                if (novaLista.size() > 0){
+                    novaLista.forEach(ordem -> {
+                        if (assist.getId_funcionario().equals(ordem.getId_funcionariotecnico())) {
+                            listaPorFuncionario.add(ordem);
+                        }
+                    });
+                }
+                if (listaInspecaoNova.size() > 0){
+                    listaInspecaoNova.forEach(ordem -> {
+                        if (assist.getId_funcionario().equals(ordem.getId_funcionarioinspecao())) {
+                            listaOrcamentoPorFuncionario.add(ordem);
+                        }
+                    });
+                }
+
+
 
                 if (!listaPorFuncionario.isEmpty()) {
-                    cards.add(createCard1(listaPorFuncionario, assist));
+                    cards.add(createCard1(listaOrcamentoPorFuncionario,listaPorFuncionario, assist));
                 }
             });
 
@@ -202,24 +252,28 @@ public class HomeView extends VerticalLayout {
     }
 
 
-    private VerticalLayout createCard1(List<SetOrdemServico> listaPorFuncionario, SetFuncionario assistente) {
+    private VerticalLayout createCard1(List<SetOrcamento> listaOrcamentoPorFuncionario, List<SetOrdemServico> listaPorFuncionario, SetFuncionario assistente) {
         SetFuncionario funcionario = funcionarioService.findById(listaPorFuncionario.get(0).getId_funcionarioassistente());
         String title = assistente.getNome_funcionario() + " e " + funcionario.getNome_funcionario();
-        String description = "Abaixo programação :";
-        VerticalLayout card = new VerticalLayout(new H3(title), new Paragraph(description), getlist1(listaPorFuncionario));
+        String description = "Abaixo programação: ";
+        VerticalLayout card =
+                new VerticalLayout(new H3(title), new Paragraph(description), getlist1(listaPorFuncionario,listaOrcamentoPorFuncionario));
+
+       // card.add(getlist1(listaPorFuncionario));
+
         card.addClassName("clickable-card");
         // Criando o modal (Dialog)
-        Dialog modal = createModal(assistente, listaPorFuncionario);
+        Dialog modal = createModal(assistente, listaPorFuncionario,listaOrcamentoPorFuncionario);
 
         // Adicionando listener para abrir o modal ao clicar no card
-        card.addClickListener(event -> {
+        card.addDoubleClickListener(event -> {
             modal.open();  // Abre o modal
         });
 
         return card;
     }
 
-    private Dialog createModal(SetFuncionario assistente, List<SetOrdemServico> listaPorFuncionario) {
+    private Dialog createModal(SetFuncionario assistente, List<SetOrdemServico> listaPorFuncionario, List<SetOrcamento> listaOrcamentoPorFuncionario) {
         // Criando o dialog/modal
         Dialog modal = new Dialog();
         modal.setWidth("600px");
@@ -238,6 +292,14 @@ public class HomeView extends VerticalLayout {
             Span horarioInicio = new Span("Início: " + ordem.getHorarioinicio_ordemservico().toString());
             Span pontoFocal = new Span("Ponto Focal: " + ordem.getNome_pontofocal().toString());
             Span ocorrencia = new Span("Ocorrência: " + ordem.getOcorrencias_ordemservico());
+            infoLayout.add(new VerticalLayout(osId, horarioInicio,pontoFocal, ocorrencia));
+        });
+        listaOrcamentoPorFuncionario.forEach(ordem -> {
+            SetCliente cliente = clientesService.findById(ordem.getId_cliente());
+            Span osId = new Span("N° Orçamento: " + ordem.getId_orcamento());
+            Span horarioInicio = new Span("Início: " + ordem.getHorario_inspecao().toString());
+            Span pontoFocal = new Span("Ponto Focal: " + cliente.getResponsavel_cliente().toString());
+            Span ocorrencia = new Span("Ocorrência: " + ordem.getDescricao_problema());
             infoLayout.add(new VerticalLayout(osId, horarioInicio,pontoFocal, ocorrencia));
         });
 

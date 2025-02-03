@@ -61,4 +61,15 @@ public class TipoAtendimentoService {
     public List<SetTipoAtendimento> listAll() {
         return repository.listAll();
     }
+
+    public void update(SetTipoAtendimento dto) throws Exception {
+        try {
+            Optional<SetTipoAtendimento> optional = repository.findById(dto.getId_tipoatendimento());
+            SetTipoAtendimento entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }

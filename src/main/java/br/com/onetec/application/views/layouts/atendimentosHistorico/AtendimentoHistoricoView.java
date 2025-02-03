@@ -4,11 +4,17 @@ import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.ServicosExecutadosDiv;
 import br.com.onetec.application.views.main.financeiro.div.TipoEventoFinanceiroDiv;
-import br.com.onetec.infra.db.model.SetCliente;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import jakarta.annotation.security.PermitAll;
@@ -77,5 +83,8 @@ public class AtendimentoHistoricoView extends  Div {
 //            // Aqui você pode executar a lógica que deseja após a navegação
 //        }
 //    }
+
+
+
 
 }

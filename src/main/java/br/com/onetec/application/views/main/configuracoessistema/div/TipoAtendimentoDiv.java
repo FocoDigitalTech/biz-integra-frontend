@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.configuracoessistema.div;
 import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.configuracoessistema.modal.TipoAtendimentoCadastroModal;
+import br.com.onetec.application.views.main.configuracoessistema.modal.TipoAtendimentoDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoAtendimento;
@@ -50,15 +51,19 @@ public class TipoAtendimentoDiv extends Div {
 
     private TipoAtendimentoCadastroModal tipoAtendimentoCadastroModal;
 
+    private TipoAtendimentoDetalhesModal tipoAtendimentoDetalhesModal;
+
     @Autowired
     public void initServices(TipoAtendimentoService tipoAtendimentoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
-                             TipoAtendimentoCadastroModal tipoAtendimentoCadastroModal1) {
+                             TipoAtendimentoCadastroModal tipoAtendimentoCadastroModal1,
+                             TipoAtendimentoDetalhesModal tipoAtendimentoDetalhesModal1) {
         this.tipoAtendimentoService = tipoAtendimentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.tipoAtendimentoCadastroModal = tipoAtendimentoCadastroModal1;
+        this.tipoAtendimentoDetalhesModal = tipoAtendimentoDetalhesModal1;
     }
 
     @Autowired
@@ -167,6 +172,13 @@ public class TipoAtendimentoDiv extends Div {
                 deleta(event.getItem());
                 // Torna o botão "Deletar" invisível após a ação ser concluída
                 btnExcluir.setVisible(false);
+            });
+        });
+
+        grid.addItemDoubleClickListener(event -> {
+            UI.getCurrent().access(() -> {
+                tipoAtendimentoDetalhesModal.setTipoAtendimen(event.getItem());
+                tipoAtendimentoDetalhesModal.open();
             });
         });
 

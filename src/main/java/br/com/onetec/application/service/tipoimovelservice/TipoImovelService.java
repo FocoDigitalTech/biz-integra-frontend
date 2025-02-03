@@ -63,4 +63,18 @@ public class TipoImovelService {
     }
 
 
+    public SetTipoImovel findByIdImovel(Integer id_tipoimovel) {
+        return repository.findById(id_tipoimovel).orElse(null);
+    }
+
+    public void update(SetTipoImovel dto) throws Exception {
+        try {
+            Optional<SetTipoImovel> optional = repository.findById(dto.getId_tipoimovel());
+            SetTipoImovel entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
 }
