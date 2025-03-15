@@ -4,6 +4,8 @@ import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.layouts.notificationAlert.NotificationForm;
+import br.com.onetec.application.views.main.administrativo.AdministrativoView;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
@@ -18,6 +20,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -48,6 +51,10 @@ public class DepartamentoDetalhesModal extends Dialog {
 
     @Autowired
     FuncionarioService funcionarioService;
+
+    @Autowired
+    @Lazy
+    AdministrativoView administrativoView;
 
 
     private SetDepartamento departamento;
@@ -86,8 +93,11 @@ public class DepartamentoDetalhesModal extends Dialog {
 
         try {
             departamentoService.atualizar(dto, departamento.getId_departamento());
+            administrativoView.refreshGrid();
+            service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
         } catch (Exception e) {
             e.printStackTrace();
+            service.notificaSucesso(ModalMessageConst.ERROR_CREATE);
         }
         close();
     }

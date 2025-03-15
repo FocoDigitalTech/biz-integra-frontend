@@ -15,6 +15,7 @@ import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoServ
 import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagamentoService;
+import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.tipopagamentoservice.AutoCrudTipoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
@@ -100,6 +101,7 @@ public class OrcamentoCadastroModal extends Dialog {
     private ComboBox<SetCondicaoPagamento> condicaoOrcamento;
     private TextField garantiaOrcamento;
     private TextField valorOrcamento;
+    private ComboBox <SetTipoMidia>tipoMidia;
     private final CheckboxGroup<SetServico> servicoOrcamentoChekBox = new CheckboxGroup<>("Serviço");
 
     //formulario contrato
@@ -190,6 +192,9 @@ public class OrcamentoCadastroModal extends Dialog {
 
     @Autowired
     private OrcamentoService orcamentoService;
+
+    @Autowired
+    private TipoMidiaService tipomidiaService;
 
     @Autowired
     private ServicosOrcamentoService setServicosOrcamentoservice;
@@ -484,6 +489,7 @@ public class OrcamentoCadastroModal extends Dialog {
             return del;
         }).setSortable(false).setAutoWidth(true);
 
+        upload.setMaxFileSize(157696512);
         upload.addSucceededListener(event -> {
             String fileName = event.getFileName();
             InputStream inputStream = buffer.getInputStream(fileName);
@@ -492,6 +498,9 @@ public class OrcamentoCadastroModal extends Dialog {
             if (targetFile.exists()) {
                 // Arquivo já existe, pode optar por ignorar, sobrescrever ou renomear
                 Notification.show("O arquivo já existe: " + fileName, 3000, Notification.Position.MIDDLE);
+                Dialog dio = new Dialog();
+                dio.add("O arquivo selecionado já existe no diretório de destino, para fazer um novo upload renomeie, o arquivo com outro nome !");
+                dio.open();
                 return;
             }
             try (OutputStream outputStream = new FileOutputStream(targetFile)) {
@@ -1304,7 +1313,9 @@ public class OrcamentoCadastroModal extends Dialog {
             }
         });
 
-
+        tipoMidia = new ComboBox<>("Tipo de Midia");
+        tipoMidia.setItems(tipomidiaService.findAllMidia());
+        tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
 
 
         dataInspecaoOrcamento = new DatePicker("Data Inspeção");
@@ -1378,7 +1389,7 @@ public class OrcamentoCadastroModal extends Dialog {
         formLayout.setWidthFull();
 
 
-        formLayout.add(clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,
+        formLayout.add(clienteNomeOrcamento,tipoMidia,localTratamentoOrcamento,problemaOrcamento,
                 dataOrcamento,atendenteOrcamento,situacaoOrcamentolayout,dataInspecaoOrcamento,
                 id_funcionarioinspecao,
                 horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,
@@ -1402,7 +1413,7 @@ public class OrcamentoCadastroModal extends Dialog {
                     Objects.isNull(dataOrcamento.getValue())||
                     Objects.isNull(atendenteOrcamento.getValue())||
                     Objects.isNull(situacaoOrcamento.getValue())) {
-                service.notificaErro("Prencha todos os campos obrigat´ro");
+                service.notificaErro("Prencha todos os campos obrigatórios");
 
             } else {
 
@@ -1425,6 +1436,10 @@ public class OrcamentoCadastroModal extends Dialog {
         }
 
 
+
+        if (Objects.nonNull(tipoMidia.getValue())) {
+            dto.setId_anuncio(tipoMidia.getValue().getId_tipomidia());
+        }
 
 
         dto.setId_cliente(cliente.getId_cliente());

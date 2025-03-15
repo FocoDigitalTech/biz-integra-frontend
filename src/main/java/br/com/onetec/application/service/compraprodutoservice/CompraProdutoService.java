@@ -3,6 +3,7 @@ package br.com.onetec.application.service.compraprodutoservice;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetCompraProduto;
 import br.com.onetec.infra.db.repository.ISetCompraProdutoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -71,5 +72,15 @@ public class CompraProdutoService {
 
     public List<SetCompraProduto> listAll() {
         return repository.listAll();
+    }
+
+    @SneakyThrows
+    public List<SetCompraProduto> findByIdCompra(Integer id_compra) {
+        try {
+            List<SetCompraProduto> optional = repository.findByIdCompra(id_compra);
+            return optional;
+        } catch (Exception e){
+            throw new Exception();
+        }
     }
 }

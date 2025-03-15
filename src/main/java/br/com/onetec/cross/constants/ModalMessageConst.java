@@ -10,4 +10,6 @@ public class ModalMessageConst {
 
     public static final String ERROR_USER_GROUP = "Grupo de Usuários não atrubuido ou inválido !";
     public static final String ERROR_PASSWORD_VERIFICATION = "";
+    public static final String FIELD_REQUIRED = "Campo obrigatório";
+    public static final String ERROR_DATA_SENTRICON = "Atenção os dados";
 }

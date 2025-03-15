@@ -26,6 +26,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class CustomizedComboBox {
 
@@ -134,12 +135,14 @@ public class CustomizedComboBox {
         return horizontalLayout;
     }
 
-    public HorizontalLayout customizeEventoFinanceiro(ComboBox<SetEventoFinanceiro> id_eventofinanceiro, EventoFinanceiroService eventoFinanceiroService) {
+    public HorizontalLayout customizeEventoFinanceiro(ComboBox<SetEventoFinanceiro> id_eventofinanceiro,
+                                                      EventoFinanceiroService eventoFinanceiroService,
+                                                      TipoEventoFinanceiroService grupoFinanceiroService) {
         // Criação do botão com ícone de "plus"
         Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
         addButtonTipoPagamento.addClickListener(event -> {
             autoCrudEventoFinanceiroService = new AutoCrudEventoFinanceiroService();
-            autoCrudEventoFinanceiroService.openFormDialog(id_eventofinanceiro, eventoFinanceiroService);
+            autoCrudEventoFinanceiroService.openFormDialog(id_eventofinanceiro, eventoFinanceiroService,grupoFinanceiroService);
         });
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(id_eventofinanceiro, addButtonTipoPagamento);

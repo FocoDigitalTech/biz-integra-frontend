@@ -75,4 +75,8 @@ public class EventoFinanceiroService {
             throw new Exception();
         }
     }
+
+    public List<SetEventoFinanceiro> findByIdTipoEventoFinanceiro(Integer id_tipoeventofinanceiro) {
+        return repository.findByIdTipoEventoFinanceiro(id_tipoeventofinanceiro);
+    }
 }

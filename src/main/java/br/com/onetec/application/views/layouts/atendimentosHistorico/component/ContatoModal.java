@@ -32,10 +32,8 @@ public class ContatoModal {
         DatePicker data_orcamentocontato = new DatePicker("Data Contato");
         TimePicker horario_orcamentocontato = new TimePicker("Hora");
         TextField nome_orcamentocontato = new TextField("Nome Contato");
-        TextField telefone_orcamentocontato = new TextField("Telefone");
         ComboBox<SetFuncionario> id_funcionarioContato = new ComboBox<>("Funcionario");
         DatePicker dataretorno_orcamentocontato = new DatePicker("Data Retorno");
-        TextField unidade_orcamentocontato = new TextField("Unidade");
         TextArea descricao_orcamentocontato = new TextArea("O que foi contatado ?");
 
         id_funcionarioContato.setItems(funcionarioService.listAll());
@@ -49,16 +47,10 @@ public class ContatoModal {
         nome_orcamentocontato.setValue(
                 item.getNome_orcamentocontato() != null? item.getNome_orcamentocontato() : ""
         );
-        telefone_orcamentocontato.setValue(
-                item.getTelefone_orcamentocontato() != null? item.getTelefone_orcamentocontato() : "0"
-        );
         id_funcionarioContato.setValue(funcionarioService.listAll().stream()
                 .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
                 .findFirst().orElse(null));
         dataretorno_orcamentocontato.setValue(item.getDataretorno_orcamentocontato());
-        unidade_orcamentocontato.setValue(
-                item.getUnidade_orcamentocontato() != null? item.getUnidade_orcamentocontato() : ""
-        );
         descricao_orcamentocontato.setValue(item.getDescricao_orcamentocontato() != null?
                 item.getDescricao_orcamentocontato() : ""
         );
@@ -72,12 +64,10 @@ public class ContatoModal {
                 item.setData_orcamentocontato(data_orcamentocontato.getValue());
                 item.setHorario_orcamentocontato(horario_orcamentocontato.getValue());
                 item.setNome_orcamentocontato(nome_orcamentocontato.getValue());
-                item.setTelefone_orcamentocontato(telefone_orcamentocontato.getValue());
                 if(Objects.nonNull(id_funcionarioContato.getValue())) {
                     item.setId_funcionario(id_funcionarioContato.getValue().getId_funcionario());
                 }
                 item.setDataretorno_orcamentocontato(dataretorno_orcamentocontato.getValue());
-                item.setUnidade_orcamentocontato(unidade_orcamentocontato.getValue());
                 item.setDescricao_orcamentocontato(descricao_orcamentocontato.getValue());
                 orcamentoContatoService.update(item);
                 dialog.close();
@@ -95,10 +85,8 @@ public class ContatoModal {
         formLayout.add( data_orcamentocontato,
                 horario_orcamentocontato,
                 nome_orcamentocontato,
-                telefone_orcamentocontato,
                 id_funcionarioContato,
                 dataretorno_orcamentocontato,
-                unidade_orcamentocontato,
                 descricao_orcamentocontato);
 
         dialog.add(formLayout);

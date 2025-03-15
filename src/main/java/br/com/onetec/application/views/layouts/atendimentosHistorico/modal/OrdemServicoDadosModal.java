@@ -963,6 +963,16 @@ public class OrdemServicoDadosModal extends Dialog {
 
         confirmado_ordemservico.setItems(List.of("SIM","NÃO"));
 
+        localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+        localTratamentoOrcamento.addValueChangeListener(event -> {
+            if (localTratamentoOrcamento.isEmpty()) {
+                localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+                localTratamentoOrcamento.setInvalid(true);
+            } else {
+                localTratamentoOrcamento.setInvalid(false);
+            }
+        });
+
 
         formLayout.add(localTratamentoOrcamento,
                 tipoeventofinanceirolayout,
@@ -987,6 +997,12 @@ public class OrdemServicoDadosModal extends Dialog {
         SetOrdemServico dto = ordemServico;
 
         try {
+            if (localTratamentoOrcamento.isEmpty()) {
+                localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+                localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+                localTratamentoOrcamento.setInvalid(true);
+                service.notificaErro(ModalMessageConst.FIELD_ERROR);
+            } else {
             if (id_orcamento.getValue() != null) {
                 dto.setId_orcamento(Integer.valueOf(id_orcamento.getValue()));
             }
@@ -1110,6 +1126,7 @@ public class OrdemServicoDadosModal extends Dialog {
             listaOrdemServicoFuncionarioAlocados = new ArrayList<>();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
+            }
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
             System.out.println(e.getMessage().toString());

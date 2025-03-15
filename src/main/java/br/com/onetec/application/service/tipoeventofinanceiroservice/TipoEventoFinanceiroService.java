@@ -76,4 +76,9 @@ public class TipoEventoFinanceiroService {
     public List<SetTipoEventoFinanceiro> findAll() {
             return repository.listAll();
     }
+
+    public SetTipoEventoFinanceiro findById(Integer id_tipoeventofinanceiro) {
+        Optional<SetTipoEventoFinanceiro> optional = repository.findById(id_tipoeventofinanceiro);
+        return optional.orElse(null);
+    }
 }

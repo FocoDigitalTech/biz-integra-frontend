@@ -112,6 +112,7 @@ public class OrcamentoDetalheModal extends Dialog {
     private ComboBox<SetCondicaoPagamento> condicaoOrcamento;
     private TextField garantiaOrcamento;
     private TextField valorOrcamento;
+    private ComboBox <SetTipoMidia>tipoMidia;
     private final CheckboxGroup<SetServico> servicoOrcamentoChekBox = new CheckboxGroup<>("Serviço");
 
     //formulario contrato
@@ -132,14 +133,10 @@ public class OrcamentoDetalheModal extends Dialog {
 
     //formulario notafiscal
     private TextField numero_notafiscal;
-    private TextField serie_notafiscal;
     private DatePicker dataemissao_notafiscal;
-    private TextField natureza_notafiscal;
-    private TextField unidade_notafiscal;
-    private IntegerField quantidade_notafiscal;
-    private TextField valorunitario_notafiscal;
+    private DatePicker datavencimento_notafiscal;
     private TextField valortotal_notafiscal;
-    private TextField descricao_notafiscal;
+    private TextArea descricao_notafiscal;
     private List<SetNotaFiscal> listaNotas ;
     List<SetNotaFiscal> listaNotasRemover = new ArrayList<>();
     List<SetNotaFiscal> listaNotasNova = new ArrayList<>();
@@ -194,9 +191,7 @@ public class OrcamentoDetalheModal extends Dialog {
     private TimePicker horario_orcamentocontato;
     private ComboBox<SetFuncionario> id_funcionarioContato;
     private TextField nome_orcamentocontato;
-    private TextField telefone_orcamentocontato;
     private DatePicker dataretorno_orcamentocontato;
-    private TextField unidade_orcamentocontato;
     private TextArea descricao_orcamentocontato;
     private Grid<SetOrcamentoContato> gridOrcamentoContato;
     private Button adcionarContato;
@@ -278,6 +273,9 @@ public class OrcamentoDetalheModal extends Dialog {
 
     @Autowired
     private OrcamentoPosVendasService orcamentoPosVendasService;
+
+    @Autowired
+    private TipoMidiaService tipomidiaService;
 
 
     @Autowired
@@ -361,10 +359,28 @@ public class OrcamentoDetalheModal extends Dialog {
                 SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
 
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+
+                List<SetPagamento> listpag = pagamentoService.findAllByOrcamentoId(orcamento.getId_orcamento());
+
+                SetPagamento pagamentoset;
+                SetTipoPagamento tipopag;
+                Integer totaldeparcelascontrato;
+
+                if (listpag.size() <= 0){
+                    pagamentoset = montapagamanetoficticio();
+                    totaldeparcelascontrato = 0;
+                    tipopag = tipoPagamentoService.listAll().get(0);
+                } else {
+                    pagamentoset = listpag.get(0);
+                    totaldeparcelascontrato = pagamentoset.getTotalparcela_pagamento();
+                    tipopag = tipoPagamentoService.findById(pagamentoset.getId_tipopagamento());
+                }
+
+
                 // Edita o documento Word
                 SetClienteTransiction.editWordSentriconDocument(wordPath, updatedWordPath,
-                        "81038", clientId,orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
-                        numeroparcela_pagamento.getValue(), id_condicaopagamento.getValue(),enderecos);
+                        "81038", contrato.getId_contrato().toString(),orcamento,cliente,valor_total.getValue(),valor_nagasaki.getValue(),
+                        totaldeparcelascontrato, id_condicaopagamento.getValue(),enderecos,contrato,tipopag,pagamentoset);
 
                 // Converte o documento editado para PDF
                 SetClienteTransiction.convertDocxToPdf(updatedWordPath, pdfPath);
@@ -403,6 +419,42 @@ public class OrcamentoDetalheModal extends Dialog {
                 exa.printStackTrace();
             }
         }
+    }
+
+    private SetPagamento montapagamanetoficticio() {
+        SetPagamento dto = new SetPagamento();
+        dto.setId_orcamento(1);
+        dto.setId_pagamento(100);
+        dto.setId_cliente(50);
+        dto.setId_contrato(200);
+        dto.setNumeroparcela_pagamento(2);
+        dto.setTotalparcela_pagamento(12);
+        dto.setVencimento_pagamento(LocalDate.now().plusDays(30));
+        dto.setValor_pagamento(BigDecimal.ZERO);
+        dto.setData_pagamento(LocalDate.now());
+        dto.setValorpago_pagamento(BigDecimal.ZERO);
+        dto.setNumerodocumento_pagamento("123456");
+        dto.setId_ordemservico(300);
+        dto.setId_tipopagamento(2);
+        dto.setNumero_pagamento("98765");
+        dto.setChavepix_pagamento("chave-pix-exemplo");
+        dto.setPixtoken_pagamento("token-pix-exemplo");
+        dto.setAgencia_pagamento("1234");
+        dto.setConta_pagamento("56789-0");
+        dto.setBanco_pagamento("Banco Exemplo");
+        dto.setBoleto_pagamento("boleto-123");
+        dto.setId_situacaopagamento(1);
+        dto.setDescricao_pagamento("Pagamento de serviço");
+        dto.setId_usuariobaixa(10);
+        dto.setData_inclusao(LocalDateTime.now());
+        dto.setData_alteracao(LocalDateTime.now());
+        dto.setData_exclusao(null);
+        dto.setId_usuario(5);
+        dto.setAtivo("S");
+        dto.setBaixado("N");
+        return dto;
+
+
     }
 
     public OrcamentoDetalheModal() {
@@ -1207,6 +1259,8 @@ public class OrcamentoDetalheModal extends Dialog {
             return del;
         }).setSortable(false).setAutoWidth(true);
 
+        upload.setMaxFileSize(157696512);
+
         upload.addSucceededListener(event -> {
             String fileName = event.getFileName();
             InputStream inputStream = buffer.getInputStream(fileName);
@@ -1215,6 +1269,9 @@ public class OrcamentoDetalheModal extends Dialog {
             if (targetFile.exists()) {
                 // Arquivo já existe, pode optar por ignorar, sobrescrever ou renomear
                 Notification.show("O arquivo já existe: " + fileName, 3000, Notification.Position.MIDDLE);
+                Dialog dio = new Dialog();
+                dio.add("O arquivo selecionado já existe no diretório de destino, para fazer um novo upload renomeie, o arquivo com outro nome !");
+                dio.open();
                 return;
             }
             try (OutputStream outputStream = new FileOutputStream(targetFile)) {
@@ -1254,10 +1311,8 @@ public class OrcamentoDetalheModal extends Dialog {
         data_orcamentocontato = new DatePicker("Data Contato");
         horario_orcamentocontato = new TimePicker("Hora");
         nome_orcamentocontato = new TextField("Nome Contato");
-        telefone_orcamentocontato = new TextField("Telefone");
         id_funcionarioContato = new ComboBox<>("Funcionario");
         dataretorno_orcamentocontato = new DatePicker("Data Retorno");
-        unidade_orcamentocontato = new TextField("Unidade");
         descricao_orcamentocontato = new TextArea("O que foi contatado ?");
 
         service.configuraCalendario(data_orcamentocontato);
@@ -1331,12 +1386,10 @@ public class OrcamentoDetalheModal extends Dialog {
             obj.setData_orcamentocontato(data_orcamentocontato.getValue());
             obj.setHorario_orcamentocontato(horario_orcamentocontato.getValue());
             obj.setNome_orcamentocontato(nome_orcamentocontato.getValue());
-            obj.setTelefone_orcamentocontato(telefone_orcamentocontato.getValue());
             if(Objects.nonNull(id_funcionarioContato.getValue())) {
                 obj.setId_funcionario(id_funcionarioContato.getValue().getId_funcionario());
             }
             obj.setDataretorno_orcamentocontato(dataretorno_orcamentocontato.getValue());
-            obj.setUnidade_orcamentocontato(unidade_orcamentocontato.getValue());
             obj.setDescricao_orcamentocontato(descricao_orcamentocontato.getValue());
             listOrcamentoContato.add(obj);
             listOrcamentoContatoNova.add(obj);
@@ -1348,10 +1401,8 @@ public class OrcamentoDetalheModal extends Dialog {
         formLayout.add( data_orcamentocontato,
                 horario_orcamentocontato,
                 nome_orcamentocontato,
-                telefone_orcamentocontato,
                 id_funcionarioContato,
                 dataretorno_orcamentocontato,
-                unidade_orcamentocontato,
                 descricao_orcamentocontato,saveButton);
         // Retorna o container principal
         Div div = new Div();
@@ -1386,6 +1437,7 @@ public class OrcamentoDetalheModal extends Dialog {
             DatePicker dataVencimentoParcela = new DatePicker("1° Vencimento Parcela");
             TextField valorFinalParcela = new TextField("Valor de Cada Parcela");
 
+            service.configuraCalendario(dataVencimentoParcela);
             // Configurando os valores iniciais
             parcelamentoPagar.setValue(Integer.valueOf(id_condicaopagamento.getValue().getQuantidade_parcelas()));
             valorTotalAPagar.setValue((valor_total.getValue()));  // Valor inicial sem máscara
@@ -1453,13 +1505,16 @@ public class OrcamentoDetalheModal extends Dialog {
             valorFinalParcela.setValueChangeMode(ValueChangeMode.EAGER);
             valorFinalParcela.setPlaceholder("R$ 0,00");
 
+            boolean verificaprimeiropagamento = true;
+
             // Botões de ação
             Button pagamentoButon = new Button("Gerar Pagamentos", event -> {
+                LocalDate localdateHoje = dataVencimentoParcela.getValue().minusMonths(1);
                 for (int i = 0; i < parcelamentoPagar.getValue(); i++) {
                     SetPagamento pay = new SetPagamento();
                     pay.setNumeroparcela_pagamento(i + 1);
                     pay.setTotalparcela_pagamento(parcelamentoPagar.getValue());
-                    pay.setVencimento_pagamento(dataVencimentoParcela.getValue().plusMonths(i + 1));
+                    pay.setVencimento_pagamento(localdateHoje.plusMonths(i+1));
                     pay.setValor_pagamento(service.getValorBigDecimal(valorFinalParcela.getValue()));
                     pay.setBaixado("N");
                     pay.setData_inclusao(LocalDateTime.now());
@@ -1494,25 +1549,19 @@ public class OrcamentoDetalheModal extends Dialog {
 
     private Div createFormcadastroNotaFiscal() {
         numero_notafiscal = new TextField("Numero");
-        serie_notafiscal = new TextField("Série");
         dataemissao_notafiscal = new DatePicker("Data Emissão");
-        natureza_notafiscal = new TextField("Natureza");
-        unidade_notafiscal = new TextField("Unidade");
-        quantidade_notafiscal = new IntegerField("Quantidade");
-        valorunitario_notafiscal = new TextField("Valor Unitario");
+        datavencimento_notafiscal = new DatePicker("Data Vencimento");
         valortotal_notafiscal = new TextField("Valor Total");
-        descricao_notafiscal = new TextField("Descrição");
+        descricao_notafiscal = new TextArea("Descrição");
 
+        service.configuraCalendario(dataemissao_notafiscal);
+        service.configuraCalendario(datavencimento_notafiscal);
 
-        valorunitario_notafiscal.setValueChangeMode(ValueChangeMode.EAGER);
-        valorunitario_notafiscal.addValueChangeListener(event -> service.formataMoedaBrasileira(valorunitario_notafiscal));
-        valorunitario_notafiscal.setPlaceholder("R$ 0,00");
 
         valortotal_notafiscal.setValueChangeMode(ValueChangeMode.EAGER);
         valortotal_notafiscal.addValueChangeListener(event -> service.formataMoedaBrasileira(valortotal_notafiscal));
         valortotal_notafiscal.setPlaceholder("R$ 0,00");
 
-        quantidade_notafiscal.setStepButtonsVisible(true);
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
@@ -1525,26 +1574,21 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("N° Nota")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridNotaFiscal.addColumn(SetNotaFiscal::getSerie_notafiscal)
-                .setHeader("Série")
+        gridNotaFiscal.addColumn(SetNotaFiscal::getValortotal_notafiscal)
+                .setHeader("Valor total")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridNotaFiscal.addColumn(SetNotaFiscal::getDataemissao_notafiscal)
+        gridNotaFiscal.addColumn(data -> UtilitySystemConfigService.
+                getDataFormatada(data.getDatavencimento_notafiscal().atStartOfDay()))
+                .setHeader("Vencimento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        gridNotaFiscal.addColumn(data -> UtilitySystemConfigService.
+                getDataFormatada(data.getDataemissao_notafiscal().atStartOfDay()))
                 .setHeader("Emissão")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridNotaFiscal.addColumn(SetNotaFiscal::getNatureza_notafiscal)
-                .setHeader("Natureza")
-                .setSortable(true)
-                .setAutoWidth(true);
-        gridNotaFiscal.addColumn(SetNotaFiscal::getUnidade_notafiscal)
-                .setHeader("Unidade")
-                .setSortable(true)
-                .setAutoWidth(true);
-        gridNotaFiscal.addColumn(SetNotaFiscal::getValortotal_notafiscal)
-                .setHeader("Valor Total")
-                .setSortable(true)
-                .setAutoWidth(true);
+
         gridNotaFiscal.addComponentColumn(e -> {
             // Cria o botão de deletar com um ícone de lixeira
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
@@ -1558,7 +1602,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 // Atualiza os itens da grid
                 gridNotaFiscal.setItems(listaNotas);
                 // Feedback ao usuário
-                Notification.show("Comissao removida: ", 3000, Notification.Position.MIDDLE);
+                Notification.show("Nota removida: ", 3000, Notification.Position.MIDDLE);
             });
             del.getElement().setAttribute("aria-label", "Delete");
             del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
@@ -1578,35 +1622,22 @@ public class OrcamentoDetalheModal extends Dialog {
         Button saveAdicionarButton = new Button("Adicionar Nota Fiscal", event -> {
             SetNotaFiscal nota = new SetNotaFiscal();
             nota.setNumero_notafiscal(numero_notafiscal.getValue());
-            nota.setSerie_notafiscal(serie_notafiscal.getValue());
             nota.setDataemissao_notafiscal(dataemissao_notafiscal.getValue());
-            nota.setNatureza_notafiscal(natureza_notafiscal.getValue());
-            nota.setUnidade_notafiscal(unidade_notafiscal.getValue());
-            nota.setQuantidade_notafiscal(quantidade_notafiscal.getValue().toString());
-            nota.setValorunitario_notafiscal(service.getValorBigDecimal(valorunitario_notafiscal.getValue()));
+            nota.setDatavencimento_notafiscal(datavencimento_notafiscal.getValue());
             nota.setValortotal_notafiscal(service.getValorBigDecimal(valortotal_notafiscal.getValue()));
             nota.setDescricao_notafiscal(descricao_notafiscal.getValue());
             listaNotasNova.add(nota);
             listaNotas.add(nota);
             numero_notafiscal.clear();
-            serie_notafiscal.clear();
             dataemissao_notafiscal.clear();
-            natureza_notafiscal.clear();
-            unidade_notafiscal.clear();
-            quantidade_notafiscal.clear();
-            valorunitario_notafiscal.clear();
             valortotal_notafiscal.clear();
             descricao_notafiscal.clear();
             gridNotaFiscal.setItems(listaNotas);
         });
 
         formLayout.add(numero_notafiscal,
-                serie_notafiscal,
                 dataemissao_notafiscal,
-                natureza_notafiscal,
-                unidade_notafiscal,
-                quantidade_notafiscal,
-                valorunitario_notafiscal,
+                datavencimento_notafiscal,
                 valortotal_notafiscal,
                 descricao_notafiscal,
                 saveAdicionarButton);
@@ -1687,6 +1718,26 @@ public class OrcamentoDetalheModal extends Dialog {
         id_situacaopagamento = new ComboBox<>("Status Pagamento");
         descricao_pagamento = new TextArea("Observações");
 
+        id_tipopagamento.setRequiredIndicatorVisible(true);
+        id_tipopagamento.addValueChangeListener(event -> {
+            if (id_tipopagamento.isEmpty()) {
+                id_tipopagamento.setErrorMessage("Campo obrigatório");
+                id_tipopagamento.setInvalid(true);
+            } else {
+                id_tipopagamento.setInvalid(false);
+            }
+        });
+
+        id_situacaopagamento.setRequiredIndicatorVisible(true);
+        id_situacaopagamento.addValueChangeListener(event -> {
+            if (id_situacaopagamento.isEmpty()) {
+                id_situacaopagamento.setErrorMessage("Campo obrigatório");
+                id_situacaopagamento.setInvalid(true);
+            } else {
+                id_situacaopagamento.setInvalid(false);
+            }
+        });
+
         id_situacaopagamento.setItems(situacaoPagamentoService.listAll());
         id_situacaopagamento.setItemLabelGenerator(SetSituacaoPagamento::getNome_situacaopagamento);
 
@@ -1724,7 +1775,8 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Total de Parcelas")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridPagamento.addColumn(SetPagamento::getVencimento_pagamento)
+        gridPagamento.addColumn(data -> UtilitySystemConfigService.
+                getDataFormatada(data.getVencimento_pagamento().atStartOfDay()))
                 .setHeader("Vencimento")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1736,7 +1788,14 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Valor Pago")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridPagamento.addColumn(SetPagamento::getData_pagamento)
+        gridPagamento.addColumn(data -> {
+            if (Objects.nonNull(data.getData_pagamento())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+                })
                 .setHeader("Data Pagamento")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1758,7 +1817,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 // Atualiza os itens da grid
                 gridPagamento.setItems(listaPagamentos);
                 // Feedback ao usuário
-                Notification.show("Comissao removida: ", 3000, Notification.Position.MIDDLE);
+                Notification.show("Pagamento removido: ", 3000, Notification.Position.MIDDLE);
             });
             del.getElement().setAttribute("aria-label", "Delete");
             del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
@@ -1768,7 +1827,7 @@ public class OrcamentoDetalheModal extends Dialog {
             if (Objects.nonNull(event.getItem())) {
                 if (Objects.nonNull(event.getItem().getId_pagamento())) {
                     PagamentoModal.openModalPagamento(event.getItem(),pagamentoService, tipoPagamentoService
-                            ,situacaoPagamentoService);
+                            ,situacaoPagamentoService,gridPagamento);
                 } else {
                     service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar nova Comissão !");
                 }
@@ -1777,24 +1836,37 @@ public class OrcamentoDetalheModal extends Dialog {
             }
         });
         Button saveAdicionarButton = new Button("Adicionar Pagamento", event -> {
-            SetPagamento pay = new SetPagamento();
-            pay.setNumeroparcela_pagamento(numeroparcela_pagamento.getValue());
-            pay.setTotalparcela_pagamento(totalparcela_pagamento.getValue());
-            pay.setVencimento_pagamento(vencimento_pagamento.getValue());
-            pay.setValor_pagamento(service.getValorBigDecimal(valor_pagamento.getValue()));
-            pay.setData_pagamento(data_pagamento.getValue());
-            pay.setValorpago_pagamento(service.getValorBigDecimal(valorpago_pagamento.getValue()));
-            pay.setNumerodocumento_pagamento(numerodocumento_pagamento.getValue());
-            pay.setId_tipopagamento(id_tipopagamento.getValue().getId_tipopagamento());
-            pay.setId_situacaopagamento(id_situacaopagamento.getValue().getId_situacaopagamento());
-            pay.setBaixado("N");
-            pay.setDescricao_pagamento(descricao_pagamento.getValue());
-            pay.setData_inclusao(LocalDateTime.now());
-            pay.setAtivo("S");
-            pay.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-            listaPagamentos.add(pay);
-            listaPagamentosNova.add(pay);
-            gridPagamento.setItems(listaPagamentos);
+
+            if (id_situacaopagamento.isEmpty()) {
+                id_situacaopagamento.setRequiredIndicatorVisible(true);
+                id_situacaopagamento.setErrorMessage("Campo obrigatório");
+                id_situacaopagamento.setInvalid(true);
+                service.notificaErro(ModalMessageConst.FIELD_ERROR);
+            } else if (id_tipopagamento.isEmpty()) {
+                id_tipopagamento.setRequiredIndicatorVisible(true);
+                id_tipopagamento.setErrorMessage("Campo obrigatório");
+                id_tipopagamento.setInvalid(true);
+                service.notificaErro(ModalMessageConst.FIELD_ERROR);
+            } else {
+                SetPagamento pay = new SetPagamento();
+                pay.setNumeroparcela_pagamento(numeroparcela_pagamento.getValue());
+                pay.setTotalparcela_pagamento(totalparcela_pagamento.getValue());
+                pay.setVencimento_pagamento(vencimento_pagamento.getValue());
+                pay.setValor_pagamento(service.getValorBigDecimal(valor_pagamento.getValue()));
+                pay.setData_pagamento(data_pagamento.getValue());
+                pay.setValorpago_pagamento(service.getValorBigDecimal(valorpago_pagamento.getValue()));
+                pay.setNumerodocumento_pagamento(numerodocumento_pagamento.getValue());
+                pay.setId_tipopagamento(id_tipopagamento.getValue().getId_tipopagamento());
+                pay.setId_situacaopagamento(id_situacaopagamento.getValue().getId_situacaopagamento());
+                pay.setBaixado("N");
+                pay.setDescricao_pagamento(descricao_pagamento.getValue());
+                pay.setData_inclusao(LocalDateTime.now());
+                pay.setAtivo("S");
+                pay.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                listaPagamentos.add(pay);
+                listaPagamentosNova.add(pay);
+                gridPagamento.setItems(listaPagamentos);
+            }
         });
 
         formLayout.add(numeroparcela_pagamento,
@@ -2206,7 +2278,9 @@ public class OrcamentoDetalheModal extends Dialog {
         situacaoOrcamento.setItems(situacaoCadastroService.listAll());
         situacaoOrcamento.setItemLabelGenerator(SetSituacaoCadastro::getDescricao_situacaocadastro);
 
-
+        tipoMidia = new ComboBox<>("Tipo de Midia");
+        tipoMidia.setItems(tipomidiaService.findAllMidia());
+        tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
 
 
         dataInspecaoOrcamento = new DatePicker("Data Inspeção");
@@ -2286,7 +2360,7 @@ public class OrcamentoDetalheModal extends Dialog {
         formLayout.setWidthFull();
 
 
-        formLayout.add(clienteNomeOrcamento,localTratamentoOrcamento,problemaOrcamento,
+        formLayout.add(clienteNomeOrcamento,tipoMidia,localTratamentoOrcamento,problemaOrcamento,
                 dataOrcamento,atendenteOrcamento,situacaoOrcamentolayout,dataInspecaoOrcamento,id_funcionarioinspecao,
                 horarioOrcamento,consultorOrcamento,condicaoOrcamento,garantiaOrcamento,
                 valorOrcamento,servicoOrcamentoChekBox);
@@ -2325,7 +2399,9 @@ public class OrcamentoDetalheModal extends Dialog {
             }
 
 
-
+            if (Objects.nonNull(tipoMidia.getValue())) {
+                dto.setId_anuncio(tipoMidia.getValue().getId_tipomidia());
+            }
 
             dto.setId_cliente(cliente.getId_cliente());
             dto.setDescricao_problema(problemaOrcamento.getValue());
@@ -2543,9 +2619,9 @@ public class OrcamentoDetalheModal extends Dialog {
 
 
 
-                if (listaPagamentosNova.size() > 0) {
+                if (listaPagamentos.size() > 0) {
                     SetContrato finalContrato1 = contrato;
-                    listaPagamentosNova.forEach(pag -> {
+                    listaPagamentos.forEach(pag -> {
                         pag.setId_orcamento(dto.getId_orcamento());
                         pag.setId_contrato(finalContrato1.getId_contrato());
                         pag.setId_cliente(dto.getId_cliente());
@@ -2593,9 +2669,9 @@ public class OrcamentoDetalheModal extends Dialog {
                     //faturamentoService.update(fatu);
                 }
 
-                if(listaNotasNova.size() > 0) {
+                if(listaNotas.size() > 0) {
                     SetContrato finalContrato2 = contrato;
-                    listaNotasNova.forEach(nota -> {
+                    listaNotas.forEach(nota -> {
                         nota.setId_orcamento(dto.getId_orcamento());
                         nota.setId_cliente(dto.getId_cliente());
                         nota.setId_contrato(finalContrato2.getId_contrato());
@@ -2715,6 +2791,7 @@ public class OrcamentoDetalheModal extends Dialog {
         UI.getCurrent().access(() -> {
             contratoincluido = false;
             checkbox.setValue(false);
+            tipoMidia.setValue(null);
             problemaOrcamento.clear();
             dataOrcamento.clear();
             dataInspecaoOrcamento.clear();
@@ -2746,6 +2823,16 @@ public class OrcamentoDetalheModal extends Dialog {
             horarioOrcamento.setValue(item.getHorario_inspecao());
             garantiaOrcamento.setValue(item.getGarantia_orcamento());
             valorOrcamento.setValue(item.getValor_orcamento().toString());
+
+
+            tipoMidia.setItems(tipomidiaService.findAllMidia());
+            tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
+
+            if (Objects.nonNull(item.getId_anuncio())) {
+                tipoMidia.setValue(tipomidiaService.findAllMidia().stream()
+                        .filter(midia -> midia.getId_tipomidia().equals(item.getId_anuncio()))
+                        .findFirst().orElse(null));
+            }
 
 
             List<SetServicosOrcamento> servicosListOrcamneto = servicosOrcamentoService.listByOrcamento(item.getId_orcamento());

@@ -262,6 +262,7 @@ public class HomeView extends VerticalLayout {
        // card.add(getlist1(listaPorFuncionario));
 
         card.addClassName("clickable-card");
+        card.setMaxWidth("400px");
         // Criando o modal (Dialog)
         Dialog modal = createModal(assistente, listaPorFuncionario,listaOrcamentoPorFuncionario);
 

@@ -3,11 +3,13 @@ package br.com.onetec.application.views.main.financeiro.modal;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
 import br.com.onetec.application.service.grupofinanceiroservice.GrupoFinanceiroService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.EventoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
+import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,7 +30,7 @@ import java.time.LocalDateTime;
 @UIScope
 public class EventoFinanceiroCadastroModal  extends Dialog {
 
-    private ComboBox<SetGrupoFinanceiro> id_grupoeventofinanceiro;
+    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
     private TextField nome_eventofinanceiro;
     private TextField observacoes_eventofinanceiro;
 
@@ -36,7 +38,7 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
     EventoFinanceiroService eventoFinanceiroService;
 
     @Autowired
-    GrupoFinanceiroService grupoFinanceiroService;
+    TipoEventoFinanceiroService grupoFinanceiroService;
 
     @Autowired
     @Lazy
@@ -69,16 +71,16 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
 
     private Div createFormCadastroEmpresa() {
 
-        id_grupoeventofinanceiro = new ComboBox<>("Grupo Financeiro (Planos)");
+        id_tipoeventofinanceiro = new ComboBox<>("Tipo Evento Financeiro (Contas)");
         nome_eventofinanceiro = new TextField("Nome");
         observacoes_eventofinanceiro = new TextField("Descrição");
 
-        id_grupoeventofinanceiro.setItems(grupoFinanceiroService.findAll());
-        id_grupoeventofinanceiro.setItemLabelGenerator(SetGrupoFinanceiro::getNome_grupoeventofinanceiro);
+        id_tipoeventofinanceiro.setItems(grupoFinanceiroService.findAll());
+        id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_grupoeventofinanceiro,
+        formLayout.add(id_tipoeventofinanceiro,
                 nome_eventofinanceiro,
                 observacoes_eventofinanceiro);
         Div div = new Div(formLayout);
@@ -91,12 +93,12 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
 
     private void save() throws Exception {
         SetEventoFinanceiro dto = new SetEventoFinanceiro();
-        SetGrupoFinanceiro setGrupoFinanceiro = id_grupoeventofinanceiro.getValue();
+        SetTipoEventoFinanceiro setGrupoFinanceiro = id_tipoeventofinanceiro.getValue();
         if (setGrupoFinanceiro == null) {
-            service.notificaErro("Grupo financeiro não pode ser vazio !");
+            service.notificaErro("Tipo de evento financeiro (Contas) não pode ser vazio !");
             throw new Exception();
         }
-        dto.setId_grupoeventofinanceiro(setGrupoFinanceiro.getId_grupoeventofinanceiro());
+        dto.setId_tipoeventofinanceiro(setGrupoFinanceiro.getId_tipoeventofinanceiro());
         // Lógica para salvar o cadastro
 
         dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
@@ -108,7 +110,7 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
         try {
             eventoFinanceiroService.save(dto);
             eventoFinanceiroDiv.refreshGrid();
-            id_grupoeventofinanceiro.clear();
+            id_tipoeventofinanceiro.clear();
             nome_eventofinanceiro.clear();
             observacoes_eventofinanceiro.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);

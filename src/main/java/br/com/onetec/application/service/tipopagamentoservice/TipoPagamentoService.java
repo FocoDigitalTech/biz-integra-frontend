@@ -3,6 +3,7 @@ package br.com.onetec.application.service.tipopagamentoservice;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetTipoPagamento;
 import br.com.onetec.infra.db.repository.ISetTipoPagamentoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -72,6 +73,16 @@ public class TipoPagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
+        } catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public SetTipoPagamento findById(Integer id_tipopagamento) {
+        try {
+            Optional<SetTipoPagamento> optional = repository.findById(id_tipopagamento);
+          return optional.get();
         } catch (Exception e){
             throw new Exception();
         }

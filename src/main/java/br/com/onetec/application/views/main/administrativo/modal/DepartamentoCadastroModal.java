@@ -4,6 +4,8 @@ package br.com.onetec.application.views.main.administrativo.modal;
 import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
+import br.com.onetec.cross.constants.MessageNotificationConst;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.UI;
@@ -52,7 +54,6 @@ public class DepartamentoCadastroModal extends Dialog {
         UI.getCurrent().access(() -> {
 
             service = new UtilitySystemConfigService();
-            addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
@@ -92,6 +93,7 @@ public class DepartamentoCadastroModal extends Dialog {
 
 
     private void save() {
+        service = new UtilitySystemConfigService();
         SetFuncionario selectedFuncionario = responsavelield.getValue();
         // Lógica para salvar o cadastro
         Departamento dto = new Departamento();
@@ -102,6 +104,7 @@ public class DepartamentoCadastroModal extends Dialog {
 
         departamentoService.cadastrar(dto);
         administrativoView.refreshGrid();
+        service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
         close();
     }
 }

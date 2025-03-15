@@ -62,8 +62,6 @@ public class DadosClienteModal extends Dialog {
     private DatePicker dataField;
     private TimePicker horaField;
     private TextField contatoField;
-    private ComboBox <SetTipoMidia>tipoMidia;
-    private TextField midiaAntigaField;
     private EmailField internetEmailField;
     private ComboBox<String> FJField;
     private TextField CGCCPFField;
@@ -134,7 +132,6 @@ public class DadosClienteModal extends Dialog {
     private ApiEnderecoService apiEnderecoService;
     private List<SetEstado> estadoList = new ArrayList<>();
     private SetCliente cliente;
-    private List<SetTipoMidia> listamidia;
 
     private SetResponsavelCobranca setResponsavelCobranca;
     private SetResponsavelAprovacao setResponsavelAprovacao;
@@ -155,7 +152,7 @@ public class DadosClienteModal extends Dialog {
             internetEmailCobrancaField = new EmailField("E-mail Cobrança");
             observacaoCobrancaField = new TextArea("Observação Cobrança");
 
-            tipoMidia.setValue(null);
+
             nomeField.clear();
             telefoneField.clear();
             celularField.clear();
@@ -206,9 +203,7 @@ public class DadosClienteModal extends Dialog {
             dataField.setValue(cliente.getData_inclusao().toLocalDate());
             horaField.setValue(cliente.getHora_ligacao_cliente());
             contatoField.setValue(cliente.getNome_contato_cliente());
-            tipoMidia.setValue(listamidia.stream()
-                    .filter(midia -> midia.getId_tipomidia().equals(cliente.getId_anuncio()))
-                    .findFirst().orElse(null));
+
             //midiaAntigaField.setValue();
             internetEmailField.setValue(cliente.getEmail_cliente());
             FJField.setValue(cliente.getTipo_naturezajuridica());
@@ -340,10 +335,7 @@ public class DadosClienteModal extends Dialog {
             });
 
             buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
-            listamidia = tipomidiaService.findAllMidia();
             estadoList = estadoService.listAll();
-            tipoMidia.setItems(tipomidiaService.findAllMidia());
-            tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
             comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
             comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
             comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
@@ -843,9 +835,7 @@ public class DadosClienteModal extends Dialog {
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
         contatoField = new TextField("Contato");
-        tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
-        midiaAntigaField = new TextField("Midia Antiga");
 
 
         telefoneField = new TextField("Telefone de Contato");
@@ -914,7 +904,7 @@ public class DadosClienteModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(dataField,nomeField,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
+        formLayout.add(dataField,nomeField,contatoField,horaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -1218,8 +1208,6 @@ public class DadosClienteModal extends Dialog {
         cliente.setDataField(dataField.getValue());
         cliente.setHoraField(horaField.getValue());
         cliente.setContatoField(contatoField.getValue());
-        cliente.setTipoMidia(tipoMidia.getValue().getId_tipomidia());
-        cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());
         cliente.setFJField(FJField.getValue());
         cliente.setCGCCPFField(service.removeMascara(CGCCPFField.getValue()));

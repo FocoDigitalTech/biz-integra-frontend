@@ -5,6 +5,7 @@ import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.application.views.main.financeiro.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Component;
 @PermitAll
 @Component
 @UIScope
-public class FinanceiroView extends VerticalLayout {
+public class FinanceiroView extends Div {
 
     private LancamentoFinanceiroDiv lancamentoFinanceiro;
     private CondicaoPagamentoDiv condicaoPagamentoDiv;
@@ -75,12 +76,12 @@ public class FinanceiroView extends VerticalLayout {
                         condicaoPagamentoDiv);
                 tabSheet.add("Contas (Tipos Evento Financeiro)",
                         tipoEventoFinanceiroDiv);
+                tabSheet.add("Sub-Contas (Evento Financeiro)",
+                        eventoFinanceiroDiv);
                 tabSheet.add("Grupos",
                         grupoFinanceiroDiv);
                 tabSheet.add("Tipo Pagamento",
                         tipoPagamentoDiv);
-                tabSheet.add("Sub-Contas (Evento Financeiro)",
-                        eventoFinanceiroDiv);
 //            tabSheet.add("Novo Plano de Contas",
 //                    new Div(new Text("This is the Shipping tab content")));
                 tabSheet.add("Conta Corrente",

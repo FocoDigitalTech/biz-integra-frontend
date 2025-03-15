@@ -2,6 +2,7 @@ package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
+import br.com.onetec.cross.utilities.ValorPorExtenso;
 import br.com.onetec.infra.db.model.*;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.DeviceGray;
@@ -28,7 +29,9 @@ import org.apache.poi.xwpf.usermodel.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class SetClienteTransiction {
@@ -58,7 +61,8 @@ public class SetClienteTransiction {
     public static void editWordSentriconDocument(String inputPath, String outputPath, String placeholder,
                                                  String replacement, SetOrcamento orcamento, SetCliente cliente,
                                                  String value, String valor, Integer numeroparcela_pagamentoValue,
-                                                 SetCondicaoPagamento id_condicaopagamentoValue, SetEnderecos enderecos)
+                                                 SetCondicaoPagamento id_condicaopagamentoValue, SetEnderecos enderecos,
+                                                 SetContrato contrato, SetTipoPagamento tipopag, SetPagamento pagamentoset)
             throws IOException {
         try (FileInputStream fis = new FileInputStream(inputPath);
              XWPFDocument document = new XWPFDocument(fis)) {
@@ -79,8 +83,9 @@ public class SetClienteTransiction {
                         if (text.contains("VALOR_CONTRATO")) {
                             text = text.replace("VALOR_CONTRATO", valor);
                         }
-                        if (text.contains("VALOR_CONTRATO_TEXTO")) {
-                            text = text.replace("VALOR_CONTRATO_TEXTO", valor);
+                        if (text.contains("VALOR1_TEXTO")) {
+                            String textovalor = ValorPorExtenso.valorPorExtenso(contrato.getValor_total());
+                            text = text.replace("VALOR1_TEXTO", textovalor);
                         }
                         if (text.contains("VALOR_ENTRADA")) {
                             text = text.replace("VALOR_ENTRADA", valor);
@@ -89,19 +94,21 @@ public class SetClienteTransiction {
                             text = text.replace("NUM_PARCELA", ""+numeroparcela_pagamentoValue);
                         }
                         if (text.contains("VALOR_PARCELA")) {
-                            text = text.replace("VALOR_PARCELA", ""+valor);
+                            text = text.replace("VALOR_PARCELA", ""+pagamentoset.getValor_pagamento());
                         }
                         if (text.contains("TIPO_PAGAMENTO")) {
-                            text = text.replace("TIPO_PAGAMENTO", ""+id_condicaopagamentoValue.getDescricao_condicaopagamento());
+                            text = text.replace("TIPO_PAGAMENTO", ""+tipopag.getNome_tipopagamento());
                         }
                         if (text.contains("VENCIMENTOS_PAGAMENTO")) {
-                            text = text.replace("VENCIMENTOS_PAGAMENTO", ""+LocalDate.now().getDayOfMonth());
+                            text = text.replace("VENCIMENTOS_PAGAMENTO", "todo dia "+contrato.getDatainicio_vencimento().getDayOfMonth());
                         }
                         if (text.contains("DIA_HOJE")) {
                             text = text.replace("DIA_HOJE", ""+LocalDate.now().getDayOfMonth());
                         }
                         if (text.contains("MES_HOJE")) {
-                            text = text.replace("MES_HOJE", ""+LocalDate.now().getMonth());
+                            String mesAtual = LocalDate.now().getMonth().getDisplayName(TextStyle.FULL,
+                                    new Locale("pt", "BR"));
+                            text = text.replace("MES_HOJE", ""+mesAtual);
                         }
                         if (text.contains("2018")) {
                             text = text.replace("2018", ""+LocalDate.now().getYear());
@@ -403,26 +410,26 @@ public class SetClienteTransiction {
                                     frase);
                            // run.setUnderline(UnderlinePatterns.valueOf(text));
                         }
-                        if (text.contains("_ETAPAS_TESTE__")) {
-                            text = text.replace("_ETAPAS_TESTE__",
+                        if (text.contains("_ETAPAS_TESTE")) {
+                                text = text.replace("_ETAPAS_TESTE",
                                     contrato.getQuantidade_aplicacoes().toString());
                            // run.setUnderline(UnderlinePatterns.valueOf(text));
                         }
-                        if (text.contains("__DATA_INICIO_")) {
-                            text = text.replace("__DATA_INICIO_", contrato.getDatainicio_execucao().getDayOfMonth()
+                        if (text.contains("DATA_INICIO")) {
+                            text = text.replace("DATA_INICIO", contrato.getDatainicio_execucao().getDayOfMonth()
                                     +"/"+contrato.getDatainicio_execucao().getMonthValue()+"/"+contrato.getDatainicio_execucao().getYear());
                         }
-                        if (text.contains("__ANOTESTE___")) {
-                            text = text.replace("__ANOTESTE___", "1");
+                        if (text.contains("__ANOTESTE")) {
+                            text = text.replace("__ANOTESTE", "1");
                         }
-                        if (text.contains("VALOR_CONTRATO")) {
-                            text = text.replace("VALOR_CONTRATO", "R$ "+valor);
+                        if (text.contains("__VALOR_CONTRATO")) {
+                            text = text.replace("__VALOR_CONTRATO", "R$ "+valor);
                         }
                         if (text.contains("VALORNAGASAKI")) {
                             text = text.replace("VALORNAGASAKI", "R$ "+value);
                         }
-                        if (text.contains("CONDICAOPAGME")) {
-                            text = text.replace("CONDICAOPAGME", id_condicaopagamentoValue.getDescricao_condicaopagamento());
+                        if (text.contains("_CONDICAOPAGME")) {
+                            text = text.replace("_CONDICAOPAGME", id_condicaopagamentoValue.getDescricao_condicaopagamento());
                         }
                         if (text.contains("DIA_HOJE")) {
                             text = text.replace("DIA_HOJE", ""+LocalDate.now().getDayOfMonth());
@@ -977,7 +984,7 @@ public class SetClienteTransiction {
                                                 text = text.replace("numcont", contrato.getId_contrato().toString());
                                             }
                                             if (text.contains("NUMEROOS")) {
-                                                text = text.replace("NUMEROOS", ordemServico.getId_orcamento().toString());
+                                                text = text.replace("NUMEROOS", ordemServico.getId_ordemservico().toString());
                                             }
                                             if (text.contains("TIPO_ORDEMSEC")) {
                                                 text = text.replace("TIPO_ORDEMSEC", tipoordem.getDescricao_tipoatendimento());

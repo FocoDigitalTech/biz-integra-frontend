@@ -7,6 +7,8 @@ import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagame
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
+import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ContatoModal;
+import br.com.onetec.application.views.main.administrativo.component.CompraProdutoModal;
 import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
@@ -21,6 +23,9 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -104,6 +109,7 @@ public class CompraDetalhesModal extends Dialog {
     List<SetCondicaoPagamento> condicaopagamentoLista;
     List<SetFornecedor> fornecedorLista;
     List<SetContaCorrente> contacorrenteLista;
+
 
     @Autowired
     @Lazy
@@ -424,6 +430,39 @@ public class CompraDetalhesModal extends Dialog {
                 .setHeader("Valor Total")
                 .setSortable(true)
                 .setAutoWidth(true);
+        grid.addComponentColumn(e -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                if (Objects.nonNull(e.getId_compraproduto())){
+                    deleta(e);
+                } else {
+                    //produtoList.add(e);
+                }
+                produtoList.remove(e);
+                // Atualiza os itens da grid
+                grid.setItems(produtoList);
+                // Feedback ao usuário
+                Notification.show("Item removido ! " , 3000, Notification.Position.MIDDLE);
+            });
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
+
+        grid.addItemClickListener(event -> {
+            if (Objects.nonNull(event.getItem())) {
+                if (Objects.nonNull(event.getItem().getId_compraproduto())) {
+                    CompraProdutoModal.openModal
+                            (event.getItem(),produtoService,
+                                    compraProdutoService,service,grid);
+                } else {
+                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
+                }
+            } else {
+                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+            }
+        });
 
         Button saveButton = new Button("Adicionar Compra Produto", event -> {
             if (id_produto.isEmpty()) {
@@ -522,9 +561,20 @@ public class CompraDetalhesModal extends Dialog {
         valortotal_compra.setValue(resultado.toString());
     }
 
+    private void subTotalCompra(SetCompraProduto produto) {
+        // Adiciona o valor ao total e armazena o resultado em valorTotalItems
+        valorTotalItems = valorTotalItems.add(produto.getValortotal_compraproduto());
+
+        // Atualiza o valor do campo valoritemstotal_compra
+        valoritemstotal_compra.setValue(valorTotalItems.toString());
+    }
+
+
+
     SetCompra compramodel;
     public void setComprarModel(SetCompra item) {
         UI.getCurrent().access(() -> {
+            grid.setItems(new ArrayList<>());
 
             this.compramodel = item;
 
@@ -559,14 +609,17 @@ public class CompraDetalhesModal extends Dialog {
 
             id_fornecedor.setValue(fornecedorLista.stream()
                     .filter(objeto -> objeto.getId_fornecedor().equals(item.getId_fornecedor()))
-                    .findFirst().orElse(null));;
+                    .findFirst().orElse(null));
+
+            List<SetCompraProduto> listaProdutosCompra = compraProdutoService.findByIdCompra(item.getId_compra());
+            grid.setItems(listaProdutosCompra);
 
         });
     }
 
-    private void deleta(SetCompra item) {
+    private void deleta(SetCompraProduto item) {
         try {
-            compraService.delete(item);
+            compraProdutoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);

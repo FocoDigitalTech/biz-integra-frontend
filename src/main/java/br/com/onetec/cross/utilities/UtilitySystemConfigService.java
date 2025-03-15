@@ -2,10 +2,14 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.domain.usecase.apienderecousecase.IApiEnderecoUseCase;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -23,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -35,6 +40,17 @@ public class UtilitySystemConfigService {
     private EstadoService estadoService ;
 
     private ApiEnderecoService cepApiService;
+
+    public  <T extends HasValue<?, ?> & HasValidation> void setRequiredField(T field) {
+        field.setErrorMessage(ModalMessageConst.FIELD_REQUIRED);
+        field.setInvalid(true); // Exibe a mensagem de erro inicialmente
+
+        // Listener para remover a mensagem de erro quando o campo for preenchido
+        field.addValueChangeListener(event -> {
+            boolean isEmpty = event.getValue() == null || event.getValue().toString().trim().isEmpty();
+            field.setInvalid(isEmpty);
+        });
+    }
 
 
     @Autowired
@@ -73,6 +89,8 @@ public class UtilitySystemConfigService {
         date.setI18n(datePickerI18n);
         return date;
     }
+
+
 
 
 
@@ -291,7 +309,7 @@ public class UtilitySystemConfigService {
     public void askForConfirmation(Dialog modal) {
 
         Dialog confirmationDialog = new Dialog();
-        confirmationDialog.add("Você realmente deseja sair sem salvar as alterações?");
+        confirmationDialog.add("Você realmente deseja sair dessa tela ?");
 
         Button confirmButton = new Button("Sim", event -> {
             confirmationDialog.close();
@@ -343,6 +361,12 @@ public class UtilitySystemConfigService {
     }
 
     public static Object getDataFormatada(LocalDateTime data_inclusao) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        var data = data_inclusao.format(formatter);
+        return data;
+    }
+
+    public static Object getDataFormatadaLocalDate(LocalDate data_inclusao) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         var data = data_inclusao.format(formatter);
         return data;

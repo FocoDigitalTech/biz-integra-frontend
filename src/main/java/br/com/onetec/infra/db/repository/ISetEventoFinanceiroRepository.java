@@ -14,4 +14,8 @@ public interface ISetEventoFinanceiroRepository extends CrudRepository<SetEvento
 
     @Query(value = "SELECT * FROM tb_eventofinanceiro where ativo = 'S'", nativeQuery = true)
     List<SetEventoFinanceiro> listAll();
+
+
+    @Query(value = "SELECT * FROM tb_eventofinanceiro where id_tipoeventofinanceiro = ?1 and  ativo = 'S'", nativeQuery = true)
+    List<SetEventoFinanceiro> findByIdTipoEventoFinanceiro(Integer id_tipoeventofinanceiro);
 }

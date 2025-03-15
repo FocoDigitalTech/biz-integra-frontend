@@ -1,18 +1,19 @@
 package br.com.onetec.application.views.main.financeiro.div;
 
+import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
 import br.com.onetec.application.service.lancamentoservice.LancamentoService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.financeiro.modal.LancamentoFinanceiroDetalhesModal;
 import br.com.onetec.application.views.main.financeiro.modal.LancamentoFinanceiroModal;
+import br.com.onetec.cross.constants.FinanceiroDataConst;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetFluxoRecebimentoPagamento;
-import br.com.onetec.infra.db.model.SetUsuarios;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -31,8 +33,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @UIScope
@@ -52,19 +54,29 @@ public class LancamentoFinanceiroDiv extends Div{
 
     private UsuarioService usuarioService;
 
+    private TipoEventoFinanceiroService tipoEventoFinanceiroService;
+
+    private EventoFinanceiroService eventoFinanceiroService;
+
     private Button btnExcluir;
+
+    private Checkbox abreviarCheckbox;
 
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              LancamentoService lancamentoService1,
                              LancamentoFinanceiroModal lancamentoFinanceiroModal1,
+                             TipoEventoFinanceiroService tipoEventoFinanceiroService1,
+                             EventoFinanceiroService eventoFinanceiroService1,
                              LancamentoFinanceiroDetalhesModal lancamentoFinanceiroDetalhesModal1) {
         this.lancamentoService = lancamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.lancamentoFinanceiroModal = lancamentoFinanceiroModal1;
         this.lancamentoFinanceiroDetalhesModal = lancamentoFinanceiroDetalhesModal1;
+        this.tipoEventoFinanceiroService = tipoEventoFinanceiroService1;
+        this.eventoFinanceiroService = eventoFinanceiroService1;
     }
 
 
@@ -128,6 +140,8 @@ public class LancamentoFinanceiroDiv extends Div{
         return mobileFilters;
     }
 
+    private String situation;
+
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
@@ -136,23 +150,79 @@ public class LancamentoFinanceiroDiv extends Div{
                 .setHeader("Id")
                 .setSortable(true)
                 .setAutoWidth(true);
+        grid.addColumn(new ComponentRenderer<>(orc -> {
+            String abreviacao = null;
+            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_PREVISTO.getValor())){
+                abreviacao = FinanceiroDataConst.STATUS_PREVISTO.getAbreviacao();
+            } if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_REAL.getValor())){
+                abreviacao = FinanceiroDataConst.STATUS_REAL.getAbreviacao();
+            } if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())){
+                abreviacao = FinanceiroDataConst.STATUS_CONSOLIDADO.getAbreviacao();
+            }
+                if (abreviaverificacao) {
+                    situation = abreviacao;
+                } else {
+                    situation = orc.getStatus_pagamento();
+                }
+                Span span = new Span(situation);
+                if ("Previsão (P)".equals(orc.getStatus_pagamento())) {
+                    span.getStyle().set("color", "red");
+                }else if ("Real (R)".equals(orc.getStatus_pagamento())){
+                    span.getStyle().set("color", "blue");
+                }else {
+                    span.getStyle().set("color", "green");
+                }
+                return span;
+
+            }))
+                .setHeader("Status (P/R/C)")
+                .setSortable(true)
+                .setResizable(true)
+                .setAutoWidth(true);
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_vencimento())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_vencimento().atStartOfDay());
+            } else {
+                return "";
+            }
+            })
+                .setHeader("Data Vencimento")
+                .setSortable(true)
+                .setAutoWidth(true);
         grid.addColumn(SetFluxoRecebimentoPagamento::getNome_fluxorecebimentopagamento)
-                .setHeader("Nome")
+                .setHeader("Nome Lançamento (Histórico)")
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(SetFluxoRecebimentoPagamento::getValor_lancamento)
                 .setHeader("Valor")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetFluxoRecebimentoPagamento::getData_inclusao)
-                .setHeader("Data de Inclusão")
+        grid.addColumn(event -> {
+            SetTipoEventoFinanceiro dto = tipoEventoFinanceiroService.findById(event.getId_tipoeventofinanceiro());
+            return dto == null ? "N/A" : dto.getNome_tipoeventofinanceiro();
+        })
+                .setHeader("Nome da Conta (Tipo Evento Financeiro)")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetFluxoRecebimentoPagamento::getNumero_documento)
+                .setHeader("N° DOCTO")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(event -> Objects.isNull(event.getNumero_parcela()) || Objects.isNull(event.getQuantidade_parcelas())
+                ? "N/A" : event.getNumero_parcela() + "/" + event.getQuantidade_parcelas())
+                .setHeader("NumParc")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetFluxoRecebimentoPagamento::getData_lancamento)
+                .setHeader("Data de Lançamento")
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(midia -> {
-            SetUsuarios usuarios = usuarioService.findById(midia.getId_usuario());
+            SetUsuarios usuarios = usuarioService.findById(midia.getId_funcionariolancamento());
             return usuarios == null ? "N/A" : usuarios.getNome_usuario();
         })
-                .setHeader("Usuario")
+                .setHeader("Usuario Lançamento")
                 .setSortable(true)
                 .setAutoWidth(true);
 
@@ -210,27 +280,30 @@ public class LancamentoFinanceiroDiv extends Div{
         }
     }
 
+    private boolean abreviaverificacao = false;
+
 
     public class Filter extends Div implements Specification<SetFluxoRecebimentoPagamento> {
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
-        private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Descrição");
+        private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Nome Lançamento (Histórico)");
 
 
         public Filter(Runnable onSearch) {
 
-            Accordion accordion = new Accordion();
-
-
-            HorizontalLayout personalInformationLayout = new HorizontalLayout(id,
-                    nome);
-            personalInformationLayout.setSpacing(false);
-            personalInformationLayout.setPadding(false);
-            accordion.add("Filtros",personalInformationLayout);
-
 
             setWidthFull();
             addClassName("filter-layout");
+            abreviarCheckbox = new Checkbox("Abreviar Status ?");
+            abreviarCheckbox.addValueChangeListener(event -> {
+                abreviaverificacao = event.getValue(); // Marca a opção de abreviar
+                refreshGrid();  // Atualiza o Grid quando a opção mudar
+            });
+
+            HorizontalLayout personalInformationLayout = new HorizontalLayout(id,
+                    nome,abreviarCheckbox);
+
+
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
@@ -258,7 +331,7 @@ public class LancamentoFinanceiroDiv extends Div{
 
 
 
-            add(accordion, actions);
+            add(personalInformationLayout, actions);
         }
 
 

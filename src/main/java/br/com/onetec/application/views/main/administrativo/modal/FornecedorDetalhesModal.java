@@ -5,6 +5,7 @@ import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorContatoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
+import br.com.onetec.application.views.main.administrativo.component.CompraProdutoModal;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
@@ -19,6 +20,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -360,6 +364,39 @@ public class FornecedorDetalhesModal extends Dialog {
                 .setHeader("Telefone")
                 .setSortable(true)
                 .setAutoWidth(true);
+//        gridContatos.addComponentColumn(e -> {
+//            // Cria o botão de deletar com um ícone de lixeira
+//            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+//                // Remove o item da lista
+//                if (Objects.nonNull(e.getId_compraproduto())){
+//                    deleta(e);
+//                } else {
+//                    //produtoList.add(e);
+//                }
+//                produtoList.remove(e);
+//                // Atualiza os itens da grid
+//                gridContatos.setItems(produtoList);
+//                // Feedback ao usuário
+//                Notification.show("Item removido ! " , 3000, Notification.Position.MIDDLE);
+//            });
+//            del.getElement().setAttribute("aria-label", "Delete");
+//            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+//            return del;
+//        }).setSortable(false).setAutoWidth(true);
+//
+//        gridContatos.addItemClickListener(event -> {
+//            if (Objects.nonNull(event.getItem())) {
+//                if (Objects.nonNull(event.getItem().getId_compraproduto())) {
+//                    CompraProdutoModal.openModal
+//                            (event.getItem(),produtoService,
+//                                    compraProdutoService,service,grid);
+//                } else {
+//                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
+//                }
+//            } else {
+//                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+//            }
+//        });
 
         nome_fornecedorcontato = new TextField("Nome");
         cargo_fornecedorcontato = new TextField("Cargo");

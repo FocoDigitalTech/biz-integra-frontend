@@ -698,6 +698,17 @@ public class OrdemServicoCadastroModal extends Dialog {
 //        localTratamentoOrcamento.setItems
 //                (enderecoService.findAllClienteId(cliente.getId_cliente()));
 
+
+        localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+        localTratamentoOrcamento.addValueChangeListener(event -> {
+            if (localTratamentoOrcamento.isEmpty()) {
+                localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+                localTratamentoOrcamento.setInvalid(true);
+            } else {
+                localTratamentoOrcamento.setInvalid(false);
+            }
+        });
+
         localTratamentoOrcamento.setItemLabelGenerator(event ->
                 event.getEnderecoImovel() + "," + event.getNumero_imovel());
 
@@ -779,169 +790,176 @@ public class OrdemServicoCadastroModal extends Dialog {
         SetOrdemServico dto = new SetOrdemServico();
 
         try {
-            if (id_funcionarioassistente.getValue() != null) {
-                dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
-            }
-            if (id_funcionariotecnico.getValue() != null) {
-                dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
-            }
-            if (id_tipoatendimento.getValue() != null) {
-                dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
-            }
-            if (localTratamentoOrcamento.getValue() != null) {
-                dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
-            }
-
-            dto.setId_cliente(cliente.getId_cliente());
-            dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
-
-            dto.setDatainicio_ordemservico(datainicio_ordemservico.getValue());
-            dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
-            if(confirmado_ordemservico.getValue().equals("SIM")){
-                dto.setConfirmado_ordemservico("S");
-            } else if(confirmado_ordemservico.getValue().equals("NÃO")) {
-                dto.setConfirmado_ordemservico("N");
+            if (localTratamentoOrcamento.isEmpty()) {
+                localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+                localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+                localTratamentoOrcamento.setInvalid(true);
+                service.notificaErro(ModalMessageConst.FIELD_ERROR);
             } else {
-                service.notificaErro("Necessário selecionar confimação SIM/NÃO");
-                return;
-            }
-           // dto.setConfirmado_ordemservico(confirmado_ordemservico.getValue());
-            dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
-            dto.setNome_pontofocal(nome_pontofocal.getValue());
-            dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
-            dto.setIntervalo_ordemservico(intervalo_ordemservico.getValue());
-            dto.setData_inclusao(LocalDateTime.now());
-            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-            dto.setAtivo("S");
-            dto.setId_orcamento(orcamento.getId_orcamento());
-            service = new UtilitySystemConfigService();
-            if (quantidade_ordemservico.getValue()>0){
-                LocalDate inicio = datainicio_ordemservico.getValue();
-                for (int i = 0; i < quantidade_ordemservico.getValue(); i++) {
-                    datainicio_ordemservico.setValue(inicio);
-                    dto = new SetOrdemServico();
-                    dto.setId_cliente(cliente.getId_cliente());
-                    dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
-                    if(confirmado_ordemservico.getValue().equals("SIM")){
-                        dto.setConfirmado_ordemservico("S");
-                    } else if(confirmado_ordemservico.getValue().equals("NÃO")) {
-                        dto.setConfirmado_ordemservico("N");
-                    }
-                    if (id_funcionarioassistente.getValue() != null) {
-                        dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
-                    }
-                    if (id_funcionariotecnico.getValue() != null) {
-                        dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
-                    }
-                    if (id_tipoatendimento.getValue() != null) {
-                        dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
-                    }
-                    if (localTratamentoOrcamento.getValue() != null) {
-                        dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
-                    }
-                    dto.setDatainicio_ordemservico(inicio);
-                    dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
-                    dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
-                    dto.setNome_pontofocal(nome_pontofocal.getValue());
-                    dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
-                    dto.setIntervalo_ordemservico(intervalo_ordemservico.getValue());
-                    dto.setData_inclusao(LocalDateTime.now());
-                    dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    dto.setAtivo("S");
-                    dto.setId_orcamento(orcamento.getId_orcamento());
-                    inicio = inicio.plusDays(intervalo_ordemservico.getValue());
-                    ordemServicoService.save(dto);
+                if (id_funcionarioassistente.getValue() != null) {
+                    dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
+                }
+                if (id_funcionariotecnico.getValue() != null) {
+                    dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
+                }
+                if (id_tipoatendimento.getValue() != null) {
+                    dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
+                }
+                if (localTratamentoOrcamento.getValue() != null) {
+                    dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+                }
 
-                    if(listaOrdemServicoFuncionarioAlocados.size() > 0){
-                        SetOrdemServico finalDto = dto;
-                        listaOrdemServicoFuncionarioAlocados.forEach(p ->{
-                            p.setId_cliente(finalDto.getId_cliente());
-                            p.setId_orcamento(finalDto.getId_orcamento());
-                            p.setId_contrato(finalDto.getId_contrato());
-                            p.setId_ordemservico(finalDto.getId_ordemservico());
-                            try {
-                                funcionarioAlocadoService.save(p);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
-                    if(listaOrdemServicoExecucaoServico.size() > 0){
-                        SetOrdemServico finalDto1 = dto;
-                        listaOrdemServicoExecucaoServico.forEach(p ->{
-                            p.setId_cliente(finalDto1.getId_cliente());
-                            p.setId_orcamento(finalDto1.getId_orcamento());
-                            p.setId_contrato(finalDto1.getId_contrato());
-                            p.setId_ordemservico(finalDto1.getId_ordemservico());
-                            try {
-                                ordemServicoExecucaoServicoService.save(p);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                dto.setId_cliente(cliente.getId_cliente());
+                dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
 
-                        });
-                    }
-                    if(listaOrdemServicoMateriais.size() > 0){
-                        SetOrdemServico finalDto2 = dto;
-                        listaOrdemServicoMateriais.forEach(p ->{
-                            p.setId_cliente(finalDto2.getId_cliente());
-                            p.setId_orcamento(finalDto2.getId_orcamento());
-                            p.setId_contrato(finalDto2.getId_contrato());
-                            p.setId_ordemservico(finalDto2.getId_ordemservico());
-                            try {
-                                ordemServicoMateriaisService.save(p);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
-                    if(listaOrdemServicoMisturas.size() > 0){
-                        SetOrdemServico finalDto3 = dto;
-                        listaOrdemServicoMisturas.forEach(p ->{
-                            p.setId_cliente(finalDto3.getId_cliente());
-                            p.setId_orcamento(finalDto3.getId_orcamento());
-                            p.setId_contrato(finalDto3.getId_contrato());
-                            p.setId_ordemservico(finalDto3.getId_ordemservico());
-                            try {
-                                ordemServicoMisturaService.save(p);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
-                    if(listaOrdemServicoPraga.size() > 0){
-                        SetOrdemServico finalDto4 = dto;
-                        listaOrdemServicoPraga.forEach(p ->{
-                            p.setId_cliente(finalDto4.getId_cliente());
-                            p.setId_orcamento(finalDto4.getId_orcamento());
-                            p.setId_contrato(finalDto4.getId_contrato());
-                            p.setId_ordemservico(finalDto4.getId_ordemservico());
-                            try {
-                                ordemServicoPragaService.save(p);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
+                dto.setDatainicio_ordemservico(datainicio_ordemservico.getValue());
+                dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
+                if (confirmado_ordemservico.getValue().equals("SIM")) {
+                    dto.setConfirmado_ordemservico("S");
+                } else if (confirmado_ordemservico.getValue().equals("NÃO")) {
+                    dto.setConfirmado_ordemservico("N");
+                } else {
+                    service.notificaErro("Necessário selecionar confimação SIM/NÃO");
+                    return;
+                }
+                // dto.setConfirmado_ordemservico(confirmado_ordemservico.getValue());
+                dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
+                dto.setNome_pontofocal(nome_pontofocal.getValue());
+                dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
+                dto.setIntervalo_ordemservico(intervalo_ordemservico.getValue());
+                dto.setData_inclusao(LocalDateTime.now());
+                dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                dto.setAtivo("S");
+                dto.setId_orcamento(orcamento.getId_orcamento());
+                service = new UtilitySystemConfigService();
+                if (quantidade_ordemservico.getValue() > 0) {
+                    LocalDate inicio = datainicio_ordemservico.getValue();
+                    for (int i = 0; i < quantidade_ordemservico.getValue(); i++) {
+                        datainicio_ordemservico.setValue(inicio);
+                        dto = new SetOrdemServico();
+                        dto.setId_cliente(cliente.getId_cliente());
+                        dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
+                        if (confirmado_ordemservico.getValue().equals("SIM")) {
+                            dto.setConfirmado_ordemservico("S");
+                        } else if (confirmado_ordemservico.getValue().equals("NÃO")) {
+                            dto.setConfirmado_ordemservico("N");
+                        }
+                        if (id_funcionarioassistente.getValue() != null) {
+                            dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
+                        }
+                        if (id_funcionariotecnico.getValue() != null) {
+                            dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
+                        }
+                        if (id_tipoatendimento.getValue() != null) {
+                            dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
+                        }
+                        if (localTratamentoOrcamento.getValue() != null) {
+                            dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+                        }
+                        dto.setDatainicio_ordemservico(inicio);
+                        dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
+                        dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
+                        dto.setNome_pontofocal(nome_pontofocal.getValue());
+                        dto.setQuantidade_ordemservico(quantidade_ordemservico.getValue());
+                        dto.setIntervalo_ordemservico(intervalo_ordemservico.getValue());
+                        dto.setData_inclusao(LocalDateTime.now());
+                        dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                        dto.setAtivo("S");
+                        dto.setId_orcamento(orcamento.getId_orcamento());
+                        inicio = inicio.plusDays(intervalo_ordemservico.getValue());
+                        ordemServicoService.save(dto);
+
+                        if (listaOrdemServicoFuncionarioAlocados.size() > 0) {
+                            SetOrdemServico finalDto = dto;
+                            listaOrdemServicoFuncionarioAlocados.forEach(p -> {
+                                p.setId_cliente(finalDto.getId_cliente());
+                                p.setId_orcamento(finalDto.getId_orcamento());
+                                p.setId_contrato(finalDto.getId_contrato());
+                                p.setId_ordemservico(finalDto.getId_ordemservico());
+                                try {
+                                    funcionarioAlocadoService.save(p);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                        if (listaOrdemServicoExecucaoServico.size() > 0) {
+                            SetOrdemServico finalDto1 = dto;
+                            listaOrdemServicoExecucaoServico.forEach(p -> {
+                                p.setId_cliente(finalDto1.getId_cliente());
+                                p.setId_orcamento(finalDto1.getId_orcamento());
+                                p.setId_contrato(finalDto1.getId_contrato());
+                                p.setId_ordemservico(finalDto1.getId_ordemservico());
+                                try {
+                                    ordemServicoExecucaoServicoService.save(p);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                            });
+                        }
+                        if (listaOrdemServicoMateriais.size() > 0) {
+                            SetOrdemServico finalDto2 = dto;
+                            listaOrdemServicoMateriais.forEach(p -> {
+                                p.setId_cliente(finalDto2.getId_cliente());
+                                p.setId_orcamento(finalDto2.getId_orcamento());
+                                p.setId_contrato(finalDto2.getId_contrato());
+                                p.setId_ordemservico(finalDto2.getId_ordemservico());
+                                try {
+                                    ordemServicoMateriaisService.save(p);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                        if (listaOrdemServicoMisturas.size() > 0) {
+                            SetOrdemServico finalDto3 = dto;
+                            listaOrdemServicoMisturas.forEach(p -> {
+                                p.setId_cliente(finalDto3.getId_cliente());
+                                p.setId_orcamento(finalDto3.getId_orcamento());
+                                p.setId_contrato(finalDto3.getId_contrato());
+                                p.setId_ordemservico(finalDto3.getId_ordemservico());
+                                try {
+                                    ordemServicoMisturaService.save(p);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
+                        if (listaOrdemServicoPraga.size() > 0) {
+                            SetOrdemServico finalDto4 = dto;
+                            listaOrdemServicoPraga.forEach(p -> {
+                                p.setId_cliente(finalDto4.getId_cliente());
+                                p.setId_orcamento(finalDto4.getId_orcamento());
+                                p.setId_contrato(finalDto4.getId_contrato());
+                                p.setId_ordemservico(finalDto4.getId_ordemservico());
+                                try {
+                                    ordemServicoPragaService.save(p);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
                     }
                 }
+                orcamentoDiv.refreshGrid();
+                id_situacaoservico.clear();
+                // datainicio_ordemservico.clear();
+                diasemanainicio_ordemservico.clear();
+                horarioinicio_ordemservico.clear();
+                quantidade_ordemservico.clear();
+                intervalo_ordemservico.clear();
+                nome_pontofocal.clear();
+                id_funcionarioassistente.clear();
+                id_funcionariotecnico.clear();
+                ocorrencias_ordemservico.clear();
+                localTratamentoOrcamento.clear();
+                id_funcionario.clear();
+                descricao_ordemservicofuncionarioalocado.clear();
+                listaOrdemServicoFuncionarioAlocados = new ArrayList<>();
+                service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+                close();
             }
-            orcamentoDiv.refreshGrid();
-            id_situacaoservico.clear();
-           // datainicio_ordemservico.clear();
-            diasemanainicio_ordemservico.clear();
-            horarioinicio_ordemservico.clear();
-            quantidade_ordemservico.clear();
-            intervalo_ordemservico.clear();
-            nome_pontofocal.clear();
-            id_funcionarioassistente.clear();
-            id_funcionariotecnico.clear();
-            ocorrencias_ordemservico.clear();
-            localTratamentoOrcamento.clear();
-            id_funcionario.clear();
-            descricao_ordemservicofuncionarioalocado.clear();
-            listaOrdemServicoFuncionarioAlocados = new ArrayList<>();
-            service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
-            close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
             System.out.println(e.getMessage().toString());

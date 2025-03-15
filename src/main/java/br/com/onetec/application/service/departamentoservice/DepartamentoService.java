@@ -99,7 +99,6 @@ public class DepartamentoService {
     }
 
     public List<SetDepartamento> findAllDepartamento() {
-
         return repository.findAll();
     }
 }

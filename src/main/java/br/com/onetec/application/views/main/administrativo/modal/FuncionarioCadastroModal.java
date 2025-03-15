@@ -4,6 +4,8 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
@@ -22,6 +24,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -68,6 +71,10 @@ public class FuncionarioCadastroModal extends Dialog {
     private static List<SetEstado> estadoList;
 
     @Autowired
+    @Lazy
+    FuncionarioDiv funcionarioDiv;
+
+    @Autowired
     public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
         this.estadoService = serviceEstado;
         this.service = service;
@@ -93,8 +100,6 @@ public class FuncionarioCadastroModal extends Dialog {
             id_estado.setItems(getUFList());
             id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
-
-            addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -112,6 +117,7 @@ public class FuncionarioCadastroModal extends Dialog {
             add(layout);
         });
     }
+
 
     private void save() {
 
@@ -147,11 +153,11 @@ public class FuncionarioCadastroModal extends Dialog {
             funcionario.setData_admissao(data_admissao.getValue());
             funcionario.setNumeroimovel_funcionario(numero_imovel.getValue());
             funcionario.setData_inclusao(LocalDateTime.now());
-            funcionario.setId_funcionario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             funcionario.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             funcionario.setAtivo("S");
             funcionarioService.save(funcionario);
-            Notification.show("Salvo com sucesso");
+            service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
+            funcionarioDiv.refreshGridFuncionario();
             close();
         } catch (Exception e){
             Notification.show("Erro ao Salvar");
@@ -166,9 +172,13 @@ public class FuncionarioCadastroModal extends Dialog {
     }
 
     private Div createFormCadastroFuncionario() {
-        id_departamento = new ComboBox<SetDepartamento>("Departamento");
+        id_departamento = new ComboBox<>("Departamento");
         id_departamento.setItems(departamentoService.findAllDepartamento());
         id_departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
+        // Adiciona um listener para atualizar os itens antes da lista abrir
+        id_departamento.addFocusListener(event -> {
+            id_departamento.setItems(departamentoService.findAllDepartamento());
+        });
 
         nome_funcionario = new TextField("Nome");
         nome_carteira = new TextField("Carteira");
@@ -206,7 +216,8 @@ public class FuncionarioCadastroModal extends Dialog {
         formLayout.add(id_departamento,nome_funcionario,
                 nome_carteira,celular_funcionario,rg_funcionario,
                 cpf_funcionario,titulo_eleitor,reservista_militar,numero_ctps,serie_ctps,
-                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,cep_funcionario,endereco_funcionario,numero_imovel,complemento_funcionario,bairro_funcionario,
+                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,cep_funcionario,endereco_funcionario,
+                numero_imovel,complemento_funcionario,bairro_funcionario,
                 cidade_funcionario,id_estado);
 
         Div div = new Div(formLayout);

@@ -59,8 +59,6 @@ public class CadastroClientesModal extends Dialog {
     private DatePicker dataField;
     private TimePicker horaField;
     private TextField contatoField;
-    private ComboBox <SetTipoMidia>tipoMidia;
-    private TextField midiaAntigaField;
     private EmailField internetEmailField;
     private ComboBox<String> FJField;
     private TextField CGCCPFField;
@@ -123,7 +121,7 @@ public class CadastroClientesModal extends Dialog {
     private ResponsavelAgendamentoService responsavelAgendamentoService;
     private ResponsavelAprovacaoService responsavelAprovacaoService;
 
-    private TipoMidiaService tipomidiaService;
+
 
     private TipoImovelService tipoimovelService;
     private RegiaoService regiaoService;
@@ -144,7 +142,7 @@ public class CadastroClientesModal extends Dialog {
                               ResponsavelCobrancaService responsavelCobrancaService,
                               ResponsavelAgendamentoService responsavelAgendamentoService,
                               ResponsavelAprovacaoService responsavelAprovacaoService,
-                              UtilitySystemConfigService service1, TipoMidiaService tipomidiaService1,
+                              UtilitySystemConfigService service1,
                               TipoImovelService tipoimovelService1,
                               RegiaoService regiaoService1,
                               ApiEnderecoService enderecoService1,
@@ -157,7 +155,6 @@ public class CadastroClientesModal extends Dialog {
         this.responsavelAgendamentoService = responsavelAgendamentoService;
         this.responsavelAprovacaoService = responsavelAprovacaoService;
         this.service = service1;
-        this.tipomidiaService = tipomidiaService1;
         this.tipoimovelService = tipoimovelService1;
         this.regiaoService = regiaoService1;
         this.apiEnderecoService = enderecoService1;
@@ -187,8 +184,6 @@ public class CadastroClientesModal extends Dialog {
 
             buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
             estadoList = estadoService.listAll();
-            tipoMidia.setItems(tipomidiaService.findAllMidia());
-            tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
             comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
             comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
             comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
@@ -434,9 +429,7 @@ public class CadastroClientesModal extends Dialog {
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
         contatoField = new TextField("Contato");
-        tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
-        midiaAntigaField = new TextField("Midia Antiga");
 
 
         telefoneField = new TextField("Telefone de Contato");
@@ -474,7 +467,7 @@ public class CadastroClientesModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(dataField,nomeField,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
+        formLayout.add(dataField,nomeField,contatoField,horaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -694,8 +687,6 @@ public class CadastroClientesModal extends Dialog {
         cliente.setDataField(dataField.getValue());
         cliente.setHoraField(horaField.getValue());
         cliente.setContatoField(contatoField.getValue());
-        cliente.setTipoMidia(tipoMidia.getValue().getId_tipomidia());
-        cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());
         cliente.setFJField(FJField.getValue());
         cliente.setCGCCPFField(service.removeMascara(CGCCPFField.getValue()));
