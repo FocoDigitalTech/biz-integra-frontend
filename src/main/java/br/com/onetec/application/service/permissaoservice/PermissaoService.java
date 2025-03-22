@@ -3,6 +3,7 @@ package br.com.onetec.application.service.permissaoservice;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetPermissao;
 import br.com.onetec.infra.db.repository.ISetPermissaoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,10 @@ public class PermissaoService {
         return optionalSetGrupoUsuario.get();
     }
 
+    public List<SetPermissao> findAllById (Integer idGrupoUsuario){
+        return repository.listAllById(idGrupoUsuario);
+    }
+
     public void delete(SetPermissao item) throws Exception {
         try {
             Optional<SetPermissao> optional = repository.findById(item.getId_permissao());
@@ -71,6 +76,23 @@ public class PermissaoService {
             });
         }catch (Exception e){
             throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateAll(List<SetPermissao> listaPermissao) {
+        if (listaPermissao.size() > 0){
+            for (SetPermissao item : listaPermissao){
+                try {
+                    Optional<SetPermissao> optional = repository.findById(item.getId_permissao());
+                    SetPermissao entity = optional.get();
+                    entity = item;
+                    repository.save(entity);
+                    log.info("Atualizado !");
+                } catch (Exception e){
+                    throw new Exception();
+                }
+            }
         }
     }
 }

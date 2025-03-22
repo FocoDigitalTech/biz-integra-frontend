@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -95,6 +96,7 @@ public class UsuarioDadosModal extends Dialog {
             usuarioService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             dialog.close();
+            close();
             usuariosDiv.refreshGrid();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
@@ -197,6 +199,9 @@ public class UsuarioDadosModal extends Dialog {
         id_funcionario.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
         id_grupousuario.setItems(grupoUsuarioService.listAll());
         id_grupousuario.setItemLabelGenerator(SetGrupoUsuario::getDescricao_grupousuario);
+        id_grupousuario.addFocusListener(event -> {
+            id_grupousuario.setItems(grupoUsuarioService.listAll());
+        });
 
 
         FormLayout formLayout = new FormLayout();
@@ -234,7 +239,7 @@ public class UsuarioDadosModal extends Dialog {
         dto.setNome_usuario(nome_usuario.getValue());
 
         SetFuncionario funcionario = id_funcionario.getValue();
-        if (funcionario != null) {
+        if (Objects.nonNull(funcionario)) {
             dto.setId_funcionario(funcionario.getId_funcionario());
         }
         dto.setId_grupousuario(getIdGrupoUsuario());
@@ -267,7 +272,7 @@ public class UsuarioDadosModal extends Dialog {
 
     private int getIdGrupoUsuario() throws Exception {
         SetGrupoUsuario grupoUsuario = id_grupousuario.getValue();
-        if (grupoUsuario != null) {
+        if (Objects.nonNull(grupoUsuario)) {
             return grupoUsuario.getId_grupousuario();
         } else {
             service.notificaErro(ModalMessageConst.ERROR_USER_GROUP);

@@ -48,7 +48,6 @@ public class UsuarioService {
             SetUsuarios entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());
-            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
         } catch (Exception e){
@@ -77,8 +76,8 @@ public class UsuarioService {
         try {
             Optional<SetUsuarios> optional = repository.findById(dto.getId_usuario());
             SetUsuarios entity = optional.get();
+            entity = dto;
             entity.setData_alteracao(LocalDateTime.now());
-            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
         } catch (Exception e){
             throw new Exception();

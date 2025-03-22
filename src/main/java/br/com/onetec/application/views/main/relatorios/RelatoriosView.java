@@ -39,6 +39,7 @@ public class RelatoriosView extends VerticalLayout {
 
         @Autowired
         public void initServices(RelatorioAgendamentoDiv agendamentoDiv1){
+
                 this.agendamentoDiv =agendamentoDiv1;
         }
 
@@ -54,6 +55,7 @@ public class RelatoriosView extends VerticalLayout {
 
                         // Adicionar o overviewDiv na aba de Clientes
                         tabSheet.add("Agendamentos", agendamentoDiv);
+                       // tabSheet.add("Contas a Pagar", contasAPagarDiv);
 
                         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
                         add(tabSheet);

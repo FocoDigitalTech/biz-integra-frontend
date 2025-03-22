@@ -5,6 +5,7 @@ import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
@@ -39,6 +40,7 @@ public class FuncionarioDetalhesModal extends Dialog {
 
     private Button saveButton;
     private  Button cancelButton;
+    private  Button deleteButton;
     private ComboBox<SetDepartamento> id_departamento;
     private TextField nome_funcionario;
     private TextField nome_carteira;
@@ -104,6 +106,9 @@ public class FuncionarioDetalhesModal extends Dialog {
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
+            deleteButton = new Button("Excluir", event -> {
+                deleta(funcionarioPoint);
+            });
 
             Div contentTabs = new Div(createFormCadastroFuncionario());
 
@@ -111,11 +116,22 @@ public class FuncionarioDetalhesModal extends Dialog {
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton);
-
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
+            getFooter().add(saveButton, cancelButton, deleteButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
+    }
+
+    private void deleta(SetFuncionario funcionarioPoint) {
+        try {
+            funcionarioService.delete(funcionarioPoint);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            funcionarioDiv.refreshGrid();
+            close();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
     }
 
     private void save() {
@@ -172,6 +188,9 @@ public class FuncionarioDetalhesModal extends Dialog {
     private Div createFormCadastroFuncionario() {
         id_departamento = new ComboBox<SetDepartamento>("Departamento");
         id_departamento.setItems(departamentoService.findAllDepartamento());
+        id_departamento.addFocusListener(event -> {
+            id_departamento.setItems(departamentoService.findAllDepartamento());
+        });
         id_departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
 
         nome_funcionario = new TextField("Nome");
@@ -218,6 +237,8 @@ public class FuncionarioDetalhesModal extends Dialog {
 
         return div;
     }
+
+
 
 
     private void buscarCep() {

@@ -69,17 +69,32 @@ public class DepartamentoDetalhesModal extends Dialog {
             saveButton = new Button("Atualizar", eventbe -> save());
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
+            deleteButton = new Button("Excluir", event -> {
+                deleta(departamento);
+            });
 
 
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton);
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
+            getFooter().add(saveButton, cancelButton, deleteButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
 
+    }
+
+    private void deleta(SetDepartamento departamento) {
+            try {
+                departamentoService.deletar(departamento);
+                service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+                administrativoView.refreshGrid();
+                close();
+            } catch (Exception e){
+                service.notificaErro(ModalMessageConst.ERROR_DELETE);
+            }
     }
 
     private void save() {

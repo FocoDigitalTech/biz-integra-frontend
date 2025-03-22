@@ -4,6 +4,7 @@ import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.grupousuarioservice.GrupoUsuarioService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.seguranca.modal.GrupoUsuarioCadastroModal;
+import br.com.onetec.application.views.main.seguranca.modal.GrupoUsuarioDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
@@ -48,6 +49,8 @@ public class GrupoUsuariosDiv extends Div{
 
     private GrupoUsuarioCadastroModal grupoUsuarioCadastroModal;
 
+    private GrupoUsuarioDetalhesModal grupoUsuarioDetalhesModal;
+
     private FuncionarioService funcionarioService;
 
     private GrupoUsuarioService grupoUsuarioService;
@@ -57,13 +60,15 @@ public class GrupoUsuariosDiv extends Div{
                              UsuarioService usuarioService1,
                              GrupoUsuarioCadastroModal grupoUsuarioCadastroModal1,
                              FuncionarioService funcionarioService1,
-                             GrupoUsuarioService grupoUsuarioService1) {
+                             GrupoUsuarioService grupoUsuarioService1,
+                             GrupoUsuarioDetalhesModal grupoUsuarioDetalhesModal1) {
         ;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.grupoUsuarioCadastroModal = grupoUsuarioCadastroModal1;
         this.funcionarioService = funcionarioService1;
         this.grupoUsuarioService = grupoUsuarioService1;
+        this.grupoUsuarioDetalhesModal = grupoUsuarioDetalhesModal1;
     }
 
     @Autowired
@@ -127,37 +132,12 @@ public class GrupoUsuariosDiv extends Div{
 
 
         final Registration[] btnExcluirClickListenerRegistration = {null};
-        grid.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            Dialog dialog = new Dialog();
-
-            dialog.setHeaderTitle(
-                    String.format("Delete user \"%s\"?", event.getItem().getDescricao_grupousuario()));
-            dialog.add("Are you sure you want to delete this user permanently?");
-
-            // tag::snippet1[]
-            Button deleteButton = new Button("Delete", (e) -> deleta(event.getItem(),dialog));
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            deleteButton.getStyle().set("margin-right", "auto");
-            dialog.getFooter().add(deleteButton);
-
-            Button cancelButton = new Button("Cancel", (e) -> dialog.close());
-            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            dialog.getFooter().add(cancelButton);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                dialog.open();
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
-            });
-        });
+        grid.addItemClickListener(event ->
+                {
+                    grupoUsuarioDetalhesModal.SetGrupo(event.getItem());
+                    grupoUsuarioDetalhesModal.open();
+                }
+        );
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);

@@ -156,8 +156,12 @@ public class UsuarioCadastroModal extends Dialog {
 
         id_funcionario.setItems(funcionarioService.listAll());
         id_funcionario.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
+
         id_grupousuario.setItems(grupoUsuarioService.listAll());
         id_grupousuario.setItemLabelGenerator(SetGrupoUsuario::getDescricao_grupousuario);
+        id_grupousuario.addFocusListener(event -> {
+            id_grupousuario.setItems(grupoUsuarioService.listAll());
+        });
 
 
 

@@ -2,6 +2,7 @@ package br.com.onetec.application.service.grupousuarioservice;
 
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
 import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,6 +62,20 @@ public class GrupoUsuarioService {
         try {
             return repository.save(dto);
         }catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public SetGrupoUsuario update(SetGrupoUsuario dto) {
+        try {
+            Optional<SetGrupoUsuario> optional = repository.findById(dto.getId_grupousuario());
+            SetGrupoUsuario entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+            log.info("Atualizado !");
+            return  entity;
+        } catch (Exception e){
             throw new Exception();
         }
     }

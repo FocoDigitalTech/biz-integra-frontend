@@ -9,6 +9,7 @@ import br.com.onetec.cross.constants.ViewsTitleConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
 import br.com.onetec.infra.db.model.SetPermissao;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -50,6 +51,7 @@ public class GrupoUsuarioDetalhesModal extends Dialog {
 
     private Button saveButton;
     private Button cancelButton;
+    private Button deleteButton;
 
 
     private TextField descricao_grupousuario;
@@ -58,6 +60,8 @@ public class GrupoUsuarioDetalhesModal extends Dialog {
 
     VerticalLayout permissoes = new VerticalLayout();
     List<RadioButtonGroup<String>> radioGroupList = new ArrayList<>();
+
+    SetGrupoUsuario grupoUsuario;
 
 
     @Autowired
@@ -69,16 +73,56 @@ public class GrupoUsuarioDetalhesModal extends Dialog {
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            deleteButton = new Button("Excluir", event -> {
+                deleta(grupoUsuario);
+            });
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastro());
             contentTabs.setSizeFull();
             addThemeVariants(DialogVariant.LUMO_NO_PADDING);
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton);
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
+            getFooter().add(saveButton, cancelButton, deleteButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
+    }
+
+
+
+    private void deleta(SetGrupoUsuario grupoUsuario) {
+
+        Dialog dialog = new Dialog();
+
+        dialog.setHeaderTitle(
+                String.format("Deletar usuário \"%s\"?", grupoUsuario.getDescricao_grupousuario()));
+        dialog.add("Você tem certeza que deseja excluir este grupo permanentemente ?");
+
+        // tag::snippet1[]
+        Button deleteButton = new Button("Delete", (e) -> excluir(grupoUsuario,dialog));
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
+        deleteButton.getStyle().set("margin-right", "auto");
+        dialog.getFooter().add(deleteButton);
+
+        Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        dialog.getFooter().add(cancelButton);
+        // Verifica se existe um ClickListener registrado anteriormente e o remove
+        dialog.open();
+    }
+
+    private void excluir(SetGrupoUsuario grupoUsuario, Dialog dialog) {
+        try {
+            grupoUsuarioService.delete(grupoUsuario);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            dialog.close();
+            close();
+            grupoUsuariosDiv.refreshGrid();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
     }
 
     private Div createFormCadastro() {
@@ -118,30 +162,30 @@ public class GrupoUsuarioDetalhesModal extends Dialog {
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
         // Lógica para salvar o cadastro
-        SetGrupoUsuario dto = new SetGrupoUsuario();
+        SetGrupoUsuario dto = grupoUsuario;
         dto.setDescricao_grupousuario(descricao_grupousuario.getValue());
         dto.setAtivo("S");
-        dto.setData_inclusao(LocalDateTime.now());
+        dto.setData_alteracao(LocalDateTime.now());
 
         try {
-            SetGrupoUsuario grupoUsuario = grupoUsuarioService.save(dto);
+            SetGrupoUsuario grupoUsuario = grupoUsuarioService.update(dto);
             List<SetPermissao> listaPermissao = new ArrayList<>();
-            radioGroupList.forEach(radio -> {
-                SetPermissao permissao = new SetPermissao();
-                permissao.setNome_tela(radio.getAriaLabel().get());
-                permissao.setTela_view(radio.getAriaLabel().get());
-                permissao.setAtivo("S");
-                if (radio.getValue().equals("Sim")){
-                    permissao.setLeitura(1);
-                } else {
-                    permissao.setLeitura(0);
-                }
-                permissao.setData_inclusao(LocalDateTime.now());
-                permissao.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                permissao.setId_grupousuario(grupoUsuario.getId_grupousuario());
-                listaPermissao.add(permissao);
+            setPermissaoList.forEach(p -> {
+                radioGroupList.forEach(stringRadioButtonGroup -> {
+                    if (p.getNome_tela().equals(stringRadioButtonGroup.getAriaLabel().get())){
+                        if (stringRadioButtonGroup.getValue().equals("Sim")){
+                            p.setLeitura(1);
+                        } else {
+                            p.setLeitura(0);
+                        }
+                    }
+                });
+                p.setData_alteracao(LocalDateTime.now());
+                p.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                p.setId_grupousuario(grupoUsuario.getId_grupousuario());
+                listaPermissao.add(p);
             });
-            permissaoService.saveAll(listaPermissao);
+            permissaoService.updateAll(listaPermissao);
             grupoUsuariosDiv.refreshGrid();
             descricao_grupousuario.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
@@ -151,4 +195,22 @@ public class GrupoUsuarioDetalhesModal extends Dialog {
         }
     }
 
+    List<SetPermissao> setPermissaoList;
+
+    public void SetGrupo(SetGrupoUsuario item) {
+        this.grupoUsuario = item;
+        descricao_grupousuario.setValue(item.getDescricao_grupousuario());
+        this.setPermissaoList = permissaoService.findAllById(item.getId_grupousuario());
+        setPermissaoList.forEach(p -> {
+            radioGroupList.forEach(stringRadioButtonGroup -> {
+                if (p.getNome_tela().equals(stringRadioButtonGroup.getAriaLabel().get())){
+                    if (p.getLeitura() == 1){
+                        stringRadioButtonGroup.setValue("Sim");
+                    } else {
+                        stringRadioButtonGroup.setValue("Não");
+                    }
+                }
+            });
+        });
+    }
 }
