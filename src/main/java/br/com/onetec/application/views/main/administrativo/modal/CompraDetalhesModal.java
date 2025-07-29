@@ -98,6 +98,8 @@ public class CompraDetalhesModal extends Dialog {
 
     private List<SetCompraProduto> produtoList;
 
+    private List<SetCompraProduto> produtoListAdcionar;
+
     private Grid<SetCompraProduto> grid;
 
     private ProdutoService produtoService;
@@ -255,8 +257,8 @@ public class CompraDetalhesModal extends Dialog {
                 compra.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
                 compra.setAtivo("S");
                 compraService.update(compra);
-                if (produtoList.size() > 0) {
-                    produtoList.forEach(pedido -> {
+                if (produtoListAdcionar.size() > 0) {
+                    produtoListAdcionar.forEach(pedido -> {
                         try {
                             pedido.setId_compra(compra.getId_compra());
                             compraProdutoService.save(pedido);
@@ -265,7 +267,7 @@ public class CompraDetalhesModal extends Dialog {
                         }
                     });
                 }
-                service.notificaSucesso("Cadastrado com sucesso");
+                service.notificaSucesso("Atualizado com sucesso");
                 comprasDiv.refreshGrid();
                 close();
             }
@@ -439,6 +441,7 @@ public class CompraDetalhesModal extends Dialog {
                 } else {
                     //produtoList.add(e);
                 }
+                calculoSubtrairTotalCompra(e);
                 produtoList.remove(e);
                 // Atualiza os itens da grid
                 grid.setItems(produtoList);
@@ -493,6 +496,7 @@ public class CompraDetalhesModal extends Dialog {
                 produto.setAtivo("S");
                 produto.setData_inclusao(LocalDateTime.now());
                 produtoList.add(produto);
+                produtoListAdcionar.add(produto);
                 grid.setItems(produtoList);
                 calculoTotalCompra(produto);
                 service.notificaSucesso("Produto Adcionado");
@@ -538,6 +542,14 @@ public class CompraDetalhesModal extends Dialog {
     private void calculoTotalCompra(SetCompraProduto produto) {
         // Adiciona o valor ao total e armazena o resultado em valorTotalItems
         valorTotalItems = valorTotalItems.add(produto.getValortotal_compraproduto());
+
+        // Atualiza o valor do campo valoritemstotal_compra
+        valoritemstotal_compra.setValue(valorTotalItems.toString());
+    }
+
+    private void calculoSubtrairTotalCompra(SetCompraProduto produto) {
+        // Adiciona o valor ao total e armazena o resultado em valorTotalItems
+        valorTotalItems = valorTotalItems.subtract(produto.getValortotal_compraproduto());
 
         // Atualiza o valor do campo valoritemstotal_compra
         valoritemstotal_compra.setValue(valorTotalItems.toString());
@@ -613,6 +625,8 @@ public class CompraDetalhesModal extends Dialog {
 
             List<SetCompraProduto> listaProdutosCompra = compraProdutoService.findByIdCompra(item.getId_compra());
             grid.setItems(listaProdutosCompra);
+            produtoList = listaProdutosCompra;
+            produtoListAdcionar = new ArrayList<>();
 
         });
     }

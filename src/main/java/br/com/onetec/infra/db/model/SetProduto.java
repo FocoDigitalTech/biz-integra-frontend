@@ -19,9 +19,9 @@ public class SetProduto {
     private String nome_produto;
     private String unidade_entrada;
     private String unidade_aplicacao;
-    private String fator_conversao;
-    private String quantidade_estoque;
-    private String quantidade_minima;
+    private Integer fator_conversao;
+    private Integer quantidade_estoque;
+    private Integer quantidade_minima;
     private BigDecimal valor_item;
     private String utimo_lote;
     private String grupo_quimico;

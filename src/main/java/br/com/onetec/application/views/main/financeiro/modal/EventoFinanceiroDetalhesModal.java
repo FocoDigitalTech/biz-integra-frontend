@@ -81,6 +81,7 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
             eventoFinanceiroService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             eventoFinanceiroDiv.refreshGrid();
+            close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
@@ -95,6 +96,9 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
 
         id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
         id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
+        id_tipoeventofinanceiro.addFocusListener(event -> {
+            id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
+        });
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
@@ -113,27 +117,27 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
         SetEventoFinanceiro dto = eventoFinanceiro;
         SetTipoEventoFinanceiro setGrupoFinanceiro = id_tipoeventofinanceiro.getValue();
         if (setGrupoFinanceiro == null) {
-            service.notificaErro("Grupo financeiro não pode ser vazio !");
-            throw new Exception();
-        }
-        dto.setId_tipoeventofinanceiro(setGrupoFinanceiro.getId_tipoeventofinanceiro());
-        // Lógica para salvar o cadastro
+            service.notificaErro("Tipo de evento financeiro (Contas) não pode ser vazio !");
+        } else {
+            dto.setId_tipoeventofinanceiro(setGrupoFinanceiro.getId_tipoeventofinanceiro());
+            // Lógica para salvar o cadastro
 
-        dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
-        dto.setObservacoes_eventofinanceiro(observacoes_eventofinanceiro.getValue());
-        dto.setAtivo("S");
-        dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-        service = new UtilitySystemConfigService();
-        try {
-            eventoFinanceiroService.update(dto);
-            eventoFinanceiroDiv.refreshGrid();
-            id_tipoeventofinanceiro.clear();
-            nome_eventofinanceiro.clear();
-            observacoes_eventofinanceiro.clear();
-            service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
-            close();
-        } catch (Exception e) {
-            service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
+            dto.setObservacoes_eventofinanceiro(observacoes_eventofinanceiro.getValue());
+            dto.setAtivo("S");
+            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            service = new UtilitySystemConfigService();
+            try {
+                eventoFinanceiroService.update(dto);
+                eventoFinanceiroDiv.refreshGrid();
+                id_tipoeventofinanceiro.clear();
+                nome_eventofinanceiro.clear();
+                observacoes_eventofinanceiro.clear();
+                service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
+                close();
+            } catch (Exception e) {
+                service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            }
         }
     }
 
@@ -141,15 +145,22 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
         UI.getCurrent().access(() -> {
             this.eventoFinanceiro = item;
             List<SetTipoEventoFinanceiro> grupofinanceirolista = tipoEventoFinanceiroService.findAll();
-            if (Objects.nonNull(item.getId_grupoeventofinanceiro())) {
+            if (Objects.nonNull(item.getId_tipoeventofinanceiro())) {
                 id_tipoeventofinanceiro.setValue(grupofinanceirolista.stream()
                         .filter(objeto -> objeto.getId_tipoeventofinanceiro().equals(item.getId_tipoeventofinanceiro()))
-                        .findFirst().orElse(null));
+                        .findFirst().orElse(getUndefinedClassEntity()));
             }
             if (Objects.nonNull(item.getNome_eventofinanceiro()))
                 nome_eventofinanceiro.setValue(item.getNome_eventofinanceiro());
             if (Objects.nonNull(item.getObservacoes_eventofinanceiro()))
                 observacoes_eventofinanceiro.setValue(item.getObservacoes_eventofinanceiro());
         });
+    }
+
+    private SetTipoEventoFinanceiro getUndefinedClassEntity() {
+        SetTipoEventoFinanceiro result = new SetTipoEventoFinanceiro();
+        result.setId_tipoeventofinanceiro(0);
+        result.setNome_tipoeventofinanceiro("Excluido");
+        return result;
     }
 }

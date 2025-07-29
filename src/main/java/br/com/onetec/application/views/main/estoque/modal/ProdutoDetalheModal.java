@@ -13,6 +13,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -41,9 +42,9 @@ public class ProdutoDetalheModal extends Dialog {
     private TextField nome_produto;
     private TextField unidade_entrada;
     private TextField unidade_aplicacao;
-    private TextField fator_conversao;
-    private TextField quantidade_estoque;
-    private TextField quantidade_minima;
+    private IntegerField fator_conversao;
+    private IntegerField quantidade_estoque;
+    private IntegerField quantidade_minima;
     private TextField valor_item;
     private TextField utimo_lote;
     private TextField grupo_quimico;
@@ -85,9 +86,9 @@ public class ProdutoDetalheModal extends Dialog {
         nome_produto = new TextField("Nome ou Descrição");
         unidade_entrada = new TextField("Unidade Entrada");
         unidade_aplicacao = new TextField("Unidade Aplicação");
-        fator_conversao = new TextField("Fator de Conversão");
-        quantidade_estoque = new TextField("Quantidade em Estoque");
-        quantidade_minima = new TextField("Quantidade Minima");
+        fator_conversao = new IntegerField("Fator de Conversão");
+        quantidade_estoque = new IntegerField("Quantidade em Estoque");
+        quantidade_minima = new IntegerField("Quantidade Minima");
         valor_item = new TextField("Valor do Item");
         utimo_lote = new TextField("Ultimo Lote");
         grupo_quimico = new TextField("Grupo Quimico");
@@ -96,6 +97,15 @@ public class ProdutoDetalheModal extends Dialog {
         antidoto_nome = new TextField("Antidoto");
         concentrado_nome = new TextField("Concentrado");
         numero_registro = new TextField("N° Registro");
+
+        fator_conversao.setStepButtonsVisible(true);
+        fator_conversao.setMin(1);
+
+        quantidade_estoque.setStepButtonsVisible(true);
+        quantidade_estoque.setMin(1);
+
+        quantidade_minima.setStepButtonsVisible(true);
+        quantidade_minima.setMin(1);
 
         valor_item.setValueChangeMode(ValueChangeMode.EAGER);
         valor_item.setPlaceholder("R$ 0,00");

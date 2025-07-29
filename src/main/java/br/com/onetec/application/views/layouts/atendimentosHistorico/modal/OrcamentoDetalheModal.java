@@ -2,6 +2,7 @@ package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.arquivoorcamentoservice.ArquivoOrcamentoService;
+import br.com.onetec.application.service.clientesservice.AutoExclusaoProceduralService;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaService;
 import br.com.onetec.application.service.comissoesservice.ComissoesService;
@@ -84,7 +85,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @UIScope
@@ -277,6 +277,9 @@ public class OrcamentoDetalheModal extends Dialog {
     @Autowired
     private TipoMidiaService tipomidiaService;
 
+    @Autowired
+    private AutoExclusaoProceduralService autoExclusaoProceduralService;
+
 
     @Autowired
     @Lazy
@@ -356,7 +359,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\documento_atualizado.pdf";
                 String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(orcamento.getId_endereco());
 
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
 
@@ -726,7 +729,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_"+compositeId+"anualatualizado.pdf";
                 String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(orcamento.getId_endereco());
 
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                 // Edita o documento Word
@@ -819,7 +822,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_"+compositeId+"documento_atualizado.pdf";
                 String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(orcamento.getId_endereco());
 
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                 // Edita o documento Word
@@ -924,13 +927,13 @@ public class OrcamentoDetalheModal extends Dialog {
                 String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_contrato_"+compositeId+"ficha_inspecao.pdf";
                 String clientId = orcamento.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(orcamento.getId_endereco());
 
 
                 SetContrato contrato = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
                 // Edita o documento Word
                 SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
-                SetTipoMidia midia = tipoMidiaService.findByIdMidia(cliente.getId_anuncio()
+                SetTipoMidia midia = tipoMidiaService.findByIdMidia(orcamento.getId_anuncio()
                  );
                 SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
                 SetEstado uf = estadoService.findById(enderecos.getId_estado());
@@ -1328,7 +1331,14 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Nome Contato")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridOrcamentoContato.addColumn(SetOrcamentoContato::getData_orcamentocontato)
+        gridOrcamentoContato.addColumn(data -> {
+            if (Objects.nonNull(data.getData_orcamentocontato())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_orcamentocontato().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1962,7 +1972,14 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Porcentagem")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridComissoes.addColumn(SetComissoes::getData_comissao)
+        gridComissoes.addColumn(data -> {
+            if (Objects.nonNull(data.getData_comissao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_comissao().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data")
                 .setSortable(true)
                 .setAutoWidth(true);

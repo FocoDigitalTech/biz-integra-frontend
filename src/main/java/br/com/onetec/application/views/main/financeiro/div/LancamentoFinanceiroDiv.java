@@ -214,7 +214,14 @@ public class LancamentoFinanceiroDiv extends Div{
                 .setHeader("NumParc")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetFluxoRecebimentoPagamento::getData_lancamento)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_lancamento())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_lancamento());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Lançamento")
                 .setSortable(true)
                 .setAutoWidth(true);

@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Component
@@ -138,7 +139,14 @@ public class ServicoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetServico::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);

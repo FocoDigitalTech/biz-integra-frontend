@@ -52,7 +52,7 @@ public class OrdemServicoExecucaoServicoService {
 
     public void delete(SetOrdemServicoExecucaoServico item) throws Exception {
         try {
-            Optional<SetOrdemServicoExecucaoServico> optional = repository.findById(item.getId_ordemservico());
+            Optional<SetOrdemServicoExecucaoServico> optional = repository.findById(item.getId_ordemservicoexecucaoservico());
             SetOrdemServicoExecucaoServico entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());

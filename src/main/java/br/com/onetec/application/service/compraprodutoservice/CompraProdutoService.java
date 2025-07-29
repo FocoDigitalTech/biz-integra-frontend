@@ -83,4 +83,8 @@ public class CompraProdutoService {
             throw new Exception();
         }
     }
+
+    public List<SetCompraProduto> listAllByIdProduto(Integer id_produto) {
+        return repository.listAllByIdProduto(id_produto);
+    }
 }

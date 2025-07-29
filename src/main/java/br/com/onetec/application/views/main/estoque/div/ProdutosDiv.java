@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -161,7 +162,14 @@ public class ProdutosDiv extends Div {
                 .setHeader("Valor Item")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetProduto::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);

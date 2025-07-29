@@ -4,6 +4,8 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaService;
+import br.com.onetec.application.service.compraprodutoservice.CompraProdutoService;
+import br.com.onetec.application.service.compraservice.CompraService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.dadosempresaservice.DadosEmpresaService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
@@ -21,7 +23,6 @@ import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoS
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
-import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ContatoModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ServicoModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -31,7 +32,6 @@ import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -65,10 +65,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @UIScope
@@ -115,13 +115,14 @@ public class OrdemServicoDadosModal extends Dialog {
     private TextArea descricao_ordemservicoexecucaoservico;
     private Grid<SetOrdemServicoExecucaoServico> ordemServicoExecucaoGrid;
     List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServico;
+    List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoExcluir = new ArrayList<>();
     List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
 
 
     // Formulario cadastroOrdemServicoMateriais
     private Div cadastroOrdemServicoMateriais;
     private ComboBox<SetProduto> id_produto;
-    private TextField numerolote_ordemservicomateriais;
+    private ComboBox<SetCompraProduto> numerolote_ordemservicomateriais;
     private IntegerField quantidadeprevista_ordemservicomateriais;
     private IntegerField quantidadeconsumida_ordemservicomateriais;
     private TextArea descricao_ordemservicomateriais;
@@ -334,6 +335,11 @@ public class OrdemServicoDadosModal extends Dialog {
     @Autowired
     private ClientesService clientesService;
 
+    @Autowired
+    private CompraProdutoService compraProdutoService;
+
+    private TextField unidade_aplicacao;
+
     private Anchor downloadLink;
 
     private List<SetServico> servicosFilter;
@@ -370,13 +376,13 @@ public class OrdemServicoDadosModal extends Dialog {
                 String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ordem_serviço"+compositeId+"ordem_serviço.pdf";
                 String clientId = ordemServico.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                SetEnderecos enderecos = enderecoService.findAllById(ordemServico.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(ordemServico.getId_endereco());
 
                 SetContrato contrato = contratoService.findByIdOrcamento(ordemServico.getId_orcamento());
                 // Edita o documento Word
                 SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
-                SetTipoMidia midia = tipoMidiaService.findByIdMidia(cliente.getId_anuncio()
-                );
+                var orc = orcamentoService.findAllById(ordemServico.getId_orcamento());
+                SetTipoMidia midia = tipoMidiaService.findByIdMidia(orc.getId_anuncio());
                 SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
                 SetEstado uf = estadoService.findById(enderecos.getId_estado());
                 SetTipoImovel tipoImovel = tipoImovelService.findByIdImovel(enderecos.getId_tipoimovel());
@@ -703,6 +709,7 @@ public class OrdemServicoDadosModal extends Dialog {
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
                 listaOrdemServicoExecucaoServico.remove(arquivoOrcamento);
+                listaOrdemServicoExecucaoServicoExcluir.add(arquivoOrcamento);
                 // Atualiza os itens da grid
                 ordemServicoExecucaoGrid.setItems(listaOrdemServicoExecucaoServico);
                 // Feedback ao usuário
@@ -744,12 +751,48 @@ public class OrdemServicoDadosModal extends Dialog {
 
     }
 
+
     private Div createFormCadastroOrdemServicoMateriais() {
         listaOrdemServicoMateriais = new ArrayList<>();
         id_produto = new ComboBox<>("Produto");
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
-        numerolote_ordemservicomateriais = new TextField("N° Lote");
+        id_produto.addValueChangeListener(event -> {
+            numerolote_ordemservicomateriais.setItems
+                    (compraProdutoService.listAllByIdProduto(event.getValue().getId_produto()));
+            quantidadeconsumida_ordemservicomateriais.setLabel("Quantidade Consumida ("+event.getValue().getUnidade_aplicacao()+")");
+            quantidadeprevista_ordemservicomateriais.setLabel("Quantidade Prevista ("+event.getValue().getUnidade_aplicacao()+")");
+        });
+        unidade_aplicacao = new TextField("Unidade Aplicação");
+        numerolote_ordemservicomateriais = new ComboBox<>("N° Lote");
+        numerolote_ordemservicomateriais.setItemLabelGenerator(item -> {
+            if (item.getData_compraproduto() == null) {
+                return item.getNumerolote_compraproduto(); // valor simples
+            } else {
+                return item.getNumerolote_compraproduto() + " comprado em: " + getDataCompraFormatada(item.getData_compraproduto());
+            }
+        });
+        numerolote_ordemservicomateriais.setPlaceholder("Selecione ou digite o lote ...");
+        numerolote_ordemservicomateriais.setAllowCustomValue(true);
+        // Lidar com valor customizado inserido pelo usuário
+        numerolote_ordemservicomateriais.addCustomValueSetListener(event -> {
+            String customValue = event.getDetail();
+
+            // Aqui você pode criar um objeto fictício ou placeholder para representar esse valor.
+            SetCompraProduto loteCustomizado = new SetCompraProduto();
+            loteCustomizado.setNumerolote_compraproduto(customValue);
+            loteCustomizado.setData_compraproduto(null); // ou defina uma data padrão
+
+            // Adicionar esse novo item na lista atual do ComboBox
+            List<SetCompraProduto> itensAtuais = new ArrayList<>(numerolote_ordemservicomateriais.getListDataView().getItems().toList());
+            itensAtuais.add(loteCustomizado);
+            numerolote_ordemservicomateriais.setItems(itensAtuais);
+
+            // Selecionar o item recém-adicionado
+            numerolote_ordemservicomateriais.setValue(loteCustomizado);
+        });
+
+
         quantidadeprevista_ordemservicomateriais = new IntegerField("Quantidade Prevista");
         quantidadeconsumida_ordemservicomateriais = new IntegerField("Quantidade Consumida");
         descricao_ordemservicomateriais = new TextArea("Observações");
@@ -794,12 +837,11 @@ public class OrdemServicoDadosModal extends Dialog {
             dto.setDescricao_ordemservicomateriais(descricao_ordemservicomateriais.getValue());
             dto.setQuantidadeconsumida_ordemservicomateriais(quantidadeconsumida_ordemservicomateriais.getValue());
             dto.setQuantidadeprevista_ordemservicomateriais(quantidadeprevista_ordemservicomateriais.getValue());
-            dto.setNumerolote_ordemservicomateriais(numerolote_ordemservicomateriais.getValue());
+            dto.setNumerolote_ordemservicomateriais(numerolote_ordemservicomateriais.getValue().getNumerolote_compraproduto());
             dto.setData_inclusao(LocalDateTime.now());
             dto.setAtivo("S");
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             listaOrdemServicoMateriais.add(dto);
-            listaOrdemServicoMateriaisUpdate.add(dto);
             ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
         });
 
@@ -807,7 +849,14 @@ public class OrdemServicoDadosModal extends Dialog {
             // Cria o botão de deletar com um ícone de lixeira
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
+                try {
+                    ordemServicoMateriaisService.delete(arquivoOrcamento);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    service.notificaErro("ERRO AO EXCLUIR/ CONTATE O SUPORTE");
+                }
                 listaOrdemServicoMateriais.remove(arquivoOrcamento);
+
                 // Atualiza os itens da grid
                 ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
                 // Feedback ao usuário
@@ -830,6 +879,14 @@ public class OrdemServicoDadosModal extends Dialog {
         div.setSizeFull();
 
         return div;
+    }
+
+    private String getDataCompraFormatada(LocalDate data_compraproduto) {
+        if (Objects.nonNull(data_compraproduto)){
+            return UtilitySystemConfigService.getDataFormatada(data_compraproduto.atStartOfDay()).toString();
+        } else {
+            return "N/D";
+        }
     }
 
     private Div createFormcadastroOrdemServicoFuncionarioAlocado() {
@@ -1068,14 +1125,26 @@ public class OrdemServicoDadosModal extends Dialog {
 
                 });
             }
-            if(listaOrdemServicoMateriaisUpdate.size() > 0){
-                listaOrdemServicoMateriaisUpdate.forEach(p ->{
+            if (listaOrdemServicoExecucaoServicoExcluir.size() > 0){
+                listaOrdemServicoExecucaoServicoExcluir.forEach(setOrdemServicoExecucaoServico -> {
+                    try {
+                        ordemServicoExecucaoServicoService.delete(setOrdemServicoExecucaoServico);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if(listaOrdemServicoMateriais.size() > 0){
+                listaOrdemServicoMateriais.forEach(p ->{
                     p.setId_cliente(dto.getId_cliente());
                     p.setId_orcamento(dto.getId_orcamento());
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
+                    p.setData_inclusao(LocalDateTime.now());
+                    p.setAtivo("S");
                     try {
-                        ordemServicoMateriaisService.update(p);
+                        ordemServicoMateriaisService.save(p);
+                        produtoService.updateQuantidadeEstoqueConsumida(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1137,7 +1206,8 @@ public class OrdemServicoDadosModal extends Dialog {
     public void setOrdemServico(SetOrdemServico item) {
     this.ordemServico = item;
     //this.id_orcamento = item.getId_orcamento();
-        open();
+
+        ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
         UI.getCurrent().access(() -> {
         List<SetTipoAtendimento> listasituacao = tipoAtendimentoService.listAll();
         List<SetFuncionario> listafuncionario = funcionarioService.listAll();
@@ -1227,6 +1297,8 @@ public class OrdemServicoDadosModal extends Dialog {
             nivelinfestacao_ordemservicopraga.clear();
             descricao_ordemservicopraga.clear();
         }
+
+        open();
      });
     }
 

@@ -65,7 +65,7 @@ public class TipoEventoFinanceiroDetalheModal extends Dialog {
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton);
+            getFooter().add(saveButton, cancelButton,excluirButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
@@ -124,6 +124,7 @@ public class TipoEventoFinanceiroDetalheModal extends Dialog {
             tipoEventoFinanceiroService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             tipoPagamentoDiv.refreshGrid();
+            close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }

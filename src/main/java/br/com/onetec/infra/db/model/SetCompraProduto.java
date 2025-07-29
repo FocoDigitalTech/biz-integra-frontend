@@ -18,10 +18,12 @@ public class SetCompraProduto {
     private Integer id_compra;
     private Integer id_produto;
     private Integer quantidade_compraproduto;
+    private Integer quantidadefator_compraproduto;
     private BigDecimal valorunitario_compraproduto;
     private BigDecimal valortotal_compraproduto;
     private String numerolote_compraproduto;
     private LocalDate datafabricacao_compraproduto;
+    private LocalDate data_compraproduto;
     private LocalDate datavalidade_compraproduto;
     private LocalDate datarecebimento_compraproduto;
     private String responsavelrecebimento_compraproduto;

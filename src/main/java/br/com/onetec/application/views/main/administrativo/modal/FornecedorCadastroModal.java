@@ -278,6 +278,10 @@ public class FornecedorCadastroModal extends Dialog {
         id_setoratuacao.setItems(setorAtuacaoService.listAll());
         id_setoratuacao.setItemLabelGenerator(SetSetorAtuacao::getDescricao_setoratuacao);
 
+        id_setoratuacao.addFocusListener(event -> {
+            id_setoratuacao.setItems(setorAtuacaoService.listAll());
+        });
+
         tipo_naturezajuridica.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
         tipo_naturezajuridica.addValueChangeListener(event -> {
             if ("Pessoa Fisica".equals(event.getValue())) {

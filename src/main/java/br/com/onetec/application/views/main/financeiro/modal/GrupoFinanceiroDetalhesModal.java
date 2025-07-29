@@ -113,6 +113,7 @@ public class GrupoFinanceiroDetalhesModal extends Dialog {
             grupoFinanceiroService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             grupoFinanceiroDiv.refreshGrid();
+            close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }

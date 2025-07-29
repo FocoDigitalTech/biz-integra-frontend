@@ -281,6 +281,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             lancamentoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             lancamentoFinanceiroDiv.refreshGrid();
+            close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
@@ -352,8 +353,9 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         //id_funcionariolancamento.setEnabled(false);
         funcionario = funcionarioService.findById(UsuarioAutenticadoConfig.getUser().getId_funcionario());
         id_funcionariolancamento.setReadOnly(true);
-        id_funcionariolancamento.setValue(funcionario.getNome_funcionario());
-
+        if (Objects.nonNull(funcionario.getNome_funcionario())) {
+            id_funcionariolancamento.setValue(funcionario.getNome_funcionario());
+        }
 
         service.setRequiredField(id_tipoeventofinanceiro);
         service.setRequiredField(id_eventofinanceiro);

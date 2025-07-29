@@ -4,6 +4,7 @@ import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrdemServicoCadastroModal;
+import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetFuncionario;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -138,7 +140,14 @@ public class ServicosExecutadosDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        setOrdemServicoGrid.addColumn(SetOrdemServico::getDatainicio_ordemservico)
+        setOrdemServicoGrid.addColumn(data -> {
+            if (Objects.nonNull(data.getDatainicio_ordemservico())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getDatainicio_ordemservico().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Atendimento")
                 .setSortable(true)
                 .setAutoWidth(true);

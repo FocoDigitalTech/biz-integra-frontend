@@ -1,5 +1,6 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.div;
 
+import br.com.onetec.application.service.clientesservice.AutoExclusaoProceduralService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
@@ -80,6 +81,8 @@ public class OrcamentoDiv extends Div {
 
     private SituacaoCadastroService situacaoCadastroService;
 
+    private AutoExclusaoProceduralService autoExclusaoProceduralService;
+
     private CondicaoPagamentoService condicaoPagamentoService;
 
     private ContratoService contratoService;
@@ -106,7 +109,8 @@ public class OrcamentoDiv extends Div {
                              SituacaoCadastroService situacaoCadastroService1,
                              CondicaoPagamentoService condicaoPagamentoService1,
                              EnderecoService enderecoService1,
-                             ContratoService contratoService1) {
+                             ContratoService contratoService1,
+                             AutoExclusaoProceduralService autoExclusaoProceduralService1) {
         this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
@@ -120,6 +124,7 @@ public class OrcamentoDiv extends Div {
         this.enderecoService = enderecoService1;
         this.contratoService = contratoService1;
         this.applicationContext = applicationContext1;
+        this.autoExclusaoProceduralService = autoExclusaoProceduralService1;
     }
 
     @Autowired
@@ -135,7 +140,8 @@ public class OrcamentoDiv extends Div {
                         SituacaoCadastroService situacaoCadastroService1,
                         CondicaoPagamentoService condicaoPagamentoService1,
                         EnderecoService enderecoService1,
-                        ContratoService contratoService1) {
+                        ContratoService contratoService1,
+                        AutoExclusaoProceduralService autoExclusaoProceduralService1) {
         this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
@@ -149,6 +155,7 @@ public class OrcamentoDiv extends Div {
         this.enderecoService = enderecoService1;
         this.contratoService = contratoService1;
         this.applicationContext = applicationContext1;
+        this.autoExclusaoProceduralService = autoExclusaoProceduralService1;
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -254,7 +261,7 @@ public class OrcamentoDiv extends Div {
                 .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(cliente -> {
-            SetEnderecos listaEnderecos = enderecoService.findAllById(cliente.getId_endereco());
+            SetEnderecos listaEnderecos = enderecoService.findById(cliente.getId_endereco());
             return listaEnderecos == null ? "N/A" : listaEnderecos.getEnderecoImovel();
         })
                 .setHeader("Endereço")
@@ -285,7 +292,14 @@ public class OrcamentoDiv extends Div {
                 .setSortable(true)
                 .setResizable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetOrcamento::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -375,7 +389,14 @@ public class OrcamentoDiv extends Div {
                     .setSortable(true)
                     .setResizable(true)
                     .setAutoWidth(true);
-            gridOrdemServico.addColumn(SetOrdemServico::getDatainicio_ordemservico)
+            gridOrdemServico.addColumn(data -> {
+                if (Objects.nonNull(data.getDatainicio_ordemservico())){
+                    return UtilitySystemConfigService.
+                            getDataFormatada(data.getDatainicio_ordemservico().atStartOfDay());
+                } else {
+                    return "";
+                }
+            })
                     .setHeader("Data Atendimento")
                     .setSortable(true)
                     .setResizable(true)

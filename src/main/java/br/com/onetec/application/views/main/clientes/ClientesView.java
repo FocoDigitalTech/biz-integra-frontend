@@ -377,7 +377,8 @@ public class ClientesView extends Div {
             List<SetOrcamento> orcamento = orcamentoService.findAllClienteId(cliente.getId_cliente());
             Optional<SetOrcamento> orcamentoMaisRecente = orcamento.stream()
                     .max(Comparator.comparing(SetOrcamento::getData_orcamento));
-            return orcamentoMaisRecente.isPresent() ? orcamentoMaisRecente.get().getData_orcamento() : "N/A";
+            return orcamentoMaisRecente.map(setOrcamento -> UtilitySystemConfigService.getDataFormatada
+                    (setOrcamento.getData_orcamento().atStartOfDay())).orElse("N/A");
         })
                 .setHeader("Ult. Orçamento")
                 .setSortable(true)
@@ -415,11 +416,25 @@ public class ClientesView extends Div {
                 .setHeader("Nome Fantasia")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCliente::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCliente::getData_alteracao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_alteracao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_alteracao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Ultima Alteração")
                 .setSortable(true)
                 .setAutoWidth(true);

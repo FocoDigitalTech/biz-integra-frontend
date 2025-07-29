@@ -77,6 +77,9 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
 
         id_tipoeventofinanceiro.setItems(grupoFinanceiroService.findAll());
         id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
+        id_tipoeventofinanceiro.addFocusListener(event -> {
+            id_tipoeventofinanceiro.setItems(grupoFinanceiroService.findAll());
+        });
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
@@ -96,27 +99,27 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
         SetTipoEventoFinanceiro setGrupoFinanceiro = id_tipoeventofinanceiro.getValue();
         if (setGrupoFinanceiro == null) {
             service.notificaErro("Tipo de evento financeiro (Contas) não pode ser vazio !");
-            throw new Exception();
-        }
-        dto.setId_tipoeventofinanceiro(setGrupoFinanceiro.getId_tipoeventofinanceiro());
-        // Lógica para salvar o cadastro
+        } else {
+            dto.setId_tipoeventofinanceiro(setGrupoFinanceiro.getId_tipoeventofinanceiro());
+            // Lógica para salvar o cadastro
 
-        dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
-        dto.setObservacoes_eventofinanceiro(observacoes_eventofinanceiro.getValue());
-        dto.setAtivo("S");
-        dto.setData_inclusao(LocalDateTime.now());
-        dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-        service = new UtilitySystemConfigService();
-        try {
-            eventoFinanceiroService.save(dto);
-            eventoFinanceiroDiv.refreshGrid();
-            id_tipoeventofinanceiro.clear();
-            nome_eventofinanceiro.clear();
-            observacoes_eventofinanceiro.clear();
-            service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
-            close();
-        } catch (Exception e) {
-            service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
+            dto.setObservacoes_eventofinanceiro(observacoes_eventofinanceiro.getValue());
+            dto.setAtivo("S");
+            dto.setData_inclusao(LocalDateTime.now());
+            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            service = new UtilitySystemConfigService();
+            try {
+                eventoFinanceiroService.save(dto);
+                eventoFinanceiroDiv.refreshGrid();
+                id_tipoeventofinanceiro.clear();
+                nome_eventofinanceiro.clear();
+                observacoes_eventofinanceiro.clear();
+                service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+                close();
+            } catch (Exception e) {
+                service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            }
         }
     }
 }

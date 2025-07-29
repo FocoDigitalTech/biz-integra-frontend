@@ -108,7 +108,7 @@ public class HomeView extends VerticalLayout {
                 personalInformationLayout.setSpacing(false);
                 personalInformationLayout.setPadding(false);
 
-                SetEnderecos enderecos = enderecoService.findAllById(ordem.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(ordem.getId_endereco());
 
                 AccordionPanel personalInfoPanel = accordion.add(enderecos.getEnderecoImovel(),
                         personalInformationLayout);
@@ -128,7 +128,7 @@ public class HomeView extends VerticalLayout {
                 personalInformationLayout.setSpacing(false);
                 personalInformationLayout.setPadding(false);
 
-                SetEnderecos enderecos = enderecoService.findAllById(orcamento.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(orcamento.getId_endereco());
 
                 AccordionPanel personalInfoPanel = accordion.add(enderecos.getEnderecoImovel(),
                         personalInformationLayout);
@@ -320,7 +320,7 @@ public class HomeView extends VerticalLayout {
 
         mapContent.setVisible(false);  // Inicialmente, mostrar apenas as informações
 
-        SetEnderecos end = enderecoService.findAllById(listaPorFuncionario.get(0).getId_endereco());
+        SetEnderecos end = enderecoService.findById(listaPorFuncionario.get(0).getId_endereco());
 
         // Listener para troca de abas
         tabs.addSelectedChangeListener(event -> {

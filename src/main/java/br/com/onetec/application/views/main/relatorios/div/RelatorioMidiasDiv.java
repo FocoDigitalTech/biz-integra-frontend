@@ -2,29 +2,28 @@ package br.com.onetec.application.views.main.relatorios.div;
 
 import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoService;
 import br.com.onetec.application.service.servicoservices.ServicoService;
+import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
+import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.relatorios.service.AgendamentoPrintExportService;
+import br.com.onetec.application.views.main.relatorios.service.MidiaPrintExportService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -43,25 +42,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-
-import java.io.FileOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @UIScope
-public class RelatorioAgendamentoDiv extends Div {
-
+public class RelatorioMidiasDiv extends Div {
 
     private final DatePicker startDate = new DatePicker("Data");
     private final DatePicker endDate = new DatePicker();
-    private final ComboBox<String> tipoContrato = new ComboBox<>("Tipo");//tipo
+    private final ComboBox<SetTipoMidia> tipoMidia = new ComboBox<>("Opção Midia");//tipo
     private final RadioButtonGroup abreviaradio = new RadioButtonGroup("Abreviar nome dos serviços ?");//abrevia ?
     private Checkbox abreviarCheckbox;
     private Button btnImprimir = new Button("Imprimir");//imprimir
     private UtilitySystemConfigService service;
-    private Grid<SetContrato> grid;
-    private RelatorioAgendamentoDiv.Filter filter;
+    private Grid<SetOrcamento> grid;
+    private RelatorioMidiasDiv.Filter filter;
     private UsuarioService usuarioService;
     private final OrcamentoService orcamentoService;
     private final ContratoService contratoService;
@@ -71,14 +67,19 @@ public class RelatorioAgendamentoDiv extends Div {
     private final ServicosOrcamentoService servicosOrcamentoService;
     private final ServicoService servicoService;
     private boolean abreviaverificacao = false;
-    private final AgendamentoPrintExportService agendamentoPrintExportService;
+    private final MidiaPrintExportService midiaPrintExportService;
+    private final EnderecoService enderecoService;
+    private final SituacaoCadastroService situacaoCadastroService;
+    private final TipoMidiaService tipoMidiaService;
 
     @Autowired
-    public RelatorioAgendamentoDiv(OrcamentoService orcamentoService1, ContratoService contratoService1,
-                                   FuncionarioService funcionarioService1, ClientesService clientesService1,
-                                   OrdemServicoService ordemServicoService1,
-                                   ServicosOrcamentoService servicosOrcamentoService1, ServicoService servicoService1,
-                                    AgendamentoPrintExportService agendamentoPrintExportService1) {
+    public RelatorioMidiasDiv(OrcamentoService orcamentoService1, ContratoService contratoService1,
+                              FuncionarioService funcionarioService1, ClientesService clientesService1,
+                              OrdemServicoService ordemServicoService1,
+                              ServicosOrcamentoService servicosOrcamentoService1, ServicoService servicoService1,
+                              MidiaPrintExportService midiaPrintExportService1,
+                              EnderecoService enderecoService1, SituacaoCadastroService situacaoCadastroService1,
+                              TipoMidiaService tipoMidiaService1) {
         this.orcamentoService = orcamentoService1;
         this.contratoService = contratoService1;
         this.funcionarioService = funcionarioService1;
@@ -86,7 +87,10 @@ public class RelatorioAgendamentoDiv extends Div {
         this.ordemServicoService = ordemServicoService1;
         this.servicosOrcamentoService = servicosOrcamentoService1;
         this.servicoService = servicoService1;
-        this.agendamentoPrintExportService = agendamentoPrintExportService1;
+        this.midiaPrintExportService = midiaPrintExportService1;
+        this.enderecoService = enderecoService1;
+        this.situacaoCadastroService = situacaoCadastroService1;
+        this.tipoMidiaService = tipoMidiaService1;
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -106,7 +110,7 @@ public class RelatorioAgendamentoDiv extends Div {
 
         // Criação dos componentes da tela
         com.vaadin.flow.component.Component gridFuncionario = createGrid();
-        filter = new RelatorioAgendamentoDiv.Filter(this::refreshGrid);
+        filter = new RelatorioMidiasDiv.Filter(this::refreshGrid);
         HorizontalLayout mobileFiltersFuncionario = createMobileFiltersFuncionario();
 
         // Configuração do layout principal
@@ -151,70 +155,59 @@ public class RelatorioAgendamentoDiv extends Div {
     }
 
     private com.vaadin.flow.component.Component createGrid() {
+        grid = new Grid<>(SetOrcamento.class, false);
+
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getId_cliente())){
+                return clientesService.findById(data.getId_cliente()).getNome_cliente();
+            } else {
+                return "N/D";
+            }
+        })
+                .setHeader("Cliente")
+                .setSortable(true)
+                .setAutoWidth(true);
 
         //departamentoService.list(null,null);
-        grid = new Grid<>(SetContrato.class, false);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getDatainicio_execucao())){
-                return UtilitySystemConfigService.
-                        getDataFormatada(data.getDatainicio_execucao().atStartOfDay());
+            if (Objects.nonNull(data.getId_endereco())){
+                return enderecoService.findById(data.getId_endereco()).getCidade_imovel();
             } else {
-                return "";
+                return "N/D";
+            }
+        })
+                .setHeader("Cidade")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getId_endereco())){
+                return enderecoService.findById(data.getId_endereco()).getBairro_imovel();
+            } else {
+                return "N/D";
+            }
+        })
+                .setHeader("Bairro")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+        grid.addColumn(SetOrcamento::getId_orcamento)
+                .setHeader("Numero Proposta")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_orcamento())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_orcamento().atStartOfDay());
+            } else {
+                return "N/D";
             }
         })
                 .setHeader("Data")
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetContrato::getId_orcamento)
-                .setHeader("Numero Orçamento")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        grid.addColumn(SetContrato::getId_contrato)
-                .setHeader("Numero Contrato")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        grid.addColumn(cliente -> {
-            SetCliente setCliente = clientesService.findById(cliente.getId_cliente());
-            return setCliente.getNome_cliente();
-        })
-                .setHeader("Nome Cliente")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        grid.addColumn(cliente -> {
-            List<SetOrdemServico> orcamento = ordemServicoService.findAllByOrcamentoId(cliente.getId_orcamento());
-            Optional<SetOrdemServico> orcamentoMaisRecente = orcamento.stream()
-                    .max(Comparator.comparing(SetOrdemServico::getDatainicio_ordemservico));
-            return orcamentoMaisRecente.isPresent() ? orcamentoMaisRecente.get().getHorarioinicio_ordemservico() : "N/A";
-        })
-                .setHeader("Horario Atendimento")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        grid.addColumn(contrato ->
-                contrato.getAplicacoes_periodicas().equals("SIM") ?
-                        "Aplicações Periodicas" : "Suporte")
-                .setHeader("Tipo")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        grid.addColumn(cliente -> {
-            List<SetOrdemServico> orcamento = ordemServicoService.findAllByOrcamentoId(cliente.getId_orcamento());
-            Optional<SetOrdemServico> orcamentoMaisRecente = orcamento.stream()
-                    .min(Comparator.comparing(SetOrdemServico::getData_inclusao));
-            if (orcamentoMaisRecente.isPresent()) {
-                SetFuncionario funcionario = funcionarioService.findById(orcamentoMaisRecente.get().getId_funcionariotecnico());
-                return funcionario.getNome_funcionario();
-            } else {
-                return "N/D";
-            }
-        })
-                .setHeader("Tecnico")
-                .setSortable(true)
-                .setAutoWidth(true);
 
         grid.addColumn(item -> {
             List<SetServicosOrcamento> servicosListOrcamneto = servicosOrcamentoService.listByOrcamento(item.getId_orcamento());
@@ -254,8 +247,25 @@ public class RelatorioAgendamentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getId_situacao())){
+                return situacaoCadastroService.fidById(data.getId_situacao()).getDescricao_situacaocadastro();
+            } else {
+                return "N/D";
+            }
+        })
+                .setHeader("Negociação")
+                .setSortable(true)
+                .setAutoWidth(true);
 
-        grid.setItems(query -> contratoService.list(
+
+        grid.addColumn(SetOrcamento::getHorario_inspecao)
+                .setHeader("Hora Ligação")
+                .setSortable(true)
+                .setAutoWidth(true);
+
+
+        grid.setItems(query -> orcamentoService.list(
                 PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
                 filter).stream());
 
@@ -266,7 +276,7 @@ public class RelatorioAgendamentoDiv extends Div {
         return grid;
     }
 
-    public class Filter extends Div implements Specification<SetContrato> {
+    public class Filter extends Div implements Specification<SetOrcamento> {
 
 
         public Filter(Runnable onSearch) {
@@ -283,7 +293,7 @@ public class RelatorioAgendamentoDiv extends Div {
                 startDate.clear();
                 endDate.clear();
                 onSearch.run();
-                tipoContrato.clear();
+                tipoMidia.clear();
                 abreviaradio.clear();
             });
             //com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
@@ -291,10 +301,20 @@ public class RelatorioAgendamentoDiv extends Div {
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
 
-            btnImprimir = new Button("Imprimir", e ->
-                    agendamentoPrintExportService.imprimirRelatorio(grid, e,abreviarCheckbox));
+            btnImprimir = new Button("Imprimir");
 
+            ContextMenu contextMenu = new ContextMenu(btnImprimir);
+            contextMenu.setOpenOnClick(true); // Abre com clique ao invés de clique direito
 
+            // Itens do submenu
+            contextMenu.addItem("Resumido", e -> {
+                midiaPrintExportService.
+                        imprimirGrafico(grid,abreviarCheckbox);
+            });
+            contextMenu.addItem("Detalhado", e -> {
+                midiaPrintExportService.
+                        imprimirRelatorio(grid,abreviarCheckbox);
+            });
 
 
             btnImprimir.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -305,13 +325,8 @@ public class RelatorioAgendamentoDiv extends Div {
                 refreshGrid();  // Atualiza o Grid quando a opção mudar
             });
 
-            tipoContrato.setItems(List.of("Aplicações Periodicas", "Suporte"));
-            tipoContrato.addValueChangeListener(event -> {
-                if ("Aplicações Periodicas".equals(event.getValue())) {
-
-                } else if ("Suporte".equals(event.getValue())) {
-                }
-            });
+            tipoMidia.setItems(tipoMidiaService.findAllMidia());
+            tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
 
 
             Div actions = new Div(resetBtn, searchBtn, btnImprimir);
@@ -319,7 +334,7 @@ public class RelatorioAgendamentoDiv extends Div {
             actions.addClassName("actions");
 
 
-            add(createDateRangeFilter(), tipoContrato, abreviarCheckbox, actions);
+            add(createDateRangeFilter(), tipoMidia, abreviarCheckbox, actions);
         }
 
         private com.vaadin.flow.component.Component createDateRangeFilter() {
@@ -340,29 +355,14 @@ public class RelatorioAgendamentoDiv extends Div {
 
 
         @Override
-        public Predicate toPredicate(Root<SetContrato> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        public Predicate toPredicate(Root<SetOrcamento> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
 
-            if ("Aplicações Periodicas".equals(tipoContrato.getValue())) {
-                String databaseColumn = "aplicacoes_periodicas";
-                String ignore = "- ()";
-
-                String lowerCaseFilter = "SIM";
-                Predicate phoneMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(phoneMatch);
-
-            } else if ("Suporte".equals(tipoContrato.getValue())) {
-                String databaseColumn = "aplicacoes_periodicas";
-                String ignore = "- ()";
-
-                String lowerCaseFilter = "NÃO";
-                Predicate phoneMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(phoneMatch);
+            if (!tipoMidia.isEmpty()) {
+                String databaseColumn = "id_anuncio";
+                predicates.add(criteriaBuilder.equal
+                        (criteriaBuilder.literal(tipoMidia.getValue().getId_tipomidia()), root.get(databaseColumn)));
             }
 
 
@@ -399,43 +399,5 @@ public class RelatorioAgendamentoDiv extends Div {
         }
 
     }
-
-
-
-
-    private void gerarPDFComItensFiltrados() {
-        List<SetContrato> itensFiltrados = grid.getListDataView().getItems().collect(Collectors.toList());
-
-        try {
-            String filePath = "caminho/para/arquivo.pdf";
-            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-
-            Table table = new Table(4); // Número de colunas que você quiser
-
-            // Cabeçalho
-            table.addHeaderCell(new Cell().add(new Paragraph("Data")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-            table.addHeaderCell(new Cell().add(new Paragraph("Número Orçamento")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-            table.addHeaderCell(new Cell().add(new Paragraph("Número Contrato")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-            table.addHeaderCell(new Cell().add(new Paragraph("Nome Cliente")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-
-            // Linhas
-            for (SetContrato contrato : itensFiltrados) {
-                //table.addCell(new Paragraph(UtilitySystemConfigService.getDataFormatada(contrato.getDatainicio_execucao().atStartOfDay())));
-                table.addCell(new Paragraph(String.valueOf(contrato.getId_orcamento())));
-                table.addCell(new Paragraph(String.valueOf(contrato.getId_contrato())));
-                SetCliente cliente = clientesService.findById(contrato.getId_cliente());
-                table.addCell(new Paragraph(cliente.getNome_cliente()));
-            }
-
-            document.add(table);
-            document.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
 }

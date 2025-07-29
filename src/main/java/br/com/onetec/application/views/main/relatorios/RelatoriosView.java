@@ -2,6 +2,7 @@ package br.com.onetec.application.views.main.relatorios;
 
 import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.main.relatorios.div.RelatorioAgendamentoDiv;
+import br.com.onetec.application.views.main.relatorios.div.RelatorioMidiasDiv;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.details.Details;
@@ -33,14 +34,17 @@ public class RelatoriosView extends VerticalLayout {
 
 
         private RelatorioAgendamentoDiv agendamentoDiv;
+        private RelatorioMidiasDiv relatorioMidiasDiv;
 
 
 
 
         @Autowired
-        public void initServices(RelatorioAgendamentoDiv agendamentoDiv1){
+        public void initServices(RelatorioAgendamentoDiv agendamentoDiv1,
+                                 RelatorioMidiasDiv relatorioMidiasDiv1){
 
-                this.agendamentoDiv =agendamentoDiv1;
+                this.agendamentoDiv = agendamentoDiv1;
+                this.relatorioMidiasDiv = relatorioMidiasDiv1;
         }
 
         @Autowired
@@ -55,7 +59,7 @@ public class RelatoriosView extends VerticalLayout {
 
                         // Adicionar o overviewDiv na aba de Clientes
                         tabSheet.add("Agendamentos", agendamentoDiv);
-                       // tabSheet.add("Contas a Pagar", contasAPagarDiv);
+                         tabSheet.add("Relatório de Midias", relatorioMidiasDiv);
 
                         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
                         add(tabSheet);

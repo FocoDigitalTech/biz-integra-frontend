@@ -907,6 +907,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                                 p.setId_ordemservico(finalDto2.getId_ordemservico());
                                 try {
                                     ordemServicoMateriaisService.save(p);
+                                    produtoService.updateQuantidadeEstoqueConsumida(p);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

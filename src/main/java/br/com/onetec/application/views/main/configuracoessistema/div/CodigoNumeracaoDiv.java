@@ -19,6 +19,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 @UIScope
 public class CodigoNumeracaoDiv extends Div{
@@ -119,7 +121,14 @@ public class CodigoNumeracaoDiv extends Div{
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetCodigoNumeracao::getData_alteracao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_alteracao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_alteracao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Alteração")
                 .setSortable(true)
                 .setAutoWidth(true);

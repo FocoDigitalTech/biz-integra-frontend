@@ -164,6 +164,7 @@ public class ContaCorrenteDetalheModal extends Dialog {
             contaCorrenteService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             condicaoPagamentoDiv.refreshGrid();
+            close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }

@@ -3,6 +3,7 @@ package br.com.onetec.application.views.main.administrativo.modal;
 
 import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.cross.constants.MessageNotificationConst;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -42,6 +43,10 @@ public class DepartamentoCadastroModal extends Dialog {
 
 
     @Autowired
+    FuncionarioService funcionarioService;
+
+
+    @Autowired
     DepartamentoService departamentoService;
 
     @Autowired
@@ -75,8 +80,8 @@ public class DepartamentoCadastroModal extends Dialog {
         //codigoField = new TextField("Código Departamento");
         decricaoField = new TextField("Nome ou Descrição");
         responsavelield = new ComboBox<>("Responsável");
-
-        responsavelield.setItems(new ArrayList<>());
+        funcionarioList = funcionarioService.listAll();
+        responsavelield.setItems(funcionarioList);
         responsavelield.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
         FormLayout formLayout = new FormLayout();

@@ -1,9 +1,12 @@
 package br.com.onetec.application.service.produtoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.infra.db.model.SetCompraProduto;
+import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
 import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.repository.ISetProdutoRepository;
 import jakarta.transaction.Transactional;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.ObjectInputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -85,5 +90,34 @@ public class ProdutoService {
 
     public List<SetProduto> findAll() {
             return repository.listAll();
+    }
+
+    @SneakyThrows
+    @Transactional
+    public void updateQuantidadeEstoque(SetCompraProduto pedido) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(pedido.getId_produto());
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() + pedido.getQuantidadefator_compraproduto();
+            entity.setQuantidade_estoque(total);
+            repository.save(entity);
+        }catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateQuantidadeEstoqueConsumida(SetOrdemServicoMateriais p) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(p.getId_produto());
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() - p.getQuantidadeconsumida_ordemservicomateriais();
+            entity.setQuantidade_estoque(total);
+            repository.save(entity);
+        }catch (Exception e){
+            throw new Exception();
+        }
     }
 }

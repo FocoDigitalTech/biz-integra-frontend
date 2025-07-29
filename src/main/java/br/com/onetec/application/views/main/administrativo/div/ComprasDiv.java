@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -172,11 +173,25 @@ public class ComprasDiv extends Div {
                 .setHeader("Numero Nota Fiscal")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCompra::getDatanotafiscal_compra)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getDatanotafiscal_compra())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getDatanotafiscal_compra().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data Nota Fiscal")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCompra::getDatapagamento_compra)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_compra())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_compra().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data Compra")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -204,7 +219,14 @@ public class ComprasDiv extends Div {
                 .setHeader("Aprovado Por")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCompra::getDataaprovacao_compra)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getDataaprovacao_compra())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getDataaprovacao_compra().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data Aprovação")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -212,11 +234,25 @@ public class ComprasDiv extends Div {
                 .setHeader("Horário Compra")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCompra::getDatavalidate_compra)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getDatavalidate_compra())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getDatavalidate_compra().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Validade")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetCompra::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);

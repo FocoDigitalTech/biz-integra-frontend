@@ -137,6 +137,8 @@ public class DadosClienteModal extends Dialog {
     private SetResponsavelAprovacao setResponsavelAprovacao;
     private SetResponsavelAgendamento setResponsavelAgendamento;
 
+    private AutoExclusaoProceduralService autoExclusaoProceduralService;
+
     @Autowired
     @Lazy
     ClientesView clienteView;
@@ -299,7 +301,7 @@ public class DadosClienteModal extends Dialog {
                               UtilitySystemConfigService service1, TipoMidiaService tipomidiaService1,
                               TipoImovelService tipoimovelService1,
                               RegiaoService regiaoService1,
-                              ApiEnderecoService enderecoService1) {
+                              ApiEnderecoService enderecoService1,AutoExclusaoProceduralService autoExclusaoProceduralService1) {
         this.clientesService = clientesService;
         this.estadoService = estadoService;
         this.usuarioService = usuarioService;
@@ -312,6 +314,7 @@ public class DadosClienteModal extends Dialog {
         this.tipoimovelService = tipoimovelService1;
         this.regiaoService = regiaoService1;
         this.apiEnderecoService = enderecoService1;
+        this.autoExclusaoProceduralService = autoExclusaoProceduralService1;
         UI.getCurrent().access(() -> {
             service.configureCEPField(fieldEnderecosCEP);
             service.configureCelularField(celularField);
@@ -444,6 +447,7 @@ public class DadosClienteModal extends Dialog {
             clientesService.logicalDelete(cliente,UsuarioAutenticadoConfig.getUser());
             service.notificaSucesso("Excluido com sucesso");
             clienteView.refreshGrid();
+            autoExclusaoProceduralService.executeProcessClienteExclude(cliente.getId_cliente());
             close();
         } catch (Exception e){
             service.notificaErro("Erro ao excluir.");

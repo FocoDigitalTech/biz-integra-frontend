@@ -32,6 +32,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @org.springframework.stereotype.Component
 @UIScope
@@ -144,7 +145,14 @@ public class FuncionarioDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getData_admissao)
+        funcionarioGrid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_admissao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_admissao().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Admissão")
                 .setSortable(true)
                 .setAutoWidth(true);

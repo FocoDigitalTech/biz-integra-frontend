@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -139,7 +140,14 @@ public class TipoAtendimentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetTipoAtendimento::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())){
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);

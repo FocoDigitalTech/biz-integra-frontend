@@ -61,7 +61,7 @@ public class EnderecoService {
 
     }
 
-    public SetEnderecos findAllById(Integer id_endereco) {
+    public SetEnderecos findById(Integer id_endereco) {
         Optional<SetEnderecos> optional = repository.findById(id_endereco);
         return optional.orElse(null);
     }
