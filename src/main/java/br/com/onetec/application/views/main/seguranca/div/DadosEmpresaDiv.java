@@ -162,6 +162,7 @@ public class DadosEmpresaDiv extends Div {
             setDadosEmpresa.setTelefonequimico_dadosempresa(telefonequimico_dadosempresa.getValue());
             setDadosEmpresa.setCelularquimico_dadosempresa(celularquimico_dadosempresa.getValue());
             setDadosEmpresa.setEmailquimico_dadosempresa(emailquimico_dadosempresa.getValue());
+            setDadosEmpresa.setEstado_dadosempresa(estado_dadosempresa.getValue().getUf_estado());
 
             try {
                 dadosEmpresaService.update(setDadosEmpresa);
@@ -226,6 +227,11 @@ public class DadosEmpresaDiv extends Div {
     private void configuraTela() {
         setDadosEmpresa = dadosEmpresaService.getDados(1);
         SetDadosEmpresa item = setDadosEmpresa;
+        var listaEstado = estadoService.listAll();
+        estado_dadosempresa.setValue(listaEstado.stream()
+                .filter(objeto -> objeto.getUf_estado().equals(item.getEstado_dadosempresa()))
+                .findFirst().orElse(null));
+
         nome_dadosempresa.setValue(item.getNome_dadosempresa());
         endereco_dadosempresa.setValue(item.getEndereco_dadosempresa());
         bairro_dadosempresa.setValue(item.getBairro_dadosempresa());

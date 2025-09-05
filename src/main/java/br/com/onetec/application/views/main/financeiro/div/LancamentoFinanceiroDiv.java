@@ -10,15 +10,19 @@ import br.com.onetec.cross.constants.FinanceiroDataConst;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -294,7 +298,8 @@ public class LancamentoFinanceiroDiv extends Div{
 
         private final com.vaadin.flow.component.textfield.TextField id = new com.vaadin.flow.component.textfield.TextField("Id");
         private final com.vaadin.flow.component.textfield.TextField nome = new TextField("Nome Lançamento (Histórico)");
-
+        private final DatePicker startDate = new DatePicker("Data (Vencimento)");
+        private final DatePicker endDate = new DatePicker();
 
         public Filter(Runnable onSearch) {
 
@@ -308,7 +313,7 @@ public class LancamentoFinanceiroDiv extends Div{
             });
 
             HorizontalLayout personalInformationLayout = new HorizontalLayout(id,
-                    nome,abreviarCheckbox);
+                    nome,createDateRangeFilter(),abreviarCheckbox);
 
 
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
@@ -320,6 +325,8 @@ public class LancamentoFinanceiroDiv extends Div{
             resetBtn.addClickListener(e -> {
                 id.clear();
                 nome.clear();
+                startDate.clear();
+                endDate.clear();
                 onSearch.run();
             });
             com.vaadin.flow.component.button.Button createBtn = createFuncionarioCadastroButton();
@@ -341,12 +348,31 @@ public class LancamentoFinanceiroDiv extends Div{
             add(personalInformationLayout, actions);
         }
 
+        private com.vaadin.flow.component.Component createDateRangeFilter() {
+            startDate.setPlaceholder("De");
+
+            endDate.setPlaceholder("Até");
+
+            // For screen readers
+            startDate.setAriaLabel("Data Inicio");
+            endDate.setAriaLabel("Data Fim");
+            service.configuraCalendario(startDate);
+            service.configuraCalendario(endDate);
+
+
+            HorizontalLayout dateRangeComponent = new HorizontalLayout(startDate, new Text(" – "), endDate);
+            dateRangeComponent.setAlignItems(FlexComponent.Alignment.BASELINE);
+            dateRangeComponent.addClassName(LumoUtility.Gap.MEDIUM);
+
+            return dateRangeComponent;
+        }
 
 
         @Override
         public Predicate toPredicate(Root<SetFluxoRecebimentoPagamento> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
+            query.orderBy(criteriaBuilder.desc(root.get("data_vencimento")));
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
@@ -364,6 +390,16 @@ public class LancamentoFinanceiroDiv extends Div{
                         "%" + lowerCaseFilter + "%");
                 predicates.add(phoneMatch);
 
+            }
+            if (startDate.getValue() != null) {
+                String databaseColumn = "data_vencimento";
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
+                        criteriaBuilder.literal(startDate.getValue())));
+            }
+            if (endDate.getValue() != null) {
+                String databaseColumn = "data_vencimento";
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
+                        root.get(databaseColumn)));
             }
 
             return criteriaBuilder.and(predicates.toArray(Predicate[]::new));

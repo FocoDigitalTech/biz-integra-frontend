@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class PagamentoModal {
-    public static void openModalPagamento(SetPagamento item, PagamentoService pagamentoService, TipoPagamentoService tipoPagamentoService, SituacaoPagamentoService situacaoPagamentoService, Grid<SetPagamento> gridPagamento) {
+    public static void openModalPagamento(SetPagamento item, PagamentoService pagamentoService, TipoPagamentoService tipoPagamentoService,
+                                          SituacaoPagamentoService situacaoPagamentoService, Grid<SetPagamento> gridPagamento) {
         Dialog dialog = new Dialog();
         IntegerField numeroparcela_pagamento = new IntegerField("Parcela Pagamento");
         IntegerField totalparcela_pagamento = new IntegerField("Total Parcelas");
@@ -186,6 +187,8 @@ public class PagamentoModal {
                 pagamentoService.update(item);
                 dialog.close();
                 service.notificaSucesso("Baixado com sucesso !");
+                List<SetPagamento> listaPagamentos = pagamentoService.findAllByOrcamentoId(item.getId_orcamento());
+                gridPagamento.setItems(listaPagamentos);
 
             } catch (Exception e) {
                 service.notificaErro("ERRO: Contate o Administrador !");

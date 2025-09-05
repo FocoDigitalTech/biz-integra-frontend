@@ -1245,13 +1245,11 @@ public class OrdemServicoDadosModal extends Dialog {
         nome_pontofocal.setValue(ordemServico.getNome_pontofocal());
         ocorrencias_ordemservico.setValue(ordemServico.getOcorrencias_ordemservico());
 
-        List<SetExecucaoServico> servicoList = execucaoServicoService.findAll();
-        ordemServicoExecucaoGrid.setItems(new ArrayList<>());
         List<SetOrdemServicoExecucaoServico> ordemServicoExecucaoServicoList = ordemServicoExecucaoServicoService.
                 listAllByOrdemServicoId(item.getId_ordemservico());
         if (ordemServicoExecucaoServicoList.size() > 0){
             listaOrdemServicoExecucaoServico = ordemServicoExecucaoServicoList;
-            ordemServicoExecucaoGrid.setItems(listaOrdemServicoExecucaoServico);
+            ordemServicoExecucaoGrid.setItems(ordemServicoExecucaoServicoList);
             valor_ordemservicoexecucaoservico.clear();
             garantia_ordemservicoexecucaoservico.clear();
             descricao_ordemservicoexecucaoservico.clear();

@@ -5,6 +5,8 @@ import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.main.configuracoessistema.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
@@ -18,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PageTitle(ViewsTitleConst.CONFIGURATION_NAV_TITLE)
 @PermitAll
 @UIScope
+@Uses(Icon.class)
+@org.springframework.stereotype.Component
 public class ConfiguracoesSistemaView extends VerticalLayout {
 
 

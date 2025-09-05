@@ -1,11 +1,13 @@
 package br.com.onetec.application.views.main.financeiro.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.lancamentoservice.LancamentoService;
+import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.LancamentoFinanceiroDiv;
 import br.com.onetec.cross.constants.FinanceiroDataConst;
@@ -83,6 +85,12 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
 
     @Autowired
     LancamentoService lancamentoService;
+
+    @Autowired
+    EstadoService estadoService1;
+
+    @Autowired
+    SetorAtuacaoService setorAtuacaoService1;
 
     private Button saveButton;
     private Button baixaButton;
@@ -337,6 +345,9 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
 
         id_fornecedor.setItems(fornecedorService.findAll());
         id_fornecedor.setItemLabelGenerator(SetFornecedor::getNomefantasia_fornecedor);
+        HorizontalLayout fornecedorlayout =
+                new CustomizedComboBox().customizeFornecedor
+                        (id_fornecedor,fornecedorService,estadoService1,setorAtuacaoService1);
 
         id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
         id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
@@ -369,7 +380,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         formLayout.setWidthFull();
         formLayout.add(tipoeventofinanceirolayout,
                 eventofinanceirolayout,status_pagamento,
-                id_fornecedor,
+                fornecedorlayout,
                 nome_fluxorecebimentopagamento,
                 data_lancamento,
                 valor_lancamento,

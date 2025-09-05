@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class AutoCrudTipoEventoFinanceiroService {
+
     public void openFormDialog(ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro,
                                TipoEventoFinanceiroService tipoEventoFinanceiroService) {
         UtilitySystemConfigService servico = new UtilitySystemConfigService();

@@ -49,7 +49,7 @@ public class ProdutosDiv extends Div {
 
     private UsuarioService usuarioService;
 
-    private Button btnExcluir;
+    //private Button btnExcluir;
 
     private ProdutoCadastroModal produtoCadastroModal;
 
@@ -197,18 +197,18 @@ public class ProdutosDiv extends Div {
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
             // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
-            });
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -219,15 +219,18 @@ public class ProdutosDiv extends Div {
 
     private void abrirDetalhesDoProduto(SetProduto produto) {
         //  lógica para abrir modal
-        ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
-        dialog.open();
+        UI.getCurrent().access(() -> {
+            ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
+            dialog.setProduto(produto);
+            dialog.open();
+        });
     }
 
     private void deleta(SetProduto item) {
         try {
             produtoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
+            //btnExcluir.setVisible(false);
             refreshGrid();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
@@ -267,11 +270,11 @@ public class ProdutosDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-            btnExcluir = new Button("Excluir");
-            btnExcluir.setVisible(false);
-            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+//            btnExcluir = new Button("Excluir");
+//            btnExcluir.setVisible(false);
+//            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//                    ButtonVariant.LUMO_ERROR);
+            Div actions = new Div(resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 

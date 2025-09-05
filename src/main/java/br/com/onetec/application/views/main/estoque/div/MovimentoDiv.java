@@ -4,6 +4,7 @@ import br.com.onetec.application.service.estoqueservice.EstoqueService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.estoque.modal.EstoqueCadastroModal;
+import br.com.onetec.application.views.main.estoque.modal.EstoqueDadosModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
@@ -52,7 +53,7 @@ public class MovimentoDiv extends Div {
 
     private UsuarioService usuarioService;
 
-    private Button btnExcluir;
+    private EstoqueDadosModal estoqueDadosModal;
 
     private EstoqueCadastroModal estoqueCadastroModal;
 
@@ -64,13 +65,15 @@ public class MovimentoDiv extends Div {
                              UsuarioService usuarioService1,
                              EstoqueCadastroModal estoqueCadastroModal1,
                              ApplicationContext applicationContext1,
-                             EstoqueService estoqueService1) {
+                             EstoqueService estoqueService1,
+                             EstoqueDadosModal estoqueDadosModal1) {
         this.estoqueService = estoqueService1;
         this.produtoService = produtoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.estoqueCadastroModal = estoqueCadastroModal1;
         this.applicationContext = applicationContext1;
+        this.estoqueDadosModal = estoqueDadosModal1;
     }
 
 
@@ -192,18 +195,9 @@ public class MovimentoDiv extends Div {
 
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
+            UI.getCurrent().access(() -> {
+                estoqueDadosModal.setFuncionario(event.getItem());
+                estoqueDadosModal.open();
             });
         });
 
@@ -219,16 +213,7 @@ public class MovimentoDiv extends Div {
         //dialog.open();
     }
 
-    private void deleta(SetEstoque item) {
-        try {
-            estoqueService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
+
 
 
     public class Filter extends Div implements Specification<SetEstoque> {
@@ -263,11 +248,11 @@ public class MovimentoDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-            btnExcluir = new Button("Excluir");
-            btnExcluir.setVisible(false);
-            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+//            btnExcluir = new Button("Excluir");
+//            btnExcluir.setVisible(false);
+//            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//                    ButtonVariant.LUMO_ERROR);
+            Div actions = new Div(resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 

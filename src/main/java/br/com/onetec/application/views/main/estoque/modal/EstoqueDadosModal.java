@@ -7,6 +7,7 @@ import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssiste
 import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
+import br.com.onetec.infra.db.model.SetDepartamento;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.model.SetTecnicoAssistente;
@@ -28,10 +29,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @UIScope
-public class EstoqueCadastroModal extends Dialog {
+public class EstoqueDadosModal  extends Dialog {
 
     @Autowired
     EstoqueService estoqueService;
@@ -48,8 +50,9 @@ public class EstoqueCadastroModal extends Dialog {
 
     private Button saveButton;
     private Button cancelButton;
+    private Button btnExcluir;
 
-    private ComboBox <SetProduto> id_produto;
+    private ComboBox<SetProduto> id_produto;
     private ComboBox <SetTecnicoAssistente> id_tecnicosassistentes;
     private Checkbox saida_controleproduto;
     private DatePicker data_controle;
@@ -59,11 +62,13 @@ public class EstoqueCadastroModal extends Dialog {
     private TextField unidade_entrada;
     private TextField numero_lote;
 
+    private SetEstoque estoqueModel;
+
 
 
 
     @Autowired
-    public EstoqueCadastroModal() {
+    public EstoqueDadosModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
                 try { save();}
@@ -71,12 +76,17 @@ public class EstoqueCadastroModal extends Dialog {
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            btnExcluir = new Button("Excluir", event -> {
+                deleta(estoqueModel);
+            });
+            btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
             Div contentTabs = new Div(createFormCadastro());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton);
+
+            getFooter().add(saveButton, cancelButton,btnExcluir);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
@@ -144,7 +154,7 @@ public class EstoqueCadastroModal extends Dialog {
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
         // Lógica para salvar o cadastro
-        SetEstoque dto = new SetEstoque();
+        SetEstoque dto = estoqueModel;
         //dto.setSaida_controleproduto(saida_controleproduto.getValue());
         dto.setData_controle(data_controle.getValue());
         dto.setQuantidade_enviada(quantidade_enviada.getValue().toString());
@@ -153,37 +163,78 @@ public class EstoqueCadastroModal extends Dialog {
         dto.setUnidade_entrada(unidade_entrada.getValue());
         dto.setNumero_lote(numero_lote.getValue());
 
-        SetProduto produto = id_produto.getValue();
-        if (produto != null) {
-            dto.setId_produto(produto.getId_produto());
-        }
-        SetTecnicoAssistente tecnicoAssistente = id_tecnicosassistentes.getValue();
-        if (tecnicoAssistente != null){
-            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_tecnicoassistente());
-        }
+//        SetProduto produto = id_produto.getValue();
+//        if (produto != null) {
+//            dto.setId_produto(produto.getId_produto());
+//        }
+//        SetTecnicoAssistente tecnicoAssistente = id_tecnicosassistentes.getValue();
+//        if (tecnicoAssistente != null){
+//            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_tecnicoassistente());
+//        }
         dto.setAtivo("S");
-        dto.setData_inclusao(LocalDateTime.now());
+        dto.setData_alteracao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
 
         try {
-            estoqueService.save(dto);
+            estoqueService.update(dto);
             movimentoDiv.refreshGrid();
-//            id_produto.clear();
-//            id_tecnicosassistentes.clear();
-//            saida_controleproduto.clear();
+            //id_produto.clear();
+            //id_tecnicosassistentes.clear();
+            saida_controleproduto.clear();
             data_controle.clear();
             quantidade_enviada.clear();
             quantidade_devolvida.clear();
             quantidade_consumida.clear();
             unidade_entrada.clear();
             numero_lote.clear();
-            if(saida_controleproduto.getValue()) {
-                produtoService.updateEstoqueQuantidade(dto.getId_produto(), dto.getQuantidade_consumida());
-            }
-            service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+//            if(saida_controleproduto.getValue()) {
+//                produtoService.updateEstoqueQuantidade(dto.getId_produto(), dto.getQuantidade_consumida());
+//            }
+            service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
             close();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
+    }
+    private void deleta(SetEstoque item) {
+        try {
+            estoqueService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            close();
+            movimentoDiv.refreshGrid();
+        } catch (Exception e){
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
+    public void setFuncionario(SetEstoque item) {
+        UI.getCurrent().access(() -> {
+            this.estoqueModel = item;
+            var listaproduto = produtoService.findAll();
+
+            id_produto.setValue(listaproduto.stream()
+                    .filter(objeto -> objeto.getId_produto().equals(item.getId_produto()))
+                    .findFirst().orElse(null));
+
+            var produto = listaproduto.stream()
+                    .filter(objeto -> objeto.getId_produto().equals(item.getId_produto()))
+                    .findFirst().orElse(null);
+            assert produto != null;
+            unidade_entrada.setValue(produto.getUnidade_entrada());
+
+
+            List<SetTecnicoAssistente> tecnicolist = tecnicoAssistenteService.findAll();
+
+             id_tecnicosassistentes.setValue(tecnicolist.stream()
+                     .filter(obj -> obj.getId_tecnicoassistente().equals(item.getId_tecnicosassistentes()))
+                     .findFirst().orElse(null));
+
+
+            data_controle.setValue(item.getData_controle());
+            quantidade_enviada.setValue(Integer.valueOf(item.getQuantidade_enviada()));
+            quantidade_devolvida.setValue(Integer.valueOf(item.getQuantidade_devolvida()));
+            quantidade_consumida.setValue(Integer.valueOf(item.getQuantidade_consumida()));
+            numero_lote.setValue(item.getNumero_lote());
+        });
     }
 }

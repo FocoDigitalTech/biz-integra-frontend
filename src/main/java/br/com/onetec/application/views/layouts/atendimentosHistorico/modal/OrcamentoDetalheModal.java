@@ -1809,8 +1809,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Data Pagamento")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridPagamento.addColumn(pagamento -> {
-            return pagamento.getBaixado().equals("S") ? "SIM" : "NÃO"; })
+        gridPagamento.addColumn(pagamento -> pagamento.getBaixado().equals("S") ? "SIM" : "NÃO")
                 .setHeader("Baixado")
                 .setSortable(true)
                 .setAutoWidth(true);

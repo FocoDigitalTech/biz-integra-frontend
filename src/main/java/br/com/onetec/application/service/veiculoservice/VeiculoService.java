@@ -3,6 +3,7 @@ package br.com.onetec.application.service.veiculoservice;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetVeiculo;
 import br.com.onetec.infra.db.repository.ISetVeiculoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,8 @@ public class VeiculoService {
         }
     }
 
-    public void delete(SetVeiculo item) throws Exception {
+    @SneakyThrows
+    public void delete(SetVeiculo item) {
         try {
             Optional<SetVeiculo> optional = repository.findById(item.getId_veiculo());
             SetVeiculo entity = optional.get();

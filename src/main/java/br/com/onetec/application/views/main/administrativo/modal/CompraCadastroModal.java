@@ -212,11 +212,7 @@ public class CompraCadastroModal extends Dialog {
                 id_condicaopagamento.setRequiredIndicatorVisible(true);
                 id_condicaopagamento.setErrorMessage("Campo obrigatório");
                 id_condicaopagamento.setInvalid(true);
-            }else if (valoritemstotal_compra.isEmpty()) {
-                valoritemstotal_compra.setRequiredIndicatorVisible(true);
-                valoritemstotal_compra.setErrorMessage("Campo obrigatório");
-                valoritemstotal_compra.setInvalid(true);
-            }else if  (valortotal_compra.isEmpty()) {
+            } else if  (valortotal_compra.isEmpty()) {
                 valortotal_compra.setRequiredIndicatorVisible(true);
                 valortotal_compra.setErrorMessage("Campo obrigatório");
                 valortotal_compra.setInvalid(true);
@@ -373,7 +369,7 @@ public class CompraCadastroModal extends Dialog {
             var produto = event.getValue();
             valorunitario_compraproduto.setValue(produto.getValor_item().toString());
             fatorConversao.set(produto.getFator_conversao());
-            unidadeEntrada.set(produto.getUnidade_entrada());
+            unidadeEntrada.set(produto.getUnidade_aplicacao());
         });
 
         valorunitario_compraproduto.addValueChangeListener(event -> {

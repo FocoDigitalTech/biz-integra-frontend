@@ -1,11 +1,13 @@
 package br.com.onetec.application.views.main.financeiro.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.lancamentoservice.LancamentoService;
+import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.LancamentoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -88,6 +90,12 @@ public class LancamentoFinanceiroModal extends Dialog {
 
     @Autowired
     LancamentoService lancamentoService;
+
+    @Autowired
+    EstadoService estadoService1;
+
+    @Autowired
+    SetorAtuacaoService setorAtuacaoService1;
 
 
     private Button saveButton;
@@ -219,6 +227,10 @@ public class LancamentoFinanceiroModal extends Dialog {
 
         id_fornecedor.setItems(fornecedorService.findAll());
         id_fornecedor.setItemLabelGenerator(SetFornecedor::getNomefantasia_fornecedor);
+        HorizontalLayout fornecedorlayout =
+                new CustomizedComboBox().customizeFornecedor
+                        (id_fornecedor,fornecedorService,estadoService1,setorAtuacaoService1);
+
 
         id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
         id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
@@ -235,28 +247,26 @@ public class LancamentoFinanceiroModal extends Dialog {
         //id_funcionariolancamento.setEnabled(false);
         funcionario = funcionarioService.findById(UsuarioAutenticadoConfig.getUser().getId_funcionario());
         id_funcionariolancamento.setReadOnly(true);
-        id_funcionariolancamento.setValue(funcionario.getNome_funcionario());
-
+        if (Objects.isNull(funcionario.getNome_funcionario())){
+            id_funcionariolancamento.setValue("Usuário sem funcionario associado");
+        } else {
+            id_funcionariolancamento.setValue(funcionario.getNome_funcionario());
+        }
 
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(tipoeventofinanceirolayout,
                 eventofinanceirolayout,status_pagamento,
-                    //contacorrentelayout,
-                    id_fornecedor,
+                    fornecedorlayout,
                     nome_fluxorecebimentopagamento,
                     quantidade_parcelas,
                     descricao_lancamento,
                     quantidade_intervalo,
                     data_lancamento,
                     valor_lancamento,
-                    //data_contabil,
-                    /*valor_contabil,
-                    data_pagamento,*/
                     valor_pagamento,
                     numero_documento,
-                    //numero_parcela,
                     valor_previsto,
                     datahora_lancamento,
                     id_funcionariolancamento);

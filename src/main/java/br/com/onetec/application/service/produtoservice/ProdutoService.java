@@ -51,7 +51,8 @@ public class ProdutoService {
         }
     }
 
-    public void delete(SetProduto item) throws Exception {
+    @SneakyThrows
+    public void delete(SetProduto item) {
         try {
             Optional<SetProduto> optional = repository.findById(item.getId_produto());
             SetProduto entity = optional.get();
@@ -115,6 +116,36 @@ public class ProdutoService {
             // Copiando os valores do DTO para a entidade existente
             int total = entity.getQuantidade_estoque() - p.getQuantidadeconsumida_ordemservicomateriais();
             entity.setQuantidade_estoque(total);
+            repository.save(entity);
+        }catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateEstoqueQuantidade(Integer id_produto, String quantidade_consumida) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(id_produto);
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() - Integer.valueOf(quantidade_consumida);
+            entity.setQuantidade_estoque(total);
+            entity.setData_alteracao(LocalDateTime.now());
+            repository.save(entity);
+        }catch (Exception e){
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateEstoqueQuantidadeAoDeletar(Integer id_produto, Integer quantidade_compraproduto) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(id_produto);
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() - quantidade_compraproduto * entity.getFator_conversao();
+            entity.setQuantidade_estoque(total);
+            entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
         }catch (Exception e){
             throw new Exception();

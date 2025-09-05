@@ -46,6 +46,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @UIScope
@@ -262,6 +264,7 @@ public class CompraDetalhesModal extends Dialog {
                         try {
                             pedido.setId_compra(compra.getId_compra());
                             compraProdutoService.save(pedido);
+                            produtoService.updateQuantidadeEstoque(pedido);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -370,6 +373,7 @@ public class CompraDetalhesModal extends Dialog {
         return div;
     }
 
+    private TextField totalEstoque;
 
 
     private Div createFormCadastroFornecedorContatos() {
@@ -383,8 +387,20 @@ public class CompraDetalhesModal extends Dialog {
         datavalidade_compraproduto = new DatePicker("Data Validade");
         datarecebimento_compraproduto = new DatePicker("Data Recebimento");
         responsavelrecebimento_compraproduto = new TextField("Responsável Recebimento");
+        totalEstoque = new TextField("Quantidade que sera adicionada em estoque :");
+        totalEstoque.setReadOnly(true);
+        totalEstoque.setVisible(false);
+        AtomicInteger fatorConversao = new AtomicInteger();
+        AtomicReference<String> unidadeEntrada = new AtomicReference<>();
+
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
+        id_produto.addValueChangeListener(event -> {
+            var produto = event.getValue();
+            valorunitario_compraproduto.setValue(produto.getValor_item().toString());
+            fatorConversao.set(produto.getFator_conversao());
+            unidadeEntrada.set(produto.getUnidade_aplicacao());
+        });
 
         valorunitario_compraproduto.addValueChangeListener(event -> {
             BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
@@ -410,6 +426,16 @@ public class CompraDetalhesModal extends Dialog {
         quantidade_compraproduto.setValue(1);
         quantidade_compraproduto.setStepButtonsVisible(true);
         quantidade_compraproduto.setMin(1);
+
+        quantidade_compraproduto.addValueChangeListener(event -> {
+            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+                    .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
+            valortotal_compraproduto.setValue(valorQuantidade.toString());
+            int totalSoma = quantidade_compraproduto.getValue() * fatorConversao.get();
+            String frase =  totalSoma + " " +unidadeEntrada.get();
+            totalEstoque.setValue(frase);
+            totalEstoque.setVisible(true);
+        });
 
         grid = new Grid<>();
         grid.addColumn(midia -> {
@@ -438,6 +464,7 @@ public class CompraDetalhesModal extends Dialog {
                 // Remove o item da lista
                 if (Objects.nonNull(e.getId_compraproduto())){
                     deleta(e);
+                    produtoService.updateEstoqueQuantidadeAoDeletar(e.getId_produto(), e.getQuantidade_compraproduto());
                 } else {
                     //produtoList.add(e);
                 }
@@ -482,7 +509,9 @@ public class CompraDetalhesModal extends Dialog {
                 valorunitario_compraproduto.setInvalid(true);
             } else {
 
+                int totalSoma = quantidade_compraproduto.getValue() * fatorConversao.get();
                 SetCompraProduto produto = new SetCompraProduto();
+                produto.setQuantidadefator_compraproduto(totalSoma);
                 produto.setId_produto(id_produto.getValue().getId_produto());
                 produto.setQuantidade_compraproduto(quantidade_compraproduto.getValue());
                 produto.setValorunitario_compraproduto(service.getValorBigDecimal(valorunitario_compraproduto.getValue()));
@@ -525,7 +554,7 @@ public class CompraDetalhesModal extends Dialog {
                 datafabricacao_compraproduto,
                 datavalidade_compraproduto,
                 datarecebimento_compraproduto,
-                responsavelrecebimento_compraproduto,saveButton);
+                responsavelrecebimento_compraproduto,totalEstoque,saveButton);
 
         VerticalLayout layout = new VerticalLayout(formLayout, grid);
         layout.setSizeFull();

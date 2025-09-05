@@ -4,6 +4,7 @@ package br.com.onetec.application.views.main.estoque.div;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.service.veiculoservice.VeiculoService;
 import br.com.onetec.application.views.main.estoque.modal.CadastroVeiculoModal;
+import br.com.onetec.application.views.main.estoque.modal.DadosVeiculosModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetProduto;
@@ -50,9 +51,9 @@ public class VeiculosDiv extends Div {
 
     private UsuarioService usuarioService;
 
-    private Button btnExcluir;
-
     private CadastroVeiculoModal cadastroVeiculoModal;
+
+    private DadosVeiculosModal dadosVeiculosModal;
 
     private ApplicationContext applicationContext;
 
@@ -61,12 +62,14 @@ public class VeiculosDiv extends Div {
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              CadastroVeiculoModal produtoCadastroModal1,
-                             ApplicationContext applicationContext1) {
+                             ApplicationContext applicationContext1,
+                             DadosVeiculosModal dadosVeiculosModal1) {
         this.veiculoService = produtoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.cadastroVeiculoModal = produtoCadastroModal1;
         this.applicationContext = applicationContext1;
+        this.dadosVeiculosModal = dadosVeiculosModal1;
     }
 
 
@@ -194,18 +197,18 @@ public class VeiculosDiv extends Div {
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
             // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
-            });
+//            btnExcluir.setVisible(true);
+//            // Verifica se existe um ClickListener registrado anteriormente e o remove
+//            if (btnExcluirClickListenerRegistration[0] != null) {
+//                btnExcluirClickListenerRegistration[0].remove();
+//                btnExcluirClickListenerRegistration[0] = null;
+//            }
+//            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
+//            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
+//                deleta(event.getItem());
+//                // Torna o botão "Deletar" invisível após a ação ser concluída
+//                btnExcluir.setVisible(false);
+//            });
         });
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -215,16 +218,16 @@ public class VeiculosDiv extends Div {
     }
 
     private void abrirDetalhesDoProduto(SetVeiculo produto) {
-        //  lógica para abrir modal
-//        ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
-//        dialog.open();
+        grid.addItemClickListener(event -> {
+            dadosVeiculosModal.setVeiculo(produto);
+            dadosVeiculosModal.open();
+        });
     }
 
     private void deleta(SetVeiculo item) {
         try {
             veiculoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
             refreshGrid();
         } catch (Exception e){
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
@@ -264,11 +267,11 @@ public class VeiculosDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-            btnExcluir = new Button("Excluir");
-            btnExcluir.setVisible(false);
-            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+//            btnExcluir = new Button("Excluir");
+//            btnExcluir.setVisible(false);
+//            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//                    ButtonVariant.LUMO_ERROR);
+            Div actions = new Div(resetBtn, searchBtn,createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 

@@ -1,6 +1,7 @@
 package br.com.onetec.cross.utilities;
 
 
+import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.condicaopagamentoservice.AutoCrudCondicaoPagamentoService;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
@@ -8,6 +9,8 @@ import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroServic
 import br.com.onetec.application.service.execucaoservico.AutoCrudExecucaoServicoService;
 import br.com.onetec.application.service.execucaoservico.AutoCrudTipoAtendimentoService;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
+import br.com.onetec.application.service.fornecedorservice.FornecedorService;
+import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.application.service.situacaocadastroservice.AutoCrudSituacaoCadastroService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.situacaopagamentoservice.AutoCrudSituacaoPagamentoService;
@@ -47,6 +50,8 @@ public class CustomizedComboBox {
     private AutoCrudTipoEventoFinanceiroService autoCrudTipoEventoFinanceiroService;
 
     private AutoCrudTipoAtendimentoService autoCrudTipoAtendimentoService;
+
+    private AutoCrudFornecedorService autoCrudFornecedorService;
 
 
     public HorizontalLayout customizeSituacaoCadastro
@@ -189,6 +194,27 @@ public class CustomizedComboBox {
         id_tipoatendimento.getStyle().set("word-wrap", "break-word");
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(id_tipoatendimento, addButtonTipoPagamento);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeFornecedor(ComboBox<SetFornecedor> id_fornecedor,
+                                                FornecedorService fornecedorService,
+                                                EstadoService estadoService1,
+                                                SetorAtuacaoService setorAtuacaoService1) {
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudFornecedorService = new AutoCrudFornecedorService();
+            autoCrudFornecedorService.openFormDialog(id_fornecedor, fornecedorService,estadoService1,
+                    setorAtuacaoService1
+                    );
+        });
+        id_fornecedor.setWidth("900px"); // Ajuste conforme necessário
+        id_fornecedor.getStyle().set("max-width", "900px");
+        id_fornecedor.getStyle().set("white-space", "normal");
+        id_fornecedor.getStyle().set("word-wrap", "break-word");
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(id_fornecedor, addButtonTipoPagamento);
         horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
         return horizontalLayout;
     }

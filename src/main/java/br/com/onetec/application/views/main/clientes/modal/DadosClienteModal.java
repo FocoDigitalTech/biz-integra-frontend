@@ -147,12 +147,12 @@ public class DadosClienteModal extends Dialog {
         this.cliente = cliente1;
 
         UI.getCurrent().access(() -> {
-            nomeCobrancaField = new TextField("Nome Cobrança");
-            nomesocialCobrancaField = new TextField("Nome Social");
-            telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
-            celularCobrancaField = new TextField("Celular Cobrança");
-            internetEmailCobrancaField = new EmailField("E-mail Cobrança");
-            observacaoCobrancaField = new TextArea("Observação Cobrança");
+//            nomeCobrancaField = new TextField("Nome Cobrança");
+//            nomesocialCobrancaField = new TextField("Nome Social");
+//            telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
+//            celularCobrancaField = new TextField("Celular Cobrança");
+//            internetEmailCobrancaField = new EmailField("E-mail Cobrança");
+//            observacaoCobrancaField = new TextArea("Observação Cobrança");
 
 
             nomeField.clear();
@@ -1166,7 +1166,7 @@ public class DadosClienteModal extends Dialog {
         cobranca.setObservacao(observacaoCobrancaField.getValue());
         cobranca.setValor_cobranca(BigDecimal.TEN);
         cobranca.setId_cliente(id_cliente);
-        cobranca.setData_inclusao(LocalDateTime.now());
+        cobranca.setData_alteracao(LocalDateTime.now());
         cobranca.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         cobranca.setAtivo("S");
         return cobranca;
