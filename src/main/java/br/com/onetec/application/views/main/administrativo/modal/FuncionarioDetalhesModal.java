@@ -209,6 +209,11 @@ public class FuncionarioDetalhesModal extends Dialog {
         data_admissao = new DatePicker("Data Admissão");
 
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(vencimento_cnh);
+        service.configuraCalendario(data_admissao);
+
+
         endereco_funcionario = new TextField("Endereço");
         complemento_funcionario = new TextField("Complemento");
         bairro_funcionario = new TextField("Bairro");

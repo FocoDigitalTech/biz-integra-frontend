@@ -81,6 +81,9 @@ public class ContaCorrenteCadastroModal extends Dialog {
         limete_contacorrente = new NumberField("Limite");
         ultimolancamento_contacorrente = new DatePicker("Ultimo Lançamento");
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(ultimolancamento_contacorrente);
+
         limete_contacorrente.setValueChangeMode(ValueChangeMode.EAGER);
         limete_contacorrente.addValueChangeListener(event -> service.formataMoedaBrasileiraNumberField(limete_contacorrente));
         Div dollarPrefix = new Div();

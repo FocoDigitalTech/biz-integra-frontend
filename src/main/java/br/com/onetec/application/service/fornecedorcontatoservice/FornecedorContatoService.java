@@ -62,6 +62,7 @@ public class FornecedorContatoService {
         try {
             Optional<SetFornecedorContato> optional = repository.findById(item.getId_fornecedorcontato());
             SetFornecedorContato entity = optional.get();
+            entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
         } catch (Exception e){

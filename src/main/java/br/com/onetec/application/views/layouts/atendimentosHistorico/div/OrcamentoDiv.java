@@ -438,17 +438,6 @@ public class OrcamentoDiv extends Div {
     }
 
 
-    private void deleta(SetOrcamento item) {
-        try {
-            orcamentoService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
-
 
     public class Filter extends Div implements Specification<SetOrcamento> {
 

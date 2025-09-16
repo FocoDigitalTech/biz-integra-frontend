@@ -2,12 +2,13 @@ package br.com.onetec.application.views.main.estoque.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.estoqueservice.EstoqueService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
-import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssistenteService;
 import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
+import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.model.SetTecnicoAssistente;
 import com.vaadin.flow.component.UI;
@@ -37,7 +38,8 @@ public class EstoqueCadastroModal extends Dialog {
     EstoqueService estoqueService;
 
     @Autowired
-    TecnicoAssistenteService tecnicoAssistenteService;
+    FuncionarioService funcionarioService;
+   // TecnicoAssistenteService tecnicoAssistenteService;
 
     @Autowired
     ProdutoService produtoService;
@@ -50,7 +52,7 @@ public class EstoqueCadastroModal extends Dialog {
     private Button cancelButton;
 
     private ComboBox <SetProduto> id_produto;
-    private ComboBox <SetTecnicoAssistente> id_tecnicosassistentes;
+    private ComboBox <SetFuncionario> funcionarioComboBox;
     private Checkbox saida_controleproduto;
     private DatePicker data_controle;
     private IntegerField quantidade_enviada;
@@ -112,9 +114,11 @@ public class EstoqueCadastroModal extends Dialog {
 
 
         id_produto = new ComboBox<>("Nome Produto");
-        id_tecnicosassistentes = new ComboBox<>("Tecnico/Assistente");
+        funcionarioComboBox = new ComboBox<>("Funcionario");
         saida_controleproduto = new Checkbox("Saida Estoque ?");
         data_controle = new DatePicker("Data");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(data_controle);
 
         numero_lote = new TextField("Numero do Lote");
         unidade_entrada.setReadOnly(true);
@@ -124,14 +128,14 @@ public class EstoqueCadastroModal extends Dialog {
         id_produto.addValueChangeListener(event -> {
             unidade_entrada.setValue(event.getValue().getUnidade_entrada());
         });
-        id_tecnicosassistentes.setItems(tecnicoAssistenteService.findAll());
-        id_tecnicosassistentes.setItemLabelGenerator(SetTecnicoAssistente::getNome_tecnicoassistente);
+        funcionarioComboBox.setItems(funcionarioService.listAll());
+        funcionarioComboBox.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
 
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_produto, id_tecnicosassistentes, saida_controleproduto, data_controle, quantidade_enviada,
+        formLayout.add(id_produto, funcionarioComboBox, saida_controleproduto, data_controle, quantidade_enviada,
                 quantidade_devolvida, quantidade_consumida, unidade_entrada, numero_lote);
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -157,9 +161,9 @@ public class EstoqueCadastroModal extends Dialog {
         if (produto != null) {
             dto.setId_produto(produto.getId_produto());
         }
-        SetTecnicoAssistente tecnicoAssistente = id_tecnicosassistentes.getValue();
+        var tecnicoAssistente = funcionarioComboBox.getValue();
         if (tecnicoAssistente != null){
-            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_tecnicoassistente());
+            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_funcionario());
         }
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());

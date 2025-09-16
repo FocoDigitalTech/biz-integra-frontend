@@ -431,6 +431,9 @@ public class CadastroClientesModal extends Dialog {
         contatoField = new TextField("Contato");
         horaField = new TimePicker("Hora Ligação");
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(dataField);
+
 
         telefoneField = new TextField("Telefone de Contato");
         celularField = new TextField("Celular");

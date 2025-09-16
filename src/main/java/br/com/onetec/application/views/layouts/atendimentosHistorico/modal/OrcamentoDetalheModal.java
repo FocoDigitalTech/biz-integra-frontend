@@ -35,6 +35,7 @@ import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
@@ -94,6 +95,7 @@ public class OrcamentoDetalheModal extends Dialog {
 
     private Button saveButton;
     private Button cancelButton;
+    private Button deleteButton;
     private MenuBar botaoContrato;
     private Button botaoPagamento;
 
@@ -525,7 +527,8 @@ public class OrcamentoDetalheModal extends Dialog {
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
-
+            deleteButton = new Button("Excluir", e -> deletaOrçamento(orcamento));
+            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
             //cadastroOrcamantosDadosFinanceiros = createFormCadastroOrcamantosDadosFinanceiros();
 
 
@@ -676,13 +679,26 @@ public class OrcamentoDetalheModal extends Dialog {
 
             // Adiciona o botão "Excluir" ao lado esquerdo e os outros ao lado direito
             // Alinha à esquerda
-            HorizontalLayout rightButtons = new HorizontalLayout(checkbox,saveButton, cancelButton);
+            HorizontalLayout rightButtons = new HorizontalLayout(deleteButton,checkbox,saveButton, cancelButton);
             footerLayout.add(rightButtons); // Alinha à direita
             getFooter().add(botaoinspecao,botaoContrato,botaoPagamento,downloadLink,footerLayout);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
     }
+
+    private void deletaOrçamento(SetOrcamento orcamento) {
+        try {
+            orcamentoService.exclusaoLogica(orcamento);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            orcamentoDiv.refreshGrid();
+            close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            service.notificaSucesso(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
 
     private void gerarContratoAnual() {
         if (valor_total.isEmpty()) {
@@ -1588,8 +1604,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setHeader("Valor total")
                 .setSortable(true)
                 .setAutoWidth(true);
-        gridNotaFiscal.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getDatavencimento_notafiscal().atStartOfDay()))
+        gridNotaFiscal.addColumn(this::formataDataVencimento)
                 .setHeader("Vencimento")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1664,6 +1679,12 @@ public class OrcamentoDetalheModal extends Dialog {
         return div;
     }
 
+    private Object formataDataVencimento(SetNotaFiscal data) {
+        if (Objects.nonNull(data.getDatavencimento_notafiscal()))
+        return UtilitySystemConfigService.
+                getDataFormatada(data.getDatavencimento_notafiscal().atStartOfDay());
+        else return null;
+    }
 
 
     private Div createFormCadastroFaturamento() {

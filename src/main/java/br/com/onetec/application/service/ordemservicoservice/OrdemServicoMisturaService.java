@@ -72,13 +72,13 @@ public class OrdemServicoMisturaService {
 
     public void update(SetOrdemServicoMisturas p) throws Exception {
         try {
-            Optional<SetOrdemServicoMisturas> optional = repository.findById(p.getId_ordemservico());
+            Optional<SetOrdemServicoMisturas> optional = repository.findById(p.getId_ordemservicomisturas());
             SetOrdemServicoMisturas entity = optional.get();
             entity = p;
             entity.setData_alteracao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
-            log.info("excluido !");
+            log.info("Alterado !");
         } catch (Exception e){
             throw new Exception();
         }

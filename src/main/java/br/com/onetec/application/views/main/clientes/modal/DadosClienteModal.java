@@ -836,6 +836,8 @@ public class DadosClienteModal extends Dialog {
 
     private Div createFormCadastroEmpresa() {
         dataField = new DatePicker("Data Cadastro");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(dataField);
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
         contatoField = new TextField("Contato");

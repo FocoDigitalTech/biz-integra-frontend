@@ -44,6 +44,10 @@ public class CompraProdutoModal {
         DatePicker datarecebimento_compraproduto = new DatePicker("Data Recebimento");
         TextField responsavelrecebimento_compraproduto = new TextField("Responsável Recebimento");
 
+        service.configuraCalendario(datafabricacao_compraproduto);
+        service.configuraCalendario(datavalidade_compraproduto);
+        service.configuraCalendario(datarecebimento_compraproduto);
+
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
 

@@ -113,6 +113,7 @@ public class CompraDetalhesModal extends Dialog {
     List<SetCondicaoPagamento> condicaopagamentoLista;
     List<SetFornecedor> fornecedorLista;
     List<SetContaCorrente> contacorrenteLista;
+    Tabs tabs = new Tabs();
 
 
     @Autowired
@@ -171,7 +172,7 @@ public class CompraDetalhesModal extends Dialog {
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
 
-            Tabs tabs = new Tabs();
+
             Tab tab1 = new Tab("Pedido Compra");
             Tab tab2 = new Tab("Items Pedido");
 
@@ -393,6 +394,11 @@ public class CompraDetalhesModal extends Dialog {
         AtomicInteger fatorConversao = new AtomicInteger();
         AtomicReference<String> unidadeEntrada = new AtomicReference<>();
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(datafabricacao_compraproduto);
+        service.configuraCalendario(datavalidade_compraproduto);
+        service.configuraCalendario(datarecebimento_compraproduto);
+
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
         id_produto.addValueChangeListener(event -> {
@@ -527,7 +533,7 @@ public class CompraDetalhesModal extends Dialog {
                 produtoList.add(produto);
                 produtoListAdcionar.add(produto);
                 grid.setItems(produtoList);
-                calculoTotalCompra(produto);
+                calculoTotalCompra(produto,compramodel.getValortotal_compra());
                 service.notificaSucesso("Produto Adcionado");
                 id_produto.clear();
                 //quantidade_compraproduto.clear();
@@ -568,8 +574,8 @@ public class CompraDetalhesModal extends Dialog {
 
     private BigDecimal valorTotalItems = BigDecimal.ZERO;
 
-    private void calculoTotalCompra(SetCompraProduto produto) {
-        // Adiciona o valor ao total e armazena o resultado em valorTotalItems
+    private void calculoTotalCompra(SetCompraProduto produto, BigDecimal valortotal_compra) {
+        valorTotalItems = valortotal_compra;
         valorTotalItems = valorTotalItems.add(produto.getValortotal_compraproduto());
 
         // Atualiza o valor do campo valoritemstotal_compra
@@ -616,6 +622,10 @@ public class CompraDetalhesModal extends Dialog {
     public void setComprarModel(SetCompra item) {
         UI.getCurrent().access(() -> {
             grid.setItems(new ArrayList<>());
+
+            if (tabs != null && !tabs.getChildren().findAny().isEmpty()) {
+                tabs.setSelectedIndex(0);
+            }
 
             this.compramodel = item;
 

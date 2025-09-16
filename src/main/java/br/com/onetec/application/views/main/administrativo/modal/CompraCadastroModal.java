@@ -212,10 +212,6 @@ public class CompraCadastroModal extends Dialog {
                 id_condicaopagamento.setRequiredIndicatorVisible(true);
                 id_condicaopagamento.setErrorMessage("Campo obrigatório");
                 id_condicaopagamento.setInvalid(true);
-            } else if  (valortotal_compra.isEmpty()) {
-                valortotal_compra.setRequiredIndicatorVisible(true);
-                valortotal_compra.setErrorMessage("Campo obrigatório");
-                valortotal_compra.setInvalid(true);
             } else {
                 // Define os valores dos campos no objeto SetFuncionario
                 compra.setId_fornecedor(id_fornecedor.getValue().getId_fornecedor());
@@ -273,6 +269,7 @@ public class CompraCadastroModal extends Dialog {
         valoritemstotal_compra = new TextField("Valor Total Items");
         valorfrete_compra = new TextField("Valor Frete");
         valordesconto_compra = new TextField("Valor Desconto");
+
 
         valoritemstotal_compra.addValueChangeListener(this::valueChanged);
         valordesconto_compra.addValueChangeListener(this::valueChanged);
@@ -362,6 +359,11 @@ public class CompraCadastroModal extends Dialog {
         totalEstoque = new TextField("Quantidade que sera adicionada em estoque :");
         totalEstoque.setReadOnly(true);
         totalEstoque.setVisible(false);
+
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(datavalidade_compraproduto);
+        service.configuraCalendario(datarecebimento_compraproduto);
+        service.configuraCalendario(datafabricacao_compraproduto);
 
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);

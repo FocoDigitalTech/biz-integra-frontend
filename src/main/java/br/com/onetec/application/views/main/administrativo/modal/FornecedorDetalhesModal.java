@@ -5,6 +5,7 @@ import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorContatoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
+import br.com.onetec.application.views.layouts.GenericGridEditor;
 import br.com.onetec.application.views.main.administrativo.component.CompraProdutoModal;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -94,6 +95,7 @@ public class FornecedorDetalhesModal extends Dialog {
     FornecedorDiv fornecedorDiv;
 
     private SetFornecedor fornecedorModel = null;
+    Tabs tabs = new Tabs();
 
     @Autowired
     public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
@@ -140,7 +142,7 @@ public class FornecedorDetalhesModal extends Dialog {
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
 
-            Tabs tabs = new Tabs();
+
             Tab tab1 = new Tab("Dados Fornecedor");
             Tab tab2 = new Tab("Contatos");
 
@@ -295,6 +297,9 @@ public class FornecedorDetalhesModal extends Dialog {
         id_estado.setItems(estadoService.listAll());
         id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(data_cadastro);
+
         id_setoratuacao.setItems(setorAtuacaoService.listAll());
         id_setoratuacao.setItemLabelGenerator(SetSetorAtuacao::getDescricao_setoratuacao);
 
@@ -368,6 +373,21 @@ public class FornecedorDetalhesModal extends Dialog {
                 .setHeader("Telefone")
                 .setSortable(true)
                 .setAutoWidth(true);
+         //cria editor genérico
+        GenericGridEditor<SetFornecedorContato> editor =
+                new GenericGridEditor<>(SetFornecedorContato.class);
+
+        // vincula o grid ao editor
+        editor.bind(gridContatos, item -> {
+            // aqui você chama seu service para persistir
+            try {
+                fornecedorContatoService.update(item);
+                var lista = fornecedorContatoService.listAllByFornecedorId(item.getId_fornecedor());
+                gridContatos.setItems(lista);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 //        gridContatos.addComponentColumn(e -> {
 //            // Cria o botão de deletar com um ícone de lixeira
 //            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
@@ -480,6 +500,7 @@ public class FornecedorDetalhesModal extends Dialog {
 
     public void setFornecedorModel(SetFornecedor item) {
         UI.getCurrent().access(() -> {
+            tabs.setSelectedIndex(0);
             this.fornecedorModel = item;
             gridContatos.setItems(new ArrayList<>());
 

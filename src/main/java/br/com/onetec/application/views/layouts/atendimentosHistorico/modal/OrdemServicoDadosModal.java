@@ -22,6 +22,7 @@ import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
+import br.com.onetec.application.views.layouts.GenericGridEditor;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ServicoModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
@@ -56,6 +57,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -157,6 +159,8 @@ public class OrdemServicoDadosModal extends Dialog {
     List<SetOrdemServicoPraga> listaOrdemServicoPragaUpdate = new ArrayList<>();
     private Grid<SetOrdemServicoPraga> ordemServicoPragaGrid;
 
+    Tabs tabs = new Tabs();
+
 
     @Autowired
     private ExecucaoServicoService execucaoServicoService;
@@ -230,7 +234,7 @@ public class OrdemServicoDadosModal extends Dialog {
 
             botaoinspecao.setVisible(true);
 
-            Tabs tabs = new Tabs();
+
             Tab tab1 = new Tab("Dados Principais");
             Tab tab2 = new Tab("Funcionarios Alocados");
             Tab tab3 = new Tab("Materiais");
@@ -584,6 +588,19 @@ public class OrdemServicoDadosModal extends Dialog {
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
+        // cria editor genérico
+//        GenericGridEditor<SetOrdemServicoMisturas> editor =
+//                new GenericGridEditor<>(SetOrdemServicoMisturas.class);
+//
+//        // vincula o grid ao editor
+//        editor.bind(ordemServicoMisturasGrid, item -> {
+//            // aqui você chama seu service para persistir
+//            try {
+//                ordemServicoMisturaService.update(item);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
 
         Button saveAdicionarButton = new Button("Adicionar", event -> {
             SetOrdemServicoMisturas dto = new SetOrdemServicoMisturas();
@@ -1157,7 +1174,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        ordemServicoMisturaService.update(p);
+                        ordemServicoMisturaService.save(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1170,7 +1187,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     p.setId_contrato(dto.getId_contrato());
                     p.setId_ordemservico(dto.getId_ordemservico());
                     try {
-                        ordemServicoPragaService.update(p);
+                        ordemServicoPragaService.save(p);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1207,7 +1224,11 @@ public class OrdemServicoDadosModal extends Dialog {
     this.ordemServico = item;
     //this.id_orcamento = item.getId_orcamento();
 
-        ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
+       // ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
+        if (tabs != null && !tabs.getChildren().findAny().isEmpty()) {
+            tabs.setSelectedIndex(0);
+        }
+        ordemServicoExecucaoGrid.setItems(new ArrayList<>());
         UI.getCurrent().access(() -> {
         List<SetTipoAtendimento> listasituacao = tipoAtendimentoService.listAll();
         List<SetFuncionario> listafuncionario = funcionarioService.listAll();
@@ -1249,7 +1270,7 @@ public class OrdemServicoDadosModal extends Dialog {
                 listAllByOrdemServicoId(item.getId_ordemservico());
         if (ordemServicoExecucaoServicoList.size() > 0){
             listaOrdemServicoExecucaoServico = ordemServicoExecucaoServicoList;
-            ordemServicoExecucaoGrid.setItems(ordemServicoExecucaoServicoList);
+            ordemServicoExecucaoGrid.setItems(listaOrdemServicoExecucaoServico);
             valor_ordemservicoexecucaoservico.clear();
             garantia_ordemservicoexecucaoservico.clear();
             descricao_ordemservicoexecucaoservico.clear();

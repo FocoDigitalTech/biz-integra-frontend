@@ -88,6 +88,8 @@ public class ContaCorrenteDetalheModal extends Dialog {
         numero_contacorrente = new TextField("Numero");
         limete_contacorrente = new NumberField("Limite");
         ultimolancamento_contacorrente = new DatePicker("Ultimo Lançamento");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(ultimolancamento_contacorrente);
 
         limete_contacorrente.setValueChangeMode(ValueChangeMode.EAGER);
         limete_contacorrente.addValueChangeListener(event -> service.formataMoedaBrasileiraNumberField(limete_contacorrente));

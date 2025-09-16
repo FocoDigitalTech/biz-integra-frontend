@@ -2,15 +2,13 @@ package br.com.onetec.application.views.main.estoque.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.estoqueservice.EstoqueService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssistenteService;
 import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetDepartamento;
-import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetProduto;
-import br.com.onetec.infra.db.model.SetTecnicoAssistente;
+import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,7 +37,8 @@ public class EstoqueDadosModal  extends Dialog {
     EstoqueService estoqueService;
 
     @Autowired
-    TecnicoAssistenteService tecnicoAssistenteService;
+    FuncionarioService funcionarioService;
+    // TecnicoAssistenteService tecnicoAssistenteService;
 
     @Autowired
     ProdutoService produtoService;
@@ -53,7 +52,7 @@ public class EstoqueDadosModal  extends Dialog {
     private Button btnExcluir;
 
     private ComboBox<SetProduto> id_produto;
-    private ComboBox <SetTecnicoAssistente> id_tecnicosassistentes;
+    private ComboBox <SetFuncionario> funcionarioComboBox;
     private Checkbox saida_controleproduto;
     private DatePicker data_controle;
     private IntegerField quantidade_enviada;
@@ -122,9 +121,11 @@ public class EstoqueDadosModal  extends Dialog {
 
 
         id_produto = new ComboBox<>("Nome Produto");
-        id_tecnicosassistentes = new ComboBox<>("Tecnico/Assistente");
+        funcionarioComboBox = new ComboBox<>("Funcionario: ");
         saida_controleproduto = new Checkbox("Saida Estoque ?");
         data_controle = new DatePicker("Data");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(data_controle);
 
         numero_lote = new TextField("Numero do Lote");
         unidade_entrada.setReadOnly(true);
@@ -134,14 +135,14 @@ public class EstoqueDadosModal  extends Dialog {
         id_produto.addValueChangeListener(event -> {
             unidade_entrada.setValue(event.getValue().getUnidade_entrada());
         });
-        id_tecnicosassistentes.setItems(tecnicoAssistenteService.findAll());
-        id_tecnicosassistentes.setItemLabelGenerator(SetTecnicoAssistente::getNome_tecnicoassistente);
+        funcionarioComboBox.setItems(funcionarioService.listAll());
+        funcionarioComboBox.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
 
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_produto, id_tecnicosassistentes, saida_controleproduto, data_controle, quantidade_enviada,
+        formLayout.add(id_produto, funcionarioComboBox, saida_controleproduto, data_controle, quantidade_enviada,
                 quantidade_devolvida, quantidade_consumida, unidade_entrada, numero_lote);
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -167,10 +168,11 @@ public class EstoqueDadosModal  extends Dialog {
 //        if (produto != null) {
 //            dto.setId_produto(produto.getId_produto());
 //        }
-//        SetTecnicoAssistente tecnicoAssistente = id_tecnicosassistentes.getValue();
-//        if (tecnicoAssistente != null){
-//            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_tecnicoassistente());
-//        }
+        SetFuncionario tecnicoAssistente = funcionarioComboBox.getValue();
+        if (tecnicoAssistente != null){
+            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_funcionario());
+            funcionarioComboBox.clear();
+        }
         dto.setAtivo("S");
         dto.setData_alteracao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
@@ -179,7 +181,6 @@ public class EstoqueDadosModal  extends Dialog {
             estoqueService.update(dto);
             movimentoDiv.refreshGrid();
             //id_produto.clear();
-            //id_tecnicosassistentes.clear();
             saida_controleproduto.clear();
             data_controle.clear();
             quantidade_enviada.clear();
@@ -223,10 +224,10 @@ public class EstoqueDadosModal  extends Dialog {
             unidade_entrada.setValue(produto.getUnidade_entrada());
 
 
-            List<SetTecnicoAssistente> tecnicolist = tecnicoAssistenteService.findAll();
+            List<SetFuncionario> tecnicolist = funcionarioService.listAll();
 
-             id_tecnicosassistentes.setValue(tecnicolist.stream()
-                     .filter(obj -> obj.getId_tecnicoassistente().equals(item.getId_tecnicosassistentes()))
+             funcionarioComboBox.setValue(tecnicolist.stream()
+                     .filter(obj -> obj.getId_funcionario().equals(item.getId_tecnicosassistentes()))
                      .findFirst().orElse(null));
 
 
