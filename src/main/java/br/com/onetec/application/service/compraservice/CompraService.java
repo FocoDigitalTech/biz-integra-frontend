@@ -52,7 +52,7 @@ public class CompraService {
             entity.setData_exclusao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
-            log.info("Cliente excluido !");
+            log.info("Pedido excluido !");
         } catch (Exception e){
             throw new Exception();
         }

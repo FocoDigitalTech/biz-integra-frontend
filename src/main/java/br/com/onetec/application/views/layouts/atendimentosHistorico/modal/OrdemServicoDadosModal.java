@@ -1229,6 +1229,10 @@ public class OrdemServicoDadosModal extends Dialog {
             tabs.setSelectedIndex(0);
         }
         ordemServicoExecucaoGrid.setItems(new ArrayList<>());
+        funcionarioAlocadoGrid.setItems(new ArrayList<>());
+        ordemServicoMateriaisGrid.setItems(new ArrayList<>());
+        ordemServicoMisturasGrid.setItems(new ArrayList<>());
+        ordemServicoPragaGrid.setItems(new ArrayList<>());
         UI.getCurrent().access(() -> {
         List<SetTipoAtendimento> listasituacao = tipoAtendimentoService.listAll();
         List<SetFuncionario> listafuncionario = funcionarioService.listAll();
@@ -1282,6 +1286,7 @@ public class OrdemServicoDadosModal extends Dialog {
             funcionarioAlocadoGrid.setItems(listaOrdemServicoFuncionarioAlocados);
             descricao_ordemservicofuncionarioalocado.clear();
         }
+
 
         List<SetOrdemServicoMateriais> ordemServicoMateriaisList = ordemServicoMateriaisService
                 .listAllByOrdemServicoId(item.getId_ordemservico());

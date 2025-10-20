@@ -366,7 +366,6 @@ public class DadosClienteModal extends Dialog {
     public DadosClienteModal() {
 
         UI.getCurrent().access(() -> {
-            addClassName("cadastro-modal");
 
             saveButton = new Button("Atualizar", eventbe -> save());
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));

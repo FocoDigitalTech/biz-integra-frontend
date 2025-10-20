@@ -502,6 +502,7 @@ public class FornecedorDetalhesModal extends Dialog {
         UI.getCurrent().access(() -> {
             tabs.setSelectedIndex(0);
             this.fornecedorModel = item;
+            listaContatosFornecedor = new ArrayList<>();
             gridContatos.setItems(new ArrayList<>());
 
             data_cadastro.setValue(item.getData_cadastro());

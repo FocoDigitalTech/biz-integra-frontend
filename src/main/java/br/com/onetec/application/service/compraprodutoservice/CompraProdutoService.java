@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -85,6 +86,12 @@ public class CompraProdutoService {
     }
 
     public List<SetCompraProduto> listAllByIdProduto(Integer id_produto) {
-        return repository.listAllByIdProduto(id_produto);
+        return repository.listAllByIdProduto(id_produto)
+                .stream()
+                .filter(produto -> produto.getNumerolote_compraproduto() != null &&
+                        !produto.getNumerolote_compraproduto().isBlank() &&
+                        !produto.getNumerolote_compraproduto().isEmpty() &&
+                        !produto.getNumerolote_compraproduto().equals(""))
+                .collect(Collectors.toList());
     }
 }

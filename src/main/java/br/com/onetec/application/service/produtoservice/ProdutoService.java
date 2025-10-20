@@ -143,7 +143,7 @@ public class ProdutoService {
             Optional<SetProduto> produtoOptional = repository.findById(id_produto);
             SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
             // Copiando os valores do DTO para a entidade existente
-            int total = entity.getQuantidade_estoque() - quantidade_compraproduto * entity.getFator_conversao();
+            int total = entity.getQuantidade_estoque() - quantidade_compraproduto;
             entity.setQuantidade_estoque(total);
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);

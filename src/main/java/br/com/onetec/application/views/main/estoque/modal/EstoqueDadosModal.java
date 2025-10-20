@@ -113,7 +113,7 @@ public class EstoqueDadosModal  extends Dialog {
         quantidade_devolvida.setStepButtonsVisible(true);
 
         quantidade_consumida = new IntegerField();
-        quantidade_consumida.setLabel("Quantidade Enviada");
+        quantidade_consumida.setLabel("Quantidade Consumida");
         quantidade_consumida.setMin(0);
         quantidade_consumida.setMax(1000);
         quantidade_consumida.setValue(0);

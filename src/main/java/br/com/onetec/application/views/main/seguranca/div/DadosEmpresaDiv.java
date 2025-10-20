@@ -198,14 +198,14 @@ public class DadosEmpresaDiv extends Div {
         layout.setSpacing(false);
 
 
-        HorizontalLayout footerLayout = new HorizontalLayout();
+        VerticalLayout footerLayout = new VerticalLayout();
         footerLayout.setWidthFull();
-        footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
         HorizontalLayout rightButtons = new HorizontalLayout(saveButton);
         footerLayout.add(rightButtons); // Alinha à direita
+        layout.add(footerLayout);
 
-        div.add(layout,footerLayout);
+        div.add(layout);
         div.setSizeFull();
         return div;
     }

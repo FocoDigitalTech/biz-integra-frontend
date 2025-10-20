@@ -35,7 +35,6 @@ import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
-import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
@@ -1421,6 +1420,12 @@ public class OrcamentoDetalheModal extends Dialog {
             listOrcamentoContatoNova.add(obj);
             service.notificaSucesso("Contato Adcionado");
             gridOrcamentoContato.setItems(listOrcamentoContato);
+            data_orcamentocontato.clear();
+            horario_orcamentocontato.clear();
+            nome_orcamentocontato.clear();
+            id_funcionarioContato.clear();
+            dataretorno_orcamentocontato.clear();
+            descricao_orcamentocontato.clear();
         });
 
         // Adiciona os componentes ao layout
@@ -1658,6 +1663,11 @@ public class OrcamentoDetalheModal extends Dialog {
             valortotal_notafiscal.clear();
             descricao_notafiscal.clear();
             gridNotaFiscal.setItems(listaNotas);
+            numero_notafiscal.clear();
+            dataemissao_notafiscal.clear();
+            datavencimento_notafiscal.clear();
+            valortotal_notafiscal.clear();
+            descricao_notafiscal.clear();
         });
 
         formLayout.add(numero_notafiscal,
@@ -1865,7 +1875,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
             }
         });
-        Button saveAdicionarButton = new Button("Adicionar Pagamento", event -> {
+        Button saveAdicionarButton = new Button("Adicionar Pagamento Individual", event -> {
 
             if (id_situacaopagamento.isEmpty()) {
                 id_situacaopagamento.setRequiredIndicatorVisible(true);
@@ -1896,6 +1906,14 @@ public class OrcamentoDetalheModal extends Dialog {
                 listaPagamentos.add(pay);
                 listaPagamentosNova.add(pay);
                 gridPagamento.setItems(listaPagamentos);
+                numeroparcela_pagamento.clear();
+                totalparcela_pagamento.clear();
+                vencimento_pagamento.clear();
+                valor_pagamento.clear();
+                data_pagamento.clear();
+                valorpago_pagamento.clear();
+                numerodocumento_pagamento.clear();
+                descricao_pagamento.clear();
             }
         });
 
@@ -2065,6 +2083,15 @@ public class OrcamentoDetalheModal extends Dialog {
             listaComissoes.add(comissoesNovo);
             listaComissoesNova.add(comissoesNovo);
             gridComissoes.setItems(listaComissoes);
+            id_funcionarioComissao.clear();
+            parcelas_comissoes.clear();
+            porcentagem_comissoes.clear();
+            data_comissao.clear();
+            valor_comissao.clear();
+            parcela_comisao.clear();
+            totalparcelas_comissao.clear();
+            datapagamento_comissao.clear();
+            descricao_comissao.clear();
         });
 
         formLayout.add(id_funcionarioComissao,
@@ -2953,6 +2980,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 listaComissoes = comissoes;
             }
             List<SetPagamento> setPagamentos = pagamentoService.findAllByOrcamentoId(item.getId_orcamento());
+            gridPagamento.setItems(new ArrayList<>());
             if (setPagamentos.size() > 0){
                 gridPagamento.setItems(setPagamentos);
                 listaPagamentos = setPagamentos;

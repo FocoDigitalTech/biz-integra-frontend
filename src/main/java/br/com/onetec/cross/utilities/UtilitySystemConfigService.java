@@ -389,4 +389,25 @@ public class UtilitySystemConfigService {
             return null;
         }
     }
+
+    public BigDecimal removeFormatoMoeda(String value) {
+        if (value == null || value.isBlank()) {
+            return BigDecimal.ZERO;
+        }
+
+        try {
+            // Remove "R$", espaços e pontos, e troca vírgula por ponto
+            String numeric = value
+                    .replace("R$", "")
+                    .replace(" ", "")
+                    .replace(".", "")
+                    .replace(",", ".");
+
+            return new BigDecimal(numeric);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return BigDecimal.ZERO;
+        }
+    }
+
 }

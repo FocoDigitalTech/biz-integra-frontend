@@ -7,7 +7,6 @@ import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagame
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
-import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ContatoModal;
 import br.com.onetec.application.views.main.administrativo.component.CompraProdutoModal;
 import br.com.onetec.application.views.main.administrativo.div.ComprasDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -42,9 +41,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -167,8 +168,8 @@ public class CompraDetalhesModal extends Dialog {
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
 
-            btnExcluir = new Button("Excluir");
-            btnExcluir.setVisible(false);
+            btnExcluir = new Button("Excluir", eventbe -> excluirPedido());
+            btnExcluir.setVisible(true);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
 
@@ -209,12 +210,33 @@ public class CompraDetalhesModal extends Dialog {
             footerLayout.setWidthFull();
             footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);// Alinha o conteúdo
 
-            HorizontalLayout rightButtons = new HorizontalLayout(valortotal_compra,btnExcluir);
+            HorizontalLayout rightButtons = new HorizontalLayout(valortotal_compra);
             footerLayout.add(rightButtons); // Alinha à direita
-            getFooter().add(footerLayout,saveButton, cancelButton);
+            getFooter().add(footerLayout,saveButton, cancelButton,btnExcluir);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
+    }
+
+    private void excluirPedido() {
+        if (produtoList.size() > 0 ) {
+            for (SetCompraProduto setCompraProduto : produtoList) {
+                if (Objects.nonNull(setCompraProduto.getId_compraproduto())) {
+                    produtoService.updateEstoqueQuantidadeAoDeletar(setCompraProduto.getId_produto(),
+                            setCompraProduto.getQuantidadefator_compraproduto());
+                    deleta(setCompraProduto);
+                }
+            }
+        }
+        try {
+            compraService.delete(compramodel);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            comprasDiv.refreshGrid();
+            close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
     }
 
     private void save() {
@@ -230,14 +252,6 @@ public class CompraDetalhesModal extends Dialog {
                 id_condicaopagamento.setRequiredIndicatorVisible(true);
                 id_condicaopagamento.setErrorMessage("Campo obrigatório");
                 id_condicaopagamento.setInvalid(true);
-            }else if (valoritemstotal_compra.isEmpty()) {
-                valoritemstotal_compra.setRequiredIndicatorVisible(true);
-                valoritemstotal_compra.setErrorMessage("Campo obrigatório");
-                valoritemstotal_compra.setInvalid(true);
-            }else if  (valortotal_compra.isEmpty()) {
-                valortotal_compra.setRequiredIndicatorVisible(true);
-                valortotal_compra.setErrorMessage("Campo obrigatório");
-                valortotal_compra.setInvalid(true);
             } else {
                 // Define os valores dos campos no objeto SetFuncionario
                 compra.setId_fornecedor(id_fornecedor.getValue().getId_fornecedor());
@@ -470,7 +484,7 @@ public class CompraDetalhesModal extends Dialog {
                 // Remove o item da lista
                 if (Objects.nonNull(e.getId_compraproduto())){
                     deleta(e);
-                    produtoService.updateEstoqueQuantidadeAoDeletar(e.getId_produto(), e.getQuantidade_compraproduto());
+                    produtoService.updateEstoqueQuantidadeAoDeletar(e.getId_produto(), e.getQuantidadefator_compraproduto());
                 } else {
                     //produtoList.add(e);
                 }
@@ -533,7 +547,7 @@ public class CompraDetalhesModal extends Dialog {
                 produtoList.add(produto);
                 produtoListAdcionar.add(produto);
                 grid.setItems(produtoList);
-                calculoTotalCompra(produto,compramodel.getValortotal_compra());
+                calculoTotalCompra(produto);
                 service.notificaSucesso("Produto Adcionado");
                 id_produto.clear();
                 //quantidade_compraproduto.clear();
@@ -574,20 +588,48 @@ public class CompraDetalhesModal extends Dialog {
 
     private BigDecimal valorTotalItems = BigDecimal.ZERO;
 
-    private void calculoTotalCompra(SetCompraProduto produto, BigDecimal valortotal_compra) {
-        valorTotalItems = valortotal_compra;
-        valorTotalItems = valorTotalItems.add(produto.getValortotal_compraproduto());
+    private void calculoTotalCompra(SetCompraProduto produto) {
+        String valorCampo = valoritemstotal_compra.getValue();
 
-        // Atualiza o valor do campo valoritemstotal_compra
-        valoritemstotal_compra.setValue(valorTotalItems.toString());
+        // Trata nulo, vazio ou apenas espaços
+        if (valorCampo == null || valorCampo.trim().isEmpty()) {
+            valorCampo = "0.0";
+        }
+
+        // Remove "R$", espaços e pontos de milhar, troca vírgula por ponto
+        valorCampo = valorCampo
+                .replace("R$", "")
+                .replace(" ", "")
+                .replace(".", "")
+                .replace(",", ".");
+
+        BigDecimal valorAtual;
+        try {
+            valorAtual = new BigDecimal(valorCampo);
+        } catch (NumberFormatException e) {
+            valorAtual = BigDecimal.ZERO; // fallback de segurança
+        }
+
+        // Soma o valor total
+        valorTotalItems = valorAtual.add(produto.getValortotal_compraproduto());
+
+        // Atualiza o campo com formatação monetária brasileira
+        NumberFormat formatoBR = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        valoritemstotal_compra.setValue(formatoBR.format(valorTotalItems));
     }
 
     private void calculoSubtrairTotalCompra(SetCompraProduto produto) {
         // Adiciona o valor ao total e armazena o resultado em valorTotalItems
+        valorTotalItems = service.removeFormatoMoeda(valoritemstotal_compra.getValue());
         valorTotalItems = valorTotalItems.subtract(produto.getValortotal_compraproduto());
 
+        // Se o resultado for negativo, zera o valor
+        if (valorTotalItems.compareTo(BigDecimal.ZERO) < 0) {
+            valorTotalItems = BigDecimal.ZERO;
+        }
         // Atualiza o valor do campo valoritemstotal_compra
         valoritemstotal_compra.setValue(valorTotalItems.toString());
+        save();
     }
 
 
