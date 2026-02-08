@@ -4,11 +4,12 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.estoqueservice.EstoqueService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
-import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssistenteService;
 import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetEstoque;
+import br.com.onetec.infra.db.model.SetFuncionario;
+import br.com.onetec.infra.db.model.SetProduto;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -31,7 +32,7 @@ import java.util.List;
 
 @Component
 @UIScope
-public class EstoqueDadosModal  extends Dialog {
+public class EstoqueDadosModal extends Dialog {
 
     @Autowired
     EstoqueService estoqueService;
@@ -46,13 +47,12 @@ public class EstoqueDadosModal  extends Dialog {
     @Autowired
     @Lazy
     MovimentoDiv movimentoDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
     private Button btnExcluir;
-
     private ComboBox<SetProduto> id_produto;
-    private ComboBox <SetFuncionario> funcionarioComboBox;
+    private ComboBox<SetFuncionario> funcionarioComboBox;
     private Checkbox saida_controleproduto;
     private DatePicker data_controle;
     private IntegerField quantidade_enviada;
@@ -60,18 +60,17 @@ public class EstoqueDadosModal  extends Dialog {
     private IntegerField quantidade_consumida;
     private TextField unidade_entrada;
     private TextField numero_lote;
-
     private SetEstoque estoqueModel;
-
-
 
 
     @Autowired
     public EstoqueDadosModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-                try { save();}
-                catch (Exception e) {}
+                try {
+                    save();
+                } catch (Exception e) {
+                }
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -85,12 +84,11 @@ public class EstoqueDadosModal  extends Dialog {
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-            getFooter().add(saveButton, cancelButton,btnExcluir);
+            getFooter().add(saveButton, cancelButton, btnExcluir);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
     }
-
 
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
@@ -139,7 +137,6 @@ public class EstoqueDadosModal  extends Dialog {
         funcionarioComboBox.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
 
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(id_produto, funcionarioComboBox, saida_controleproduto, data_controle, quantidade_enviada,
@@ -148,9 +145,6 @@ public class EstoqueDadosModal  extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
@@ -169,13 +163,14 @@ public class EstoqueDadosModal  extends Dialog {
 //            dto.setId_produto(produto.getId_produto());
 //        }
         SetFuncionario tecnicoAssistente = funcionarioComboBox.getValue();
-        if (tecnicoAssistente != null){
+        if (tecnicoAssistente != null) {
             dto.setId_tecnicosassistentes(tecnicoAssistente.getId_funcionario());
             funcionarioComboBox.clear();
         }
         dto.setAtivo("S");
         dto.setData_alteracao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        dto.setSaida_controleproduto(saida_controleproduto.getValue());
 
         try {
             estoqueService.update(dto);
@@ -193,17 +188,18 @@ public class EstoqueDadosModal  extends Dialog {
 //            }
             service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }
+
     private void deleta(SetEstoque item) {
         try {
             estoqueService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             close();
             movimentoDiv.refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -226,11 +222,12 @@ public class EstoqueDadosModal  extends Dialog {
 
             List<SetFuncionario> tecnicolist = funcionarioService.listAll();
 
-             funcionarioComboBox.setValue(tecnicolist.stream()
-                     .filter(obj -> obj.getId_funcionario().equals(item.getId_tecnicosassistentes()))
-                     .findFirst().orElse(null));
+            funcionarioComboBox.setValue(tecnicolist.stream()
+                    .filter(obj -> obj.getId_funcionario().equals(item.getId_tecnicosassistentes()))
+                    .findFirst().orElse(null));
 
 
+            saida_controleproduto.setValue(item.getSaida_controleproduto());
             data_controle.setValue(item.getData_controle());
             quantidade_enviada.setValue(Integer.valueOf(item.getQuantidade_enviada()));
             quantidade_devolvida.setValue(Integer.valueOf(item.getQuantidade_devolvida()));

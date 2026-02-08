@@ -14,8 +14,6 @@ import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
-import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -45,6 +43,27 @@ import java.util.Objects;
 @UIScope
 public class LancamentoFinanceiroModal extends Dialog {
 
+    private static SetFuncionario funcionario;
+    @Autowired
+    FuncionarioService funcionarioService;
+    @Autowired
+    EventoFinanceiroService eventoFinanceiroService;
+    @Autowired
+    FornecedorService fornecedorService;
+    @Autowired
+    ContaCorrenteService contaCorrenteService;
+    @Autowired
+    TipoEventoFinanceiroService tipoEventoFinanceiroService;
+    @Autowired
+    @Lazy
+    LancamentoFinanceiroDiv lancamentoFinanceiroDiv;
+    @Autowired
+    LancamentoService lancamentoService;
+    @Autowired
+    EstadoService estadoService1;
+    @Autowired
+    SetorAtuacaoService setorAtuacaoService1;
+    UtilitySystemConfigService service;
     private ComboBox<SetEventoFinanceiro> id_eventofinanceiro;
     //private ComboBox<SetContaCorrente> id_contacorrente;
     private ComboBox<SetFornecedor> id_fornecedor;
@@ -66,60 +85,17 @@ public class LancamentoFinanceiroModal extends Dialog {
     private TextField id_funcionariolancamento;
     private ComboBox<String> status_pagamento;
     private TextArea descricao_lancamento;
-
-    private static SetFuncionario funcionario;
-
-    @Autowired
-    FuncionarioService funcionarioService;
-
-    @Autowired
-    EventoFinanceiroService eventoFinanceiroService;
-
-    @Autowired
-    FornecedorService fornecedorService;
-
-    @Autowired
-    ContaCorrenteService contaCorrenteService;
-
-    @Autowired
-    TipoEventoFinanceiroService tipoEventoFinanceiroService;
-
-    @Autowired
-    @Lazy
-    LancamentoFinanceiroDiv lancamentoFinanceiroDiv;
-
-    @Autowired
-    LancamentoService lancamentoService;
-
-    @Autowired
-    EstadoService estadoService1;
-
-    @Autowired
-    SetorAtuacaoService setorAtuacaoService1;
-
-
     private Button saveButton;
     private Button cancelButton;
-
-    @Autowired
-    public void initServices( UtilitySystemConfigService service) {
-        this.service = service;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configuraCalendario(data_lancamento);
-            //service.configuraCalendario(data_contabil);
-            //service.configuraCalendario(data_pagamento);
-            service.configuraCalendario(datahora_lancamento);
-        });
-    }
-
 
 
     public LancamentoFinanceiroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-                try { save();}
-                catch (Exception e) {}
+                try {
+                    save();
+                } catch (Exception e) {
+                }
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -138,6 +114,17 @@ public class LancamentoFinanceiroModal extends Dialog {
         });
     }
 
+    @Autowired
+    public void initServices(UtilitySystemConfigService service) {
+        this.service = service;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configuraCalendario(data_lancamento);
+            //service.configuraCalendario(data_contabil);
+            //service.configuraCalendario(data_pagamento);
+            service.configuraCalendario(datahora_lancamento);
+        });
+    }
 
     private Div createFormCadastroEmpresa() {
 
@@ -217,8 +204,8 @@ public class LancamentoFinanceiroModal extends Dialog {
 
         id_eventofinanceiro.setItemLabelGenerator(SetEventoFinanceiro::getNome_eventofinanceiro);
         HorizontalLayout eventofinanceirolayout =
-                new CustomizedComboBox().customizeEventoFinanceiro(id_eventofinanceiro,eventoFinanceiroService,
-                                                                    tipoEventoFinanceiroService);
+                new CustomizedComboBox().customizeEventoFinanceiro(id_eventofinanceiro, eventoFinanceiroService,
+                        tipoEventoFinanceiroService);
 
         /*id_contacorrente.setItems(contaCorrenteService.findAll());
         id_contacorrente.setItemLabelGenerator(SetContaCorrente::getNome_contacorrente);
@@ -229,13 +216,13 @@ public class LancamentoFinanceiroModal extends Dialog {
         id_fornecedor.setItemLabelGenerator(SetFornecedor::getNomefantasia_fornecedor);
         HorizontalLayout fornecedorlayout =
                 new CustomizedComboBox().customizeFornecedor
-                        (id_fornecedor,fornecedorService,estadoService1,setorAtuacaoService1);
+                        (id_fornecedor, fornecedorService, estadoService1, setorAtuacaoService1);
 
 
         id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
         id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
         HorizontalLayout tipoeventofinanceirolayout =
-            new CustomizedComboBox().customizeTipoEventoFinanceiro(id_tipoeventofinanceiro,tipoEventoFinanceiroService);
+                new CustomizedComboBox().customizeTipoEventoFinanceiro(id_tipoeventofinanceiro, tipoEventoFinanceiroService);
         id_tipoeventofinanceiro.addValueChangeListener(event -> {
             SetTipoEventoFinanceiro selecionado = event.getValue();
             if (selecionado != null) {
@@ -247,7 +234,7 @@ public class LancamentoFinanceiroModal extends Dialog {
         //id_funcionariolancamento.setEnabled(false);
         funcionario = funcionarioService.findById(UsuarioAutenticadoConfig.getUser().getId_funcionario());
         id_funcionariolancamento.setReadOnly(true);
-        if (Objects.isNull(funcionario.getNome_funcionario())){
+        if (Objects.isNull(funcionario.getNome_funcionario())) {
             id_funcionariolancamento.setValue("Usuário sem funcionario associado");
         } else {
             id_funcionariolancamento.setValue(funcionario.getNome_funcionario());
@@ -257,38 +244,35 @@ public class LancamentoFinanceiroModal extends Dialog {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(tipoeventofinanceirolayout,
-                eventofinanceirolayout,status_pagamento,
-                    fornecedorlayout,
-                    nome_fluxorecebimentopagamento,
-                    quantidade_parcelas,
-                    descricao_lancamento,
-                    quantidade_intervalo,
-                    data_lancamento,
-                    valor_lancamento,
-                    valor_pagamento,
-                    numero_documento,
-                    valor_previsto,
-                    datahora_lancamento,
-                    id_funcionariolancamento);
+                eventofinanceirolayout, status_pagamento,
+                fornecedorlayout,
+                nome_fluxorecebimentopagamento,
+                quantidade_parcelas,
+                descricao_lancamento,
+                quantidade_intervalo,
+                data_lancamento,
+                valor_lancamento,
+                valor_pagamento,
+                numero_documento,
+                valor_previsto,
+                datahora_lancamento,
+                id_funcionariolancamento);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         try {
 
-            if (Objects.isNull(id_tipoeventofinanceiro.getValue())||
-                    Objects.isNull(id_eventofinanceiro.getValue())||
-                    Objects.isNull(id_fornecedor.getValue())||
-                    Objects.isNull(quantidade_parcelas.getValue())||
-                    Objects.isNull(quantidade_intervalo.getValue())||
-                    Objects.isNull(valor_lancamento.getValue())||
-                    Objects.isNull(status_pagamento.getValue())||
-                    Objects.isNull(data_lancamento.getValue())||
+            if (Objects.isNull(id_tipoeventofinanceiro.getValue()) ||
+                    Objects.isNull(id_eventofinanceiro.getValue()) ||
+                    Objects.isNull(id_fornecedor.getValue()) ||
+                    Objects.isNull(quantidade_parcelas.getValue()) ||
+                    Objects.isNull(quantidade_intervalo.getValue()) ||
+                    Objects.isNull(valor_lancamento.getValue()) ||
+                    Objects.isNull(status_pagamento.getValue()) ||
+                    Objects.isNull(data_lancamento.getValue()) ||
                     Objects.isNull(nome_fluxorecebimentopagamento.getValue())) {
                 service.notificaErro(ModalMessageConst.FIELD_ERROR);
 
@@ -367,7 +351,7 @@ public class LancamentoFinanceiroModal extends Dialog {
                     close();
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

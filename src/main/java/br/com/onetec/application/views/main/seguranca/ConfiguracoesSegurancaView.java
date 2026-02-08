@@ -24,21 +24,10 @@ import org.springframework.stereotype.Component;
 public class ConfiguracoesSegurancaView extends VerticalLayout {
 
 
-
     private UsuariosDiv usuariosDiv;
     private GrupoUsuariosDiv situacaoCadastroDiv;
     private DadosEmpresaDiv setorAtuacaoDiv;
 
-
-    @Autowired
-    public void initServices(UsuariosDiv usuariosDiv1,
-                            GrupoUsuariosDiv situacaoCadastroDiv1,
-                             DadosEmpresaDiv setorAtuacaoDiv1
-    ) {
-        this.usuariosDiv = usuariosDiv1;
-        this.situacaoCadastroDiv = situacaoCadastroDiv1;
-        this.setorAtuacaoDiv = setorAtuacaoDiv1;
-    }
 
     @Autowired
     public ConfiguracoesSegurancaView() {
@@ -56,6 +45,16 @@ public class ConfiguracoesSegurancaView extends VerticalLayout {
             tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
             add(tabSheet);
         });
+    }
+
+    @Autowired
+    public void initServices(UsuariosDiv usuariosDiv1,
+                             GrupoUsuariosDiv situacaoCadastroDiv1,
+                             DadosEmpresaDiv setorAtuacaoDiv1
+    ) {
+        this.usuariosDiv = usuariosDiv1;
+        this.situacaoCadastroDiv = situacaoCadastroDiv1;
+        this.setorAtuacaoDiv = setorAtuacaoDiv1;
     }
 
 }

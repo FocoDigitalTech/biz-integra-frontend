@@ -22,7 +22,7 @@ public class SituacaoPagamentoService {
     private ISetSituacaoPagamentoRepository repository;
 
     @Autowired
-    public void initServices (ISetSituacaoPagamentoRepository repository1){
+    public void initServices(ISetSituacaoPagamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -40,7 +40,7 @@ public class SituacaoPagamentoService {
     public void save(SetSituacaoPagamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -54,7 +54,7 @@ public class SituacaoPagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

@@ -26,16 +26,14 @@ import java.time.LocalDateTime;
 @UIScope
 public class ExecucaoServicoModal extends Dialog {
 
-    private TextArea decricaoField;
-    private TextField nomeField;
-
     @Autowired
     ExecucaoServicoService execucaoServicoService;
-
     @Autowired
     @Lazy
     ExecucaoServicoDiv execucaoServicoDiv;
-
+    UtilitySystemConfigService service;
+    private TextArea decricaoField;
+    private TextField nomeField;
     private com.vaadin.flow.component.button.Button saveButton;
     private com.vaadin.flow.component.button.Button cancelButton;
 
@@ -61,20 +59,16 @@ public class ExecucaoServicoModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
         nomeField = new TextField("Nome");
         decricaoField = new TextArea("Descrição");
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(nomeField,decricaoField);
+        formLayout.add(nomeField, decricaoField);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro

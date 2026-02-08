@@ -26,19 +26,17 @@ import java.time.LocalDateTime;
 @UIScope
 public class CondicaoPagamentoCadastroModal extends Dialog {
 
-    private TextField descricao_condicaopagamento;
-    private NumberField quantidade_parcelas;
-    private NumberField prazo_dd;
-
     @Autowired
     CondicaoPagamentoService condicaoPagamentoService;
-
     @Autowired
     @Lazy
     CondicaoPagamentoDiv condicaoPagamentoDiv;
+    UtilitySystemConfigService service;
+    private TextField descricao_condicaopagamento;
+    private NumberField quantidade_parcelas;
+    private NumberField prazo_dd;
     private Button saveButton;
     private Button cancelButton;
-
 
 
     public CondicaoPagamentoCadastroModal() {
@@ -62,7 +60,6 @@ public class CondicaoPagamentoCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
 
         descricao_condicaopagamento = new TextField("Nome");
@@ -77,9 +74,6 @@ public class CondicaoPagamentoCadastroModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -99,7 +93,7 @@ public class CondicaoPagamentoCadastroModal extends Dialog {
             prazo_dd.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

@@ -23,7 +23,7 @@ public class EnderecoService {
     @Autowired
     ClientesService clientesService;
 
-    public void save(List<Endereco> enderecos,Integer idCliente, Integer idUsuario) {
+    public void save(List<Endereco> enderecos, Integer idCliente, Integer idUsuario) {
         enderecos.forEach(e -> {
             SetEnderecos et = new SetEnderecos();
             et.setAtivo("S");
@@ -53,7 +53,7 @@ public class EnderecoService {
 
     public List<SetEnderecos> findAllClienteId(Integer id_cliente) {
         List<SetEnderecos> lista = repository.findAllByCliente(id_cliente);
-        if (lista != null && lista.size() > 0){
+        if (lista != null && lista.size() > 0) {
             return lista;
         } else {
             return new ArrayList<>();
@@ -75,13 +75,13 @@ public class EnderecoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     public List<SetEnderecos> updateListaNova(List<Endereco> enderecosLista, Integer id_cliente, Integer id_usuario) {
-        List<SetEnderecos> listaSalva  = new ArrayList<>();
+        List<SetEnderecos> listaSalva = new ArrayList<>();
         enderecosLista.forEach(e -> {
             SetEnderecos et = new SetEnderecos();
             et.setAtivo("S");
@@ -108,7 +108,7 @@ public class EnderecoService {
             repository.save(et);
         });
         listaSalva = findAllClienteId(id_cliente);
-            return listaSalva;
+        return listaSalva;
     }
 
     public void update(SetEnderecos item) throws Exception {
@@ -119,7 +119,7 @@ public class EnderecoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -144,8 +144,8 @@ public class EnderecoService {
 
     private boolean validaClienteAtivo(SetEnderecos p) {
         SetCliente cliente = clientesService.findById(p.getId_cliente());
-        if (Objects.nonNull(cliente)){
-            if (cliente.getAtivo().equals("S")){
+        if (Objects.nonNull(cliente)) {
+            if (cliente.getAtivo().equals("S")) {
                 return true;
             } else {
                 return false;

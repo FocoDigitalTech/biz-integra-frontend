@@ -26,17 +26,14 @@ import java.time.LocalDateTime;
 @UIScope
 public class ServicoCadastroModal extends Dialog {
 
-    private com.vaadin.flow.component.textfield.TextField decricaoField;
-
     @Autowired
     ServicoService servicoService;
-
     @Autowired
     @Lazy
     ServicoDiv servicoDiv;
-
+    UtilitySystemConfigService service;
+    private com.vaadin.flow.component.textfield.TextField decricaoField;
     private com.vaadin.flow.component.button.Button saveButton;
-
     private com.vaadin.flow.component.button.Button cancelButton;
 
     public ServicoCadastroModal() {
@@ -70,9 +67,6 @@ public class ServicoCadastroModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         // Lógica para salvar o cadastro
         SetServico dto = new SetServico();
@@ -87,7 +81,7 @@ public class ServicoCadastroModal extends Dialog {
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

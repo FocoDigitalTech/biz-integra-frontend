@@ -25,17 +25,15 @@ import java.time.LocalDateTime;
 @UIScope
 public class TipoMidiaCadastroModal extends Dialog {
 
-    private TextField decricaoField;
-
     @Autowired
     TipoMidiaService tipoMidiaService;
-
     @Autowired
     @Lazy
     TipoMidiaDiv tipoMidiaDiv;
+    UtilitySystemConfigService service;
+    private TextField decricaoField;
     private Button saveButton;
     private Button cancelButton;
-
 
 
     public TipoMidiaCadastroModal() {
@@ -59,7 +57,6 @@ public class TipoMidiaCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
         decricaoField = new TextField("Nome ou Descrição");
         FormLayout formLayout = new FormLayout();
@@ -69,9 +66,6 @@ public class TipoMidiaCadastroModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -87,7 +81,7 @@ public class TipoMidiaCadastroModal extends Dialog {
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

@@ -15,10 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.io.ObjectInputStream;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -28,7 +26,7 @@ public class ProdutoService {
     private ISetProdutoRepository repository;
 
     @Autowired
-    public void initServices (ISetProdutoRepository repository1){
+    public void initServices(ISetProdutoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -46,7 +44,7 @@ public class ProdutoService {
     public void save(SetProduto dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -61,7 +59,7 @@ public class ProdutoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -74,7 +72,7 @@ public class ProdutoService {
             // Copiando os valores do DTO para a entidade existente
             BeanUtils.copyProperties(dto, entity, "id_produto", "data_inclusao");
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -83,14 +81,14 @@ public class ProdutoService {
         try {
             Optional<SetProduto> produtoOptional = repository.findById(id_produto);
             return produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
 
     public List<SetProduto> findAll() {
-            return repository.listAll();
+        return repository.listAll();
     }
 
     @SneakyThrows
@@ -103,7 +101,7 @@ public class ProdutoService {
             int total = entity.getQuantidade_estoque() + pedido.getQuantidadefator_compraproduto();
             entity.setQuantidade_estoque(total);
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -117,7 +115,7 @@ public class ProdutoService {
             int total = entity.getQuantidade_estoque() - p.getQuantidadeconsumida_ordemservicomateriais();
             entity.setQuantidade_estoque(total);
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -132,7 +130,7 @@ public class ProdutoService {
             entity.setQuantidade_estoque(total);
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -147,7 +145,7 @@ public class ProdutoService {
             entity.setQuantidade_estoque(total);
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

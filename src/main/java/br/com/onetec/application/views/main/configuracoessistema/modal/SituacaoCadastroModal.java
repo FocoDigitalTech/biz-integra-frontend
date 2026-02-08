@@ -25,17 +25,14 @@ import java.time.LocalDateTime;
 @UIScope
 public class SituacaoCadastroModal extends Dialog {
 
-    private TextField decricaoField;
-
     @Autowired
     SituacaoCadastroService situacaoCadastroService;
-
     @Autowired
     @Lazy
     SituacaoCadastroDiv situacaoCadastroDiv;
-
+    UtilitySystemConfigService service;
+    private TextField decricaoField;
     private Button saveButton;
-
     private Button cancelButton;
 
     public SituacaoCadastroModal() {
@@ -69,9 +66,6 @@ public class SituacaoCadastroModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         // Lógica para salvar o cadastro
         SetSituacaoCadastro dto = new SetSituacaoCadastro();
@@ -86,7 +80,7 @@ public class SituacaoCadastroModal extends Dialog {
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

@@ -22,7 +22,7 @@ public class CodigoNumeracaoService {
 
 
     @Autowired
-    public void initServices (ISetCodigoNumeracaoRepository repository1){
+    public void initServices(ISetCodigoNumeracaoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -44,7 +44,7 @@ public class CodigoNumeracaoService {
         try {
 
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
         return dto;
@@ -59,13 +59,13 @@ public class CodigoNumeracaoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
 
-    public List<SetCodigoNumeracao> findAll () {
+    public List<SetCodigoNumeracao> findAll() {
         return repository.findAll();
     }
 
@@ -86,7 +86,7 @@ public class CodigoNumeracaoService {
             entity.setId_usuario(codigoNumeracao.getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

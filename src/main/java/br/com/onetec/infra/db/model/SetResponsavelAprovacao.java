@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "tb_responsavelaprovacao")
-public class SetResponsavelAprovacao{
+public class SetResponsavelAprovacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

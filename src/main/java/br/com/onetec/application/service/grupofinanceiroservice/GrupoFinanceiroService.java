@@ -21,7 +21,7 @@ public class GrupoFinanceiroService {
     private ISetGrupoFinanceiroRepository repository;
 
     @Autowired
-    public void initServices (ISetGrupoFinanceiroRepository repository1){
+    public void initServices(ISetGrupoFinanceiroRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class GrupoFinanceiroService {
     public void save(SetGrupoFinanceiro dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,13 +53,13 @@ public class GrupoFinanceiroService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     public List<SetGrupoFinanceiro> findAll() {
-            return repository.listAll();
+        return repository.listAll();
     }
 
     public void update(SetGrupoFinanceiro dto) throws Exception {
@@ -71,7 +71,7 @@ public class GrupoFinanceiroService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

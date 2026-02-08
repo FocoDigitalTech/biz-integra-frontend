@@ -22,7 +22,7 @@ public class TipoPagamentoService {
     private ISetTipoPagamentoRepository repository;
 
     @Autowired
-    public void initServices (ISetTipoPagamentoRepository repository1){
+    public void initServices(ISetTipoPagamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -40,7 +40,7 @@ public class TipoPagamentoService {
     public void save(SetTipoPagamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -54,7 +54,7 @@ public class TipoPagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -73,7 +73,7 @@ public class TipoPagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -82,8 +82,8 @@ public class TipoPagamentoService {
     public SetTipoPagamento findById(Integer id_tipopagamento) {
         try {
             Optional<SetTipoPagamento> optional = repository.findById(id_tipopagamento);
-          return optional.get();
-        } catch (Exception e){
+            return optional.get();
+        } catch (Exception e) {
             throw new Exception();
         }
     }

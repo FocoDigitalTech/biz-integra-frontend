@@ -21,7 +21,7 @@ public class EventoFinanceiroService {
     private ISetEventoFinanceiroRepository repository;
 
     @Autowired
-    public void initServices (ISetEventoFinanceiroRepository repository1){
+    public void initServices(ISetEventoFinanceiroRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class EventoFinanceiroService {
     public void save(SetEventoFinanceiro dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class EventoFinanceiroService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -71,7 +71,7 @@ public class EventoFinanceiroService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

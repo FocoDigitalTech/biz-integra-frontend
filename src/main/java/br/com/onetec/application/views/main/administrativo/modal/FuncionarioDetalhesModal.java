@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -35,12 +34,15 @@ import java.util.List;
 public class FuncionarioDetalhesModal extends Dialog {
 
 
+    private static List<SetEstado> estadoList;
     private final FuncionarioService funcionarioService;
     private final DepartamentoService departamentoService;
-
+    @Autowired
+    @Lazy
+    FuncionarioDiv funcionarioDiv;
     private Button saveButton;
-    private  Button cancelButton;
-    private  Button deleteButton;
+    private Button cancelButton;
+    private Button deleteButton;
     private ComboBox<SetDepartamento> id_departamento;
     private TextField nome_funcionario;
     private TextField nome_carteira;
@@ -62,31 +64,9 @@ public class FuncionarioDetalhesModal extends Dialog {
     private TextField numero_imovel;
     private DatePicker vencimento_cnh;
     private DatePicker data_admissao;
-
-
-    private EstadoService estadoService ;
-
+    private EstadoService estadoService;
     private UtilitySystemConfigService service;
-
-    private static List<SetEstado> estadoList;
-
-    @Autowired
-    @Lazy
-    FuncionarioDiv funcionarioDiv;
-
-    @Autowired
-    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
-        this.estadoService = serviceEstado;
-        this.service = service;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configureCEPField(cep_funcionario);
-            service.configureCelularField(celular_funcionario);
-            service.configureCPFField(cpf_funcionario);
-            service.configuraCalendario(data_admissao);
-            service.configuraCalendario(vencimento_cnh);
-        });
-    }
+    private SetFuncionario funcionarioPoint = null;
 
 
     @Autowired
@@ -123,13 +103,27 @@ public class FuncionarioDetalhesModal extends Dialog {
         });
     }
 
+    @Autowired
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
+        this.estadoService = serviceEstado;
+        this.service = service;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_funcionario);
+            service.configureCelularField(celular_funcionario);
+            service.configureCPFField(cpf_funcionario);
+            service.configuraCalendario(data_admissao);
+            service.configuraCalendario(vencimento_cnh);
+        });
+    }
+
     private void deleta(SetFuncionario funcionarioPoint) {
         try {
             funcionarioService.delete(funcionarioPoint);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             funcionarioDiv.refreshGrid();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -173,7 +167,7 @@ public class FuncionarioDetalhesModal extends Dialog {
             service.notificaSucesso("Atualizado com sucesso");
             funcionarioDiv.refreshGridFuncionario();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             Notification.show("Erro ao Salvar");
         }
 
@@ -225,26 +219,19 @@ public class FuncionarioDetalhesModal extends Dialog {
         numero_imovel = new TextField("N° Residencia");
 
 
-
-
-
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_departamento,nome_funcionario,
-                nome_carteira,celular_funcionario,rg_funcionario,
-                cpf_funcionario,titulo_eleitor,reservista_militar,numero_ctps,serie_ctps,
-                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,cep_funcionario,endereco_funcionario,numero_imovel,complemento_funcionario,bairro_funcionario,
-                cidade_funcionario,id_estado);
+        formLayout.add(id_departamento, nome_funcionario,
+                nome_carteira, celular_funcionario, rg_funcionario,
+                cpf_funcionario, titulo_eleitor, reservista_militar, numero_ctps, serie_ctps,
+                pis_funcionario, cnh_funcionario, vencimento_cnh, data_admissao, cep_funcionario, endereco_funcionario, numero_imovel, complemento_funcionario, bairro_funcionario,
+                cidade_funcionario, id_estado);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
 
         return div;
     }
-
-
-
 
     private void buscarCep() {
         EApiEnderecoResponse response = service.buscarCep(cep_funcionario);
@@ -255,43 +242,41 @@ public class FuncionarioDetalhesModal extends Dialog {
         id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
     }
 
-    private SetFuncionario funcionarioPoint = null;
-
     public void setFuncionario(SetFuncionario item) {
         UI.getCurrent().access(() -> {
-        this.funcionarioPoint = item;
-        nome_funcionario.setValue(item.getNome_funcionario());
-        nome_carteira.setValue(item.getNome_carteira());
-        endereco_funcionario.setValue(item.getEndereco_funcionario());
-        complemento_funcionario.setValue(item.getComplemento_funcionario());
-        bairro_funcionario.setValue(item.getBairro_funcionario());
-        cep_funcionario.setValue(item.getCep_funcionario());
-        cidade_funcionario.setValue(item.getCidade_funcionario());
-        //id_estado;
-        celular_funcionario.setValue(item.getCelular_funcionario());
-        rg_funcionario.setValue(item.getRg_funcionario());
-        cpf_funcionario.setValue(item.getCpf_funcionario());
-        titulo_eleitor.setValue(item.getTitulo_eleitor());
-        reservista_militar.setValue(item.getReservista_militar());
-        numero_ctps.setValue(item.getNumero_ctps());
-        serie_ctps.setValue(item.getNumero_ctps());
-        pis_funcionario.setValue(item.getPis_funcionario());
-        cnh_funcionario.setValue(item.getCnh_funcionario());
-        //numero_imovel.setValue(item.getNumeroimovel_funcionario());
-        vencimento_cnh.setValue(item.getVencimento_cnh());
-        data_admissao.setValue(item.getData_admissao());
+            this.funcionarioPoint = item;
+            nome_funcionario.setValue(item.getNome_funcionario());
+            nome_carteira.setValue(item.getNome_carteira());
+            endereco_funcionario.setValue(item.getEndereco_funcionario());
+            complemento_funcionario.setValue(item.getComplemento_funcionario());
+            bairro_funcionario.setValue(item.getBairro_funcionario());
+            cep_funcionario.setValue(item.getCep_funcionario());
+            cidade_funcionario.setValue(item.getCidade_funcionario());
+            //id_estado;
+            celular_funcionario.setValue(item.getCelular_funcionario());
+            rg_funcionario.setValue(item.getRg_funcionario());
+            cpf_funcionario.setValue(item.getCpf_funcionario());
+            titulo_eleitor.setValue(item.getTitulo_eleitor());
+            reservista_militar.setValue(item.getReservista_militar());
+            numero_ctps.setValue(item.getNumero_ctps());
+            serie_ctps.setValue(item.getNumero_ctps());
+            pis_funcionario.setValue(item.getPis_funcionario());
+            cnh_funcionario.setValue(item.getCnh_funcionario());
+            numero_imovel.setValue(item.getNumeroimovel_funcionario());
+            vencimento_cnh.setValue(item.getVencimento_cnh());
+            data_admissao.setValue(item.getData_admissao());
 
-        List<SetDepartamento> departamentoLista = departamentoService.findAllDepartamento();
+            List<SetDepartamento> departamentoLista = departamentoService.findAllDepartamento();
 
-        id_departamento.setValue(departamentoLista.stream()
-                .filter(objeto -> objeto.getId_departamento().equals(item.getId_departamento()))
-                .findFirst().orElse(null));
+            id_departamento.setValue(departamentoLista.stream()
+                    .filter(objeto -> objeto.getId_departamento().equals(item.getId_departamento()))
+                    .findFirst().orElse(null));
 
-        List<SetEstado> listaEstado = estadoService.listAll();
+            List<SetEstado> listaEstado = estadoService.listAll();
 
-        id_estado.setValue(listaEstado.stream()
-                .filter(objeto -> objeto.getId_estado().equals(item.getId_estado()))
-                .findFirst().orElse(null));
+            id_estado.setValue(listaEstado.stream()
+                    .filter(objeto -> objeto.getId_estado().equals(item.getId_estado()))
+                    .findFirst().orElse(null));
         });
     }
 

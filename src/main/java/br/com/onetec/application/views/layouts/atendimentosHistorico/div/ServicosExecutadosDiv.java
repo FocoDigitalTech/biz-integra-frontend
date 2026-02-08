@@ -38,18 +38,21 @@ import java.util.Objects;
 public class ServicosExecutadosDiv extends Div {
 
     List<SetDepartamento> departamentoLista = new ArrayList<>();
+    Button btnExcluir;
     private Grid<SetOrdemServico> setOrdemServicoGrid;
-
     private ServicosExecutadosDiv.FiltersFuncionario filtersordemsservico;
-
     private OrdemServicoService ordemServicoService;
-
     private ClientesService clientesService;
-
     private OrdemServicoCadastroModal ordemServicoCadastroModal;
 
-    Button btnExcluir;
 
+    @Autowired
+    public ServicosExecutadosDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
 
     @Autowired
     public void initServices(OrdemServicoCadastroModal ordemServicoCadastroModal1,
@@ -62,15 +65,6 @@ public class ServicosExecutadosDiv extends Div {
             // Código para atualizar a AdministrativoView
             refreshGridFuncionario();
         });
-    }
-
-
-    @Autowired
-    public ServicosExecutadosDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -141,7 +135,7 @@ public class ServicosExecutadosDiv extends Div {
                 .setAutoWidth(true);
 
         setOrdemServicoGrid.addColumn(data -> {
-            if (Objects.nonNull(data.getDatainicio_ordemservico())){
+            if (Objects.nonNull(data.getDatainicio_ordemservico())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getDatainicio_ordemservico().atStartOfDay());
             } else {
@@ -168,15 +162,12 @@ public class ServicosExecutadosDiv extends Div {
                 .setAutoWidth(true);
 
         setOrdemServicoGrid.addColumn(funcionario -> {
-                    SetCliente departamento = clientesService.findById(funcionario.getId_cliente());
-                    return departamento == null ? "N/A" : departamento.getNome_cliente();
-                })
+            SetCliente departamento = clientesService.findById(funcionario.getId_cliente());
+            return departamento == null ? "N/A" : departamento.getNome_cliente();
+        })
                 .setHeader("Cliente")
                 .setSortable(true)
                 .setAutoWidth(true);
-
-
-
 
 
         // Adiciona o listener de clique nos itens da grade
@@ -193,13 +184,24 @@ public class ServicosExecutadosDiv extends Div {
 
         return setOrdemServicoGrid;
     }
+
     private void openDetalhesFuncionarioModal(SetFuncionario item) {
         btnExcluir = new Button();
         btnExcluir.setVisible(true);
         btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR);
     }
 
+    private Button createFuncionarioCadastroButton() {
 
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroFuncionarioModal() {
+        SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
+        SetClienteTransiction.setCliente(entidade);
+        ordemServicoCadastroModal.open();
+    }
 
     public class FiltersFuncionario extends Div implements Specification<SetOrdemServico> {
 
@@ -220,7 +222,6 @@ public class ServicosExecutadosDiv extends Div {
             //adcionar lista de funcionarios abaixo
 
 
-
             // Action buttons
             com.vaadin.flow.component.button.Button resetBtn = new com.vaadin.flow.component.button.Button("Limpar");
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -235,14 +236,12 @@ public class ServicosExecutadosDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
-            add(id, nome,  actions);
+            add(id, nome, actions);
         }
-
 
 
         @Override
@@ -300,18 +299,5 @@ public class ServicosExecutadosDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroFuncionarioModal() {
-        SetCliente entidade = (SetCliente) UI.getCurrent().getSession().getAttribute("cliente");
-        SetClienteTransiction.setCliente(entidade);
-        ordemServicoCadastroModal.open();
     }
 }

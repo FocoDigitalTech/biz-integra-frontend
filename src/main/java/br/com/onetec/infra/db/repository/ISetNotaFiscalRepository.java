@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface ISetNotaFiscalRepository  extends CrudRepository<SetNotaFiscal, Integer>
+public interface ISetNotaFiscalRepository extends CrudRepository<SetNotaFiscal, Integer>
         , JpaSpecificationExecutor<SetNotaFiscal> {
 
     @Query(value = "SELECT * FROM tb_notafiscal where ativo = 'S'", nativeQuery = true)

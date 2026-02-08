@@ -41,7 +41,7 @@ public class CompraProdutoService {
     public void save(SetCompraProduto dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -55,7 +55,7 @@ public class CompraProdutoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Cliente excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -66,7 +66,7 @@ public class CompraProdutoService {
             SetCompraProduto entity = optional.get();
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -80,7 +80,7 @@ public class CompraProdutoService {
         try {
             List<SetCompraProduto> optional = repository.findByIdCompra(id_compra);
             return optional;
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

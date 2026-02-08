@@ -83,8 +83,8 @@ public class ClientesService {
             setCliente.setData_exclusao(LocalDateTime.now());
             setCliente.setAtivo("N");
             setCliente.setId_usuario(user.getId_usuario());
-          repository.save(setCliente);
-          log.info("Cliente excluido !");
+            repository.save(setCliente);
+            log.info("Cliente excluido !");
         } catch (Exception e) {
             throw new Exception();
         }

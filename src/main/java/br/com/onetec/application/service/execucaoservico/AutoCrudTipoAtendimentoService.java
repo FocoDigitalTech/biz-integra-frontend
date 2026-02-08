@@ -4,7 +4,6 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetTipoAtendimento;
-import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;

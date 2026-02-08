@@ -55,6 +55,14 @@ public class PragasDiv extends Div {
     private PragaDetalheModal pragaDetalheModal;
 
     @Autowired
+    public PragasDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(PragaService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -65,15 +73,6 @@ public class PragasDiv extends Div {
         this.usuarioService = usuarioService1;
         this.pragaCadastroModal = pragaCadastroModal1;
         this.pragaDetalheModal = pragaDetalheModal1;
-    }
-
-
-    @Autowired
-    public PragasDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -135,7 +134,7 @@ public class PragasDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -155,7 +154,7 @@ public class PragasDiv extends Div {
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -173,7 +172,6 @@ public class PragasDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> pragaService.list(
@@ -211,6 +209,16 @@ public class PragasDiv extends Div {
         return grid;
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            pragaCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetPraga> {
 
@@ -226,8 +234,6 @@ public class PragasDiv extends Div {
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -248,15 +254,13 @@ public class PragasDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -303,17 +307,5 @@ public class PragasDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            pragaCadastroModal.open();
-        });
     }
 }

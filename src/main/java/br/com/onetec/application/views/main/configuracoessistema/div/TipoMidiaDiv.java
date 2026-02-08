@@ -35,7 +35,7 @@ import java.util.Objects;
 
 @Component
 @UIScope
-public class TipoMidiaDiv extends Div{
+public class TipoMidiaDiv extends Div {
 
     List<SetTipoMidia> list = new ArrayList<>();
     private Grid<SetTipoMidia> grid;
@@ -57,6 +57,14 @@ public class TipoMidiaDiv extends Div{
 
 
     @Autowired
+    public TipoMidiaDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(TipoMidiaService tipoMidiaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -71,15 +79,6 @@ public class TipoMidiaDiv extends Div{
 //            // Código para atualizar a AdministrativoView
 //            refreshGridFuncionario();
 //        });
-    }
-
-
-    @Autowired
-    public TipoMidiaDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -150,7 +149,7 @@ public class TipoMidiaDiv extends Div{
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -168,7 +167,6 @@ public class TipoMidiaDiv extends Div{
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> tipoMidiaService.list(
@@ -211,11 +209,21 @@ public class TipoMidiaDiv extends Div{
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            tipoMidiaCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetTipoMidia> {
 
@@ -231,8 +239,6 @@ public class TipoMidiaDiv extends Div{
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -253,15 +259,13 @@ public class TipoMidiaDiv extends Div{
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -308,18 +312,6 @@ public class TipoMidiaDiv extends Div{
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            tipoMidiaCadastroModal.open();
-        });
     }
 
 

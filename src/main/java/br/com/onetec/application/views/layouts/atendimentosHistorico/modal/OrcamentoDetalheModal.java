@@ -843,7 +843,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 // Edita o documento Word
 
                 LocalDate data= datainicio_execucao.getValue();
-              // meses_garantia;
+                // meses_garantia;
 
 
                 Integer meses = quantidade_aplicacoes.getValue();
@@ -949,7 +949,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 // Edita o documento Word
                 SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
                 SetTipoMidia midia = tipoMidiaService.findByIdMidia(orcamento.getId_anuncio()
-                 );
+                );
                 SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
                 SetEstado uf = estadoService.findById(enderecos.getId_estado());
                 SetTipoImovel tipoImovel = tipoImovelService.findByIdImovel(enderecos.getId_tipoimovel());
@@ -1067,58 +1067,58 @@ public class OrcamentoDetalheModal extends Dialog {
 
         orcamentoposvendaGrid = new Grid<>(SetOrcamentoPosVenda.class, false);
         orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
-            Span span = new Span(orc.getBomatendimento_orcamentoposvenda());
-            if ("SIM".equals(orc.getBomatendimento_orcamentoposvenda())) {
-                span.getStyle().set("color", "green");
-            } else {
-                span.getStyle().set("color", "red");
-            }
-            return span;
-        }))
+                    Span span = new Span(orc.getBomatendimento_orcamentoposvenda());
+                    if ("SIM".equals(orc.getBomatendimento_orcamentoposvenda())) {
+                        span.getStyle().set("color", "green");
+                    } else {
+                        span.getStyle().set("color", "red");
+                    }
+                    return span;
+                }))
                 .setHeader("Bem atendido ?")
                 .setSortable(true)
                 .setAutoWidth(true);
         orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
-            Span span = new Span(orc.getFuncionariosuniformizados_orcamentoposvenda());
-            if ("SIM".equals(orc.getFuncionariosuniformizados_orcamentoposvenda())) {
-                span.getStyle().set("color", "green");
-            } else {
-                span.getStyle().set("color", "red");
-            }
-            return span;
-        }))
+                    Span span = new Span(orc.getFuncionariosuniformizados_orcamentoposvenda());
+                    if ("SIM".equals(orc.getFuncionariosuniformizados_orcamentoposvenda())) {
+                        span.getStyle().set("color", "green");
+                    } else {
+                        span.getStyle().set("color", "red");
+                    }
+                    return span;
+                }))
                 .setHeader("Funcionarios Uniformizados ?")
                 .setSortable(true)
                 .setAutoWidth(true);
         orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
-            Span span = new Span(orc.getDuvidas_orcamentoposvenda());
-            if ("SIM".equals(orc.getDuvidas_orcamentoposvenda())) {
-                span.getStyle().set("color", "green");
-            } else {
-                span.getStyle().set("color", "red");
-            }
-            return span;
-            }))
+                    Span span = new Span(orc.getDuvidas_orcamentoposvenda());
+                    if ("SIM".equals(orc.getDuvidas_orcamentoposvenda())) {
+                        span.getStyle().set("color", "green");
+                    } else {
+                        span.getStyle().set("color", "red");
+                    }
+                    return span;
+                }))
                 .setHeader("Duvidas ?")
                 .setSortable(true)
                 .setAutoWidth(true);
         orcamentoposvendaGrid.addColumn(new ComponentRenderer<>(orc -> {
-            Span span = new Span(String.valueOf(orc.getNotegeral_orcamentoposvenda()));
-            Integer nota = orc.getNotegeral_orcamentoposvenda();
-            if (nota >= 4 ) {
-                span.getStyle().set("color", "green");
-            }if (nota == 3) {
-                span.getStyle().set("color", "yellow");
-            } else {
-                span.getStyle().set("color", "red");
-            }
-            return span;
-        }))
+                    Span span = new Span(String.valueOf(orc.getNotegeral_orcamentoposvenda()));
+                    Integer nota = orc.getNotegeral_orcamentoposvenda();
+                    if (nota >= 4 ) {
+                        span.getStyle().set("color", "green");
+                    }if (nota == 3) {
+                        span.getStyle().set("color", "yellow");
+                    } else {
+                        span.getStyle().set("color", "red");
+                    }
+                    return span;
+                }))
                 .setHeader("Nota Geral")
                 .setSortable(true)
                 .setAutoWidth(true);
         orcamentoposvendaGrid.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getData_inclusao()))
+                        getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1347,13 +1347,13 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         gridOrcamentoContato.addColumn(data -> {
-            if (Objects.nonNull(data.getData_orcamentocontato())){
-                return UtilitySystemConfigService.
-                        getDataFormatada(data.getData_orcamentocontato().atStartOfDay());
-            } else {
-                return "";
-            }
-        })
+                    if (Objects.nonNull(data.getData_orcamentocontato())){
+                        return UtilitySystemConfigService.
+                                getDataFormatada(data.getData_orcamentocontato().atStartOfDay());
+                    } else {
+                        return "";
+                    }
+                })
                 .setHeader("Data")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1390,7 +1390,7 @@ public class OrcamentoDetalheModal extends Dialog {
             } else {
                 service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
             }
-            });
+        });
 
         formLayout.setWidthFull();
         Accordion accordion = new Accordion();
@@ -1614,7 +1614,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         gridNotaFiscal.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getDataemissao_notafiscal().atStartOfDay()))
+                        getDataFormatada(data.getDataemissao_notafiscal().atStartOfDay()))
                 .setHeader("Emissão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1691,8 +1691,8 @@ public class OrcamentoDetalheModal extends Dialog {
 
     private Object formataDataVencimento(SetNotaFiscal data) {
         if (Objects.nonNull(data.getDatavencimento_notafiscal()))
-        return UtilitySystemConfigService.
-                getDataFormatada(data.getDatavencimento_notafiscal().atStartOfDay());
+            return UtilitySystemConfigService.
+                    getDataFormatada(data.getDatavencimento_notafiscal().atStartOfDay());
         else return null;
     }
 
@@ -1817,7 +1817,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         gridPagamento.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getVencimento_pagamento().atStartOfDay()))
+                        getDataFormatada(data.getVencimento_pagamento().atStartOfDay()))
                 .setHeader("Vencimento")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -1830,12 +1830,12 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         gridPagamento.addColumn(data -> {
-            if (Objects.nonNull(data.getData_pagamento())){
-                return UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao());
-            } else {
-                return "";
-            }
+                    if (Objects.nonNull(data.getData_pagamento())){
+                        return UtilitySystemConfigService.
+                                getDataFormatada(data.getData_inclusao());
+                    } else {
+                        return "";
+                    }
                 })
                 .setHeader("Data Pagamento")
                 .setSortable(true)
@@ -2001,8 +2001,8 @@ public class OrcamentoDetalheModal extends Dialog {
         gridComissoes = new Grid<>(SetComissoes.class, false);
         gridComissoes.setItems(listaComissoes);
         gridComissoes.addColumn(comissoes -> {
-            SetFuncionario funcionario = funcionarioService.findById(comissoes.getId_funcionario());
-            return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
+                    SetFuncionario funcionario = funcionarioService.findById(comissoes.getId_funcionario());
+                    return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
                 .setHeader("Funcionário")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -2011,13 +2011,13 @@ public class OrcamentoDetalheModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         gridComissoes.addColumn(data -> {
-            if (Objects.nonNull(data.getData_comissao())){
-                return UtilitySystemConfigService.
-                        getDataFormatada(data.getData_comissao().atStartOfDay());
-            } else {
-                return "";
-            }
-        })
+                    if (Objects.nonNull(data.getData_comissao())){
+                        return UtilitySystemConfigService.
+                                getDataFormatada(data.getData_comissao().atStartOfDay());
+                    } else {
+                        return "";
+                    }
+                })
                 .setHeader("Data")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -2459,7 +2459,7 @@ public class OrcamentoDetalheModal extends Dialog {
             if (localTratamentoOrcamento.getValue() != null) {
                 dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
             } if (id_funcionarioinspecao.getValue() != null){
-            dto.setId_funcionarioinspecao(id_funcionarioinspecao.getValue().getId_funcionario());
+                dto.setId_funcionarioinspecao(id_funcionarioinspecao.getValue().getId_funcionario());
             }
 
 
@@ -3015,7 +3015,7 @@ public class OrcamentoDetalheModal extends Dialog {
             List<SetOrcamentoContato> orcamentoContato = orcamentoContatoService.findAllByOrcamentoId(item.getId_orcamento());
             if (orcamentoContato.size() > 0) {
                 gridOrcamentoContato.setItems(orcamentoContato);
-               // listaContato
+                // listaContato
             }
             List<SetOrcamentoPosVenda> listaPosVendas = orcamentoPosVendasService.findAllByOrcamentoId(item.getId_orcamento());
             if (listaPosVendas.size() > 0){

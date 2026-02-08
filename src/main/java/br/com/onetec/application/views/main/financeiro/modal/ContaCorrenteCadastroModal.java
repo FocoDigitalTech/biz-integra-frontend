@@ -31,22 +31,20 @@ import java.time.LocalDateTime;
 public class ContaCorrenteCadastroModal extends Dialog {
 
 
+    @Autowired
+    ContaCorrenteService contaCorrenteService;
+    @Autowired
+    @Lazy
+    CondicaoPagamentoDiv condicaoPagamentoDiv;
+    UtilitySystemConfigService service;
     private TextField nome_contacorrente;
     private TextField banco_contacorrente;
     private TextField agencia_contacorrente;
     private TextField numero_contacorrente;
     private NumberField limete_contacorrente;
     private DatePicker ultimolancamento_contacorrente;
-
-    @Autowired
-    ContaCorrenteService contaCorrenteService;
-
-    @Autowired
-    @Lazy
-    CondicaoPagamentoDiv condicaoPagamentoDiv;
     private Button saveButton;
     private Button cancelButton;
-
 
 
     public ContaCorrenteCadastroModal() {
@@ -69,7 +67,6 @@ public class ContaCorrenteCadastroModal extends Dialog {
             add(layout);
         });
     }
-
 
     private Div createFormCadastroEmpresa() {
         service = new UtilitySystemConfigService();
@@ -104,9 +101,6 @@ public class ContaCorrenteCadastroModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
         // Lógica para salvar o cadastro
@@ -132,7 +126,7 @@ public class ContaCorrenteCadastroModal extends Dialog {
             ultimolancamento_contacorrente.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

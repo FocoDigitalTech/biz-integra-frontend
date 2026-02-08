@@ -56,6 +56,14 @@ public class ProdutosDiv extends Div {
     private ApplicationContext applicationContext;
 
     @Autowired
+    public ProdutosDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(ProdutoService produtoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -66,15 +74,6 @@ public class ProdutosDiv extends Div {
         this.usuarioService = usuarioService1;
         this.produtoCadastroModal = produtoCadastroModal1;
         this.applicationContext = applicationContext1;
-    }
-
-
-    @Autowired
-    public ProdutosDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -163,7 +162,7 @@ public class ProdutosDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -180,7 +179,6 @@ public class ProdutosDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> produtoService.list(
@@ -232,11 +230,21 @@ public class ProdutosDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             //btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            produtoCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetProduto> {
 
@@ -252,8 +260,6 @@ public class ProdutosDiv extends Div {
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -274,15 +280,13 @@ public class ProdutosDiv extends Div {
 //            btnExcluir.setVisible(false);
 //            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 //                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -329,18 +333,6 @@ public class ProdutosDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            produtoCadastroModal.open();
-        });
     }
 }
 

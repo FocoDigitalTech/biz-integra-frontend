@@ -258,11 +258,11 @@ public class OrdemServicoCadastroModal extends Dialog {
             });
 
             Div contentTabs = new Div(cadastroOrcamantosDadosFinanceiros,
-                                    cadastroOrdemServicoFuncionarioAlocado,
-                                    cadastroOrdemServicoMateriais,
-                                    cadastroOrdemServicoMistura,
-                                    cadastroOrdemServicoPraga,
-                                    ordemServicoExecucaoServico);
+                    cadastroOrdemServicoFuncionarioAlocado,
+                    cadastroOrdemServicoMateriais,
+                    cadastroOrdemServicoMistura,
+                    cadastroOrdemServicoPraga,
+                    ordemServicoExecucaoServico);
             contentTabs.setSizeFull();
             //cadastroOrcamantosDadosFinanceiros.setVisible(true);
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -287,8 +287,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoPragaGrid = new Grid<>(SetOrdemServicoPraga.class, false);
         ordemServicoPragaGrid.addColumn(praga -> {
-            SetPraga praga1 = pragaService.findById(praga.getId_praga());
-            return praga1 != null ? praga1.getDescricao_praga() : "N/A"; })
+                    SetPraga praga1 = pragaService.findById(praga.getId_praga());
+                    return praga1 != null ? praga1.getDescricao_praga() : "N/A"; })
                 .setHeader("Praga")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -301,7 +301,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoPragaGrid.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getData_inclusao()))
+                        getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -374,14 +374,14 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoMisturasGrid = new Grid<>(SetOrdemServicoMisturas.class, false);
         ordemServicoMisturasGrid.addColumn(produto -> {
-            SetProduto setProduto = produtoService.findById(produto.getId_produto());
-            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+                    SetProduto setProduto = produtoService.findById(produto.getId_produto());
+                    return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
                 .setHeader("Produto")
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoMisturasGrid.addColumn(produto -> {
-            SetProduto setProduto = produtoService.findById(produto.getId_produtosolvente());
-            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+                    SetProduto setProduto = produtoService.findById(produto.getId_produtosolvente());
+                    return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
                 .setHeader("Solvente")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -398,7 +398,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoMisturasGrid.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getData_inclusao()))
+                        getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -471,8 +471,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
         ordemServicoExecucaoGrid.addColumn(produto -> {
-            SetExecucaoServico setProduto = execucaoServicoService.findById(produto.getId_execucaoservico());
-            return setProduto != null ? setProduto.getNome_execucaoservico() : "N/A"; })
+                    SetExecucaoServico setProduto = execucaoServicoService.findById(produto.getId_execucaoservico());
+                    return setProduto != null ? setProduto.getNome_execucaoservico() : "N/A"; })
                 .setHeader("Serviço")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -489,7 +489,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoExecucaoGrid.addColumn(data -> UtilitySystemConfigService.
-                getDataFormatada(data.getData_inclusao()))
+                        getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -551,79 +551,79 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         quantidadeprevista_ordemservicomateriais.setStepButtonsVisible(true);
         quantidadeconsumida_ordemservicomateriais.setStepButtonsVisible(true);
-            //quantidadeprevista_ordemservicomateriais.setValue(0);
-            //quantidadeprevista_ordemservicomateriais.setMin(0);
+        //quantidadeprevista_ordemservicomateriais.setValue(0);
+        //quantidadeprevista_ordemservicomateriais.setMin(0);
 
-            ordemServicoMateriaisGrid = new Grid<>(SetOrdemServicoMateriais.class, false);
-            ordemServicoMateriaisGrid.addColumn(produto -> {
-                SetProduto setProduto = produtoService.findById(produto.getId_produto());
-                return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
-                    .setHeader("Produto")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getNumerolote_ordemservicomateriais)
-                    .setHeader("N° Lote")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getQuantidadeprevista_ordemservicomateriais)
-                    .setHeader("Quantidade Prevista")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getQuantidadeconsumida_ordemservicomateriais)
-                    .setHeader("Quantidade Consumida")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getDescricao_ordemservicomateriais)
-                    .setHeader("Observações")
-                    .setSortable(true)
-                    .setAutoWidth(true);
-            ordemServicoMateriaisGrid.addColumn(data -> UtilitySystemConfigService.
-                    getDataFormatada(data.getData_inclusao()))
-                    .setHeader("Data Inclusão")
-                    .setSortable(true)
-                    .setAutoWidth(true);
+        ordemServicoMateriaisGrid = new Grid<>(SetOrdemServicoMateriais.class, false);
+        ordemServicoMateriaisGrid.addColumn(produto -> {
+                    SetProduto setProduto = produtoService.findById(produto.getId_produto());
+                    return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+                .setHeader("Produto")
+                .setSortable(true)
+                .setAutoWidth(true);
+        ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getNumerolote_ordemservicomateriais)
+                .setHeader("N° Lote")
+                .setSortable(true)
+                .setAutoWidth(true);
+        ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getQuantidadeprevista_ordemservicomateriais)
+                .setHeader("Quantidade Prevista")
+                .setSortable(true)
+                .setAutoWidth(true);
+        ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getQuantidadeconsumida_ordemservicomateriais)
+                .setHeader("Quantidade Consumida")
+                .setSortable(true)
+                .setAutoWidth(true);
+        ordemServicoMateriaisGrid.addColumn(SetOrdemServicoMateriais::getDescricao_ordemservicomateriais)
+                .setHeader("Observações")
+                .setSortable(true)
+                .setAutoWidth(true);
+        ordemServicoMateriaisGrid.addColumn(data -> UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao()))
+                .setHeader("Data Inclusão")
+                .setSortable(true)
+                .setAutoWidth(true);
 
-            Button saveAdicionarButton = new Button("Adicionar", event -> {
-                SetOrdemServicoMateriais dto = new SetOrdemServicoMateriais();
-                dto.setId_produto(id_produto.getValue().getId_produto());
-                dto.setDescricao_ordemservicomateriais(descricao_ordemservicomateriais.getValue());
-                dto.setQuantidadeconsumida_ordemservicomateriais(quantidadeconsumida_ordemservicomateriais.getValue());
-                dto.setQuantidadeprevista_ordemservicomateriais(quantidadeprevista_ordemservicomateriais.getValue());
-                dto.setNumerolote_ordemservicomateriais(numerolote_ordemservicomateriais.getValue());
-                dto.setData_inclusao(LocalDateTime.now());
-                dto.setAtivo("S");
-                dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                listaOrdemServicoMateriais.add(dto);
+        Button saveAdicionarButton = new Button("Adicionar", event -> {
+            SetOrdemServicoMateriais dto = new SetOrdemServicoMateriais();
+            dto.setId_produto(id_produto.getValue().getId_produto());
+            dto.setDescricao_ordemservicomateriais(descricao_ordemservicomateriais.getValue());
+            dto.setQuantidadeconsumida_ordemservicomateriais(quantidadeconsumida_ordemservicomateriais.getValue());
+            dto.setQuantidadeprevista_ordemservicomateriais(quantidadeprevista_ordemservicomateriais.getValue());
+            dto.setNumerolote_ordemservicomateriais(numerolote_ordemservicomateriais.getValue());
+            dto.setData_inclusao(LocalDateTime.now());
+            dto.setAtivo("S");
+            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            listaOrdemServicoMateriais.add(dto);
+            ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
+        });
+
+        ordemServicoMateriaisGrid.addComponentColumn(arquivoOrcamento -> {
+            // Cria o botão de deletar com um ícone de lixeira
+            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+                // Remove o item da lista
+                listaOrdemServicoMateriais.remove(arquivoOrcamento);
+                // Atualiza os itens da grid
                 ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
+                // Feedback ao usuário
+                Notification.show("Removido", 3000, Notification.Position.MIDDLE);
             });
-
-            ordemServicoMateriaisGrid.addComponentColumn(arquivoOrcamento -> {
-                // Cria o botão de deletar com um ícone de lixeira
-                Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
-                    // Remove o item da lista
-                    listaOrdemServicoMateriais.remove(arquivoOrcamento);
-                    // Atualiza os itens da grid
-                    ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
-                    // Feedback ao usuário
-                    Notification.show("Removido", 3000, Notification.Position.MIDDLE);
-                });
-                del.getElement().setAttribute("aria-label", "Delete");
-                del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
-                return del;
-            }).setSortable(false).setAutoWidth(true);
+            del.getElement().setAttribute("aria-label", "Delete");
+            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+            return del;
+        }).setSortable(false).setAutoWidth(true);
 
 
-            FormLayout formLayout = new FormLayout();
-            formLayout.setWidthFull();
-            formLayout.add(id_produto,
-                    numerolote_ordemservicomateriais,
-                    quantidadeprevista_ordemservicomateriais,
-                    quantidadeconsumida_ordemservicomateriais,
-                    descricao_ordemservicomateriais,saveAdicionarButton);
-            Div div = new Div(formLayout,ordemServicoMateriaisGrid);
-            div.setSizeFull();
+        FormLayout formLayout = new FormLayout();
+        formLayout.setWidthFull();
+        formLayout.add(id_produto,
+                numerolote_ordemservicomateriais,
+                quantidadeprevista_ordemservicomateriais,
+                quantidadeconsumida_ordemservicomateriais,
+                descricao_ordemservicomateriais,saveAdicionarButton);
+        Div div = new Div(formLayout,ordemServicoMateriaisGrid);
+        div.setSizeFull();
 
-            return div;
+        return div;
     }
 
     private Div createFormcadastroOrdemServicoFuncionarioAlocado() {
@@ -635,8 +635,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         funcionarioAlocadoGrid = new Grid<>(SetOrdemServicoFuncionarioAlocado.class, false);
         funcionarioAlocadoGrid.addColumn(funcionarioAlocado -> {
-            SetFuncionario funcionario = funcionarioService.findById(funcionarioAlocado.getId_funcionario());
-            return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
+                    SetFuncionario funcionario = funcionarioService.findById(funcionarioAlocado.getId_funcionario());
+                    return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
                 .setHeader("Funcionário")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -645,7 +645,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         funcionarioAlocadoGrid.addColumn(data -> UtilitySystemConfigService.
-                                    getDataFormatada(data.getData_inclusao()))
+                        getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -971,7 +971,7 @@ public class OrdemServicoCadastroModal extends Dialog {
     private SetOrcamento orcamento;
 
     public void setOrdemServico(SetOrcamento item, SetContrato contrato) {
-    this.orcamento = item;
+        this.orcamento = item;
         var enderecos = enderecoService.findAllClienteId(item.getId_cliente());
         List<SetEnderecos> novosEnderecos = enderecos.stream()
                 .filter(endereco -> endereco.getId_endereco().equals(item.getId_endereco()))
@@ -979,7 +979,7 @@ public class OrdemServicoCadastroModal extends Dialog {
         localTratamentoOrcamento.setItems
                 (novosEnderecos);
         quantidade_ordemservico.setValue(contrato.getQuantidade_aplicacoes());
-       // List<SetOrcamento> listaorcamentos = orcamentoService.findAllClienteId(item.getId_cliente());
+        // List<SetOrcamento> listaorcamentos = orcamentoService.findAllClienteId(item.getId_cliente());
 //                (listaorcamentos.stream()
 //                        .filter(objeto -> objeto.getId_orcamento().equals(item.getId_orcamento()))
 //                        .findFirst().orElse(null));

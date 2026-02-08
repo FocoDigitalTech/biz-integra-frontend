@@ -23,7 +23,7 @@ public class PermissaoService {
     private ISetPermissaoRepository repository;
 
     @Autowired
-    public void initServices (ISetPermissaoRepository repository1){
+    public void initServices(ISetPermissaoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,12 +38,12 @@ public class PermissaoService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public SetPermissao findById (Integer idGrupoUsuario){
+    public SetPermissao findById(Integer idGrupoUsuario) {
         Optional<SetPermissao> optionalSetGrupoUsuario = repository.findById(idGrupoUsuario);
         return optionalSetGrupoUsuario.get();
     }
 
-    public List<SetPermissao> findAllById (Integer idGrupoUsuario){
+    public List<SetPermissao> findAllById(Integer idGrupoUsuario) {
         return repository.listAllById(idGrupoUsuario);
     }
 
@@ -56,7 +56,7 @@ public class PermissaoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -64,7 +64,7 @@ public class PermissaoService {
     public void save(SetPermissao dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -74,22 +74,22 @@ public class PermissaoService {
             listaPermissao.forEach(dto -> {
                 repository.save(dto);
             });
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     @SneakyThrows
     public void updateAll(List<SetPermissao> listaPermissao) {
-        if (listaPermissao.size() > 0){
-            for (SetPermissao item : listaPermissao){
+        if (listaPermissao.size() > 0) {
+            for (SetPermissao item : listaPermissao) {
                 try {
                     Optional<SetPermissao> optional = repository.findById(item.getId_permissao());
                     SetPermissao entity = optional.get();
                     entity = item;
                     repository.save(entity);
                     log.info("Atualizado !");
-                } catch (Exception e){
+                } catch (Exception e) {
                     throw new Exception();
                 }
             }

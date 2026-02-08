@@ -22,7 +22,7 @@ public class TipoEventoFinanceiroService {
     private ISetTipoEventoFinanceiroRepository repository;
 
     @Autowired
-    public void initServices (ISetTipoEventoFinanceiroRepository repository1){
+    public void initServices(ISetTipoEventoFinanceiroRepository repository1) {
         this.repository = repository1;
     }
 
@@ -40,7 +40,7 @@ public class TipoEventoFinanceiroService {
     public void save(SetTipoEventoFinanceiro dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -54,7 +54,7 @@ public class TipoEventoFinanceiroService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -68,13 +68,13 @@ public class TipoEventoFinanceiroService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     public List<SetTipoEventoFinanceiro> findAll() {
-            return repository.listAll();
+        return repository.listAll();
     }
 
     public SetTipoEventoFinanceiro findById(Integer id_tipoeventofinanceiro) {

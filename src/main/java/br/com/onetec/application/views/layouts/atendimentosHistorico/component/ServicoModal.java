@@ -2,30 +2,22 @@ package br.com.onetec.application.views.layouts.atendimentosHistorico.component;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
-import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
-import br.com.onetec.application.service.orcamentocontatoservice.OrcamentoContatoService;
 import br.com.onetec.application.service.ordemservicoexecucaoservicoservice.OrdemServicoExecucaoServicoService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetExecucaoServico;
-import br.com.onetec.infra.db.model.SetFuncionario;
-import br.com.onetec.infra.db.model.SetOrcamentoContato;
 import br.com.onetec.infra.db.model.SetOrdemServicoExecucaoServico;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ServicoModal {
 
@@ -50,16 +42,14 @@ public class ServicoModal {
         TextArea descricao_ordemservicoexecucaoservico = new TextArea("Descrição");
 
 
-
-
         //config form
         valor_ordemservicoexecucaoservico.setValue(
-                item.getValor_ordemservicoexecucaoservico() != null? String.valueOf(item.getValor_ordemservicoexecucaoservico()) : BigDecimal.ZERO.toString());
+                item.getValor_ordemservicoexecucaoservico() != null ? String.valueOf(item.getValor_ordemservicoexecucaoservico()) : BigDecimal.ZERO.toString());
         descricao_ordemservicoexecucaoservico.setValue(
-                item.getDescricao_ordemservicoexecucaoservico() != null? item.getDescricao_ordemservicoexecucaoservico() : ""
+                item.getDescricao_ordemservicoexecucaoservico() != null ? item.getDescricao_ordemservicoexecucaoservico() : ""
         );
         garantia_ordemservicoexecucaoservico.setValue(
-                item.getGarantia_ordemservicoexecucaoservico() != null? item.getGarantia_ordemservicoexecucaoservico() : ""
+                item.getGarantia_ordemservicoexecucaoservico() != null ? item.getGarantia_ordemservicoexecucaoservico() : ""
         );
         id_execucaoservico.setValue(execucaoServicoService.findAll().stream()
                 .filter(objeto -> objeto.getId_execucaoservico().equals(item.getId_execucaoservico()))
@@ -93,7 +83,7 @@ public class ServicoModal {
         Button cancelBtn = new Button("Cancelar", event -> service.askForConfirmation(dialog));
 
         // Adiciona os componentes ao layout
-        formLayout.add( id_execucaoservico,
+        formLayout.add(id_execucaoservico,
                 valor_ordemservicoexecucaoservico,
                 valor_ordemservicoexecucaoservico,
                 garantia_ordemservicoexecucaoservico,

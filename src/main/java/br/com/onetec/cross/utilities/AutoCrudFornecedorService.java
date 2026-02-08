@@ -5,7 +5,10 @@ import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.infra.db.model.SetFornecedor;
+import br.com.onetec.infra.db.model.SetFornecedorContato;
+import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -24,9 +27,9 @@ import java.util.List;
 
 public class AutoCrudFornecedorService {
 
+    private static List<SetEstado> estadoList;
     private Button saveButton;
-    private  Button cancelButton;
-
+    private Button cancelButton;
     //Cadastro Fornecedor
     private Div cadastroFornecedor;
     private DatePicker data_cadastro;
@@ -47,8 +50,6 @@ public class AutoCrudFornecedorService {
     private TextField cargocontato_fornecedor;
     private TextField inscicaoestadual_fornecedor;
     private TextArea observacao_fornecedor;
-
-
     //Cadastro Contatos Fornecedor
     private Div cadastroFornecedorContatos;
     private TextField nome_fornecedorcontato;
@@ -57,18 +58,14 @@ public class AutoCrudFornecedorService {
     private TextField telefone_fornecedorcontato;
     private TextField email_fornecedorcontato;
     private TextArea observacoes_fornecedorcontato;
-
-
-    private EstadoService estadoService ;
+    private EstadoService estadoService;
     private UtilitySystemConfigService service;
     private SetorAtuacaoService setorAtuacaoService;
     private FornecedorService fornecedorService;
-
     private List<SetFornecedorContato> listaContatosFornecedor;
-    private static List<SetEstado> estadoList;
 
     public void openFormDialog(ComboBox<SetFornecedor> id_fornecedor,
-                               FornecedorService fornecedorService,EstadoService estadoService1,
+                               FornecedorService fornecedorService, EstadoService estadoService1,
                                SetorAtuacaoService setorAtuacaoService1) {
         UtilitySystemConfigService servico = new UtilitySystemConfigService();
         this.estadoService = estadoService1;
@@ -80,7 +77,7 @@ public class AutoCrudFornecedorService {
 
 
         // Layout do formulário
-        FormLayout formLayout = fornecedorCadastroModal(fornecedorService,id_fornecedor);
+        FormLayout formLayout = fornecedorCadastroModal(fornecedorService, id_fornecedor);
 
 
         // Botão para salvar os dados
@@ -189,11 +186,10 @@ public class AutoCrudFornecedorService {
                 var novaLista = fornecedorService.findAll();
                 id_fornecedor.setItems(novaLista);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             service.notificaErro("Por favor, preencha todos os campos obrigatórios.");
-                e.printStackTrace();
+            e.printStackTrace();
         }
-
 
 
     }
@@ -233,7 +229,7 @@ public class AutoCrudFornecedorService {
             id_setoratuacao.setItems(setorAtuacaoService.listAll());
         });
 
-        tipo_naturezajuridica.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
+        tipo_naturezajuridica.setItems(List.of("Pessoa Fisica", "Pessoa Juridica"));
         tipo_naturezajuridica.addValueChangeListener(event -> {
             if ("Pessoa Fisica".equals(event.getValue())) {
                 numero_naturezajuridica.clear();

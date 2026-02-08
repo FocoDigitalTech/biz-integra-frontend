@@ -26,7 +26,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -36,7 +35,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,6 +44,27 @@ import java.util.Objects;
 @UIScope
 public class LancamentoFinanceiroDetalhesModal extends Dialog {
 
+    private static SetFuncionario funcionario;
+    @Autowired
+    FuncionarioService funcionarioService;
+    @Autowired
+    EventoFinanceiroService eventoFinanceiroService;
+    @Autowired
+    FornecedorService fornecedorService;
+    @Autowired
+    ContaCorrenteService contaCorrenteService;
+    @Autowired
+    TipoEventoFinanceiroService tipoEventoFinanceiroService;
+    @Autowired
+    @Lazy
+    LancamentoFinanceiroDiv lancamentoFinanceiroDiv;
+    @Autowired
+    LancamentoService lancamentoService;
+    @Autowired
+    EstadoService estadoService1;
+    @Autowired
+    SetorAtuacaoService setorAtuacaoService1;
+    UtilitySystemConfigService service;
     private ComboBox<SetEventoFinanceiro> id_eventofinanceiro;
     private ComboBox<SetFornecedor> id_fornecedor;
     //private ComboBox<> id_tipopagamento;
@@ -61,64 +80,20 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
     private TextField id_funcionariolancamento;
     private ComboBox<String> status_pagamento;
     private TextArea descricao_lancamento;
-
-    private static SetFuncionario funcionario;
-
-    @Autowired
-    FuncionarioService funcionarioService;
-
-    @Autowired
-    EventoFinanceiroService eventoFinanceiroService;
-
-    @Autowired
-    FornecedorService fornecedorService;
-
-    @Autowired
-    ContaCorrenteService contaCorrenteService;
-
-    @Autowired
-    TipoEventoFinanceiroService tipoEventoFinanceiroService;
-
-    @Autowired
-    @Lazy
-    LancamentoFinanceiroDiv lancamentoFinanceiroDiv;
-
-    @Autowired
-    LancamentoService lancamentoService;
-
-    @Autowired
-    EstadoService estadoService1;
-
-    @Autowired
-    SetorAtuacaoService setorAtuacaoService1;
-
     private Button saveButton;
     private Button baixaButton;
     private Button cancelButton;
     private Button excluirButton;
-
     private SetFluxoRecebimentoPagamento fluxoRecebimentoPagamento;
-
-    @Autowired
-    public void initServices( UtilitySystemConfigService service) {
-        this.service = service;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configuraCalendario(data_lancamento);
-            service.configuraCalendario(data_pagamento);
-            service.configuraCalendario(datahora_lancamento);
-        });
-    }
-
-
+    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
 
     public LancamentoFinanceiroDetalhesModal() {
         UI.getCurrent().access(() -> {
             service = new UtilitySystemConfigService();
             saveButton = new com.vaadin.flow.component.button.Button("Atualizar", eventbe -> {
                 try {
-                    save();}
-                catch (Exception e) {
+                    save();
+                } catch (Exception e) {
                     service.notificaErro(ModalMessageConst.ERROR_CREATE);
                 }
             });
@@ -136,12 +111,13 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
                 Dialog modalBaixaPagamento = carregaBaixaPagamento();
                 modalBaixaPagamento.open();
             });
-            baixaButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,ButtonVariant.LUMO_SUCCESS);;
+            baixaButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+            ;
             Div contentTabs = new Div(createFormCadastroEmpresa());
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(baixaButton,excluirButton, saveButton, cancelButton);
+            getFooter().add(baixaButton, excluirButton, saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             H2 title = new H2("Lançamento Financeiro");
             getHeader().add(title);
@@ -149,9 +125,20 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         });
     }
 
+    @Autowired
+    public void initServices(UtilitySystemConfigService service) {
+        this.service = service;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configuraCalendario(data_lancamento);
+            service.configuraCalendario(data_pagamento);
+            service.configuraCalendario(datahora_lancamento);
+        });
+    }
+
     private Dialog carregaBaixaPagamento() {
         service = new UtilitySystemConfigService();
-        if (fluxoRecebimentoPagamento.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())){
+        if (fluxoRecebimentoPagamento.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
             Dialog modalPagamento = new Dialog();
             TextField valorLancado = new TextField("Valor do Lançamento");
             DatePicker dataVencimentoParcela = new DatePicker("Vencimento Pagamento");
@@ -290,12 +277,10 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             lancamentoFinanceiroDiv.refreshGrid();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
-
-    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
 
     private Div createFormCadastroEmpresa() {
 
@@ -339,20 +324,20 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         id_eventofinanceiro.setItems(eventoFinanceiroService.findAll());
         id_eventofinanceiro.setItemLabelGenerator(SetEventoFinanceiro::getNome_eventofinanceiro);
         HorizontalLayout eventofinanceirolayout =
-                new CustomizedComboBox().customizeEventoFinanceiro(id_eventofinanceiro,eventoFinanceiroService,
-                                                                    tipoEventoFinanceiroService);
+                new CustomizedComboBox().customizeEventoFinanceiro(id_eventofinanceiro, eventoFinanceiroService,
+                        tipoEventoFinanceiroService);
 
 
         id_fornecedor.setItems(fornecedorService.findAll());
         id_fornecedor.setItemLabelGenerator(SetFornecedor::getNomefantasia_fornecedor);
         HorizontalLayout fornecedorlayout =
                 new CustomizedComboBox().customizeFornecedor
-                        (id_fornecedor,fornecedorService,estadoService1,setorAtuacaoService1);
+                        (id_fornecedor, fornecedorService, estadoService1, setorAtuacaoService1);
 
         id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
         id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
         HorizontalLayout tipoeventofinanceirolayout =
-                new CustomizedComboBox().customizeTipoEventoFinanceiro(id_tipoeventofinanceiro,tipoEventoFinanceiroService);
+                new CustomizedComboBox().customizeTipoEventoFinanceiro(id_tipoeventofinanceiro, tipoEventoFinanceiroService);
         id_tipoeventofinanceiro.addValueChangeListener(event -> {
             SetTipoEventoFinanceiro selecionado = event.getValue();
             if (selecionado != null) {
@@ -379,7 +364,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(tipoeventofinanceirolayout,
-                eventofinanceirolayout,status_pagamento,
+                eventofinanceirolayout, status_pagamento,
                 fornecedorlayout,
                 nome_fluxorecebimentopagamento,
                 data_lancamento,
@@ -397,16 +382,13 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
-        if (Objects.isNull(id_tipoeventofinanceiro.getValue())||
-                Objects.isNull(id_eventofinanceiro.getValue())||
-                Objects.isNull(id_fornecedor.getValue())||
-                Objects.isNull(valor_lancamento.getValue())||
-                Objects.isNull(status_pagamento.getValue())||
-                Objects.isNull(data_lancamento.getValue())||
+        if (Objects.isNull(id_tipoeventofinanceiro.getValue()) ||
+                Objects.isNull(id_eventofinanceiro.getValue()) ||
+                Objects.isNull(id_fornecedor.getValue()) ||
+                Objects.isNull(valor_lancamento.getValue()) ||
+                Objects.isNull(status_pagamento.getValue()) ||
+                Objects.isNull(data_lancamento.getValue()) ||
                 Objects.isNull(nome_fluxorecebimentopagamento.getValue())) {
             service.notificaErro(ModalMessageConst.FIELD_ERROR);
         } else {
@@ -476,7 +458,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             this.fluxoRecebimentoPagamento = item;
 
             if (fluxoRecebimentoPagamento.getStatus_pagamento().equals
-                    (FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())){
+                    (FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
                 baixaButton.setText("Cancelar Baixa");
             } else {
                 baixaButton.setText("Baixar Pagamento");
@@ -509,29 +491,29 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
                 id_funcionariolancamento.setValue(funcionario.getNome_funcionario());
             }
 
-            if (Objects.nonNull(item.getNumero_parcela())&&Objects.nonNull(item.getQuantidade_parcelas())){
-                numero_parcela.setValue(item.getNumero_parcela()+"/"+item.getQuantidade_parcelas());
+            if (Objects.nonNull(item.getNumero_parcela()) && Objects.nonNull(item.getQuantidade_parcelas())) {
+                numero_parcela.setValue(item.getNumero_parcela() + "/" + item.getQuantidade_parcelas());
             }
 
             if (Objects.nonNull(item.getNome_fluxorecebimentopagamento()))
-            nome_fluxorecebimentopagamento.setValue(item.getNome_fluxorecebimentopagamento());
+                nome_fluxorecebimentopagamento.setValue(item.getNome_fluxorecebimentopagamento());
             if (Objects.nonNull(item.getData_vencimento()))
-            data_lancamento.setValue(LocalDate.from(item.getData_vencimento()));
+                data_lancamento.setValue(LocalDate.from(item.getData_vencimento()));
             if (Objects.nonNull(item.getValor_lancamento()))
-            valor_lancamento.setValue(item.getValor_lancamento().toString());
+                valor_lancamento.setValue(item.getValor_lancamento().toString());
             if (Objects.nonNull(item.getData_pagamento()))
-            data_pagamento.setValue(LocalDate.from(item.getData_pagamento()));
+                data_pagamento.setValue(LocalDate.from(item.getData_pagamento()));
             if (Objects.nonNull(item.getValor_pagamento()))
-            valor_pagamento.setValue(item.getValor_pagamento().toString());
+                valor_pagamento.setValue(item.getValor_pagamento().toString());
             if (Objects.nonNull(item.getNumero_documento()))
-            numero_documento.setValue(item.getNumero_documento());
+                numero_documento.setValue(item.getNumero_documento());
             if (Objects.nonNull(item.getValor_previsto()))
-            valor_previsto.setValue(String.valueOf(item.getValor_previsto()));
+                valor_previsto.setValue(String.valueOf(item.getValor_previsto()));
             if (Objects.nonNull(item.getDatahora_lancamento()))
-            datahora_lancamento.setValue(LocalDate.from(item.getDatahora_lancamento()));
+                datahora_lancamento.setValue(LocalDate.from(item.getDatahora_lancamento()));
 
             if (Objects.nonNull(item.getDescricao_fluxorecebimentopagamento()))
-            descricao_lancamento.setValue(item.getDescricao_fluxorecebimentopagamento());
+                descricao_lancamento.setValue(item.getDescricao_fluxorecebimentopagamento());
         });
     }
 }

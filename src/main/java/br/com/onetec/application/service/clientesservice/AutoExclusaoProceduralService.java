@@ -39,14 +39,14 @@ public class AutoExclusaoProceduralService {
     }
 
     @SneakyThrows
-    public void executeProcessClienteExclude(Integer id_cliente){
+    public void executeProcessClienteExclude(Integer id_cliente) {
         log.info("INICIANDO PROCESSO DE EXCLUSÃO PROCEDURAL");
         executarAutomacaoExcluirEnderecos(id_cliente);
         executarAutomacaoExcluirOrcamentos(id_cliente);
         log.info("PROCESSO FINALIZADO !");
     }
 
-    public void executarAutomacaoExcluirEnderecos (Integer id_cliente) throws Exception {
+    public void executarAutomacaoExcluirEnderecos(Integer id_cliente) throws Exception {
         var lista = enderecosRepository.findAllByCliente(id_cliente);
         try {
             if (lista.size() > 0) {
@@ -60,11 +60,12 @@ public class AutoExclusaoProceduralService {
                     log.info("excluido !");
                 });
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
-    public void executarAutomacaoExcluirOrcamentos (Integer id_cliente) throws Exception {
+
+    public void executarAutomacaoExcluirOrcamentos(Integer id_cliente) throws Exception {
         var lista = orcamentoRepository.listAllByClientId(id_cliente);
         try {
             if (lista.size() > 0) {
@@ -83,12 +84,12 @@ public class AutoExclusaoProceduralService {
                     }
                 });
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
-    public void executarAutomacaoExcluirCotratos (Integer id_orcamento) throws Exception {
+    public void executarAutomacaoExcluirCotratos(Integer id_orcamento) throws Exception {
         var lista = setContratoRepository.findByContratoId(id_orcamento);
         try {
             if (lista.size() > 0) {
@@ -103,12 +104,12 @@ public class AutoExclusaoProceduralService {
                 });
             }
             executarAutomacaoExcluirOrdemsServico(id_orcamento);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
-    public void executarAutomacaoExcluirOrdemsServico (Integer id_orcamento) throws Exception {
+    public void executarAutomacaoExcluirOrdemsServico(Integer id_orcamento) throws Exception {
         var lista = ordemServicoRepository.listAllByOrcamentoId(id_orcamento);
         try {
             if (lista.size() > 0) {
@@ -122,11 +123,10 @@ public class AutoExclusaoProceduralService {
                     log.info("excluido !");
                 });
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
-
 
 
 }

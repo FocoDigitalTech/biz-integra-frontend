@@ -8,14 +8,11 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 public class NotaFiscalModal {
     public static void openModalNota(SetNotaFiscal item, NotaFiscalService notaFiscalService,
@@ -44,20 +41,20 @@ public class NotaFiscalModal {
 
         //config form
         numero_notafiscal.setValue
-                (item.getNumero_notafiscal() != null? item.getNumero_notafiscal() : "");
+                (item.getNumero_notafiscal() != null ? item.getNumero_notafiscal() : "");
 
         dataemissao_notafiscal.setValue(
-                item.getDataemissao_notafiscal() != null? item.getDataemissao_notafiscal() : LocalDate.now()
+                item.getDataemissao_notafiscal() != null ? item.getDataemissao_notafiscal() : LocalDate.now()
         );
         datavencimento_notafiscal.setValue(
-                item.getDatavencimento_notafiscal() != null? item.getDatavencimento_notafiscal() : LocalDate.now()
+                item.getDatavencimento_notafiscal() != null ? item.getDatavencimento_notafiscal() : LocalDate.now()
         );
         valorunitario_notafiscal.setValue(
-                item.getValorunitario_notafiscal() != null? String.valueOf(item.getValorunitario_notafiscal()) : "0"
+                item.getValorunitario_notafiscal() != null ? String.valueOf(item.getValorunitario_notafiscal()) : "0"
         );
-        valortotal_notafiscal.setValue(item.getValortotal_notafiscal() != null? String.valueOf(item.getValortotal_notafiscal()) : "0"
+        valortotal_notafiscal.setValue(item.getValortotal_notafiscal() != null ? String.valueOf(item.getValortotal_notafiscal()) : "0"
         );
-        descricao_notafiscal.setValue(item.getDescricao_notafiscal() != null? item.getDescricao_notafiscal() : "");
+        descricao_notafiscal.setValue(item.getDescricao_notafiscal() != null ? item.getDescricao_notafiscal() : "");
 
         Button saveBtn = new Button("Atualizar", eventbe -> {
 
@@ -86,7 +83,7 @@ public class NotaFiscalModal {
 
         formLayout.setWidthFull();
         formLayout.add(numero_notafiscal,
-                dataemissao_notafiscal,datavencimento_notafiscal,
+                dataemissao_notafiscal, datavencimento_notafiscal,
                 valorunitario_notafiscal,
                 valortotal_notafiscal,
                 descricao_notafiscal);

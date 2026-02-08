@@ -21,7 +21,7 @@ public class TecnicoAssistenteService {
     private ISetTecnicoAssistenteRepository repository;
 
     @Autowired
-    public void initServices (ISetTecnicoAssistenteRepository repository1){
+    public void initServices(ISetTecnicoAssistenteRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class TecnicoAssistenteService {
     public void save(SetTecnicoAssistente dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class TecnicoAssistenteService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

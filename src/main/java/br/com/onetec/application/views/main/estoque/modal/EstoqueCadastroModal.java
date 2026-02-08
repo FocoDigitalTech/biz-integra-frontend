@@ -10,7 +10,6 @@ import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.model.SetProduto;
-import br.com.onetec.infra.db.model.SetTecnicoAssistente;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,7 +38,7 @@ public class EstoqueCadastroModal extends Dialog {
 
     @Autowired
     FuncionarioService funcionarioService;
-   // TecnicoAssistenteService tecnicoAssistenteService;
+    // TecnicoAssistenteService tecnicoAssistenteService;
 
     @Autowired
     ProdutoService produtoService;
@@ -47,12 +46,11 @@ public class EstoqueCadastroModal extends Dialog {
     @Autowired
     @Lazy
     MovimentoDiv movimentoDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
-
-    private ComboBox <SetProduto> id_produto;
-    private ComboBox <SetFuncionario> funcionarioComboBox;
+    private ComboBox<SetProduto> id_produto;
+    private ComboBox<SetFuncionario> funcionarioComboBox;
     private Checkbox saida_controleproduto;
     private DatePicker data_controle;
     private IntegerField quantidade_enviada;
@@ -62,14 +60,14 @@ public class EstoqueCadastroModal extends Dialog {
     private TextField numero_lote;
 
 
-
-
     @Autowired
     public EstoqueCadastroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-                try { save();}
-                catch (Exception e) {}
+                try {
+                    save();
+                } catch (Exception e) {
+                }
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -83,7 +81,6 @@ public class EstoqueCadastroModal extends Dialog {
             add(layout);
         });
     }
-
 
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
@@ -132,7 +129,6 @@ public class EstoqueCadastroModal extends Dialog {
         funcionarioComboBox.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
 
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(id_produto, funcionarioComboBox, saida_controleproduto, data_controle, quantidade_enviada,
@@ -141,9 +137,6 @@ public class EstoqueCadastroModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
@@ -162,12 +155,13 @@ public class EstoqueCadastroModal extends Dialog {
             dto.setId_produto(produto.getId_produto());
         }
         var tecnicoAssistente = funcionarioComboBox.getValue();
-        if (tecnicoAssistente != null){
+        if (tecnicoAssistente != null) {
             dto.setId_tecnicosassistentes(tecnicoAssistente.getId_funcionario());
         }
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        dto.setSaida_controleproduto(saida_controleproduto.getValue());
 
         try {
             estoqueService.save(dto);
@@ -181,12 +175,12 @@ public class EstoqueCadastroModal extends Dialog {
             quantidade_consumida.clear();
             unidade_entrada.clear();
             numero_lote.clear();
-            if(saida_controleproduto.getValue()) {
+            if (saida_controleproduto.getValue()) {
                 produtoService.updateEstoqueQuantidade(dto.getId_produto(), dto.getQuantidade_consumida());
             }
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

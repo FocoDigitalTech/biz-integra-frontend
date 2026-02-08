@@ -27,18 +27,16 @@ import java.time.LocalDateTime;
 @UIScope
 public class ProdutoDetalheModal extends Dialog {
 
-    private SetProduto entity;
     @Autowired
     ProdutoService produtoService;
-
     @Autowired
     @Lazy
     ProdutosDiv produtosDiv;
-
+    UtilitySystemConfigService service;
+    private SetProduto entity;
     private Button saveButton;
     private Button cancelButton;
     private Button btnExcluir;
-
     //private TextField id_classificacaoproduto;
     private TextField nome_produto;
     private TextField unidade_entrada;
@@ -54,8 +52,6 @@ public class ProdutoDetalheModal extends Dialog {
     private TextField antidoto_nome;
     private TextField concentrado_nome;
     private TextField numero_registro;
-
-
 
     @Autowired
     public ProdutoDetalheModal(SetProduto produto) {
@@ -78,7 +74,7 @@ public class ProdutoDetalheModal extends Dialog {
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton,btnExcluir);
+            getFooter().add(saveButton, cancelButton, btnExcluir);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
@@ -89,7 +85,6 @@ public class ProdutoDetalheModal extends Dialog {
         produtosDiv.refreshGrid();
         close();
     }
-
 
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
@@ -124,16 +119,13 @@ public class ProdutoDetalheModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(nome_produto,unidade_entrada,
-                unidade_aplicacao,fator_conversao,quantidade_estoque,quantidade_minima,
-                valor_item,utimo_lote,grupo_quimico,principio_ativo,classificacao_nome,antidoto_nome,concentrado_nome,numero_registro);
+        formLayout.add(nome_produto, unidade_entrada,
+                unidade_aplicacao, fator_conversao, quantidade_estoque, quantidade_minima,
+                valor_item, utimo_lote, grupo_quimico, principio_ativo, classificacao_nome, antidoto_nome, concentrado_nome, numero_registro);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void update() throws Exception {
         service = new UtilitySystemConfigService();
@@ -177,7 +169,7 @@ public class ProdutoDetalheModal extends Dialog {
             numero_registro.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

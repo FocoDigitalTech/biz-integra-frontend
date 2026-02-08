@@ -5,7 +5,6 @@ import br.com.onetec.application.service.compraprodutoservice.CompraProdutoServi
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCompraProduto;
-import br.com.onetec.infra.db.model.SetOrcamentoContato;
 import br.com.onetec.infra.db.model.SetProduto;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,7 +20,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 public class CompraProdutoModal {
 
@@ -51,23 +49,23 @@ public class CompraProdutoModal {
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
 
-                quantidade_compraproduto.setValue(item.getQuantidade_compraproduto());
+        quantidade_compraproduto.setValue(item.getQuantidade_compraproduto());
         valorunitario_compraproduto.setValue(String.valueOf(item.getValorunitario_compraproduto()));
-                valortotal_compraproduto.setValue(String.valueOf(item.getValortotal_compraproduto()));
+        valortotal_compraproduto.setValue(String.valueOf(item.getValortotal_compraproduto()));
         numerolote_compraproduto.setValue(item.getNumerolote_compraproduto());
-                datafabricacao_compraproduto.setValue(item.getDatafabricacao_compraproduto());
+        datafabricacao_compraproduto.setValue(item.getDatafabricacao_compraproduto());
         datavalidade_compraproduto.setValue(item.getDatavalidade_compraproduto());
-                datarecebimento_compraproduto.setValue(item.getDatarecebimento_compraproduto());
+        datarecebimento_compraproduto.setValue(item.getDatarecebimento_compraproduto());
         responsavelrecebimento_compraproduto.setValue(item.getResponsavelrecebimento_compraproduto());
 
         valorunitario_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
         });
 
         quantidade_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
         });
@@ -84,9 +82,6 @@ public class CompraProdutoModal {
         quantidade_compraproduto.setValue(1);
         quantidade_compraproduto.setStepButtonsVisible(true);
         quantidade_compraproduto.setMin(1);
-
-
-
 
 
         Button saveBtn = new Button("Atualizar", eventbe -> {
@@ -119,7 +114,7 @@ public class CompraProdutoModal {
         saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         // Adiciona os componentes ao layout
-        formLayout.add( id_produto,
+        formLayout.add(id_produto,
                 quantidade_compraproduto,
                 valorunitario_compraproduto,
                 valortotal_compraproduto,
@@ -132,9 +127,6 @@ public class CompraProdutoModal {
         dialog.add(formLayout);
         dialog.getFooter().add(saveBtn, cancelBtn);
         dialog.open();
-
-
-
 
 
     }

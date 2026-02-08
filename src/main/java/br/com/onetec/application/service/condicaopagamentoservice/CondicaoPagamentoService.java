@@ -39,7 +39,7 @@ public class CondicaoPagamentoService {
     public void save(SetCondicaoPagamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class CondicaoPagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Cliente excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -64,7 +64,7 @@ public class CondicaoPagamentoService {
 
     public SetCondicaoPagamento fidById(Integer id_condicaopagamento) {
         Optional<SetCondicaoPagamento> optional = repository.findById(id_condicaopagamento);
-        return  optional.orElse(null);
+        return optional.orElse(null);
     }
 
     public void update(SetCondicaoPagamento dto) throws Exception {
@@ -76,7 +76,7 @@ public class CondicaoPagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Cliente Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

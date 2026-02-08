@@ -39,7 +39,7 @@ public class ComissoesService {
     public void save(SetComissoes dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class ComissoesService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Cliente excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -64,7 +64,7 @@ public class ComissoesService {
             SetComissoes entity = optional.get();
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

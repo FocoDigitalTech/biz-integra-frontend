@@ -1,7 +1,5 @@
 package br.com.onetec.infra.db.repository;
 
-import br.com.onetec.infra.db.model.SetOrcamento;
-import br.com.onetec.infra.db.model.SetOrdemServicoFuncionarioAlocado;
 import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;

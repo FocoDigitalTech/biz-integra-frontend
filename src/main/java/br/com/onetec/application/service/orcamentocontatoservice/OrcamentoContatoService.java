@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.orcamentocontatoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetNotaFiscal;
 import br.com.onetec.infra.db.model.SetOrcamentoContato;
-import br.com.onetec.infra.db.repository.ISetNotaFiscalRepository;
 import br.com.onetec.infra.db.repository.ISetOrcamentoContatoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,7 @@ public class OrcamentoContatoService {
     private ISetOrcamentoContatoRepository repository;
 
     @Autowired
-    public void initServices (ISetOrcamentoContatoRepository repository1){
+    public void initServices(ISetOrcamentoContatoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -44,7 +42,7 @@ public class OrcamentoContatoService {
             dto.setAtivo("S");
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -58,7 +56,7 @@ public class OrcamentoContatoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -70,7 +68,7 @@ public class OrcamentoContatoService {
             entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

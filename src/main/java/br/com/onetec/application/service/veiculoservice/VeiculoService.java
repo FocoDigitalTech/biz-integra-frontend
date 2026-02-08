@@ -21,7 +21,7 @@ public class VeiculoService {
     private ISetVeiculoRepository repository;
 
     @Autowired
-    public void initServices (ISetVeiculoRepository repository1){
+    public void initServices(ISetVeiculoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class VeiculoService {
     public void save(SetVeiculo dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -54,7 +54,7 @@ public class VeiculoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -65,7 +65,7 @@ public class VeiculoService {
             SetVeiculo entity = optional.get();
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

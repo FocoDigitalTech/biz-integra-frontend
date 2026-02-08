@@ -32,34 +32,25 @@ import java.util.Optional;
 @UIScope
 public class DepartamentoDetalhesModal extends Dialog {
 
+    String selectedValue;
+    //Injecao do servico
+    @Autowired
+    DepartamentoService departamentoService;
+    @Autowired
+    FuncionarioService funcionarioService;
+    @Autowired
+    @Lazy
+    AdministrativoView administrativoView;
+    List<SetFuncionario> funcionarios = new ArrayList<>();
     //campos
     private TextField codigoField;
     private TextField decricaoField;
     private ComboBox<SetFuncionario> responsavelield;
-
     //botoes
     private Button saveButton;
     private Button deleteButton;
     private Button cancelButton;
-
-    String selectedValue;
-
-
-    //Injecao do servico
-    @Autowired
-    DepartamentoService departamentoService;
-
-    @Autowired
-    FuncionarioService funcionarioService;
-
-    @Autowired
-    @Lazy
-    AdministrativoView administrativoView;
-
-
     private SetDepartamento departamento;
-
-
     private UtilitySystemConfigService service;
 
     public DepartamentoDetalhesModal() {
@@ -87,14 +78,14 @@ public class DepartamentoDetalhesModal extends Dialog {
     }
 
     private void deleta(SetDepartamento departamento) {
-            try {
-                departamentoService.deletar(departamento);
-                service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-                administrativoView.refreshGrid();
-                close();
-            } catch (Exception e){
-                service.notificaErro(ModalMessageConst.ERROR_DELETE);
-            }
+        try {
+            departamentoService.deletar(departamento);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            administrativoView.refreshGrid();
+            close();
+        } catch (Exception e) {
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
     }
 
     private void save() {
@@ -136,10 +127,6 @@ public class DepartamentoDetalhesModal extends Dialog {
         return div;
     }
 
-    List<SetFuncionario> funcionarios = new ArrayList<>();
-
-
-
     private List<String> getFuncionarioNome(Integer id_funcionario) {
         List<String> nomes = new ArrayList<>();
         funcionarios = funcionarioService.listAll();
@@ -162,15 +149,13 @@ public class DepartamentoDetalhesModal extends Dialog {
     }
 
 
-
-
     private Integer getFuncionarioId() {
 
         Optional<SetFuncionario> foundFuncionario = funcionarios.stream()
                 .filter(funcionario -> funcionario.getNome_funcionario().equals
                         (selectedValue))
                 .findFirst();
-        if (foundFuncionario.isPresent()){
+        if (foundFuncionario.isPresent()) {
             return foundFuncionario.get().getId_funcionario();
         } else {
             return 0;
@@ -192,15 +177,15 @@ public class DepartamentoDetalhesModal extends Dialog {
     public void setDepartamento(SetDepartamento item) {
         UI.getCurrent().access(() -> {
             this.departamento = item;
-            if(Objects.nonNull(item.getId_departamento()))
-          //  codigoField.setValue(item.getId_departamento().toString());
-            if(Objects.nonNull(item.getDescricao_departamento()))
-            decricaoField.setValue(item.getDescricao_departamento());
+            if (Objects.nonNull(item.getId_departamento()))
+                //  codigoField.setValue(item.getId_departamento().toString());
+                if (Objects.nonNull(item.getDescricao_departamento()))
+                    decricaoField.setValue(item.getDescricao_departamento());
             List<SetFuncionario> funcionarioLista = funcionarioService.listAll();
-            if(Objects.nonNull(item.getId_funcionario()))
-            responsavelield.setValue(funcionarioLista.stream()
-                    .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
-                    .findFirst().orElse(null));
+            if (Objects.nonNull(item.getId_funcionario()))
+                responsavelield.setValue(funcionarioLista.stream()
+                        .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
+                        .findFirst().orElse(null));
         });
     }
 }

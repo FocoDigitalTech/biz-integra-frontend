@@ -23,7 +23,7 @@ import java.util.Objects;
 
 @Component
 @UIScope
-public class CodigoNumeracaoDiv extends Div{
+public class CodigoNumeracaoDiv extends Div {
 
     private Grid<SetCodigoNumeracao> grid;
 
@@ -38,6 +38,14 @@ public class CodigoNumeracaoDiv extends Div{
     private CodigoNumeracaoModal pragaCadastroModal;
 
     @Autowired
+    public CodigoNumeracaoDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(CodigoNumeracaoService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -46,15 +54,6 @@ public class CodigoNumeracaoDiv extends Div{
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.pragaCadastroModal = pragaCadastroModal1;
-    }
-
-
-    @Autowired
-    public CodigoNumeracaoDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -90,7 +89,7 @@ public class CodigoNumeracaoDiv extends Div{
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -122,7 +121,7 @@ public class CodigoNumeracaoDiv extends Div{
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_alteracao())){
+            if (Objects.nonNull(data.getData_alteracao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_alteracao());
             } else {
@@ -140,7 +139,6 @@ public class CodigoNumeracaoDiv extends Div{
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(pragaService.findAll());

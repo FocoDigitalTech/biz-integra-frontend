@@ -5,7 +5,6 @@ import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.administrativo.modal.CompraCadastroModal;
 import br.com.onetec.application.views.main.administrativo.modal.CompraDetalhesModal;
-import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetCompra;
 import br.com.onetec.infra.db.model.SetFornecedor;
@@ -59,22 +58,6 @@ public class ComprasDiv extends Div {
     private CompraDetalhesModal detalhesModal;
 
     @Autowired
-    public void initServices(CompraService compraService1,
-                             UtilitySystemConfigService service1,
-                             UsuarioService usuarioService1,
-                             CompraCadastroModal compraCadastroModal1,
-                             FornecedorService fornecedorService1,
-                             CompraDetalhesModal detalhesModal1) {
-        this.compraService = compraService1;
-        this.service = service1;
-        this.usuarioService = usuarioService1;
-        this.compraCadastroModal = compraCadastroModal1;
-        this.fornecedorService = fornecedorService1;
-        this.detalhesModal = detalhesModal1;
-    }
-
-
-    @Autowired
     public ComprasDiv(CompraService compraService1,
                       UtilitySystemConfigService service1,
                       UsuarioService usuarioService1,
@@ -91,6 +74,21 @@ public class ComprasDiv extends Div {
             add(telaDiv());
         });
 
+    }
+
+    @Autowired
+    public void initServices(CompraService compraService1,
+                             UtilitySystemConfigService service1,
+                             UsuarioService usuarioService1,
+                             CompraCadastroModal compraCadastroModal1,
+                             FornecedorService fornecedorService1,
+                             CompraDetalhesModal detalhesModal1) {
+        this.compraService = compraService1;
+        this.service = service1;
+        this.usuarioService = usuarioService1;
+        this.compraCadastroModal = compraCadastroModal1;
+        this.fornecedorService = fornecedorService1;
+        this.detalhesModal = detalhesModal1;
     }
 
     private Div telaDiv() {
@@ -147,8 +145,6 @@ public class ComprasDiv extends Div {
     }
 
 
-
-
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
@@ -174,7 +170,7 @@ public class ComprasDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getDatanotafiscal_compra())){
+            if (Objects.nonNull(data.getDatanotafiscal_compra())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getDatanotafiscal_compra().atStartOfDay());
             } else {
@@ -185,7 +181,7 @@ public class ComprasDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_compra())){
+            if (Objects.nonNull(data.getData_compra())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_compra().atStartOfDay());
             } else {
@@ -220,7 +216,7 @@ public class ComprasDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getDataaprovacao_compra())){
+            if (Objects.nonNull(data.getDataaprovacao_compra())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getDataaprovacao_compra().atStartOfDay());
             } else {
@@ -235,7 +231,7 @@ public class ComprasDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getDatavalidate_compra())){
+            if (Objects.nonNull(data.getDatavalidate_compra())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getDatavalidate_compra().atStartOfDay());
             } else {
@@ -246,7 +242,7 @@ public class ComprasDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -263,7 +259,6 @@ public class ComprasDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> compraService.list(
@@ -301,6 +296,16 @@ public class ComprasDiv extends Div {
         });
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            compraCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetCompra> {
 
@@ -318,8 +323,6 @@ public class ComprasDiv extends Div {
             id.setPlaceholder("Código");
 
 
-
-
             // Action buttons
             com.vaadin.flow.component.button.Button resetBtn = new com.vaadin.flow.component.button.Button("Limpar");
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -334,15 +337,13 @@ public class ComprasDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -389,17 +390,5 @@ public class ComprasDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            compraCadastroModal.open();
-        });
     }
 }

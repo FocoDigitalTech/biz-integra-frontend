@@ -22,7 +22,7 @@ public class OrdemServicoService {
     private ISetOrdemServicoRepository repository;
 
     @Autowired
-    public void initServices (ISetOrdemServicoRepository repository1){
+    public void initServices(ISetOrdemServicoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -37,12 +37,12 @@ public class OrdemServicoService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServico> findAllByOrcamentoId(Integer orcamentoid){
+    public List<SetOrdemServico> findAllByOrcamentoId(Integer orcamentoid) {
 
         return repository.listAllByOrcamentoId(orcamentoid);
     }
 
-    public List<SetOrdemServico> findAll(){
+    public List<SetOrdemServico> findAll() {
 
         return repository.listAll();
     }
@@ -50,7 +50,7 @@ public class OrdemServicoService {
     public void save(SetOrdemServico dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -64,7 +64,7 @@ public class OrdemServicoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -83,7 +83,7 @@ public class OrdemServicoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

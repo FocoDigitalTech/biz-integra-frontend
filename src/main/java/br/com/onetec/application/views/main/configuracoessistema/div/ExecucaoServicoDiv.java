@@ -6,9 +6,7 @@ import br.com.onetec.application.views.main.configuracoessistema.modal.ExecucaoS
 import br.com.onetec.application.views.main.configuracoessistema.modal.ExecucaoServicoModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetCodigoNumeracao;
 import br.com.onetec.infra.db.model.SetExecucaoServico;
-import br.com.onetec.infra.db.model.SetPraga;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -56,6 +54,14 @@ public class ExecucaoServicoDiv extends Div {
     private ExecucaoServicoDetalheModal execucaoServicoDetalheModal;
 
     @Autowired
+    public ExecucaoServicoDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(ExecucaoServicoService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -66,15 +72,6 @@ public class ExecucaoServicoDiv extends Div {
         this.usuarioService = usuarioService1;
         this.modal = execucaoServicoModal;
         this.execucaoServicoDetalheModal = execucaoServicoDetalheModal1;
-    }
-
-
-    @Autowired
-    public ExecucaoServicoDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -136,7 +133,7 @@ public class ExecucaoServicoDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -159,7 +156,7 @@ public class ExecucaoServicoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -208,14 +205,22 @@ public class ExecucaoServicoDiv extends Div {
         });
 
 
-
-
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
         return grid;
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            modal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetExecucaoServico> {
 
@@ -231,8 +236,6 @@ public class ExecucaoServicoDiv extends Div {
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -253,15 +256,13 @@ public class ExecucaoServicoDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -308,17 +309,5 @@ public class ExecucaoServicoDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            modal.open();
-        });
     }
 }

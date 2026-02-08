@@ -7,18 +7,13 @@ import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoService;
 import br.com.onetec.application.service.servicoservices.ServicoService;
-import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.relatorios.div.RelatorioAgendamentoDiv;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,31 +52,31 @@ public class AgendamentoPrintExportService {
 
     public void imprimirRelatorio(Grid<SetContrato> grid, ClickEvent<Button> e, Checkbox abreviarCheckbox) {
 
-            // 1) coleta o que está filtrado
-            List<SetContrato> contratos = grid.getGenericDataView()
-                    .getItems()
-                    .collect(Collectors.toList());
-            boolean abreviar = abreviarCheckbox.getValue();
+        // 1) coleta o que está filtrado
+        List<SetContrato> contratos = grid.getGenericDataView()
+                .getItems()
+                .collect(Collectors.toList());
+        boolean abreviar = abreviarCheckbox.getValue();
 
-            // 2) monta o HTML
-            String html = montarHtmlDeImpressao(contratos, abreviar);
+        // 2) monta o HTML
+        String html = montarHtmlDeImpressao(contratos, abreviar);
 
-            // 3) cria o StreamResource
-            StreamResource resource = new StreamResource("relatorio.html", () ->
-                    new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8))
-            );
-            resource.setContentType("text/html");
-            resource.setCacheTime(0); // sem cache
+        // 3) cria o StreamResource
+        StreamResource resource = new StreamResource("relatorio.html", () ->
+                new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8))
+        );
+        resource.setContentType("text/html");
+        resource.setCacheTime(0); // sem cache
 
-            // 4) registra e obtém a URI
-            String uri = VaadinSession.getCurrent()
-                    .getResourceRegistry()
-                    .registerResource(resource)
-                    .getResourceUri()
-                    .toString();
+        // 4) registra e obtém a URI
+        String uri = VaadinSession.getCurrent()
+                .getResourceRegistry()
+                .registerResource(resource)
+                .getResourceUri()
+                .toString();
 
-            // 5) abre numa aba nova — o onload do HTML dispara window.print()
-            UI.getCurrent().getPage().open(uri, "_blank");
+        // 5) abre numa aba nova — o onload do HTML dispara window.print()
+        UI.getCurrent().getPage().open(uri, "_blank");
 
     }
 
@@ -125,7 +120,7 @@ public class AgendamentoPrintExportService {
                     .max(Comparator.comparing(SetOrdemServico::getDatainicio_ordemservico))
                     .map(SetOrdemServico::getHorarioinicio_ordemservico);
             String horario = "N/D";
-            if (optionalHorario.isPresent()){
+            if (optionalHorario.isPresent()) {
                 horario = optionalHorario.get().toString();
             }
 

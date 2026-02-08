@@ -57,12 +57,6 @@ public class RelatorioAgendamentoDiv extends Div {
     private final DatePicker endDate = new DatePicker();
     private final ComboBox<String> tipoContrato = new ComboBox<>("Tipo");//tipo
     private final RadioButtonGroup abreviaradio = new RadioButtonGroup("Abreviar nome dos serviços ?");//abrevia ?
-    private Checkbox abreviarCheckbox;
-    private Button btnImprimir = new Button("Imprimir");//imprimir
-    private UtilitySystemConfigService service;
-    private Grid<SetContrato> grid;
-    private RelatorioAgendamentoDiv.Filter filter;
-    private UsuarioService usuarioService;
     private final OrcamentoService orcamentoService;
     private final ContratoService contratoService;
     private final FuncionarioService funcionarioService;
@@ -70,15 +64,21 @@ public class RelatorioAgendamentoDiv extends Div {
     private final OrdemServicoService ordemServicoService;
     private final ServicosOrcamentoService servicosOrcamentoService;
     private final ServicoService servicoService;
-    private boolean abreviaverificacao = false;
     private final AgendamentoPrintExportService agendamentoPrintExportService;
+    private Checkbox abreviarCheckbox;
+    private Button btnImprimir = new Button("Imprimir");//imprimir
+    private UtilitySystemConfigService service;
+    private Grid<SetContrato> grid;
+    private RelatorioAgendamentoDiv.Filter filter;
+    private UsuarioService usuarioService;
+    private boolean abreviaverificacao = false;
 
     @Autowired
     public RelatorioAgendamentoDiv(OrcamentoService orcamentoService1, ContratoService contratoService1,
                                    FuncionarioService funcionarioService1, ClientesService clientesService1,
                                    OrdemServicoService ordemServicoService1,
                                    ServicosOrcamentoService servicosOrcamentoService1, ServicoService servicoService1,
-                                    AgendamentoPrintExportService agendamentoPrintExportService1) {
+                                   AgendamentoPrintExportService agendamentoPrintExportService1) {
         this.orcamentoService = orcamentoService1;
         this.contratoService = contratoService1;
         this.funcionarioService = funcionarioService1;
@@ -155,7 +155,7 @@ public class RelatorioAgendamentoDiv extends Div {
         //departamentoService.list(null,null);
         grid = new Grid<>(SetContrato.class, false);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getDatainicio_execucao())){
+            if (Objects.nonNull(data.getDatainicio_execucao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getDatainicio_execucao().atStartOfDay());
             } else {
@@ -266,6 +266,40 @@ public class RelatorioAgendamentoDiv extends Div {
         return grid;
     }
 
+    private void gerarPDFComItensFiltrados() {
+        List<SetContrato> itensFiltrados = grid.getListDataView().getItems().collect(Collectors.toList());
+
+        try {
+            String filePath = "caminho/para/arquivo.pdf";
+            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            Table table = new Table(4); // Número de colunas que você quiser
+
+            // Cabeçalho
+            table.addHeaderCell(new Cell().add(new Paragraph("Data")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+            table.addHeaderCell(new Cell().add(new Paragraph("Número Orçamento")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+            table.addHeaderCell(new Cell().add(new Paragraph("Número Contrato")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+            table.addHeaderCell(new Cell().add(new Paragraph("Nome Cliente")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+            // Linhas
+            for (SetContrato contrato : itensFiltrados) {
+                //table.addCell(new Paragraph(UtilitySystemConfigService.getDataFormatada(contrato.getDatainicio_execucao().atStartOfDay())));
+                table.addCell(new Paragraph(String.valueOf(contrato.getId_orcamento())));
+                table.addCell(new Paragraph(String.valueOf(contrato.getId_contrato())));
+                SetCliente cliente = clientesService.findById(contrato.getId_cliente());
+                table.addCell(new Paragraph(cliente.getNome_cliente()));
+            }
+
+            document.add(table);
+            document.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public class Filter extends Div implements Specification<SetContrato> {
 
 
@@ -292,9 +326,7 @@ public class RelatorioAgendamentoDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
             btnImprimir = new Button("Imprimir", e ->
-                    agendamentoPrintExportService.imprimirRelatorio(grid, e,abreviarCheckbox));
-
-
+                    agendamentoPrintExportService.imprimirRelatorio(grid, e, abreviarCheckbox));
 
 
             btnImprimir.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -398,43 +430,6 @@ public class RelatorioAgendamentoDiv extends Div {
             return expression;
         }
 
-    }
-
-
-
-
-    private void gerarPDFComItensFiltrados() {
-        List<SetContrato> itensFiltrados = grid.getListDataView().getItems().collect(Collectors.toList());
-
-        try {
-            String filePath = "caminho/para/arquivo.pdf";
-            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
-
-            Table table = new Table(4); // Número de colunas que você quiser
-
-            // Cabeçalho
-            table.addHeaderCell(new Cell().add(new Paragraph("Data")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-            table.addHeaderCell(new Cell().add(new Paragraph("Número Orçamento")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-            table.addHeaderCell(new Cell().add(new Paragraph("Número Contrato")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-            table.addHeaderCell(new Cell().add(new Paragraph("Nome Cliente")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
-
-            // Linhas
-            for (SetContrato contrato : itensFiltrados) {
-                //table.addCell(new Paragraph(UtilitySystemConfigService.getDataFormatada(contrato.getDatainicio_execucao().atStartOfDay())));
-                table.addCell(new Paragraph(String.valueOf(contrato.getId_orcamento())));
-                table.addCell(new Paragraph(String.valueOf(contrato.getId_contrato())));
-                SetCliente cliente = clientesService.findById(contrato.getId_cliente());
-                table.addCell(new Paragraph(cliente.getNome_cliente()));
-            }
-
-            document.add(table);
-            document.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 

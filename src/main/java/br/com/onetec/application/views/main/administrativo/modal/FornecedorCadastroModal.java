@@ -41,10 +41,12 @@ import java.util.List;
 public class FornecedorCadastroModal extends Dialog {
 
 
-
+    private static List<SetEstado> estadoList;
+    @Autowired
+    @Lazy
+    FornecedorDiv fornecedorDiv;
     private Button saveButton;
-    private  Button cancelButton;
-
+    private Button cancelButton;
     //Cadastro Fornecedor
     private Div cadastroFornecedor;
     private DatePicker data_cadastro;
@@ -65,8 +67,6 @@ public class FornecedorCadastroModal extends Dialog {
     private TextField cargocontato_fornecedor;
     private TextField inscicaoestadual_fornecedor;
     private TextArea observacao_fornecedor;
-
-
     //Cadastro Contatos Fornecedor
     private Div cadastroFornecedorContatos;
     private TextField nome_fornecedorcontato;
@@ -75,38 +75,13 @@ public class FornecedorCadastroModal extends Dialog {
     private TextField telefone_fornecedorcontato;
     private TextField email_fornecedorcontato;
     private TextArea observacoes_fornecedorcontato;
-
-
-    private EstadoService estadoService ;
+    private EstadoService estadoService;
     private UtilitySystemConfigService service;
     private SetorAtuacaoService setorAtuacaoService;
     private FornecedorService fornecedorService;
     private FornecedorContatoService fornecedorContatoService;
-
     private List<SetFornecedorContato> listaContatosFornecedor;
-    private static List<SetEstado> estadoList;
-
-    @Autowired
-    @Lazy
-    FornecedorDiv fornecedorDiv;
-
-    @Autowired
-    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
-                             SetorAtuacaoService setorAtuacaoService1,
-                             FornecedorService fornecedorService1,
-                             FornecedorContatoService fornecedorContatoService1) {
-        this.estadoService = serviceEstado;
-        this.service = service;
-        this.fornecedorContatoService = fornecedorContatoService1;
-        this.fornecedorService = fornecedorService1;
-        this.setorAtuacaoService = setorAtuacaoService1;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configureCEPField(cep_fornecedor);
-            service.configureTelefoneResidencialField(telefone_fornecedor);
-            service.configuraCalendario(data_cadastro);
-        });
-    }
+    private Grid<SetFornecedorContato> gridContatos;
 
 
     @Autowired
@@ -174,6 +149,24 @@ public class FornecedorCadastroModal extends Dialog {
         });
     }
 
+    @Autowired
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
+                             SetorAtuacaoService setorAtuacaoService1,
+                             FornecedorService fornecedorService1,
+                             FornecedorContatoService fornecedorContatoService1) {
+        this.estadoService = serviceEstado;
+        this.service = service;
+        this.fornecedorContatoService = fornecedorContatoService1;
+        this.fornecedorService = fornecedorService1;
+        this.setorAtuacaoService = setorAtuacaoService1;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_fornecedor);
+            service.configureTelefoneResidencialField(telefone_fornecedor);
+            service.configuraCalendario(data_cadastro);
+        });
+    }
+
     private void save() {
 
         try {
@@ -182,23 +175,23 @@ public class FornecedorCadastroModal extends Dialog {
                 id_estado.setRequiredIndicatorVisible(true);
                 id_estado.setErrorMessage("Campo obrigatório");
                 id_estado.setInvalid(true);
-            }else if (id_setoratuacao.isEmpty()) {
+            } else if (id_setoratuacao.isEmpty()) {
                 id_setoratuacao.setRequiredIndicatorVisible(true);
                 id_setoratuacao.setErrorMessage("Campo obrigatório");
                 id_setoratuacao.setInvalid(true);
-            }else if (data_cadastro.isEmpty()) {
+            } else if (data_cadastro.isEmpty()) {
                 data_cadastro.setRequiredIndicatorVisible(true);
                 data_cadastro.setErrorMessage("Campo obrigatório");
                 data_cadastro.setInvalid(true);
-            }else if  (tipo_naturezajuridica.isEmpty()) {
+            } else if (tipo_naturezajuridica.isEmpty()) {
                 tipo_naturezajuridica.setRequiredIndicatorVisible(true);
                 tipo_naturezajuridica.setErrorMessage("Campo obrigatório");
                 tipo_naturezajuridica.setInvalid(true);
-            }else if (numero_naturezajuridica.isEmpty()) {
+            } else if (numero_naturezajuridica.isEmpty()) {
                 numero_naturezajuridica.setRequiredIndicatorVisible(true);
                 numero_naturezajuridica.setErrorMessage("Campo obrigatório");
                 numero_naturezajuridica.setInvalid(true);
-            }else if (razaosocial_fornecedor.isEmpty()) {
+            } else if (razaosocial_fornecedor.isEmpty()) {
                 razaosocial_fornecedor.setRequiredIndicatorVisible(true);
                 razaosocial_fornecedor.setErrorMessage("Campo obrigatório");
                 razaosocial_fornecedor.setInvalid(true);
@@ -240,7 +233,7 @@ public class FornecedorCadastroModal extends Dialog {
                 fornecedorDiv.refreshGrid();
                 close();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Notification.show("Erro ao Salvar");
         }
 
@@ -282,7 +275,7 @@ public class FornecedorCadastroModal extends Dialog {
             id_setoratuacao.setItems(setorAtuacaoService.listAll());
         });
 
-        tipo_naturezajuridica.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
+        tipo_naturezajuridica.setItems(List.of("Pessoa Fisica", "Pessoa Juridica"));
         tipo_naturezajuridica.addValueChangeListener(event -> {
             if ("Pessoa Fisica".equals(event.getValue())) {
                 numero_naturezajuridica.clear();
@@ -298,7 +291,7 @@ public class FornecedorCadastroModal extends Dialog {
 
 
         cep_fornecedor.addBlurListener(event -> buscarCep());
-         FormLayout formLayout = new FormLayout();
+        FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(data_cadastro,
                 id_setoratuacao,
@@ -325,9 +318,6 @@ public class FornecedorCadastroModal extends Dialog {
         return div;
     }
 
-
-    private Grid<SetFornecedorContato> gridContatos;
-
     private Div createFormCadastroFornecedorContatos() {
         listaContatosFornecedor = new ArrayList<>();
 
@@ -349,15 +339,14 @@ public class FornecedorCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-          nome_fornecedorcontato = new TextField("Nome");
-          cargo_fornecedorcontato = new TextField("Cargo");
-          departamento_fornecedorcontato = new TextField("Departamento");
-          telefone_fornecedorcontato = new TextField("Telefone");
-          email_fornecedorcontato = new TextField("E-mail");
-          observacoes_fornecedorcontato = new TextArea("Observções");
+        nome_fornecedorcontato = new TextField("Nome");
+        cargo_fornecedorcontato = new TextField("Cargo");
+        departamento_fornecedorcontato = new TextField("Departamento");
+        telefone_fornecedorcontato = new TextField("Telefone");
+        email_fornecedorcontato = new TextField("E-mail");
+        observacoes_fornecedorcontato = new TextArea("Observções");
 
-          service.configureTelefoneResidencialField(telefone_fornecedorcontato);
-
+        service.configureTelefoneResidencialField(telefone_fornecedorcontato);
 
 
         Button saveButton = new Button("Adicionar Contato", event -> {
@@ -365,7 +354,7 @@ public class FornecedorCadastroModal extends Dialog {
                 nome_fornecedorcontato.setRequiredIndicatorVisible(true);
                 nome_fornecedorcontato.setErrorMessage("Campo obrigatório");
                 nome_fornecedorcontato.setInvalid(true);
-            }else if (email_fornecedorcontato.isEmpty()) {
+            } else if (email_fornecedorcontato.isEmpty()) {
                 email_fornecedorcontato.setRequiredIndicatorVisible(true);
                 email_fornecedorcontato.setErrorMessage("Campo obrigatório");
                 email_fornecedorcontato.setInvalid(true);
@@ -403,7 +392,7 @@ public class FornecedorCadastroModal extends Dialog {
                 departamento_fornecedorcontato,
                 telefone_fornecedorcontato,
                 email_fornecedorcontato,
-                observacoes_fornecedorcontato,saveButton);
+                observacoes_fornecedorcontato, saveButton);
 
         VerticalLayout layout = new VerticalLayout(formLayout, gridContatos);
         layout.setSizeFull();

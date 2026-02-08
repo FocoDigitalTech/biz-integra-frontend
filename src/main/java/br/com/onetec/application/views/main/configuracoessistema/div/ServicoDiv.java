@@ -56,6 +56,14 @@ public class ServicoDiv extends Div {
     private ServicoDetalhesModal servicoDetalhesModal;
 
     @Autowired
+    public ServicoDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(ServicoService servicoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -66,14 +74,6 @@ public class ServicoDiv extends Div {
         this.usuarioService = usuarioService1;
         this.servicoCadastroModal = servicoCadastroModal1;
         this.servicoDetalhesModal = servicoDetalhesModal1;
-    }
-
-    @Autowired
-    public ServicoDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -140,7 +140,7 @@ public class ServicoDiv extends Div {
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -158,7 +158,6 @@ public class ServicoDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> servicoService.list(
@@ -201,11 +200,21 @@ public class ServicoDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            servicoCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetServico> {
 
@@ -221,8 +230,6 @@ public class ServicoDiv extends Div {
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -243,15 +250,13 @@ public class ServicoDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -298,18 +303,6 @@ public class ServicoDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            servicoCadastroModal.open();
-        });
     }
 
 }

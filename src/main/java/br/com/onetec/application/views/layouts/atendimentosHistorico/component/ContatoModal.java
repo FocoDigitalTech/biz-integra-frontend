@@ -16,7 +16,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -45,13 +44,13 @@ public class ContatoModal {
         horario_orcamentocontato.setValue(
                 item.getHorario_orcamentocontato());
         nome_orcamentocontato.setValue(
-                item.getNome_orcamentocontato() != null? item.getNome_orcamentocontato() : ""
+                item.getNome_orcamentocontato() != null ? item.getNome_orcamentocontato() : ""
         );
         id_funcionarioContato.setValue(funcionarioService.listAll().stream()
                 .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
                 .findFirst().orElse(null));
         dataretorno_orcamentocontato.setValue(item.getDataretorno_orcamentocontato());
-        descricao_orcamentocontato.setValue(item.getDescricao_orcamentocontato() != null?
+        descricao_orcamentocontato.setValue(item.getDescricao_orcamentocontato() != null ?
                 item.getDescricao_orcamentocontato() : ""
         );
 
@@ -64,7 +63,7 @@ public class ContatoModal {
                 item.setData_orcamentocontato(data_orcamentocontato.getValue());
                 item.setHorario_orcamentocontato(horario_orcamentocontato.getValue());
                 item.setNome_orcamentocontato(nome_orcamentocontato.getValue());
-                if(Objects.nonNull(id_funcionarioContato.getValue())) {
+                if (Objects.nonNull(id_funcionarioContato.getValue())) {
                     item.setId_funcionario(id_funcionarioContato.getValue().getId_funcionario());
                 }
                 item.setDataretorno_orcamentocontato(dataretorno_orcamentocontato.getValue());
@@ -82,7 +81,7 @@ public class ContatoModal {
         Button cancelBtn = new Button("Cancelar", event -> service.askForConfirmation(dialog));
 
         // Adiciona os componentes ao layout
-        formLayout.add( data_orcamentocontato,
+        formLayout.add(data_orcamentocontato,
                 horario_orcamentocontato,
                 nome_orcamentocontato,
                 id_funcionarioContato,

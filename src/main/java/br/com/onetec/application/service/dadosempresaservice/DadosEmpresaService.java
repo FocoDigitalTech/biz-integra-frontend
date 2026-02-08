@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.dadosempresaservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetContrato;
 import br.com.onetec.infra.db.model.SetDadosEmpresa;
-import br.com.onetec.infra.db.repository.ISetContratoRepository;
 import br.com.onetec.infra.db.repository.ISetDadosEmpresaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +39,7 @@ public class DadosEmpresaService {
     public void save(SetDadosEmpresa dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -55,7 +53,7 @@ public class DadosEmpresaService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -67,7 +65,7 @@ public class DadosEmpresaService {
             entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

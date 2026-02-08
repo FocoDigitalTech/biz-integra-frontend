@@ -36,7 +36,7 @@ import java.util.Objects;
 
 @Component
 @UIScope
-public class GrupoUsuariosDiv extends Div{
+public class GrupoUsuariosDiv extends Div {
 
     private Grid<SetGrupoUsuario> grid;
 
@@ -57,6 +57,13 @@ public class GrupoUsuariosDiv extends Div{
     private GrupoUsuarioService grupoUsuarioService;
 
     @Autowired
+    public GrupoUsuariosDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+    }
+
+    @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              GrupoUsuarioCadastroModal grupoUsuarioCadastroModal1,
@@ -70,13 +77,6 @@ public class GrupoUsuariosDiv extends Div{
         this.funcionarioService = funcionarioService1;
         this.grupoUsuarioService = grupoUsuarioService1;
         this.grupoUsuarioDetalhesModal = grupoUsuarioDetalhesModal1;
-    }
-
-    @Autowired
-    public GrupoUsuariosDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
     }
 
     private Div telaDiv() {
@@ -104,7 +104,6 @@ public class GrupoUsuariosDiv extends Div{
     }
 
 
-
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
@@ -121,7 +120,7 @@ public class GrupoUsuariosDiv extends Div{
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -138,7 +137,6 @@ public class GrupoUsuariosDiv extends Div{
                 filter).stream());
 
 
-
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event ->
                 {
@@ -151,6 +149,57 @@ public class GrupoUsuariosDiv extends Div{
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
         return grid;
+    }
+
+    public void refreshGrid() {
+        grid.getDataProvider().refreshAll();
+    }
+
+    private HorizontalLayout createMobileFiltersFuncionario() {
+        // Mobile version
+        HorizontalLayout mobileFilters = new HorizontalLayout();
+        mobileFilters.setWidthFull();
+        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
+                LumoUtility.AlignItems.CENTER);
+        mobileFilters.addClassName("mobile-filters");
+
+        Icon mobileIcon = new Icon("lumo", "plus");
+        Span filtersHeading = new Span("Filters");
+        mobileFilters.add(mobileIcon, filtersHeading);
+        mobileFilters.setFlexGrow(1, filtersHeading);
+        mobileFilters.addClickListener(e -> {
+            if (filter.getClassNames().contains("visible")) {
+                filter.removeClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
+            } else {
+                filter.addClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
+            }
+        });
+        return mobileFilters;
+    }
+
+    private void deleta(SetGrupoUsuario item, Dialog dialog) {
+        try {
+            grupoUsuarioService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            dialog.close();
+            refreshGrid();
+        } catch (Exception e) {
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
+    private Button createUsuarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            grupoUsuarioCadastroModal.open();
+        });
     }
 
     public class Filter extends Div implements Specification<SetGrupoUsuario> {
@@ -240,57 +289,5 @@ public class GrupoUsuariosDiv extends Div{
             return expression;
         }
 
-    }
-
-    public void refreshGrid() {
-        grid.getDataProvider().refreshAll();
-    }
-
-    private HorizontalLayout createMobileFiltersFuncionario() {
-        // Mobile version
-        HorizontalLayout mobileFilters = new HorizontalLayout();
-        mobileFilters.setWidthFull();
-        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
-                LumoUtility.AlignItems.CENTER);
-        mobileFilters.addClassName("mobile-filters");
-
-        Icon mobileIcon = new Icon("lumo", "plus");
-        Span filtersHeading = new Span("Filters");
-        mobileFilters.add(mobileIcon, filtersHeading);
-        mobileFilters.setFlexGrow(1, filtersHeading);
-        mobileFilters.addClickListener(e -> {
-            if (filter.getClassNames().contains("visible")) {
-                filter.removeClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
-            } else {
-                filter.addClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
-            }
-        });
-        return mobileFilters;
-    }
-
-    private void deleta(SetGrupoUsuario item, Dialog dialog) {
-        try {
-            grupoUsuarioService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            dialog.close();
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
-
-    private Button createUsuarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            grupoUsuarioCadastroModal.open();
-        });
     }
 }

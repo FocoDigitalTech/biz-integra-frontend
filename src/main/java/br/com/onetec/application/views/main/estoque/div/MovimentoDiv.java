@@ -5,7 +5,6 @@ import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.estoque.modal.EstoqueCadastroModal;
 import br.com.onetec.application.views.main.estoque.modal.EstoqueDadosModal;
-import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetProduto;
@@ -60,6 +59,14 @@ public class MovimentoDiv extends Div {
     private ApplicationContext applicationContext;
 
     @Autowired
+    public MovimentoDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(ProdutoService produtoService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -74,15 +81,6 @@ public class MovimentoDiv extends Div {
         this.estoqueCadastroModal = estoqueCadastroModal1;
         this.applicationContext = applicationContext1;
         this.estoqueDadosModal = estoqueDadosModal1;
-    }
-
-
-    @Autowired
-    public MovimentoDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -162,7 +160,7 @@ public class MovimentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -179,7 +177,6 @@ public class MovimentoDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> estoqueService.list(
@@ -209,12 +206,20 @@ public class MovimentoDiv extends Div {
 
     private void abrirDetalhesDoEstoque(SetEstoque estoque) {
         //  lógica para abrir modal
-       // ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
+        // ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
         //dialog.open();
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
 
-
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            estoqueCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetEstoque> {
 
@@ -230,8 +235,6 @@ public class MovimentoDiv extends Div {
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -252,15 +255,13 @@ public class MovimentoDiv extends Div {
 //            btnExcluir.setVisible(false);
 //            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
 //                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -307,18 +308,6 @@ public class MovimentoDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            estoqueCadastroModal.open();
-        });
     }
 }
 

@@ -2,7 +2,6 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
-import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -32,7 +31,7 @@ public class AutoCrudTipoEventoFinanceiroService {
         TextField descricaoField = new TextField("Descrição");
 
         // Adiciona os campos ao layout do formulário
-        formLayout.add(nomeField,descricaoField);
+        formLayout.add(nomeField, descricaoField);
 
         // Botão para salvar os dados
         Button saveButton = new Button("Salvar", event -> {

@@ -14,7 +14,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 public class PosVendaModal {
     public static void openModalPosVenda(SetOrcamentoPosVenda item, OrcamentoPosVendasService orcamentoPosVendasService,
@@ -23,22 +22,22 @@ public class PosVendaModal {
         RadioButtonGroup<String> bomatendimento_orcamentoposvenda = new RadioButtonGroup("FOI BEM ATENDIDO ?");
         bomatendimento_orcamentoposvenda.setItems(List.of("SIM", "NÃO"));
 
-        RadioButtonGroup<String>funcionariosuniformizados_orcamentoposvenda = new RadioButtonGroup("ESTAVAM UNIFORMIZADOS E USAVAM CRACHÁ ?");
+        RadioButtonGroup<String> funcionariosuniformizados_orcamentoposvenda = new RadioButtonGroup("ESTAVAM UNIFORMIZADOS E USAVAM CRACHÁ ?");
         funcionariosuniformizados_orcamentoposvenda.setItems(List.of("SIM", "NÃO"));
 
-        RadioButtonGroup<String>limpeza_orcamentoposvenda = new RadioButtonGroup("TRABALHARAM COM LIMPEZA E ORGANIZAÇÃO ?");
+        RadioButtonGroup<String> limpeza_orcamentoposvenda = new RadioButtonGroup("TRABALHARAM COM LIMPEZA E ORGANIZAÇÃO ?");
         limpeza_orcamentoposvenda.setItems(List.of("SIM", "NÃO"));
 
-        RadioButtonGroup<String>duvidas_orcamentoposvenda = new RadioButtonGroup("ESCLARECERAM TODAS AS DUVIDAS ?");
+        RadioButtonGroup<String> duvidas_orcamentoposvenda = new RadioButtonGroup("ESCLARECERAM TODAS AS DUVIDAS ?");
         duvidas_orcamentoposvenda.setItems(List.of("SIM", "NÃO"));
 
-        RadioButtonGroup<String>notegeral_orcamentoposvenda = new RadioButtonGroup("AVALIAÇÃO GERAL NOTA 0 ATÉ 5");
-        notegeral_orcamentoposvenda.setItems(List.of("1", "2","3","4","5"));
+        RadioButtonGroup<String> notegeral_orcamentoposvenda = new RadioButtonGroup("AVALIAÇÃO GERAL NOTA 0 ATÉ 5");
+        notegeral_orcamentoposvenda.setItems(List.of("1", "2", "3", "4", "5"));
 
-        RadioButtonGroup<String>utilizarianovamente_orcamentoposvenda = new RadioButtonGroup("UTILIZARIA NOVAMENTE OS SERVIÇOS ?");
+        RadioButtonGroup<String> utilizarianovamente_orcamentoposvenda = new RadioButtonGroup("UTILIZARIA NOVAMENTE OS SERVIÇOS ?");
         utilizarianovamente_orcamentoposvenda.setItems(List.of("SIM", "NÃO"));
 
-        RadioButtonGroup<String>sugestao_orcamentoposvenda = new RadioButtonGroup("TEM ALGUMA SUGESTÃO ?");
+        RadioButtonGroup<String> sugestao_orcamentoposvenda = new RadioButtonGroup("TEM ALGUMA SUGESTÃO ?");
         sugestao_orcamentoposvenda.setItems(List.of("SIM", "NÃO"));
 
         TextArea descricaosugestao_orcamentoposvenda = new TextArea("Sugestões/ Observações");

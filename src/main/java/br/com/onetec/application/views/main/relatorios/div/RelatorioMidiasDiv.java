@@ -11,10 +11,12 @@ import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.service.userservice.UsuarioService;
-import br.com.onetec.application.views.main.relatorios.service.AgendamentoPrintExportService;
 import br.com.onetec.application.views.main.relatorios.service.MidiaPrintExportService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetOrcamento;
+import br.com.onetec.infra.db.model.SetServico;
+import br.com.onetec.infra.db.model.SetServicosOrcamento;
+import br.com.onetec.infra.db.model.SetTipoMidia;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -23,7 +25,6 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -42,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,12 +55,6 @@ public class RelatorioMidiasDiv extends Div {
     private final DatePicker endDate = new DatePicker();
     private final ComboBox<SetTipoMidia> tipoMidia = new ComboBox<>("Opção Midia");//tipo
     private final RadioButtonGroup abreviaradio = new RadioButtonGroup("Abreviar nome dos serviços ?");//abrevia ?
-    private Checkbox abreviarCheckbox;
-    private Button btnImprimir = new Button("Imprimir");//imprimir
-    private UtilitySystemConfigService service;
-    private Grid<SetOrcamento> grid;
-    private RelatorioMidiasDiv.Filter filter;
-    private UsuarioService usuarioService;
     private final OrcamentoService orcamentoService;
     private final ContratoService contratoService;
     private final FuncionarioService funcionarioService;
@@ -66,11 +62,17 @@ public class RelatorioMidiasDiv extends Div {
     private final OrdemServicoService ordemServicoService;
     private final ServicosOrcamentoService servicosOrcamentoService;
     private final ServicoService servicoService;
-    private boolean abreviaverificacao = false;
     private final MidiaPrintExportService midiaPrintExportService;
     private final EnderecoService enderecoService;
     private final SituacaoCadastroService situacaoCadastroService;
     private final TipoMidiaService tipoMidiaService;
+    private Checkbox abreviarCheckbox;
+    private Button btnImprimir = new Button("Imprimir");//imprimir
+    private UtilitySystemConfigService service;
+    private Grid<SetOrcamento> grid;
+    private RelatorioMidiasDiv.Filter filter;
+    private UsuarioService usuarioService;
+    private boolean abreviaverificacao = false;
 
     @Autowired
     public RelatorioMidiasDiv(OrcamentoService orcamentoService1, ContratoService contratoService1,
@@ -158,7 +160,7 @@ public class RelatorioMidiasDiv extends Div {
         grid = new Grid<>(SetOrcamento.class, false);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getId_cliente())){
+            if (Objects.nonNull(data.getId_cliente())) {
                 return clientesService.findById(data.getId_cliente()).getNome_cliente();
             } else {
                 return "N/D";
@@ -170,7 +172,7 @@ public class RelatorioMidiasDiv extends Div {
 
         //departamentoService.list(null,null);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getId_endereco())){
+            if (Objects.nonNull(data.getId_endereco())) {
                 return enderecoService.findById(data.getId_endereco()).getCidade_imovel();
             } else {
                 return "N/D";
@@ -181,7 +183,7 @@ public class RelatorioMidiasDiv extends Div {
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getId_endereco())){
+            if (Objects.nonNull(data.getId_endereco())) {
                 return enderecoService.findById(data.getId_endereco()).getBairro_imovel();
             } else {
                 return "N/D";
@@ -197,7 +199,7 @@ public class RelatorioMidiasDiv extends Div {
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_orcamento())){
+            if (Objects.nonNull(data.getData_orcamento())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_orcamento().atStartOfDay());
             } else {
@@ -248,7 +250,7 @@ public class RelatorioMidiasDiv extends Div {
                 .setAutoWidth(true);
 
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getId_situacao())){
+            if (Objects.nonNull(data.getId_situacao())) {
                 return situacaoCadastroService.fidById(data.getId_situacao()).getDescricao_situacaocadastro();
             } else {
                 return "N/D";
@@ -309,11 +311,11 @@ public class RelatorioMidiasDiv extends Div {
             // Itens do submenu
             contextMenu.addItem("Resumido", e -> {
                 midiaPrintExportService.
-                        imprimirGrafico(grid,abreviarCheckbox);
+                        imprimirGrafico(grid, abreviarCheckbox);
             });
             contextMenu.addItem("Detalhado", e -> {
                 midiaPrintExportService.
-                        imprimirRelatorio(grid,abreviarCheckbox);
+                        imprimirRelatorio(grid, abreviarCheckbox);
             });
 
 

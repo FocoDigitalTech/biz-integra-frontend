@@ -25,16 +25,17 @@ import java.time.LocalDateTime;
 @UIScope
 public class TipoAtendimentoDetalhesModal extends Dialog {
 
-    private TextField decricaoField;
-
     @Autowired
     TipoAtendimentoService tipoAtendimentoService;
-
     @Autowired
     @Lazy
     TipoAtendimentoDiv tipoAtendimentoDiv;
+    UtilitySystemConfigService service;
+    SetTipoAtendimento setTipoAtendimento;
+    private TextField decricaoField;
     private Button saveButton;
     private Button cancelButton;
+
 
     public TipoAtendimentoDetalhesModal() {
         UI.getCurrent().access(() -> {
@@ -66,11 +67,6 @@ public class TipoAtendimentoDetalhesModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
-
-    SetTipoAtendimento setTipoAtendimento;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro

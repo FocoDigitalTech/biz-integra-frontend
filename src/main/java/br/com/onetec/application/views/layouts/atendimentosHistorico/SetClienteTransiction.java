@@ -1,7 +1,5 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico;
 
-import br.com.onetec.application.service.clientesservice.EstadoService;
-import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.cross.utilities.ValorPorExtenso;
 import br.com.onetec.infra.db.model.*;
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -22,9 +20,11 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
-import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFFooter;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -37,6 +37,7 @@ import java.util.Objects;
 public class SetClienteTransiction {
 
     private static SetCliente cliente;
+    private static boolean recarregaPagina;
 
     public static boolean isRecarregaPagina() {
         return recarregaPagina;
@@ -46,8 +47,6 @@ public class SetClienteTransiction {
         SetClienteTransiction.recarregaPagina = recarregaPagina;
     }
 
-    private static boolean recarregaPagina;
-
     public static SetCliente getCliente() {
         return cliente;
     }
@@ -55,7 +54,6 @@ public class SetClienteTransiction {
     public static void setCliente(SetCliente cliente) {
         SetClienteTransiction.cliente = cliente;
     }
-
 
 
     public static void editWordSentriconDocument(String inputPath, String outputPath, String placeholder,
@@ -78,7 +76,7 @@ public class SetClienteTransiction {
                         }
 
                         if (text.contains("Rua Cabedelo, 301 – Butantã – São Paulo - SP")) {
-                            text = text.replace("Rua Cabedelo, 301 – Butantã – São Paulo - SP", enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                            text = text.replace("Rua Cabedelo, 301 – Butantã – São Paulo - SP", enderecos.getEnderecoImovel() + " ," + enderecos.getNumero_imovel());
                         }
                         if (text.contains("VALOR_CONTRATO")) {
                             text = text.replace("VALOR_CONTRATO", valor);
@@ -91,27 +89,27 @@ public class SetClienteTransiction {
                             text = text.replace("VALOR_ENTRADA", valor);
                         }
                         if (text.contains("NUM_PARCELA")) {
-                            text = text.replace("NUM_PARCELA", ""+numeroparcela_pagamentoValue);
+                            text = text.replace("NUM_PARCELA", "" + numeroparcela_pagamentoValue);
                         }
                         if (text.contains("VALOR_PARCELA")) {
-                            text = text.replace("VALOR_PARCELA", ""+pagamentoset.getValor_pagamento());
+                            text = text.replace("VALOR_PARCELA", "" + pagamentoset.getValor_pagamento());
                         }
                         if (text.contains("TIPO_PAGAMENTO")) {
-                            text = text.replace("TIPO_PAGAMENTO", ""+tipopag.getNome_tipopagamento());
+                            text = text.replace("TIPO_PAGAMENTO", "" + tipopag.getNome_tipopagamento());
                         }
                         if (text.contains("VENCIMENTOS_PAGAMENTO")) {
-                            text = text.replace("VENCIMENTOS_PAGAMENTO", "todo dia "+contrato.getDatainicio_vencimento().getDayOfMonth());
+                            text = text.replace("VENCIMENTOS_PAGAMENTO", "todo dia " + contrato.getDatainicio_vencimento().getDayOfMonth());
                         }
                         if (text.contains("DIA_HOJE")) {
-                            text = text.replace("DIA_HOJE", ""+LocalDate.now().getDayOfMonth());
+                            text = text.replace("DIA_HOJE", "" + LocalDate.now().getDayOfMonth());
                         }
                         if (text.contains("MES_HOJE")) {
                             String mesAtual = LocalDate.now().getMonth().getDisplayName(TextStyle.FULL,
                                     new Locale("pt", "BR"));
-                            text = text.replace("MES_HOJE", ""+mesAtual);
+                            text = text.replace("MES_HOJE", "" + mesAtual);
                         }
                         if (text.contains("2018")) {
-                            text = text.replace("2018", ""+LocalDate.now().getYear());
+                            text = text.replace("2018", "" + LocalDate.now().getYear());
                         }
                         if (text.contains("NOME_CLIENTE_ASSINATURA")) {
                             text = text.replace("NOME_CLIENTE_ASSINATURA", cliente.getNome_cliente());
@@ -138,7 +136,7 @@ public class SetClienteTransiction {
                                         text = text.replace("NOME_CLIENTE", cliente.getNome_cliente());
                                     }
                                     if (text.contains("ENDERECO_CLIENTE")) {
-                                        text = text.replace("ENDERECO_CLIENTE", enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                                        text = text.replace("ENDERECO_CLIENTE", enderecos.getEnderecoImovel() + " ," + enderecos.getNumero_imovel());
                                     }
                                     if (text.contains("CPF____CNPJ_CLIENTES")) {
                                         text = text.replace("CPF____CNPJ_CLIENTES", cliente.getCpf_cgc_cliente());
@@ -254,42 +252,42 @@ public class SetClienteTransiction {
                         }
                         if (text.contains("NUMECONT")) {
                             text = text.replace("NUMECONT",
-                                    ""+ contrato.getId_contrato());
+                                    "" + contrato.getId_contrato());
                         }
                         if (text.contains("TEMPOCONT")) {
                             text = text.replace("TEMPOCONT",
-                                    meses+ "Meses");
+                                    meses + "Meses");
                         }
                         if (text.contains("PRAZOCONT")) {
                             text = text.replace("PRAZOCONT",
-                                    meses+ "Meses");
+                                    meses + "Meses");
                         }
                         if (text.contains("REF_A")) {
-                            text = text.replace("REF_A",""+ cliente.getNome_cliente());
+                            text = text.replace("REF_A", "" + cliente.getNome_cliente());
                         }
                         if (text.contains("VALORPAG")) {
-                            text = text.replace("VALORPAG","R$ " + valor);
+                            text = text.replace("VALORPAG", "R$ " + valor);
                         }
                         if (text.contains("FORMA_PAG")) {
-                            text = text.replace("FORMA_PAG", ""+id_condicaopagamentoValue.getDescricao_condicaopagamento());
+                            text = text.replace("FORMA_PAG", "" + id_condicaopagamentoValue.getDescricao_condicaopagamento());
                         }
                         if (text.contains("VALOR_PARCELA")) {
-                            text = text.replace("VALOR_PARCELA", ""+valor);
+                            text = text.replace("VALOR_PARCELA", "" + valor);
                         }
                         if (text.contains("TIPO_PAGAMENTO")) {
-                            text = text.replace("TIPO_PAGAMENTO", ""+id_condicaopagamentoValue.getDescricao_condicaopagamento());
+                            text = text.replace("TIPO_PAGAMENTO", "" + id_condicaopagamentoValue.getDescricao_condicaopagamento());
                         }
                         if (text.contains("VENCIMENTOS_PAGAMENTO")) {
-                            text = text.replace("VENCIMENTOS_PAGAMENTO", ""+LocalDate.now().getDayOfMonth());
+                            text = text.replace("VENCIMENTOS_PAGAMENTO", "" + LocalDate.now().getDayOfMonth());
                         }
                         if (text.contains("DIA_HOJE")) {
-                            text = text.replace("DIA_HOJE", ""+LocalDate.now().getDayOfMonth());
+                            text = text.replace("DIA_HOJE", "" + LocalDate.now().getDayOfMonth());
                         }
                         if (text.contains("MES_HOJE")) {
-                            text = text.replace("MES_HOJE", ""+LocalDate.now().getMonth());
+                            text = text.replace("MES_HOJE", "" + LocalDate.now().getMonth());
                         }
                         if (text.contains("2018")) {
-                            text = text.replace("2018", ""+LocalDate.now().getYear());
+                            text = text.replace("2018", "" + LocalDate.now().getYear());
                         }
                         if (text.contains("NOME_CLIENTE_ASSINATURA")) {
                             text = text.replace("NOME_CLIENTE_ASSINATURA", cliente.getNome_cliente());
@@ -313,43 +311,43 @@ public class SetClienteTransiction {
                                         text = text.replace(placeholder, replacement);
                                     }
                                     if (text.contains("Contratante:")) {
-                                        text = text.replace("Contratante:","Contratante: "+ cliente.getNome_cliente());
+                                        text = text.replace("Contratante:", "Contratante: " + cliente.getNome_cliente());
                                     }
                                     if (text.contains("CPF/CNPJ:")) {
-                                        text = text.replace("CPF/CNPJ:","CPF/CNPJ: "+ cliente.getCpf_cgc_cliente());
+                                        text = text.replace("CPF/CNPJ:", "CPF/CNPJ: " + cliente.getCpf_cgc_cliente());
                                     }
                                     if (text.contains("Est.:")) {
-                                        text = text.replace("Est.:","Est.: "+ cliente.getIest_cliente());
+                                        text = text.replace("Est.:", "Est.: " + cliente.getIest_cliente());
                                     }
                                     if (text.contains("Legal:")) {
-                                        text = text.replace("Legal:","Legal: "+ cliente.getResponsavel_cliente());
+                                        text = text.replace("Legal:", "Legal: " + cliente.getResponsavel_cliente());
                                     }
                                     if (text.contains("Legal:")) {
-                                        text = text.replace("Legal:","Legal: "+ cliente.getResponsavel_cliente());
+                                        text = text.replace("Legal:", "Legal: " + cliente.getResponsavel_cliente());
                                     }
                                     if (text.contains("Endereço:")) {
-                                        text = text.replace("Endereço:", "Endereço: "+
-                                                enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                                        text = text.replace("Endereço:", "Endereço: " +
+                                                enderecos.getEnderecoImovel() + " ," + enderecos.getNumero_imovel());
                                     }
                                     if (text.contains("Bairro:")) {
-                                        text = text.replace("Bairro:", "Bairro: "+
+                                        text = text.replace("Bairro:", "Bairro: " +
                                                 enderecos.getBairro_imovel());
                                     }
                                     if (text.contains("CEP:")) {
-                                        text = text.replace("CEP:", "CEP: "+
+                                        text = text.replace("CEP:", "CEP: " +
                                                 enderecos.getCep_imovel());
                                     }
                                     if (text.contains("Fone:")) {
-                                        text = text.replace("Fone:", "Fone: "+
+                                        text = text.replace("Fone:", "Fone: " +
                                                 cliente.getTelefone_cliente());
                                     }
                                     if (text.contains("Condições de pagamento:")) {
-                                        text = text.replace("Condições de pagamento:", "Condições de pagamento: "+
+                                        text = text.replace("Condições de pagamento:", "Condições de pagamento: " +
                                                 id_condicaopagamentoValue.getDescricao_condicaopagamento());
                                     }
                                     if (text.contains("Valor total dos serviços acima descritos:")) {
-                                        text = text.replace("Valor total dos serviços acima descritos:", "Valor total dos serviços acima descritos:  R$ "+
-                                                valor+"                        ");
+                                        text = text.replace("Valor total dos serviços acima descritos:", "Valor total dos serviços acima descritos:  R$ " +
+                                                valor + "                        ");
                                     }
                                     if (text.contains("Serviços a serem realizados:")) {
                                         StringBuilder frase = new StringBuilder();
@@ -357,7 +355,7 @@ public class SetClienteTransiction {
                                             frase.append(p.getDescricao_servico()).append(", ");
                                         });
                                         text = text.replace("Serviços a serem realizados:",
-                                                "Serviços a serem realizados: "+frase);
+                                                "Serviços a serem realizados: " + frase);
                                     }
                                     if (text.contains("CPF____CNPJ_CLIENTES")) {
                                         text = text.replace("CPF____CNPJ_CLIENTES", cliente.getCpf_cgc_cliente());
@@ -408,37 +406,37 @@ public class SetClienteTransiction {
                             });
                             text = text.replace("SERVICOS_TESTE",
                                     frase);
-                           // run.setUnderline(UnderlinePatterns.valueOf(text));
+                            // run.setUnderline(UnderlinePatterns.valueOf(text));
                         }
                         if (text.contains("_ETAPAS_TESTE")) {
-                                text = text.replace("_ETAPAS_TESTE",
+                            text = text.replace("_ETAPAS_TESTE",
                                     contrato.getQuantidade_aplicacoes().toString());
-                           // run.setUnderline(UnderlinePatterns.valueOf(text));
+                            // run.setUnderline(UnderlinePatterns.valueOf(text));
                         }
                         if (text.contains("DATA_INICIO")) {
                             text = text.replace("DATA_INICIO", contrato.getDatainicio_execucao().getDayOfMonth()
-                                    +"/"+contrato.getDatainicio_execucao().getMonthValue()+"/"+contrato.getDatainicio_execucao().getYear());
+                                    + "/" + contrato.getDatainicio_execucao().getMonthValue() + "/" + contrato.getDatainicio_execucao().getYear());
                         }
                         if (text.contains("__ANOTESTE")) {
                             text = text.replace("__ANOTESTE", "1");
                         }
                         if (text.contains("__VALOR_CONTRATO")) {
-                            text = text.replace("__VALOR_CONTRATO", "R$ "+valor);
+                            text = text.replace("__VALOR_CONTRATO", "R$ " + valor);
                         }
                         if (text.contains("VALORNAGASAKI")) {
-                            text = text.replace("VALORNAGASAKI", "R$ "+value);
+                            text = text.replace("VALORNAGASAKI", "R$ " + value);
                         }
                         if (text.contains("_CONDICAOPAGME")) {
                             text = text.replace("_CONDICAOPAGME", id_condicaopagamentoValue.getDescricao_condicaopagamento());
                         }
                         if (text.contains("DIA_HOJE")) {
-                            text = text.replace("DIA_HOJE", ""+LocalDate.now().getDayOfMonth());
+                            text = text.replace("DIA_HOJE", "" + LocalDate.now().getDayOfMonth());
                         }
                         if (text.contains("MES_HOJE")) {
-                            text = text.replace("MES_HOJE", ""+LocalDate.now().getMonth());
+                            text = text.replace("MES_HOJE", "" + LocalDate.now().getMonth());
                         }
                         if (text.contains("2018")) {
-                            text = text.replace("2018", ""+LocalDate.now().getYear());
+                            text = text.replace("2018", "" + LocalDate.now().getYear());
                         }
                         if (text.contains("NOME_CLIENTE_ASSINATURA")) {
                             text = text.replace("NOME_CLIENTE_ASSINATURA", cliente.getNome_cliente());
@@ -462,16 +460,16 @@ public class SetClienteTransiction {
                                         text = text.replace(placeholder, replacement);
                                     }
                                     if (text.contains("ontratante")) {
-                                        text = text.replace("ontratante","Contratante: "+ cliente.getNome_cliente());
+                                        text = text.replace("ontratante", "Contratante: " + cliente.getNome_cliente());
                                     }
                                     if (text.contains("CPF/CNPJ:")) {
-                                        text = text.replace("CPF/CNPJ:","CPF/CNPJ: "+ cliente.getCpf_cgc_cliente());
+                                        text = text.replace("CPF/CNPJ:", "CPF/CNPJ: " + cliente.getCpf_cgc_cliente());
                                     }
                                     if (text.contains("Est.:")) {
-                                        text = text.replace("Est.:","Est.: "+ cliente.getIest_cliente());
+                                        text = text.replace("Est.:", "Est.: " + cliente.getIest_cliente());
                                     }
                                     if (text.contains("Cidade:")) {
-                                        text = text.replace("Cidade:","Cidade: "+ enderecos.getCidade_imovel());
+                                        text = text.replace("Cidade:", "Cidade: " + enderecos.getCidade_imovel());
                                     }
 //                                    if (text.contains("UF:")) {
 //                                        List<SetEstado> listaEstado = estadoService.listAll();
@@ -482,24 +480,24 @@ public class SetClienteTransiction {
 //                                        text = text.replace("UF:","UF: "+ uf.getUf_estado());
 //                                    }
                                     if (text.contains("Residencial:")) {
-                                        text = text.replace("Residencial:", "Residencial: "+
-                                                enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                                        text = text.replace("Residencial:", "Residencial: " +
+                                                enderecos.getEnderecoImovel() + " ," + enderecos.getNumero_imovel());
                                     }
                                     if (text.contains("Bairro:")) {
-                                        text = text.replace("Bairro:", "Bairro: "+
+                                        text = text.replace("Bairro:", "Bairro: " +
                                                 enderecos.getBairro_imovel());
                                     }
                                     if (text.contains("CEP:")) {
-                                        text = text.replace("CEP:", "CEP: "+
+                                        text = text.replace("CEP:", "CEP: " +
                                                 enderecos.getCep_imovel());
                                     }
                                     if (text.contains("Fone:")) {
-                                        text = text.replace("Fone:", "Fone: "+
+                                        text = text.replace("Fone:", "Fone: " +
                                                 cliente.getTelefone_cliente());
                                     }
                                     if (text.contains("Comercial:")) {
                                         text = text.replace("Comercial:", "Comercial: " +
-                                                enderecos.getEnderecoImovel()+ " ," + enderecos.getNumero_imovel());
+                                                enderecos.getEnderecoImovel() + " ," + enderecos.getNumero_imovel());
                                     }
                                     if (text.contains("Contrato:")) {
                                         text = text.replace("Contrato:", "Contrato: " +
@@ -530,7 +528,7 @@ public class SetClienteTransiction {
                                                      SetEstado uf,
                                                      SetResponsavelCobranca cobranca,
                                                      SetTipoMidia midia,
-                                                     SetRegiao regiao, SetTipoImovel tipoImovel,String restecniconome)
+                                                     SetRegiao regiao, SetTipoImovel tipoImovel, String restecniconome)
             throws IOException {
         try (FileInputStream fis = new FileInputStream(inputPath);
              XWPFDocument document = new XWPFDocument(fis)) {
@@ -589,10 +587,10 @@ public class SetClienteTransiction {
                                                 formattedDate);
                                     }
                                     if (text.contains("MIDIA_CLIENTE")) {
-                                        text = text.replace("MIDIA_CLIENTE",""+ midia.getDescricao_tipomidia());
+                                        text = text.replace("MIDIA_CLIENTE", "" + midia.getDescricao_tipomidia());
                                     }
                                     if (text.contains("NOME_CLIENTE")) {
-                                        text = text.replace("NOME_CLIENTE",cliente.getNome_cliente());
+                                        text = text.replace("NOME_CLIENTE", cliente.getNome_cliente());
                                     }
                                     if (text.contains("PAQ_GUIA")) {
                                         text = text.replace("PAQ_GUIA",
@@ -602,10 +600,10 @@ public class SetClienteTransiction {
                                         text = text.replace("ENDERECO_CLIENTE", enderecos.getEnderecoImovel());
                                     }
                                     if (text.contains("NUM_IMOVEL")) {
-                                        text = text.replace("NUM_IMOVEL", ""+enderecos.getNumero_imovel());
+                                        text = text.replace("NUM_IMOVEL", "" + enderecos.getNumero_imovel());
                                     }
                                     if (text.contains("C_RE")) {
-                                        text = text.replace("C_RE", ""+ enderecos.getComplemento_imovel());
+                                        text = text.replace("C_RE", "" + enderecos.getComplemento_imovel());
                                     }
                                     if (text.contains("BAIRRO_CLIENTE")) {
                                         text = text.replace("BAIRRO_CLIENTE",
@@ -675,13 +673,13 @@ public class SetClienteTransiction {
                                         text = text.replace("PROBLEMA_ORCAMENTO", orcamento.getDescricao_problema());
                                     }
                                     if (text.contains("DADOS_ENDERECO")) {
-                                        text = text.replace("DADOS_ENDERECO", enderecos.getEnderecoImovel() +","
-                                        + enderecos.getNumero_imovel());
+                                        text = text.replace("DADOS_ENDERECO", enderecos.getEnderecoImovel() + ","
+                                                + enderecos.getNumero_imovel());
                                     }
                                     if (text.contains("EMAIL_CLIENTE")) {
                                         text = text.replace("EMAIL_CLIENTE", cliente.getEmail_cliente());
                                     }
-                                    if (Objects.nonNull(cobranca)){
+                                    if (Objects.nonNull(cobranca)) {
                                         if (text.contains("NOME_COBRANCA")) {
                                             text = text.replace("NOME_COBRANCA", cobranca.getNome_cobranca());
                                         }
@@ -808,19 +806,19 @@ public class SetClienteTransiction {
                                     cliente.getNome_contato_cliente());
                         }
                         if (text.contains("TP_MIDIA")) {
-                            text = text.replace("TP_MIDIA",""+ midia.getDescricao_tipomidia());
+                            text = text.replace("TP_MIDIA", "" + midia.getDescricao_tipomidia());
                         }
                         if (text.contains("TEC_OS")) {
-                            text = text.replace("TEC_OS",""+ funcionario.getNome_funcionario());
+                            text = text.replace("TEC_OS", "" + funcionario.getNome_funcionario());
                         }
                         if (text.contains("PONTO_REFFF")) {
-                            text = text.replace("PONTO_REFFF",""+ enderecos.getPonto_referencia());
+                            text = text.replace("PONTO_REFFF", "" + enderecos.getPonto_referencia());
                         }
                         if (text.contains("RESP_TECNICO")) {
                             text = text.replace("RESP_TECNICO", restecniconome);
                         }
                         SetExecucaoServico servicoseleci = null;
-                        if (listaservicosexecucaodetalhadas.size() > 0){
+                        if (listaservicosexecucaodetalhadas.size() > 0) {
 
                             servicoseleci = servicoList.stream()
                                     .filter(objeto -> objeto.getId_execucaoservico().equals(listaservicosexecucaodetalhadas.get(0).getId_execucaoservico()))
@@ -831,7 +829,7 @@ public class SetClienteTransiction {
                             if (text.contains("DESCRICAO_SERVICO1")) {
                                 text = text.replace("DESCRICAO_SERVICO1", "" + listaservicosexecucaodetalhadas.get(0).getDescricao_ordemservicoexecucaoservico());
                             }
-                            if (listaservicosexecucaodetalhadas.size() > 1){
+                            if (listaservicosexecucaodetalhadas.size() > 1) {
                                 servicoseleci = servicoList.stream()
                                         .filter(objeto -> objeto.getId_execucaoservico().equals(listaservicosexecucaodetalhadas.get(1).getId_execucaoservico()))
                                         .findFirst().orElse(new SetExecucaoServico());
@@ -875,10 +873,10 @@ public class SetClienteTransiction {
                             }
                         } else {
                             if (text.contains("SERVICO_TIPO1")) {
-                                text = text.replace("SERVICO_TIPO1", "N/D" );
+                                text = text.replace("SERVICO_TIPO1", "N/D");
                             }
                             if (text.contains("DESCRICAO_SERVICO1")) {
-                                text = text.replace("DESCRICAO_SERVICO1", "" );
+                                text = text.replace("DESCRICAO_SERVICO1", "");
                             }
                             if (text.contains("SERVICO_TIPO2")) {
                                 text = text.replace("SERVICO_TIPO2", "");
@@ -895,7 +893,6 @@ public class SetClienteTransiction {
                         }
 
 
-
                         run.setText(text, 0);
 
                     }
@@ -904,122 +901,122 @@ public class SetClienteTransiction {
 
             // Itera pelas tabelas do documento
             document.getTables().forEach(table -> {
-                        table.getRows().forEach(row -> {
-                            row.getTableCells().forEach(cell -> {
-                                // Itera pelos parágrafos dentro da célula da tabela
-                                for (XWPFParagraph paragraph : cell.getParagraphs()) {
-                                    for (XWPFRun run : paragraph.getRuns()) {
-                                        String text = run.getText(0);
-                                        if (text != null) {
-                                            if (text.contains("NOME_CLIENTE")) {
-                                                text = text.replace("NOME_CLIENTE",
-                                                        cliente.getNome_cliente());
-                                            }
-                                            if (text.contains("ENDERECO_CLIENTE")) {
-                                                text = text.replace("ENDERECO_CLIENTE", enderecos.getEnderecoImovel());
-                                            }
-                                            if (text.contains("PAG_GUI")) {
-                                                text = text.replace("PAG_GUI",
-                                                        enderecos.getPagina_guia());
-                                            }
-                                            if (text.contains("CPF_CNPJ")) {
-                                                text = text.replace("CPF_CNPJ",
-                                                        cliente.getCpf_cgc_cliente());
-                                            }
-                                            if (text.contains("BAIRRO_C")) {
-                                                text = text.replace("BAIRRO_C",
-                                                        enderecos.getBairro_imovel());
-                                            }
-                                            if (text.contains("CEP_C")) {
-                                                text = text.replace("CEP_C",
-                                                        enderecos.getCep_imovel());
-                                            }
-                                            if (text.contains("CIDADE_C")) {
-                                                text = text.replace("CIDADE_C",
-                                                        enderecos.getCidade_imovel());
-                                            }
-                                            if (text.contains("UF")) {
-                                                text = text.replace("UF",
-                                                        uf.getUf_estado());
-                                            }
-                                            if (text.contains("FONE_C")) {
-                                                text = text.replace("FONE_C",
-                                                        cliente.getTelefone_cliente());
-                                            }
-                                            if (text.contains("NOME_PONT")) {
-                                                text = text.replace("NOME_PONT",
-                                                        ordemServico.getNome_pontofocal());
-                                            }
-                                            if (text.contains("REP_APROVA")) {
-                                                text = text.replace("REP_APROVA",
-                                                        cliente.getNome_contato_cliente());
-                                            }
-                                            if (text.contains("TP_MIDIA")) {
-                                                text = text.replace("TP_MIDIA",""+ midia.getDescricao_tipomidia());
-                                            }
-                                            if (text.contains("TEC_OS")) {
-                                                text = text.replace("TEC_OS",""+ funcionario.getNome_funcionario());
-                                            }
-                                            if (text.contains("PONTO_REFFF")) {
-                                                text = text.replace("PONTO_REFFF",""+ enderecos.getPonto_referencia());
-                                            }
-                                            if (text.contains("RES_TECNICO")) {
-                                                text = text.replace("RES_TECNICO", restecniconome);
-                                            }
-                                            if (text.contains("data_ate")) {
-                                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                                                String formattedDate = ordemServico.getDatainicio_ordemservico().format(formatter);
-                                                text = text.replace("data_ate", formattedDate);
-                                            }
-                                            if (text.contains("dia_sem")) {
-                                                text = text.replace("dia_sem", diasemana);
-                                            }
-                                            if (text.contains("hora_at")) {
-                                                text = text.replace("hora_at", ordemServico.getHorarioinicio_ordemservico().toString());
-                                            }
-                                            if (text.contains("num_orca")) {
-                                                text = text.replace("num_orca", ordemServico.getId_orcamento().toString());
-                                            }
-                                            if (text.contains("numcont")) {
-                                                text = text.replace("numcont", contrato.getId_contrato().toString());
-                                            }
-                                            if (text.contains("NUMEROOS")) {
-                                                text = text.replace("NUMEROOS", ordemServico.getId_ordemservico().toString());
-                                            }
-                                            if (text.contains("TIPO_ORDEMSEC")) {
-                                                text = text.replace("TIPO_ORDEMSEC", tipoordem.getDescricao_tipoatendimento());
-                                            }
-                                            if (text.contains("RESP_TECNICO")) {
-                                                text = text.replace("RESP_TECNICO", restecniconome);
-                                            }
-                                            run.setText(text, 0);
-                                        }
+                table.getRows().forEach(row -> {
+                    row.getTableCells().forEach(cell -> {
+                        // Itera pelos parágrafos dentro da célula da tabela
+                        for (XWPFParagraph paragraph : cell.getParagraphs()) {
+                            for (XWPFRun run : paragraph.getRuns()) {
+                                String text = run.getText(0);
+                                if (text != null) {
+                                    if (text.contains("NOME_CLIENTE")) {
+                                        text = text.replace("NOME_CLIENTE",
+                                                cliente.getNome_cliente());
                                     }
-                                }
-                            });
-                        });
-                    });
-
-                    // Obtém a política de cabeçalhos e rodapés do documento
-                    XWPFHeaderFooterPolicy policy = document.getHeaderFooterPolicy();
-
-                    // Se o documento tiver rodapé, percorremos seus parágrafos
-                    if (policy != null) {
-                        XWPFFooter footer = policy.getDefaultFooter(); // Obtém o rodapé padrão
-                        if (footer != null) {
-                            for (XWPFParagraph paragraph : footer.getParagraphs()) {
-                                for (XWPFRun run : paragraph.getRuns()) {
-                                    String text = run.getText(0);
-                                    if (text != null) {
-                                        if (text.contains("RESP_TECNICO")) {
-                                            text = text.replace("RESP_TECNICO", restecniconome);
-                                        }
-                                        run.setText(text, 0);
+                                    if (text.contains("ENDERECO_CLIENTE")) {
+                                        text = text.replace("ENDERECO_CLIENTE", enderecos.getEnderecoImovel());
                                     }
+                                    if (text.contains("PAG_GUI")) {
+                                        text = text.replace("PAG_GUI",
+                                                enderecos.getPagina_guia());
+                                    }
+                                    if (text.contains("CPF_CNPJ")) {
+                                        text = text.replace("CPF_CNPJ",
+                                                cliente.getCpf_cgc_cliente());
+                                    }
+                                    if (text.contains("BAIRRO_C")) {
+                                        text = text.replace("BAIRRO_C",
+                                                enderecos.getBairro_imovel());
+                                    }
+                                    if (text.contains("CEP_C")) {
+                                        text = text.replace("CEP_C",
+                                                enderecos.getCep_imovel());
+                                    }
+                                    if (text.contains("CIDADE_C")) {
+                                        text = text.replace("CIDADE_C",
+                                                enderecos.getCidade_imovel());
+                                    }
+                                    if (text.contains("UF")) {
+                                        text = text.replace("UF",
+                                                uf.getUf_estado());
+                                    }
+                                    if (text.contains("FONE_C")) {
+                                        text = text.replace("FONE_C",
+                                                cliente.getTelefone_cliente());
+                                    }
+                                    if (text.contains("NOME_PONT")) {
+                                        text = text.replace("NOME_PONT",
+                                                ordemServico.getNome_pontofocal());
+                                    }
+                                    if (text.contains("REP_APROVA")) {
+                                        text = text.replace("REP_APROVA",
+                                                cliente.getNome_contato_cliente());
+                                    }
+                                    if (text.contains("TP_MIDIA")) {
+                                        text = text.replace("TP_MIDIA", "" + midia.getDescricao_tipomidia());
+                                    }
+                                    if (text.contains("TEC_OS")) {
+                                        text = text.replace("TEC_OS", "" + funcionario.getNome_funcionario());
+                                    }
+                                    if (text.contains("PONTO_REFFF")) {
+                                        text = text.replace("PONTO_REFFF", "" + enderecos.getPonto_referencia());
+                                    }
+                                    if (text.contains("RES_TECNICO")) {
+                                        text = text.replace("RES_TECNICO", restecniconome);
+                                    }
+                                    if (text.contains("data_ate")) {
+                                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                                        String formattedDate = ordemServico.getDatainicio_ordemservico().format(formatter);
+                                        text = text.replace("data_ate", formattedDate);
+                                    }
+                                    if (text.contains("dia_sem")) {
+                                        text = text.replace("dia_sem", diasemana);
+                                    }
+                                    if (text.contains("hora_at")) {
+                                        text = text.replace("hora_at", ordemServico.getHorarioinicio_ordemservico().toString());
+                                    }
+                                    if (text.contains("num_orca")) {
+                                        text = text.replace("num_orca", ordemServico.getId_orcamento().toString());
+                                    }
+                                    if (text.contains("numcont")) {
+                                        text = text.replace("numcont", contrato.getId_contrato().toString());
+                                    }
+                                    if (text.contains("NUMEROOS")) {
+                                        text = text.replace("NUMEROOS", ordemServico.getId_ordemservico().toString());
+                                    }
+                                    if (text.contains("TIPO_ORDEMSEC")) {
+                                        text = text.replace("TIPO_ORDEMSEC", tipoordem.getDescricao_tipoatendimento());
+                                    }
+                                    if (text.contains("RESP_TECNICO")) {
+                                        text = text.replace("RESP_TECNICO", restecniconome);
+                                    }
+                                    run.setText(text, 0);
                                 }
                             }
                         }
+                    });
+                });
+            });
+
+            // Obtém a política de cabeçalhos e rodapés do documento
+            XWPFHeaderFooterPolicy policy = document.getHeaderFooterPolicy();
+
+            // Se o documento tiver rodapé, percorremos seus parágrafos
+            if (policy != null) {
+                XWPFFooter footer = policy.getDefaultFooter(); // Obtém o rodapé padrão
+                if (footer != null) {
+                    for (XWPFParagraph paragraph : footer.getParagraphs()) {
+                        for (XWPFRun run : paragraph.getRuns()) {
+                            String text = run.getText(0);
+                            if (text != null) {
+                                if (text.contains("RESP_TECNICO")) {
+                                    text = text.replace("RESP_TECNICO", restecniconome);
+                                }
+                                run.setText(text, 0);
+                            }
+                        }
                     }
+                }
+            }
 
             // Salva o documento editado
             try (FileOutputStream fos = new FileOutputStream(outputPath)) {
@@ -1029,13 +1026,13 @@ public class SetClienteTransiction {
     }
 
 
-    public  ByteArrayInputStream EditDocAndGeneratePdf (){
+    public ByteArrayInputStream EditDocAndGeneratePdf() {
 
-            String inputPdfPath =
-                    "C:\\Users\\Danilo Luiz\\Downloads\\ACFrOgBaV9-DtCdVufr97aNzBj-vf31RLYOqyF9aDmtuHRwiavohJ84Ljm2IeynaqsIyZyd9W5Jv4OfXQsU74Sa0d_gI52Uv_26KZLD7CfvEmMdsqEmStku2gt1zRsogUex5UYHJan-CrkNo80sy.pdf";
-            String outputDocPath = "C:\\Users\\Danilo Luiz\\Downloads\\Matriz Contrato Sentricon (instalação)_editado.doc";
-            String outputPdfPath = "C:\\Users\\Danilo Luiz\\Downloads\\Matriz Contrato Sentricon (instalação)_editado.pdf";
-            String newValue = "12345"; // Novo valor para substituir "81038"
+        String inputPdfPath =
+                "C:\\Users\\Danilo Luiz\\Downloads\\ACFrOgBaV9-DtCdVufr97aNzBj-vf31RLYOqyF9aDmtuHRwiavohJ84Ljm2IeynaqsIyZyd9W5Jv4OfXQsU74Sa0d_gI52Uv_26KZLD7CfvEmMdsqEmStku2gt1zRsogUex5UYHJan-CrkNo80sy.pdf";
+        String outputDocPath = "C:\\Users\\Danilo Luiz\\Downloads\\Matriz Contrato Sentricon (instalação)_editado.doc";
+        String outputPdfPath = "C:\\Users\\Danilo Luiz\\Downloads\\Matriz Contrato Sentricon (instalação)_editado.pdf";
+        String newValue = "12345"; // Novo valor para substituir "81038"
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try {

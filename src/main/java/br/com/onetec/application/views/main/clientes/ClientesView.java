@@ -18,7 +18,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dependency.Uses;
@@ -44,7 +43,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
 
-@Route(value = "clientes",layout = MainLayout.class)
+@Route(value = "clientes", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
 @PageTitle(ViewsTitleConst.CLIENTES_NAV_TITLE)
@@ -86,6 +85,22 @@ public class ClientesView extends Div {
 
 
     @Autowired
+    public ClientesView() {
+        UI.getCurrent().access(() -> {
+            this.service = new UtilitySystemConfigService();
+            setSizeFull();
+            addClassNames("telarelatorios-view");
+            filters = new Filters(() -> refreshGrid());
+            VerticalLayout layout = new VerticalLayout(createMobileFilters(), filters, createGrid());
+            layout.setSizeFull();
+            layout.setPadding(false);
+            layout.setSpacing(false);
+            add(layout);
+        });
+
+    }
+
+    @Autowired
     public void initServices(ClientesService clientesService1,
                              EstadoService estadoService1,
                              UsuarioService usuarioService1,
@@ -114,24 +129,6 @@ public class ClientesView extends Div {
         this.contratoService = contratoService1;
         this.ordemServicoService = ordemServicoService1;
     }
-
-    @Autowired
-    public ClientesView() {
-        UI.getCurrent().access(() -> {
-            this.service = new UtilitySystemConfigService();
-            setSizeFull();
-            addClassNames("telarelatorios-view");
-            filters = new Filters(() -> refreshGrid());
-            VerticalLayout layout = new VerticalLayout(createMobileFilters(), filters, createGrid());
-            layout.setSizeFull();
-            layout.setPadding(false);
-            layout.setSpacing(false);
-            add(layout);
-        });
-
-    }
-
-
 
     private HorizontalLayout createMobileFilters() {
         // Mobile version
@@ -162,7 +159,122 @@ public class ClientesView extends Div {
         return cadastroButton;
     }
 
+    private Component createGrid() {
+        grid = new Grid<>(SetCliente.class, false);
+        grid.addColumn(SetCliente::getId_cliente)
+                .setHeader("Id Cliente")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(cliente -> {
+            List<SetOrcamento> orcamento = orcamentoService.findAllClienteId(cliente.getId_cliente());
+            Optional<SetOrcamento> orcamentoMaisRecente = orcamento.stream()
+                    .max(Comparator.comparing(SetOrcamento::getData_orcamento));
+            return orcamentoMaisRecente.map(setOrcamento -> UtilitySystemConfigService.getDataFormatada
+                    (setOrcamento.getData_orcamento().atStartOfDay())).orElse("N/A");
+        })
+                .setHeader("Ult. Orçamento")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getNome_cliente)
+                .setHeader("Nome")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getNome_contato_cliente)
+                .setHeader("Nome Contato")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(cliente -> {
+            List<SetEnderecos> listaEnderecos = enderecoService.findAllClienteId(cliente.getId_cliente());
+            Optional<SetEnderecos> setEnderecos = listaEnderecos.stream()
+                    .max(Comparator.comparing(SetEnderecos::getData_inclusao));
+            return setEnderecos.isPresent() ? setEnderecos.get().getEnderecoImovel() : "N/A";
+        })
+                .setHeader("Endereço")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getTelefone_cliente)
+                .setHeader("Telefone Fixo")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getCelular_cliente)
+                .setHeader("Telefone Celular")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getEmail_cliente)
+                .setHeader("E-mail")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(SetCliente::getNome_fantasia_cliente)
+                .setHeader("Nome Fantasia")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
+                .setHeader("Data Inclusão")
+                .setSortable(true)
+                .setAutoWidth(true);
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_alteracao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_alteracao());
+            } else {
+                return "";
+            }
+        })
+                .setHeader("Ultima Alteração")
+                .setSortable(true)
+                .setAutoWidth(true);
 
+        // Adiciona o listener de clique nos itens da grade
+        // grid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
+        grid.addItemClickListener(event ->
+                UI.getCurrent().access(() -> openDetalhesClienteModal(event.getItem()))
+        );
+        // Atualiza a UI (precisa ser feito na thread do Vaadin)
+        grid.setItems(query -> clientesService.list(
+                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
+                filters).stream());
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+
+        return grid;
+    }
+
+    public void refreshGrid() {
+        if (UI.getCurrent().isAttached()) {
+            UI.getCurrent().access(() -> grid.getDataProvider().refreshAll());
+        }
+    }
+
+    private void openDetalhesClienteModal(SetCliente cliente) {
+        UI.getCurrent().access(() -> {
+            UI.getCurrent().getSession().setAttribute("cliente", cliente);
+            SetClienteTransiction.setCliente(cliente);
+//            DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente,
+//                    clientesService,
+//                    estadoService,
+//                    usuarioService,
+//                    enderecoService,
+//                    responsavelCobrancaService,
+//                    responsavelAgendamentoService,
+//                    responsavelAprovacaoService);
+            detalhesClienteModal.setCliente(cliente);
+            detalhesClienteModal.open();
+        });
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            cadastroModal.open();
+        });
+
+    }
 
     public class Filters extends Div implements Specification<SetCliente> {
 
@@ -186,7 +298,7 @@ public class ClientesView extends Div {
             service.configureTelefoneResidencialField(telefone);
 
 
-            FJFieldCombo.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
+            FJFieldCombo.setItems(List.of("Pessoa Fisica", "Pessoa Juridica"));
             FJFieldCombo.addValueChangeListener(event -> {
                 if ("Pessoa Fisica".equals(event.getValue())) {
                     cpfcnpj.clear();
@@ -233,7 +345,7 @@ public class ClientesView extends Div {
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
 
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
@@ -280,7 +392,7 @@ public class ClientesView extends Div {
                 predicates.add(criteriaBuilder.or(firstNameMatch));
             }
             if (!email.isEmpty()) {
-                String lowerCaseFilter = email.getValue().toString();
+                String lowerCaseFilter = email.getValue();
                 String ignore = "- ()";
                 Predicate firstNameMatch = criteriaBuilder.like(
                         ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get("email_cliente"))),
@@ -325,7 +437,7 @@ public class ClientesView extends Div {
                 if (Objects.nonNull(enderecoNome)) {
                     String databaseColumn = "id_cliente";
                     List<Predicate> rolePredicates = new ArrayList<>();
-                    for (SetEnderecos setEnderecos : enderecoNome){
+                    for (SetEnderecos setEnderecos : enderecoNome) {
                         rolePredicates.add(criteriaBuilder.equal
                                 (criteriaBuilder.literal(setEnderecos.getId_cliente()), root.get(databaseColumn)));
                     }
@@ -339,7 +451,7 @@ public class ClientesView extends Div {
                 List<Predicate> rolePredicates = new ArrayList<>();
                 for (SetSituacaoCadastro role : stringCheckboxGroup.getValue()) {
                     List<SetOrcamento> orcClient = orcamentoService.findAllBySituacaoId(role.getId_situacaocadastro());
-                    for (SetOrcamento orc : orcClient){
+                    for (SetOrcamento orc : orcClient) {
                         rolePredicates.add(criteriaBuilder.equal
                                 (criteriaBuilder.literal(orc.getId_cliente()), root.get(databaseColumn)));
                     }
@@ -366,127 +478,6 @@ public class ClientesView extends Div {
             }
             return expression;
         }
-
-    }
-
-
-
-    private Component createGrid() {
-        grid = new Grid<>(SetCliente.class, false);
-        grid.addColumn(cliente -> {
-            List<SetOrcamento> orcamento = orcamentoService.findAllClienteId(cliente.getId_cliente());
-            Optional<SetOrcamento> orcamentoMaisRecente = orcamento.stream()
-                    .max(Comparator.comparing(SetOrcamento::getData_orcamento));
-            return orcamentoMaisRecente.map(setOrcamento -> UtilitySystemConfigService.getDataFormatada
-                    (setOrcamento.getData_orcamento().atStartOfDay())).orElse("N/A");
-        })
-                .setHeader("Ult. Orçamento")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(SetCliente::getNome_cliente)
-                .setHeader("Nome")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(SetCliente::getNome_contato_cliente)
-                .setHeader("Nome Contato")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(cliente -> {
-            List<SetEnderecos> listaEnderecos = enderecoService.findAllClienteId(cliente.getId_cliente());
-            Optional<SetEnderecos> setEnderecos = listaEnderecos.stream()
-                    .max(Comparator.comparing(SetEnderecos::getData_inclusao));
-            return setEnderecos.isPresent() ? setEnderecos.get().getEnderecoImovel() : "N/A";
-        })
-                .setHeader("Endereço")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(SetCliente::getTelefone_cliente)
-                .setHeader("Telefone Fixo")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(SetCliente::getCelular_cliente)
-                .setHeader("Telefone Celular")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(SetCliente::getEmail_cliente)
-                .setHeader("E-mail")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(SetCliente::getNome_fantasia_cliente)
-                .setHeader("Nome Fantasia")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
-                return UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao());
-            } else {
-                return "";
-            }
-        })
-                .setHeader("Data Inclusão")
-                .setSortable(true)
-                .setAutoWidth(true);
-        grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_alteracao())){
-                return UtilitySystemConfigService.
-                        getDataFormatada(data.getData_alteracao());
-            } else {
-                return "";
-            }
-        })
-                .setHeader("Ultima Alteração")
-                .setSortable(true)
-                .setAutoWidth(true);
-
-        // Adiciona o listener de clique nos itens da grade
-       // grid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
-        grid.addItemClickListener(event ->
-                UI.getCurrent().access(() -> openDetalhesClienteModal(event.getItem()))
-        );
-        // Atualiza a UI (precisa ser feito na thread do Vaadin)
-        grid.setItems(query -> clientesService.list(
-                PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)),
-                filters).stream());
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
-
-        return grid;
-    }
-
-
-
-    public void refreshGrid() {
-        if (UI.getCurrent().isAttached()) {
-            UI.getCurrent().access(() -> grid.getDataProvider().refreshAll());
-        }
-    }
-
-
-
-    private void openDetalhesClienteModal(SetCliente cliente) {
-        UI.getCurrent().access(() -> {
-            UI.getCurrent().getSession().setAttribute("cliente",cliente);
-            SetClienteTransiction.setCliente(cliente);
-//            DadosClienteModal detalhesClienteModal = new DadosClienteModal(cliente,
-//                    clientesService,
-//                    estadoService,
-//                    usuarioService,
-//                    enderecoService,
-//                    responsavelCobrancaService,
-//                    responsavelAgendamentoService,
-//                    responsavelAprovacaoService);
-            detalhesClienteModal.setCliente(cliente);
-            detalhesClienteModal.open();
-        });
-    }
-
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            cadastroModal.open();
-        });
 
     }
 }

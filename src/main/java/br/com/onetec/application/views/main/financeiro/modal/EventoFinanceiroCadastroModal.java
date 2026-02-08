@@ -2,13 +2,11 @@ package br.com.onetec.application.views.main.financeiro.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
-import br.com.onetec.application.service.grupofinanceiroservice.GrupoFinanceiroService;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.EventoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -28,21 +26,19 @@ import java.time.LocalDateTime;
 
 @Component
 @UIScope
-public class EventoFinanceiroCadastroModal  extends Dialog {
-
-    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
-    private TextField nome_eventofinanceiro;
-    private TextField observacoes_eventofinanceiro;
+public class EventoFinanceiroCadastroModal extends Dialog {
 
     @Autowired
     EventoFinanceiroService eventoFinanceiroService;
-
     @Autowired
     TipoEventoFinanceiroService grupoFinanceiroService;
-
     @Autowired
     @Lazy
     EventoFinanceiroDiv eventoFinanceiroDiv;
+    UtilitySystemConfigService service;
+    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
+    private TextField nome_eventofinanceiro;
+    private TextField observacoes_eventofinanceiro;
     private Button saveButton;
     private Button cancelButton;
 
@@ -68,7 +64,6 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
 
         id_tipoeventofinanceiro = new ComboBox<>("Tipo Evento Financeiro (Contas)");
@@ -90,9 +85,6 @@ public class EventoFinanceiroCadastroModal  extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         SetEventoFinanceiro dto = new SetEventoFinanceiro();

@@ -49,26 +49,26 @@ public class UsuarioCadastroModal extends Dialog {
     @Autowired
     @Lazy
     UsuariosDiv usuariosDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
-
-    private ComboBox <SetFuncionario> id_funcionario;
-    private ComboBox <SetGrupoUsuario> id_grupousuario;
+    private ComboBox<SetFuncionario> id_funcionario;
+    private ComboBox<SetGrupoUsuario> id_grupousuario;
     private EmailField emailField;
     private PasswordField passwordField;
     private PasswordField entradaPassword;
     private TextField nome_usuario;
-
-
-
+    private Span passwordStrengthText;
+    private Span usernameStrengthText;
 
     @Autowired
     public UsuarioCadastroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-                try { save();}
-                catch (Exception e) {}
+                try {
+                    save();
+                } catch (Exception e) {
+                }
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -82,9 +82,6 @@ public class UsuarioCadastroModal extends Dialog {
             add(layout);
         });
     }
-
-    private Span passwordStrengthText;
-    private Span usernameStrengthText;
 
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
@@ -150,7 +147,6 @@ public class UsuarioCadastroModal extends Dialog {
         });
 
 
-
         id_funcionario = new ComboBox<>("Funcionario");
         id_grupousuario = new ComboBox<>("Grupo Usuário");
 
@@ -164,10 +160,9 @@ public class UsuarioCadastroModal extends Dialog {
         });
 
 
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_funcionario, id_grupousuario,emailField,
+        formLayout.add(id_funcionario, id_grupousuario, emailField,
                 passwordField, nome_usuario, entradaPassword);
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -177,7 +172,7 @@ public class UsuarioCadastroModal extends Dialog {
     private void validaUserName(BlurNotifier.BlurEvent<TextField> event) {
         String value = event.getSource().getValue();
         boolean usernameAvaliable = usuarioService.checkUserNameAvaliable(value);
-        if (usernameAvaliable){
+        if (usernameAvaliable) {
             usernameStrengthText.setText("Disponivel para uso");
             usernameStrengthText.getStyle().set("color",
                     "var(--lumo-success-color)");
@@ -187,9 +182,6 @@ public class UsuarioCadastroModal extends Dialog {
                     "var(--lumo-error-color)");
         }
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
@@ -218,13 +210,13 @@ public class UsuarioCadastroModal extends Dialog {
             nome_usuario.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }
 
     private String verificaSenha(String value, String value1) throws Exception {
-        if (value.equals(value1)){
+        if (value.equals(value1)) {
             return value;
         } else {
             service.notificaErro(ModalMessageConst.ERROR_USER_GROUP);
@@ -234,7 +226,7 @@ public class UsuarioCadastroModal extends Dialog {
 
     private int getIdGrupoUsuario() throws Exception {
         SetGrupoUsuario grupoUsuario = id_grupousuario.getValue();
-        if (grupoUsuario != null){
+        if (grupoUsuario != null) {
             return grupoUsuario.getId_grupousuario();
         } else {
             service.notificaErro(ModalMessageConst.ERROR_USER_GROUP);

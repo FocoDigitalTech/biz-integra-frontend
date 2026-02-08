@@ -33,7 +33,7 @@ import java.util.List;
 
 @Component
 @UIScope
-public class GrupoUsuarioCadastroModal extends Dialog{
+public class GrupoUsuarioCadastroModal extends Dialog {
 
 
     @Autowired
@@ -48,25 +48,22 @@ public class GrupoUsuarioCadastroModal extends Dialog{
     @Autowired
     @Lazy
     GrupoUsuariosDiv grupoUsuariosDiv;
-
-    private Button saveButton;
-    private Button cancelButton;
-
-
-    private TextField descricao_grupousuario;
-
-    private Span usernameStrengthText;
-
     VerticalLayout permissoes = new VerticalLayout();
     List<RadioButtonGroup<String>> radioGroupList = new ArrayList<>();
+    private Button saveButton;
+    private Button cancelButton;
+    private TextField descricao_grupousuario;
+    private Span usernameStrengthText;
 
 
     @Autowired
     public GrupoUsuarioCadastroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-                try { save();}
-                catch (Exception e) {}
+                try {
+                    save();
+                } catch (Exception e) {
+                }
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -132,7 +129,7 @@ public class GrupoUsuarioCadastroModal extends Dialog{
                 permissao.setNome_tela(radio.getAriaLabel().get());
                 permissao.setTela_view(radio.getAriaLabel().get());
                 permissao.setAtivo("S");
-                if (radio.getValue().equals("Sim")){
+                if (radio.getValue().equals("Sim")) {
                     permissao.setLeitura(1);
                 } else {
                     permissao.setLeitura(0);
@@ -147,7 +144,7 @@ public class GrupoUsuarioCadastroModal extends Dialog{
             descricao_grupousuario.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

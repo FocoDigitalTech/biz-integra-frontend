@@ -141,7 +141,7 @@ public class OrcamentoService {
             var notafiscal = notaFiscalService.findAllByOrcamentoId(orcamento.getId_orcamento());
             var pagamentos = pagamentoService.findAllByOrcamentoId(orcamento.getId_orcamento());
             var contrati = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
-            if (ordemservicos.size() > 0){
+            if (ordemservicos.size() > 0) {
                 ordemservicos.forEach(setOrdemServico -> {
                     try {
                         ordemServicoService.delete(setOrdemServico);
@@ -150,7 +150,7 @@ public class OrcamentoService {
                     }
                 });
             }
-            if (posvenda.size() > 0){
+            if (posvenda.size() > 0) {
                 posvenda.forEach(obj -> {
                     try {
                         orcamentoPosVendasService.delete(obj);
@@ -159,7 +159,7 @@ public class OrcamentoService {
                     }
                 });
             }
-            if (contatos.size() > 0){
+            if (contatos.size() > 0) {
                 contatos.forEach(obj -> {
                     try {
                         orcamentoContatoService.delete(obj);
@@ -168,7 +168,7 @@ public class OrcamentoService {
                     }
                 });
             }
-            if (notafiscal.size() > 0){
+            if (notafiscal.size() > 0) {
                 notafiscal.forEach(obj -> {
                     try {
                         notaFiscalService.delete(obj);
@@ -177,7 +177,7 @@ public class OrcamentoService {
                     }
                 });
             }
-            if (pagamentos.size() > 0){
+            if (pagamentos.size() > 0) {
                 pagamentos.forEach(obj -> {
                     try {
                         pagamentoService.delete(obj);
@@ -186,17 +186,17 @@ public class OrcamentoService {
                     }
                 });
             }
-            if (Objects.nonNull(contrati)){
-                    try {
-                        contratoService.delete(contrati);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            if (Objects.nonNull(contrati)) {
+                try {
+                    contratoService.delete(contrati);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
 
-        }catch (Exception e) {
-        throw new Exception();
-    }
+        } catch (Exception e) {
+            throw new Exception();
+        }
     }
 }

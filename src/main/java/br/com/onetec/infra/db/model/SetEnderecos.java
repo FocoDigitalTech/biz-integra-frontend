@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "tb_enderecos")
-public class SetEnderecos{
+public class SetEnderecos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

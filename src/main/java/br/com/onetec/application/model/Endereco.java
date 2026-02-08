@@ -6,6 +6,21 @@ import br.com.onetec.infra.db.model.SetTipoImovel;
 
 public class Endereco {
 
+    private String fieldEnderecosCEP;
+    private SetTipoImovel comboEnderecosTipoImovel;
+    private String fieldEnderecosArea;
+    private String fieldEnderecosEndereço;
+    private String fieldEnderecosNumero;
+    private String fieldEnderecosComplemento;
+    private String fieldEnderecosBairro;
+    private String fieldEnderecosCidade;
+    private SetEstado comboEnderecosUF;
+    private String fieldEnderecosTelefone;
+    private String fieldEnderecosPagGuia;
+    private String fieldEnderecosReponsavel;
+    private SetRegiao comboEnderecosRegiao;
+    private String fieldEnderecosPontodeReferencia;
+
     public Endereco(String fieldEnderecosCEP, SetTipoImovel comboEnderecosTipoImovel, String fieldEnderecosArea, String fieldEnderecosEndereço, String fieldEnderecosNumero, String fieldEnderecosComplemento, String fieldEnderecosBairro, String fieldEnderecosCidade, SetEstado comboEnderecosUF, String fieldEnderecosTelefone, String fieldEnderecosPagGuia, String fieldEnderecosReponsavel, SetRegiao comboEnderecosRegiao, String fieldEnderecosPontodeReferencia) {
         this.fieldEnderecosCEP = fieldEnderecosCEP;
         this.comboEnderecosTipoImovel = comboEnderecosTipoImovel;
@@ -134,20 +149,5 @@ public class Endereco {
     public void setFieldEnderecosPontodeReferencia(String fieldEnderecosPontodeReferencia) {
         this.fieldEnderecosPontodeReferencia = fieldEnderecosPontodeReferencia;
     }
-
-    private String fieldEnderecosCEP;
-    private SetTipoImovel comboEnderecosTipoImovel;
-    private String fieldEnderecosArea;
-    private String fieldEnderecosEndereço;
-    private String fieldEnderecosNumero;
-    private String fieldEnderecosComplemento;
-    private String fieldEnderecosBairro;
-    private String fieldEnderecosCidade;
-    private SetEstado comboEnderecosUF;
-    private String fieldEnderecosTelefone;
-    private String fieldEnderecosPagGuia;
-    private String fieldEnderecosReponsavel;
-    private SetRegiao comboEnderecosRegiao;
-    private String fieldEnderecosPontodeReferencia;
 }
 

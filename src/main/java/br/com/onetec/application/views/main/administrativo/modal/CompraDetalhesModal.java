@@ -55,11 +55,17 @@ import java.util.concurrent.atomic.AtomicReference;
 public class CompraDetalhesModal extends Dialog {
 
 
-
+    List<SetCondicaoPagamento> condicaopagamentoLista;
+    List<SetFornecedor> fornecedorLista;
+    List<SetContaCorrente> contacorrenteLista;
+    Tabs tabs = new Tabs();
+    @Autowired
+    @Lazy
+    ComprasDiv comprasDiv;
+    SetCompra compramodel;
     private Button saveButton;
     private Button cancelButton;
     private Button btnExcluir;
-
     //Cadastro Fornecedor
     private Div cadastroCompra;
     private ComboBox<SetFornecedor> id_fornecedor;
@@ -79,8 +85,6 @@ public class CompraDetalhesModal extends Dialog {
     private TimePicker horario_compra;
     private DatePicker datavalidate_compra;
     private DatePicker data_compra;
-
-
     //Cadastro Contatos Fornecedor
     private Div cadastroComprasPedidos;
     private ComboBox<SetProduto> id_produto;
@@ -92,56 +96,18 @@ public class CompraDetalhesModal extends Dialog {
     private DatePicker datavalidade_compraproduto;
     private DatePicker datarecebimento_compraproduto;
     private TextField responsavelrecebimento_compraproduto;
-
-
     private UtilitySystemConfigService service;
     private FornecedorService fornecedorService;
     private CondicaoPagamentoService condicaoPagamentoService;
     private ContaCorrenteService contaCorrenteService;
-
     private List<SetCompraProduto> produtoList;
-
     private List<SetCompraProduto> produtoListAdcionar;
-
     private Grid<SetCompraProduto> grid;
-
     private ProdutoService produtoService;
-
     private CompraProdutoService compraProdutoService;
-
     private CompraService compraService;
-
-    List<SetCondicaoPagamento> condicaopagamentoLista;
-    List<SetFornecedor> fornecedorLista;
-    List<SetContaCorrente> contacorrenteLista;
-    Tabs tabs = new Tabs();
-
-
-    @Autowired
-    @Lazy
-    ComprasDiv comprasDiv;
-
-    @Autowired
-    public void initServices(UtilitySystemConfigService service,
-                             FornecedorService fornecedorService1,
-                             CondicaoPagamentoService condicaoPagamentoService1,
-                             ContaCorrenteService contaCorrenteService1,
-                             ProdutoService produtoService1,
-                             CompraProdutoService compraProdutoService1,
-                             CompraService compraService1) {
-        this.contaCorrenteService = contaCorrenteService1;
-        this.condicaoPagamentoService = condicaoPagamentoService1;
-        this.service = service;
-        this.fornecedorService = fornecedorService1;
-        this.produtoService = produtoService1;
-        this.compraProdutoService = compraProdutoService1;
-        this.compraService = compraService1;
-        UI.getCurrent().access(() -> {
-
-        });
-    }
-
-
+    private TextField totalEstoque;
+    private BigDecimal valorTotalItems = BigDecimal.ZERO;
 
     @Autowired
     public CompraDetalhesModal(UtilitySystemConfigService service,
@@ -212,14 +178,34 @@ public class CompraDetalhesModal extends Dialog {
 
             HorizontalLayout rightButtons = new HorizontalLayout(valortotal_compra);
             footerLayout.add(rightButtons); // Alinha à direita
-            getFooter().add(footerLayout,saveButton, cancelButton,btnExcluir);
+            getFooter().add(footerLayout, saveButton, cancelButton, btnExcluir);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
         });
     }
 
+    @Autowired
+    public void initServices(UtilitySystemConfigService service,
+                             FornecedorService fornecedorService1,
+                             CondicaoPagamentoService condicaoPagamentoService1,
+                             ContaCorrenteService contaCorrenteService1,
+                             ProdutoService produtoService1,
+                             CompraProdutoService compraProdutoService1,
+                             CompraService compraService1) {
+        this.contaCorrenteService = contaCorrenteService1;
+        this.condicaoPagamentoService = condicaoPagamentoService1;
+        this.service = service;
+        this.fornecedorService = fornecedorService1;
+        this.produtoService = produtoService1;
+        this.compraProdutoService = compraProdutoService1;
+        this.compraService = compraService1;
+        UI.getCurrent().access(() -> {
+
+        });
+    }
+
     private void excluirPedido() {
-        if (produtoList.size() > 0 ) {
+        if (produtoList.size() > 0) {
             for (SetCompraProduto setCompraProduto : produtoList) {
                 if (Objects.nonNull(setCompraProduto.getId_compraproduto())) {
                     produtoService.updateEstoqueQuantidadeAoDeletar(setCompraProduto.getId_produto(),
@@ -248,7 +234,7 @@ public class CompraDetalhesModal extends Dialog {
                 id_fornecedor.setRequiredIndicatorVisible(true);
                 id_fornecedor.setErrorMessage("Campo obrigatório");
                 id_fornecedor.setInvalid(true);
-            }else if (id_condicaopagamento.isEmpty()) {
+            } else if (id_condicaopagamento.isEmpty()) {
                 id_condicaopagamento.setRequiredIndicatorVisible(true);
                 id_condicaopagamento.setErrorMessage("Campo obrigatório");
                 id_condicaopagamento.setInvalid(true);
@@ -289,7 +275,7 @@ public class CompraDetalhesModal extends Dialog {
                 comprasDiv.refreshGrid();
                 close();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro("Erro ao Salvar");
         }
 
@@ -388,9 +374,6 @@ public class CompraDetalhesModal extends Dialog {
         return div;
     }
 
-    private TextField totalEstoque;
-
-
     private Div createFormCadastroFornecedorContatos() {
         produtoList = new ArrayList<>();
         id_produto = new ComboBox<>("Produto");
@@ -423,13 +406,13 @@ public class CompraDetalhesModal extends Dialog {
         });
 
         valorunitario_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
         });
 
         quantidade_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
         });
@@ -448,11 +431,11 @@ public class CompraDetalhesModal extends Dialog {
         quantidade_compraproduto.setMin(1);
 
         quantidade_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
             int totalSoma = quantidade_compraproduto.getValue() * fatorConversao.get();
-            String frase =  totalSoma + " " +unidadeEntrada.get();
+            String frase = totalSoma + " " + unidadeEntrada.get();
             totalEstoque.setValue(frase);
             totalEstoque.setVisible(true);
         });
@@ -482,7 +465,7 @@ public class CompraDetalhesModal extends Dialog {
             // Cria o botão de deletar com um ícone de lixeira
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
-                if (Objects.nonNull(e.getId_compraproduto())){
+                if (Objects.nonNull(e.getId_compraproduto())) {
                     deleta(e);
                     produtoService.updateEstoqueQuantidadeAoDeletar(e.getId_produto(), e.getQuantidadefator_compraproduto());
                 } else {
@@ -493,7 +476,7 @@ public class CompraDetalhesModal extends Dialog {
                 // Atualiza os itens da grid
                 grid.setItems(produtoList);
                 // Feedback ao usuário
-                Notification.show("Item removido ! " , 3000, Notification.Position.MIDDLE);
+                Notification.show("Item removido ! ", 3000, Notification.Position.MIDDLE);
             });
             del.getElement().setAttribute("aria-label", "Delete");
             del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
@@ -504,8 +487,8 @@ public class CompraDetalhesModal extends Dialog {
             if (Objects.nonNull(event.getItem())) {
                 if (Objects.nonNull(event.getItem().getId_compraproduto())) {
                     CompraProdutoModal.openModal
-                            (event.getItem(),produtoService,
-                                    compraProdutoService,service,grid);
+                            (event.getItem(), produtoService,
+                                    compraProdutoService, service, grid);
                 } else {
                     service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
                 }
@@ -519,7 +502,7 @@ public class CompraDetalhesModal extends Dialog {
                 id_produto.setRequiredIndicatorVisible(true);
                 id_produto.setErrorMessage("Campo obrigatório");
                 id_produto.setInvalid(true);
-            }else if (quantidade_compraproduto.isEmpty()) {
+            } else if (quantidade_compraproduto.isEmpty()) {
                 quantidade_compraproduto.setRequiredIndicatorVisible(true);
                 quantidade_compraproduto.setErrorMessage("Campo obrigatório");
                 quantidade_compraproduto.setInvalid(true);
@@ -574,7 +557,7 @@ public class CompraDetalhesModal extends Dialog {
                 datafabricacao_compraproduto,
                 datavalidade_compraproduto,
                 datarecebimento_compraproduto,
-                responsavelrecebimento_compraproduto,totalEstoque,saveButton);
+                responsavelrecebimento_compraproduto, totalEstoque, saveButton);
 
         VerticalLayout layout = new VerticalLayout(formLayout, grid);
         layout.setSizeFull();
@@ -585,8 +568,6 @@ public class CompraDetalhesModal extends Dialog {
 
         return div;
     }
-
-    private BigDecimal valorTotalItems = BigDecimal.ZERO;
 
     private void calculoTotalCompra(SetCompraProduto produto) {
         String valorCampo = valoritemstotal_compra.getValue();
@@ -632,7 +613,6 @@ public class CompraDetalhesModal extends Dialog {
         save();
     }
 
-
     private void valueChanged(AbstractField.ComponentValueChangeEvent<TextField, String> event) {
         BigDecimal frete = BigDecimal.ZERO;
         BigDecimal desconto = BigDecimal.ZERO;
@@ -658,9 +638,6 @@ public class CompraDetalhesModal extends Dialog {
         valoritemstotal_compra.setValue(valorTotalItems.toString());
     }
 
-
-
-    SetCompra compramodel;
     public void setComprarModel(SetCompra item) {
         UI.getCurrent().access(() -> {
             grid.setItems(new ArrayList<>());
@@ -716,7 +693,7 @@ public class CompraDetalhesModal extends Dialog {
         try {
             compraProdutoService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }

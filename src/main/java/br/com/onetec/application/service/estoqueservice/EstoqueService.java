@@ -2,7 +2,6 @@ package br.com.onetec.application.service.estoqueservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.repository.ISetEstoqueRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ public class EstoqueService {
     private ISetEstoqueRepository repository;
 
     @Autowired
-    public void initServices (ISetEstoqueRepository repository1){
+    public void initServices(ISetEstoqueRepository repository1) {
         this.repository = repository1;
     }
 
@@ -41,7 +40,7 @@ public class EstoqueService {
         try {
             repository.save(dto);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -55,7 +54,7 @@ public class EstoqueService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -66,7 +65,7 @@ public class EstoqueService {
             Optional<SetEstoque> estoqueOptional = repository.findById(p.getId_estoque());
             SetEstoque entity = estoqueOptional.orElseThrow(() -> new Exception("Estoque Id não encontrado"));
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new Exception();
         }

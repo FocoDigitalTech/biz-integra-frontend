@@ -2,23 +2,18 @@ package br.com.onetec.application.views.layouts;
 
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class GenericGridEditor<T> {
 
@@ -30,7 +25,8 @@ public class GenericGridEditor<T> {
 
     /**
      * Adiciona um itemClickListener ao grid para abrir o modal genérico
-     * @param grid grid alvo
+     *
+     * @param grid   grid alvo
      * @param onSave callback para salvar no banco
      */
     public void bind(Grid<T> grid, Consumer<T> onSave) {
@@ -54,33 +50,32 @@ public class GenericGridEditor<T> {
 //            String header = column.getHeaderText(); // pega o header da coluna
 
 
-            for (Field fieldTable : type.getDeclaredFields()) {
-                var regex = fieldTable.getName().split("_");
-                String headerNome = Arrays.stream(regex).findFirst().get();
-                TextField tf = new TextField(headerNome);
-                if (!fieldTable.getName().contains("data_inclusao") &&
-                        !fieldTable.getName().contains("data_alteracao") &&
-                        !fieldTable.getName().contains("ativo") &&
-                        !fieldTable.getName().contains("data_exclusao")
-                        && !fieldTable.getName().contains("id")) {
-                    fieldTable.setAccessible(true);
-                    Object value = fieldTable.get(item);
-                    tf.setValue(value != null ? value.toString() : "");
-                    // listener para salvar de volta no objeto
-                    tf.addValueChangeListener(e -> {
-                        try {
-                            fieldTable.set(item, e.getValue());
-                        } catch (IllegalAccessException ex) {
-                            Notification.show("Erro ao atualizar campo: " + fieldTable.getName());
-                        }
-                    });
-                    form.add(tf);
-                }
+        for (Field fieldTable : type.getDeclaredFields()) {
+            var regex = fieldTable.getName().split("_");
+            String headerNome = Arrays.stream(regex).findFirst().get();
+            TextField tf = new TextField(headerNome);
+            if (!fieldTable.getName().contains("data_inclusao") &&
+                    !fieldTable.getName().contains("data_alteracao") &&
+                    !fieldTable.getName().contains("ativo") &&
+                    !fieldTable.getName().contains("data_exclusao")
+                    && !fieldTable.getName().contains("id")) {
+                fieldTable.setAccessible(true);
+                Object value = fieldTable.get(item);
+                tf.setValue(value != null ? value.toString() : "");
+                // listener para salvar de volta no objeto
+                tf.addValueChangeListener(e -> {
+                    try {
+                        fieldTable.set(item, e.getValue());
+                    } catch (IllegalAccessException ex) {
+                        Notification.show("Erro ao atualizar campo: " + fieldTable.getName());
+                    }
+                });
+                form.add(tf);
             }
+        }
 
-            Object values = grid.getDataProvider().getId(item);
-            // cria campo só para edição visual (não depende do atributo da classe)
-
+        Object values = grid.getDataProvider().getId(item);
+        // cria campo só para edição visual (não depende do atributo da classe)
 
 
         //}
@@ -111,7 +106,8 @@ public class GenericGridEditor<T> {
         if (key != null) {
             try {
                 return type.getDeclaredField(key);
-            } catch (NoSuchFieldException ignored) {}
+            } catch (NoSuchFieldException ignored) {
+            }
         }
         return null; // se não achar, não edita
     }

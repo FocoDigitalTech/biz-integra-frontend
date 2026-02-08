@@ -4,12 +4,9 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssistenteService;
 import br.com.onetec.application.service.veiculoservice.VeiculoService;
-import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.application.views.main.estoque.div.VeiculosDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.SetEstoque;
-import br.com.onetec.infra.db.model.SetTecnicoAssistente;
 import br.com.onetec.infra.db.model.SetVeiculo;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -27,7 +24,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 @UIScope
@@ -89,7 +85,7 @@ public class DadosVeiculosModal extends Dialog {
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton,btnExcluir);
+            getFooter().add(saveButton, cancelButton, btnExcluir);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });

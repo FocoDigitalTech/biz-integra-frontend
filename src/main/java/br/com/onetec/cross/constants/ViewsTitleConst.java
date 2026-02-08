@@ -13,10 +13,10 @@ public class ViewsTitleConst {
     public static final String MAIN_NAV_TITLE = "Nagasaki App";
 
     public static final List<String> NAMES_VIEWS = List.of(CONFIGURATION_NAV_TITLE,
-                                                            REPORT_NAV_TITLE,
-                                                            ESTOQUE_NAV_TITLE,
-                                                            FINANCEIRO_NAV_TITLE,
-                                                            ADMINISTRATIVO_NAV_TITLE,
-                                                            CLIENTES_NAV_TITLE,
-                                                            SEGURANCA_NAV_TITLE);
+            REPORT_NAV_TITLE,
+            ESTOQUE_NAV_TITLE,
+            FINANCEIRO_NAV_TITLE,
+            ADMINISTRATIVO_NAV_TITLE,
+            CLIENTES_NAV_TITLE,
+            SEGURANCA_NAV_TITLE);
 }

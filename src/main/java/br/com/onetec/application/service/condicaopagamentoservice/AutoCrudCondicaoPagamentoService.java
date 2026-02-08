@@ -34,7 +34,7 @@ public class AutoCrudCondicaoPagamentoService {
         quantidadeParcelas.setStepButtonsVisible(true);
 
         // Adiciona os campos ao layout do formulário
-        formLayout.add(descricaoField,quantidadeParcelas,intervalo);
+        formLayout.add(descricaoField, quantidadeParcelas, intervalo);
 
         // Botão para salvar os dados
         Button saveButton = new Button("Salvar", event -> {

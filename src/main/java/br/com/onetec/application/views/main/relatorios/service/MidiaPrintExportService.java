@@ -55,7 +55,7 @@ public class MidiaPrintExportService {
         this.situacaoService = situacaoService;
     }
 
-    public void imprimirRelatorio(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox)  {
+    public void imprimirRelatorio(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox) {
 
         // 1) coleta o que está filtrado
         List<SetOrcamento> contratos = grid.getGenericDataView()
@@ -152,7 +152,6 @@ public class MidiaPrintExportService {
             html.append("<td>").append(c.getHorario_inspecao()).append("</td>");
 
 
-
             html.append("</tr>");
         }
 
@@ -230,7 +229,7 @@ public class MidiaPrintExportService {
 
         // NOVO BLOCO: Contagem por Serviço
 
-            // Map para contar serviços
+        // Map para contar serviços
         Map<SetServico, Integer> contagemServicos = new LinkedHashMap<>();
 
         for (SetOrcamento orc : contratos) {
@@ -264,7 +263,7 @@ public class MidiaPrintExportService {
         }
         html.append("</ul>");
 
-            // Segundo gráfico
+        // Segundo gráfico
         html.append("<canvas id='graficoServicos' width='800' height='400'></canvas>")
                 .append("<script>")
                 .append("const ctx2 = document.getElementById('graficoServicos').getContext('2d');")
@@ -277,7 +276,7 @@ public class MidiaPrintExportService {
         return html.toString();
     }
 
-    public void imprimirGrafico(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox)  {
+    public void imprimirGrafico(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox) {
 
         // 1) coleta o que está filtrado
         List<SetOrcamento> contratos = grid.getGenericDataView()

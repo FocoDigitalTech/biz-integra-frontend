@@ -36,17 +36,17 @@ public class AutoCrudTipoPagamentoService {
         // Botão para salvar os dados
         Button saveButton = new Button("Salvar", event -> {
             try {
-                    SetTipoPagamento tipoPagamento = new SetTipoPagamento();
-                    tipoPagamento.setData_inclusao(LocalDateTime.now());
-                    tipoPagamento.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    tipoPagamento.setAtivo("S");
-                    tipoPagamento.setNome_tipopagamento(nomeField.getValue());
-                    tipoPagamento.setDescricao_tipopagamento(nomeField.getValue());
-                    tipoPagamentoService.save(tipoPagamento);
-                    servico.notificaSucesso("Tipo de Pagamento salvo: " + tipoPagamento.getNome_tipopagamento());
-                    List<SetTipoPagamento> novaLista = tipoPagamentoService.listAll();
-                    id_tipopagamento.setItems(novaLista);
-                    dialog.close();
+                SetTipoPagamento tipoPagamento = new SetTipoPagamento();
+                tipoPagamento.setData_inclusao(LocalDateTime.now());
+                tipoPagamento.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                tipoPagamento.setAtivo("S");
+                tipoPagamento.setNome_tipopagamento(nomeField.getValue());
+                tipoPagamento.setDescricao_tipopagamento(nomeField.getValue());
+                tipoPagamentoService.save(tipoPagamento);
+                servico.notificaSucesso("Tipo de Pagamento salvo: " + tipoPagamento.getNome_tipopagamento());
+                List<SetTipoPagamento> novaLista = tipoPagamentoService.listAll();
+                id_tipopagamento.setItems(novaLista);
+                dialog.close();
             } catch (Exception e) {
                 servico.notificaErro("Por favor, preencha todos os campos obrigatórios.");
                 e.printStackTrace();

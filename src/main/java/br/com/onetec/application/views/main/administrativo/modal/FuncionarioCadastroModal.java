@@ -36,11 +36,14 @@ import java.util.List;
 public class FuncionarioCadastroModal extends Dialog {
 
 
+    private static List<SetEstado> estadoList;
     private final FuncionarioService funcionarioService;
     private final DepartamentoService departamentoService;
-
-    private  Button saveButton;
-    private  Button cancelButton;
+    @Autowired
+    @Lazy
+    FuncionarioDiv funcionarioDiv;
+    private Button saveButton;
+    private Button cancelButton;
     private ComboBox<SetDepartamento> id_departamento;
     private TextField nome_funcionario;
     private TextField nome_carteira;
@@ -62,32 +65,8 @@ public class FuncionarioCadastroModal extends Dialog {
     private TextField numero_imovel;
     private DatePicker vencimento_cnh;
     private DatePicker data_admissao;
-
-
-    private EstadoService estadoService ;
-
+    private EstadoService estadoService;
     private UtilitySystemConfigService service;
-
-    private static List<SetEstado> estadoList;
-
-    @Autowired
-    @Lazy
-    FuncionarioDiv funcionarioDiv;
-
-    @Autowired
-    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
-        this.estadoService = serviceEstado;
-        this.service = service;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configureCEPField(cep_funcionario);
-            service.configureCelularField(celular_funcionario);
-            service.configureCPFField(cpf_funcionario);
-            service.configuraCalendario(data_admissao);
-            service.configuraCalendario(vencimento_cnh);
-        });
-    }
-
 
     @Autowired
     public FuncionarioCadastroModal(FuncionarioService funcionarioService, DepartamentoService departamentoService,
@@ -118,6 +97,19 @@ public class FuncionarioCadastroModal extends Dialog {
         });
     }
 
+    @Autowired
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
+        this.estadoService = serviceEstado;
+        this.service = service;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_funcionario);
+            service.configureCelularField(celular_funcionario);
+            service.configureCPFField(cpf_funcionario);
+            service.configuraCalendario(data_admissao);
+            service.configuraCalendario(vencimento_cnh);
+        });
+    }
 
     private void save() {
 
@@ -159,7 +151,7 @@ public class FuncionarioCadastroModal extends Dialog {
             service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
             funcionarioDiv.refreshGridFuncionario();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             Notification.show("Erro ao Salvar");
         }
 
@@ -211,18 +203,14 @@ public class FuncionarioCadastroModal extends Dialog {
         numero_imovel = new TextField("N° Residencia");
 
 
-
-
-
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_departamento,nome_funcionario,
-                nome_carteira,celular_funcionario,rg_funcionario,
-                cpf_funcionario,titulo_eleitor,reservista_militar,numero_ctps,serie_ctps,
-                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,cep_funcionario,endereco_funcionario,
-                numero_imovel,complemento_funcionario,bairro_funcionario,
-                cidade_funcionario,id_estado);
+        formLayout.add(id_departamento, nome_funcionario,
+                nome_carteira, celular_funcionario, rg_funcionario,
+                cpf_funcionario, titulo_eleitor, reservista_militar, numero_ctps, serie_ctps,
+                pis_funcionario, cnh_funcionario, vencimento_cnh, data_admissao, cep_funcionario, endereco_funcionario,
+                numero_imovel, complemento_funcionario, bairro_funcionario,
+                cidade_funcionario, id_estado);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -233,16 +221,12 @@ public class FuncionarioCadastroModal extends Dialog {
 
     private void buscarCep() {
         EApiEnderecoResponse response = service.buscarCep(cep_funcionario);
-            endereco_funcionario.setValue(response.getLogradouro());
-            //complemento_funcionario.setValue(response.get);
-            bairro_funcionario.setValue(response.getBairro());
-            cidade_funcionario.setValue(response.getLocalidade());
-            id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
+        endereco_funcionario.setValue(response.getLogradouro());
+        //complemento_funcionario.setValue(response.get);
+        bairro_funcionario.setValue(response.getBairro());
+        cidade_funcionario.setValue(response.getLocalidade());
+        id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
     }
-
-
-
-
 
 
 }

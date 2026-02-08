@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Route(value = "",layout = MainLayout.class)
+@Route(value = "", layout = MainLayout.class)
 @PermitAll
 public class HomeView extends VerticalLayout {
 
@@ -53,18 +53,8 @@ public class HomeView extends VerticalLayout {
     private EnderecoService enderecoService;
 
     @Autowired
-    public void initServices(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
-                             EnderecoService enderecoService1,OrcamentoService orcamentoService1,ClientesService clientesService1) {
-        this.enderecoService = enderecoService1;
-        this.ordemServicoService = ordemServicoServicev1;
-        this.funcionarioService = funcionarioService1;
-        this.orcamentoService = orcamentoService1;
-        this.clientesService = clientesService1;
-    }
-
-    @Autowired
     public HomeView(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
-                    EnderecoService enderecoService1,OrcamentoService orcamentoService1,ClientesService clientesService1) {
+                    EnderecoService enderecoService1, OrcamentoService orcamentoService1, ClientesService clientesService1) {
         this.enderecoService = enderecoService1;
         this.ordemServicoService = ordemServicoServicev1;
         this.funcionarioService = funcionarioService1;
@@ -92,6 +82,16 @@ public class HomeView extends VerticalLayout {
         });
     }
 
+    @Autowired
+    public void initServices(OrdemServicoService ordemServicoServicev1, FuncionarioService funcionarioService1,
+                             EnderecoService enderecoService1, OrcamentoService orcamentoService1, ClientesService clientesService1) {
+        this.enderecoService = enderecoService1;
+        this.ordemServicoService = ordemServicoServicev1;
+        this.funcionarioService = funcionarioService1;
+        this.orcamentoService = orcamentoService1;
+        this.clientesService = clientesService1;
+    }
+
     private Accordion getlist1(List<SetOrdemServico> listaPorFuncionario, List<SetOrcamento> listaOrcamentoPorFuncionario) {
         Accordion accordion = new Accordion();
 
@@ -99,11 +99,11 @@ public class HomeView extends VerticalLayout {
             listaPorFuncionario.forEach(ordem -> {
                 SetCliente cliente = clientesService.findById(ordem.getId_cliente());
                 Span name = new Span("N° OS: " + ordem.getId_ordemservico().toString());
-                Span customer = new Span("Nome Cliente: "+ cliente.getNome_cliente());
-                Span email = new Span("Horario:"+ordem.getHorarioinicio_ordemservico().toString());
-                Span pontoFocal = new Span("Ponto Focal: "+ordem.getNome_pontofocal());
-                Span phone = new Span("Ocorrencia: "+ordem.getOcorrencias_ordemservico());
-                VerticalLayout personalInformationLayout = new VerticalLayout(name,customer,
+                Span customer = new Span("Nome Cliente: " + cliente.getNome_cliente());
+                Span email = new Span("Horario:" + ordem.getHorarioinicio_ordemservico().toString());
+                Span pontoFocal = new Span("Ponto Focal: " + ordem.getNome_pontofocal());
+                Span phone = new Span("Ocorrencia: " + ordem.getOcorrencias_ordemservico());
+                VerticalLayout personalInformationLayout = new VerticalLayout(name, customer,
                         email, pontoFocal, phone);
                 personalInformationLayout.setSpacing(false);
                 personalInformationLayout.setPadding(false);
@@ -119,11 +119,11 @@ public class HomeView extends VerticalLayout {
             listaOrcamentoPorFuncionario.forEach(orcamento -> {
                 SetCliente cliente = clientesService.findById(orcamento.getId_cliente());
                 Span name = new Span("Inspeção Técnica N° Orçamento: " + orcamento.getId_orcamento().toString());
-                Span customer = new Span("Nome Cliente: "+ cliente.getNome_cliente());
-                Span email = new Span("Horario:"+orcamento.getHorario_inspecao().toString());
-                Span pontoFocal = new Span("Ponto Focal: "+cliente.getResponsavel_cliente());
-                Span phone = new Span("Ocorrencia: "+orcamento.getDescricao_problema());
-                VerticalLayout personalInformationLayout = new VerticalLayout(name,customer,
+                Span customer = new Span("Nome Cliente: " + cliente.getNome_cliente());
+                Span email = new Span("Horario:" + orcamento.getHorario_inspecao().toString());
+                Span pontoFocal = new Span("Ponto Focal: " + cliente.getResponsavel_cliente());
+                Span phone = new Span("Ocorrencia: " + orcamento.getDescricao_problema());
+                VerticalLayout personalInformationLayout = new VerticalLayout(name, customer,
                         email, pontoFocal, phone);
                 personalInformationLayout.setSpacing(false);
                 personalInformationLayout.setPadding(false);
@@ -157,7 +157,8 @@ public class HomeView extends VerticalLayout {
     private HorizontalLayout createCardSection() {
         List<VerticalLayout> cards = new ArrayList<>();
         List<SetOrdemServico> listaOrdens = ordemServicoService.findAll();
-        List<SetOrcamento> listaInspecao = orcamentoService.findAllBySituacaoId(1);;
+        List<SetOrcamento> listaInspecao = orcamentoService.findAllBySituacaoId(1);
+        ;
 
         List<SetOrdemServico> novaLista = new ArrayList<>();
         List<SetOrcamento> listaInspecaoNova = new ArrayList<>();
@@ -181,14 +182,14 @@ public class HomeView extends VerticalLayout {
                 List<SetOrcamento> listaOrcamentoPorFuncionario = new ArrayList<>();
                 Boolean existe;
                 SetFuncionario assist = assistente;
-                if (novaLista.size() > 0){
+                if (novaLista.size() > 0) {
                     novaLista.forEach(ordem -> {
                         if (assist.getId_funcionario().equals(ordem.getId_funcionariotecnico())) {
                             listaPorFuncionario.add(ordem);
                         }
                     });
                 }
-                if (listaInspecaoNova.size() > 0){
+                if (listaInspecaoNova.size() > 0) {
                     listaInspecaoNova.forEach(ordem -> {
                         if (assist.getId_funcionario().equals(ordem.getId_funcionarioinspecao())) {
                             listaOrcamentoPorFuncionario.add(ordem);
@@ -197,9 +198,8 @@ public class HomeView extends VerticalLayout {
                 }
 
 
-
                 if (!listaPorFuncionario.isEmpty()) {
-                    cards.add(createCard1(listaOrcamentoPorFuncionario,listaPorFuncionario, assist));
+                    cards.add(createCard1(listaOrcamentoPorFuncionario, listaPorFuncionario, assist));
                 }
             });
 
@@ -257,14 +257,14 @@ public class HomeView extends VerticalLayout {
         String title = assistente.getNome_funcionario() + " e " + funcionario.getNome_funcionario();
         String description = "Abaixo programação: ";
         VerticalLayout card =
-                new VerticalLayout(new H3(title), new Paragraph(description), getlist1(listaPorFuncionario,listaOrcamentoPorFuncionario));
+                new VerticalLayout(new H3(title), new Paragraph(description), getlist1(listaPorFuncionario, listaOrcamentoPorFuncionario));
 
-       // card.add(getlist1(listaPorFuncionario));
+        // card.add(getlist1(listaPorFuncionario));
 
         card.addClassName("clickable-card");
         card.setMaxWidth("400px");
         // Criando o modal (Dialog)
-        Dialog modal = createModal(assistente, listaPorFuncionario,listaOrcamentoPorFuncionario);
+        Dialog modal = createModal(assistente, listaPorFuncionario, listaOrcamentoPorFuncionario);
 
         // Adicionando listener para abrir o modal ao clicar no card
         card.addDoubleClickListener(event -> {
@@ -293,7 +293,7 @@ public class HomeView extends VerticalLayout {
             Span horarioInicio = new Span("Início: " + ordem.getHorarioinicio_ordemservico().toString());
             Span pontoFocal = new Span("Ponto Focal: " + ordem.getNome_pontofocal().toString());
             Span ocorrencia = new Span("Ocorrência: " + ordem.getOcorrencias_ordemservico());
-            infoLayout.add(new VerticalLayout(osId, horarioInicio,pontoFocal, ocorrencia));
+            infoLayout.add(new VerticalLayout(osId, horarioInicio, pontoFocal, ocorrencia));
         });
         listaOrcamentoPorFuncionario.forEach(ordem -> {
             SetCliente cliente = clientesService.findById(ordem.getId_cliente());
@@ -301,7 +301,7 @@ public class HomeView extends VerticalLayout {
             Span horarioInicio = new Span("Início: " + ordem.getHorario_inspecao().toString());
             Span pontoFocal = new Span("Ponto Focal: " + cliente.getResponsavel_cliente().toString());
             Span ocorrencia = new Span("Ocorrência: " + ordem.getDescricao_problema());
-            infoLayout.add(new VerticalLayout(osId, horarioInicio,pontoFocal, ocorrencia));
+            infoLayout.add(new VerticalLayout(osId, horarioInicio, pontoFocal, ocorrencia));
         });
 
         // Conteúdo da segunda aba (OpenStreetMap com Leaflet)
@@ -332,11 +332,11 @@ public class HomeView extends VerticalLayout {
                 infoContent.setVisible(false);
                 mapContent.setVisible(true);
                 String endereco1 = "Rua da Consolação, 1234, São Paulo, SP, Brasil";
-                if (Objects.nonNull(end)){
+                if (Objects.nonNull(end)) {
                     endereco1 = end.getEnderecoImovel();
                 }
                 String endereco2 = endereco1;
-                loadOpenStreetMap(endereco1,endereco2);  // Carregar o mapa quando a aba for selecionada
+                loadOpenStreetMap(endereco1, endereco2);  // Carregar o mapa quando a aba for selecionada
             }
         });
 
@@ -408,7 +408,6 @@ public class HomeView extends VerticalLayout {
     }
 
 
-
     public double[] getCoordinates(String address) throws Exception {
         // Codificar o endereço para URL
         String encodedAddress = java.net.URLEncoder.encode(address, "UTF-8");
@@ -433,12 +432,11 @@ public class HomeView extends VerticalLayout {
             JSONObject jsonObject = jsonArray.getJSONObject(0);
             double lat = jsonObject.getDouble("lat");
             double lon = jsonObject.getDouble("lon");
-            return new double[] {lat, lon};
+            return new double[]{lat, lon};
         }
 
         throw new Exception("Não foi possível encontrar coordenadas para o endereço: " + address);
     }
-
 
 
 }

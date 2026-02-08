@@ -7,7 +7,6 @@ import br.com.onetec.application.views.main.financeiro.div.EventoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -30,25 +29,21 @@ import java.util.Objects;
 @UIScope
 public class EventoFinanceiroDetalhesModal extends Dialog {
 
-    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
-    private TextField nome_eventofinanceiro;
-    private TextField observacoes_eventofinanceiro;
-
     @Autowired
     EventoFinanceiroService eventoFinanceiroService;
-
     @Autowired
     TipoEventoFinanceiroService tipoEventoFinanceiroService;
-
     @Autowired
     @Lazy
     EventoFinanceiroDiv eventoFinanceiroDiv;
+    UtilitySystemConfigService service;
+    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
+    private TextField nome_eventofinanceiro;
+    private TextField observacoes_eventofinanceiro;
     private Button saveButton;
     private Button cancelButton;
     private Button excluirButton;
-
     private SetEventoFinanceiro eventoFinanceiro;
-
 
     public EventoFinanceiroDetalhesModal() {
         UI.getCurrent().access(() -> {
@@ -82,11 +77,10 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             eventoFinanceiroDiv.refreshGrid();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
-
 
     private Div createFormCadastroEmpresa() {
 
@@ -109,9 +103,6 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         SetEventoFinanceiro dto = eventoFinanceiro;

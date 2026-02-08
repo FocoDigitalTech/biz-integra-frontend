@@ -23,7 +23,7 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         SetUsuarios usuario = userRepository.findByusername(username);
-        if(usuario == null) {
+        if (usuario == null) {
             throw new UsernameNotFoundException(username);
         }
         return new MyUserPrincipal((User) User.builder()
@@ -32,7 +32,7 @@ public class MyUserDetailsService implements UserDetailsService {
                 .build());
     }
 
-        public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

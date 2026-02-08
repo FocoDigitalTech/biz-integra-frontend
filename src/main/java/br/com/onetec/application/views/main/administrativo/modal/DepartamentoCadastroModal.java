@@ -5,7 +5,6 @@ import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
-import br.com.onetec.cross.constants.MessageNotificationConst;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetFuncionario;
@@ -23,37 +22,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @UIScope
 public class DepartamentoCadastroModal extends Dialog {
 
+    List<SetFuncionario> funcionarioList;
+    @Autowired
+    FuncionarioService funcionarioService;
+    @Autowired
+    DepartamentoService departamentoService;
+    @Autowired
+    @Lazy
+    AdministrativoView administrativoView;
+    UtilitySystemConfigService service;
     //cadastro empresa
     private TextField codigoField;
     private TextField decricaoField;
     private ComboBox<SetFuncionario> responsavelield;
-
     private Button saveButton;
     private Button cancelButton;
-
-
-    List<SetFuncionario> funcionarioList;
-
-
-    @Autowired
-    FuncionarioService funcionarioService;
-
-
-    @Autowired
-    DepartamentoService departamentoService;
-
-    @Autowired
-    @Lazy
-    AdministrativoView administrativoView;
-
-    UtilitySystemConfigService service;
 
     public DepartamentoCadastroModal() {
         UI.getCurrent().access(() -> {
@@ -87,14 +76,13 @@ public class DepartamentoCadastroModal extends Dialog {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(decricaoField,
-                       responsavelield);
+                responsavelield);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
 
         return div;
     }
-
 
 
     private void save() {

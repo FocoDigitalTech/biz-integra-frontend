@@ -9,7 +9,10 @@ import br.com.onetec.application.views.main.financeiro.modal.LancamentoFinanceir
 import br.com.onetec.cross.constants.FinanceiroDataConst;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetEstoque;
+import br.com.onetec.infra.db.model.SetFluxoRecebimentoPagamento;
+import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
+import br.com.onetec.infra.db.model.SetUsuarios;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -22,7 +25,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -37,12 +39,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
-public class LancamentoFinanceiroDiv extends Div{
+public class LancamentoFinanceiroDiv extends Div {
 
     private LancamentoService lancamentoService;
 
@@ -65,6 +68,15 @@ public class LancamentoFinanceiroDiv extends Div{
     private Button btnExcluir;
 
     private Checkbox abreviarCheckbox;
+    private String situation;
+    private boolean abreviaverificacao = false;
+
+    @Autowired
+    public LancamentoFinanceiroDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+    }
 
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
@@ -81,14 +93,6 @@ public class LancamentoFinanceiroDiv extends Div{
         this.lancamentoFinanceiroDetalhesModal = lancamentoFinanceiroDetalhesModal1;
         this.tipoEventoFinanceiroService = tipoEventoFinanceiroService1;
         this.eventoFinanceiroService = eventoFinanceiroService1;
-    }
-
-
-    @Autowired
-    public LancamentoFinanceiroDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
     }
 
     private Div telaDiv() {
@@ -144,8 +148,6 @@ public class LancamentoFinanceiroDiv extends Div{
         return mobileFilters;
     }
 
-    private String situation;
-
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
@@ -156,41 +158,43 @@ public class LancamentoFinanceiroDiv extends Div{
                 .setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(orc -> {
             String abreviacao = null;
-            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_PREVISTO.getValor())){
+            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_PREVISTO.getValor())) {
                 abreviacao = FinanceiroDataConst.STATUS_PREVISTO.getAbreviacao();
-            } if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_REAL.getValor())){
+            }
+            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_REAL.getValor())) {
                 abreviacao = FinanceiroDataConst.STATUS_REAL.getAbreviacao();
-            } if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())){
+            }
+            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
                 abreviacao = FinanceiroDataConst.STATUS_CONSOLIDADO.getAbreviacao();
             }
-                if (abreviaverificacao) {
-                    situation = abreviacao;
-                } else {
-                    situation = orc.getStatus_pagamento();
-                }
-                Span span = new Span(situation);
-                if ("Previsão (P)".equals(orc.getStatus_pagamento())) {
-                    span.getStyle().set("color", "red");
-                }else if ("Real (R)".equals(orc.getStatus_pagamento())){
-                    span.getStyle().set("color", "blue");
-                }else {
-                    span.getStyle().set("color", "green");
-                }
-                return span;
+            if (abreviaverificacao) {
+                situation = abreviacao;
+            } else {
+                situation = orc.getStatus_pagamento();
+            }
+            Span span = new Span(situation);
+            if ("Previsão (P)".equals(orc.getStatus_pagamento())) {
+                span.getStyle().set("color", "red");
+            } else if ("Real (R)".equals(orc.getStatus_pagamento())) {
+                span.getStyle().set("color", "blue");
+            } else {
+                span.getStyle().set("color", "green");
+            }
+            return span;
 
-            }))
+        }))
                 .setHeader("Status (P/R/C)")
                 .setSortable(true)
                 .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_vencimento())){
+            if (Objects.nonNull(data.getData_vencimento())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_vencimento().atStartOfDay());
             } else {
                 return "";
             }
-            })
+        })
                 .setHeader("Data Vencimento")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -219,7 +223,7 @@ public class LancamentoFinanceiroDiv extends Div{
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_lancamento())){
+            if (Objects.nonNull(data.getData_lancamento())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_lancamento());
             } else {
@@ -236,7 +240,6 @@ public class LancamentoFinanceiroDiv extends Div{
                 .setHeader("Usuario Lançamento")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> lancamentoService.list(
@@ -262,7 +265,7 @@ public class LancamentoFinanceiroDiv extends Div{
 //            }
 //            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
 //            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                //deleta(event.getItem());
+            //deleta(event.getItem());
 //                // Torna o botão "Deletar" invisível após a ação ser concluída
 //                btnExcluir.setVisible(false);
 //            });
@@ -286,13 +289,21 @@ public class LancamentoFinanceiroDiv extends Div{
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
-    private boolean abreviaverificacao = false;
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Novo Lançamento", event -> openCadastroModal());
+        return cadastroButton;
+    }
 
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            lancamentoFinanceiroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetFluxoRecebimentoPagamento> {
 
@@ -313,7 +324,7 @@ public class LancamentoFinanceiroDiv extends Div{
             });
 
             HorizontalLayout personalInformationLayout = new HorizontalLayout(id,
-                    nome,createDateRangeFilter(),abreviarCheckbox);
+                    nome, createDateRangeFilter(), abreviarCheckbox);
 
 
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
@@ -339,10 +350,9 @@ public class LancamentoFinanceiroDiv extends Div{
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
-
 
 
             add(personalInformationLayout, actions);
@@ -423,18 +433,5 @@ public class LancamentoFinanceiroDiv extends Div{
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Novo Lançamento", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            lancamentoFinanceiroModal.open();
-        });
     }
 }

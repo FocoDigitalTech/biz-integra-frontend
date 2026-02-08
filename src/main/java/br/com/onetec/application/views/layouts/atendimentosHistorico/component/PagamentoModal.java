@@ -52,7 +52,7 @@ public class PagamentoModal {
 
         HorizontalLayout id_situacaopagamentoLayout =
                 new CustomizedComboBox()
-                        .customizeSituacaoPagamento(id_situacaopagamento,situacaoPagamentoService);
+                        .customizeSituacaoPagamento(id_situacaopagamento, situacaoPagamentoService);
 
         id_tipopagamento.setItems(tipoPagamentoLista);
         id_tipopagamento.setItemLabelGenerator(SetTipoPagamento::getNome_tipopagamento);
@@ -77,10 +77,10 @@ public class PagamentoModal {
         });
 
         HorizontalLayout id_tipopagamentolayout =
-                new CustomizedComboBox().customizeTipoPagamento(id_tipopagamento,tipoPagamentoService);
+                new CustomizedComboBox().customizeTipoPagamento(id_tipopagamento, tipoPagamentoService);
 
         valor_pagamento.setValueChangeMode(ValueChangeMode.EAGER);
-        UtilitySystemConfigService service= new UtilitySystemConfigService();
+        UtilitySystemConfigService service = new UtilitySystemConfigService();
         valor_pagamento.addValueChangeListener(event -> service.formataMoedaBrasileira(valor_pagamento));
         valor_pagamento.setPlaceholder("R$ 0,00");
 
@@ -90,25 +90,25 @@ public class PagamentoModal {
 
         //config form
         numeroparcela_pagamento.setValue
-                (item.getNumeroparcela_pagamento() != null? item.getNumeroparcela_pagamento() : 0);
+                (item.getNumeroparcela_pagamento() != null ? item.getNumeroparcela_pagamento() : 0);
         totalparcela_pagamento.setValue(
-                item.getTotalparcela_pagamento() != null? item.getTotalparcela_pagamento() : 0
-                );
+                item.getTotalparcela_pagamento() != null ? item.getTotalparcela_pagamento() : 0
+        );
         vencimento_pagamento.setValue(
-                item.getVencimento_pagamento() != null? item.getVencimento_pagamento() : LocalDate.now()
-                );
+                item.getVencimento_pagamento() != null ? item.getVencimento_pagamento() : LocalDate.now()
+        );
         valor_pagamento.setValue(
-                item.getValor_pagamento() != null? String.valueOf(item.getValor_pagamento()) : "0"
-                );
+                item.getValor_pagamento() != null ? String.valueOf(item.getValor_pagamento()) : "0"
+        );
         data_pagamento.setValue(
-                item.getData_pagamento() != null? item.getData_pagamento() : LocalDate.now()
-             );
+                item.getData_pagamento() != null ? item.getData_pagamento() : LocalDate.now()
+        );
         valorpago_pagamento.setValue(
-                item.getValorpago_pagamento() != null? String.valueOf(item.getValorpago_pagamento()) : "0"
-                );
+                item.getValorpago_pagamento() != null ? String.valueOf(item.getValorpago_pagamento()) : "0"
+        );
         numerodocumento_pagamento.setValue(
-                item.getNumerodocumento_pagamento() != null? item.getNumerodocumento_pagamento() : ""
-                );
+                item.getNumerodocumento_pagamento() != null ? item.getNumerodocumento_pagamento() : ""
+        );
         id_tipopagamento.setValue(tipoPagamentoLista.stream()
                 .filter(objeto -> objeto.getId_tipopagamento().equals(item.getId_tipopagamento()))
                 .findFirst().orElse(null));
@@ -116,8 +116,8 @@ public class PagamentoModal {
                 .filter(objeto -> objeto.getId_situacaopagamento().equals(item.getId_situacaopagamento()))
                 .findFirst().orElse(null));
         descricao_pagamento.setValue(
-                item.getDescricao_pagamento() != null? item.getDescricao_pagamento() : ""
-               );
+                item.getDescricao_pagamento() != null ? item.getDescricao_pagamento() : ""
+        );
 
         Button saveBtn = new Button("Atualizar", eventbe -> {
 
@@ -165,7 +165,7 @@ public class PagamentoModal {
         });
         Button cancelBtn = new Button("Cancelar", event -> service.askForConfirmation(dialog));
 
-        Button btnBaixar  = new Button("Baixar Pagamento", eventbe -> {
+        Button btnBaixar = new Button("Baixar Pagamento", eventbe -> {
 
 
             item.setData_alteracao(LocalDateTime.now());
@@ -196,7 +196,7 @@ public class PagamentoModal {
             }
         });
 
-        btnBaixar.addThemeVariants(ButtonVariant.LUMO_CONTRAST,ButtonVariant.LUMO_TERTIARY);
+        btnBaixar.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_TERTIARY);
 
 
         FormLayout formLayout = new FormLayout();
@@ -213,7 +213,7 @@ public class PagamentoModal {
                 descricao_pagamento);
 
         dialog.add(formLayout);
-        dialog.getFooter().add(saveBtn, cancelBtn,btnBaixar);
+        dialog.getFooter().add(saveBtn, cancelBtn, btnBaixar);
         dialog.open();
 
     }

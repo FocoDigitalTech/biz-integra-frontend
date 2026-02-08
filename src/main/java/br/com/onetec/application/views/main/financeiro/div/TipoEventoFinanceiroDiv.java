@@ -55,6 +55,13 @@ public class TipoEventoFinanceiroDiv extends Div {
     private Button btnExcluir;
 
     @Autowired
+    public TipoEventoFinanceiroDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+    }
+
+    @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              TipoEventoFinanceiroService tipoEventoFinanceiroService1,
@@ -65,14 +72,6 @@ public class TipoEventoFinanceiroDiv extends Div {
         this.usuarioService = usuarioService1;
         this.tipoPagamentoCadastroModal = tipoPagamentoCadastroModal1;
         this.tipoPagamentoDetalheModal = tipoPagamentoDetalheModal1;
-    }
-
-
-    @Autowired
-    public TipoEventoFinanceiroDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
     }
 
     private Div telaDiv() {
@@ -145,7 +144,7 @@ public class TipoEventoFinanceiroDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_inclusao())){
+            if (Objects.nonNull(data.getData_inclusao())) {
                 return UtilitySystemConfigService.
                         getDataFormatada(data.getData_inclusao());
             } else {
@@ -162,7 +161,6 @@ public class TipoEventoFinanceiroDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> tipoEventoFinanceiroService.list(
@@ -212,11 +210,21 @@ public class TipoEventoFinanceiroDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            tipoPagamentoCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetTipoEventoFinanceiro> {
 
@@ -250,15 +258,13 @@ public class TipoEventoFinanceiroDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -305,17 +311,5 @@ public class TipoEventoFinanceiroDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            tipoPagamentoCadastroModal.open();
-        });
     }
 }

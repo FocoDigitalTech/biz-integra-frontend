@@ -6,7 +6,6 @@ import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoF
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetSituacaoCadastro;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,7 +14,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.textfield.TextField;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,12 +40,12 @@ public class AutoCrudEventoFinanceiroService {
         TextField descricaoField = new TextField("Descrição");
 
         // Adiciona os campos ao layout do formulário
-        formLayout.add(id_tipoeventofinanceiro,nomeField,descricaoField);
+        formLayout.add(id_tipoeventofinanceiro, nomeField, descricaoField);
 
         // Botão para salvar os dados
         Button saveButton = new Button("Salvar", event -> {
             try {
-                if(Objects.isNull(id_tipoeventofinanceiro.getValue())){
+                if (Objects.isNull(id_tipoeventofinanceiro.getValue())) {
                     servico.notificaErro(ModalMessageConst.FIELD_ERROR);
                 } else {
                     SetEventoFinanceiro dto = new SetEventoFinanceiro();

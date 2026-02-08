@@ -34,10 +34,9 @@ public class ProdutoCadastroModal extends Dialog {
     @Autowired
     @Lazy
     ProdutosDiv produtosDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
-
     //private TextField id_classificacaoproduto;
     private TextField nome_produto;
     private TextField unidade_entrada;
@@ -53,7 +52,6 @@ public class ProdutoCadastroModal extends Dialog {
     private TextField antidoto_nome;
     private TextField concentrado_nome;
     private TextField numero_registro;
-
 
 
     @Autowired
@@ -78,7 +76,6 @@ public class ProdutoCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
         //id_classificacaoproduto = new ComboBox<String>("Nome ou Descrição");
@@ -86,7 +83,7 @@ public class ProdutoCadastroModal extends Dialog {
         unidade_entrada = new TextField("Unidade Entrada");
         unidade_aplicacao = new TextField("Unidade Aplicação");
         fator_conversao = new IntegerField("Fator de Conversão");
-       // quantidade_estoque = new IntegerField("Quantidade em Estoque");
+        // quantidade_estoque = new IntegerField("Quantidade em Estoque");
         quantidade_minima = new IntegerField("Quantidade Minima");
         valor_item = new TextField("Valor do Item");
         utimo_lote = new TextField("Ultimo Lote");
@@ -112,22 +109,19 @@ public class ProdutoCadastroModal extends Dialog {
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(nome_produto,unidade_entrada,
-                unidade_aplicacao,fator_conversao,quantidade_minima,
-                valor_item,utimo_lote,grupo_quimico,principio_ativo,classificacao_nome,antidoto_nome,concentrado_nome,numero_registro);
+        formLayout.add(nome_produto, unidade_entrada,
+                unidade_aplicacao, fator_conversao, quantidade_minima,
+                valor_item, utimo_lote, grupo_quimico, principio_ativo, classificacao_nome, antidoto_nome, concentrado_nome, numero_registro);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
-        if (validacaoStringsObrigatorias(unidade_entrada.getValue())||
-                validacaoStringsObrigatorias(unidade_aplicacao.getValue())||
-                    Objects.isNull(fator_conversao.getValue())){
+        if (validacaoStringsObrigatorias(unidade_entrada.getValue()) ||
+                validacaoStringsObrigatorias(unidade_aplicacao.getValue()) ||
+                Objects.isNull(fator_conversao.getValue())) {
             service.notificaErro("Preencha os campos obrigatórios !!");
 
         } else {
@@ -179,7 +173,8 @@ public class ProdutoCadastroModal extends Dialog {
     private boolean validacaoStringsObrigatorias(String value) {
         if (Objects.isNull(value)) {
             return true;
-        }if (value.isEmpty()){
+        }
+        if (value.isEmpty()) {
             return true;
         }
         return value.isBlank();

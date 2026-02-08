@@ -29,7 +29,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class CustomizedComboBox {
 
@@ -147,7 +146,7 @@ public class CustomizedComboBox {
         Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
         addButtonTipoPagamento.addClickListener(event -> {
             autoCrudEventoFinanceiroService = new AutoCrudEventoFinanceiroService();
-            autoCrudEventoFinanceiroService.openFormDialog(id_eventofinanceiro, eventoFinanceiroService,grupoFinanceiroService);
+            autoCrudEventoFinanceiroService.openFormDialog(id_eventofinanceiro, eventoFinanceiroService, grupoFinanceiroService);
         });
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(id_eventofinanceiro, addButtonTipoPagamento);
@@ -205,9 +204,9 @@ public class CustomizedComboBox {
         Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
         addButtonTipoPagamento.addClickListener(event -> {
             autoCrudFornecedorService = new AutoCrudFornecedorService();
-            autoCrudFornecedorService.openFormDialog(id_fornecedor, fornecedorService,estadoService1,
+            autoCrudFornecedorService.openFormDialog(id_fornecedor, fornecedorService, estadoService1,
                     setorAtuacaoService1
-                    );
+            );
         });
         id_fornecedor.setWidth("900px"); // Ajuste conforme necessário
         id_fornecedor.getStyle().set("max-width", "900px");

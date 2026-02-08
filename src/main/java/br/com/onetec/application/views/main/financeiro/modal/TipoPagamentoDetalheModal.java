@@ -26,22 +26,18 @@ import java.util.Objects;
 @UIScope
 public class TipoPagamentoDetalheModal extends Dialog {
 
-    private TextField nome_tipoeventofinanceiro;
-    private TextField descricao_tipoeventofinanceiro;
-
     @Autowired
     TipoPagamentoService tipoPagamentoService;
-
     @Autowired
     @Lazy
     TipopagamentoDiv tipoPagamentoDiv;
-
+    UtilitySystemConfigService service;
+    private TextField nome_tipoeventofinanceiro;
+    private TextField descricao_tipoeventofinanceiro;
     private Button saveButton;
     private Button cancelButton;
     private Button excluirButton;
-
     private SetTipoPagamento tipoPagamento;
-
 
     public TipoPagamentoDetalheModal() {
         UI.getCurrent().access(() -> {
@@ -64,7 +60,7 @@ public class TipoPagamentoDetalheModal extends Dialog {
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton,excluirButton);
+            getFooter().add(saveButton, cancelButton, excluirButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
@@ -76,7 +72,7 @@ public class TipoPagamentoDetalheModal extends Dialog {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             tipoPagamentoDiv.refreshGrid();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -93,9 +89,6 @@ public class TipoPagamentoDetalheModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -121,10 +114,10 @@ public class TipoPagamentoDetalheModal extends Dialog {
     public void setTipoPagamento(SetTipoPagamento item) {
         UI.getCurrent().access(() -> {
             this.tipoPagamento = item;
-            if(Objects.nonNull(item.getNome_tipopagamento()))
-            nome_tipoeventofinanceiro.setValue(item.getNome_tipopagamento());
-            if(Objects.nonNull(item.getDescricao_tipopagamento()))
-            descricao_tipoeventofinanceiro.setValue(item.getDescricao_tipopagamento());
+            if (Objects.nonNull(item.getNome_tipopagamento()))
+                nome_tipoeventofinanceiro.setValue(item.getNome_tipopagamento());
+            if (Objects.nonNull(item.getDescricao_tipopagamento()))
+                descricao_tipoeventofinanceiro.setValue(item.getDescricao_tipopagamento());
         });
     }
 }

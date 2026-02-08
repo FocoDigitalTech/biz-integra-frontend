@@ -21,7 +21,7 @@ public class TipoAtendimentoService {
     private ISetTipoAtendimentoRepository repository;
 
     @Autowired
-    public void initServices (ISetTipoAtendimentoRepository repository1){
+    public void initServices(ISetTipoAtendimentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class TipoAtendimentoService {
     public void save(SetTipoAtendimento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class TipoAtendimentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -68,7 +68,7 @@ public class TipoAtendimentoService {
             SetTipoAtendimento entity = optional.get();
             entity = dto;
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

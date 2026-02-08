@@ -1,13 +1,9 @@
 package br.com.onetec.application.service.ordemservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
-import br.com.onetec.infra.db.model.SetOrdemServicoMisturas;
 import br.com.onetec.infra.db.model.SetProduto;
-import br.com.onetec.infra.db.repository.ISetEstoqueRepository;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoMateriaisRepository;
-import br.com.onetec.infra.db.repository.ISetOrdemServicoMisturasRepository;
 import br.com.onetec.infra.db.repository.ISetProdutoRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +26,7 @@ public class OrdemServicoMateriaisService {
     private ISetProdutoRepository iSetEstoqueRepository;
 
     @Autowired
-    public void initServices (ISetOrdemServicoMateriaisRepository repository1,ISetProdutoRepository iSetEstoqueRepository1){
+    public void initServices(ISetOrdemServicoMateriaisRepository repository1, ISetProdutoRepository iSetEstoqueRepository1) {
         this.repository = repository1;
         this.iSetEstoqueRepository = iSetEstoqueRepository1;
     }
@@ -46,7 +42,7 @@ public class OrdemServicoMateriaisService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServicoMateriais> listAllByOrdemServicoId(Integer id){
+    public List<SetOrdemServicoMateriais> listAllByOrdemServicoId(Integer id) {
 
         return repository.listAllByOrdemServicoId(id);
     }
@@ -55,11 +51,10 @@ public class OrdemServicoMateriaisService {
         try {
             repository.save(dto);
             atualizaEstoque(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
-
 
 
     @SneakyThrows
@@ -74,7 +69,7 @@ public class OrdemServicoMateriaisService {
 //            entity.setQuantidade_estoque(String.valueOf(saldo));
             iSetEstoqueRepository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -88,7 +83,7 @@ public class OrdemServicoMateriaisService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -107,7 +102,7 @@ public class OrdemServicoMateriaisService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
