@@ -22,7 +22,7 @@ public class PagamentoService {
     private ISetPagamentoRepository repository;
 
     @Autowired
-    public void initServices (ISetPagamentoRepository repository1){
+    public void initServices(ISetPagamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -37,7 +37,7 @@ public class PagamentoService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetPagamento> findAllByOrcamentoId(Integer orcamentoid){
+    public List<SetPagamento> findAllByOrcamentoId(Integer orcamentoid) {
 
         return repository.listAllByOrcamentoId(orcamentoid);
     }
@@ -45,7 +45,7 @@ public class PagamentoService {
     public void save(SetPagamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -56,7 +56,7 @@ public class PagamentoService {
             SetPagamento entity = optional.get();
             entity = dto;
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -70,7 +70,7 @@ public class PagamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

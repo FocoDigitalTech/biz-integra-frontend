@@ -1,6 +1,5 @@
 package br.com.onetec.application.service.userservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetUsuarios;
 import br.com.onetec.infra.db.repository.IUsuariosRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +17,10 @@ import java.util.Optional;
 public class UsuarioService {
 
 
-
     private IUsuariosRepository repository;
 
     @Autowired
-    public void initServices (IUsuariosRepository repository1){
+    public void initServices(IUsuariosRepository repository1) {
         this.repository = repository1;
     }
 
@@ -48,10 +46,9 @@ public class UsuarioService {
             SetUsuarios entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());
-            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -59,14 +56,14 @@ public class UsuarioService {
     public void save(SetUsuarios dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     public boolean checkUserNameAvaliable(String username) {
         SetUsuarios existsUsername = repository.findByusername(username);
-        if (existsUsername == null){
+        if (existsUsername == null) {
             return true;
         } else {
             return false;
@@ -77,10 +74,10 @@ public class UsuarioService {
         try {
             Optional<SetUsuarios> optional = repository.findById(dto.getId_usuario());
             SetUsuarios entity = optional.get();
+            entity = dto;
             entity.setData_alteracao(LocalDateTime.now());
-            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

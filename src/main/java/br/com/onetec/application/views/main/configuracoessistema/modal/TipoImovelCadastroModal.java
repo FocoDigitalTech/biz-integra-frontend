@@ -25,17 +25,15 @@ import java.time.LocalDateTime;
 @UIScope
 public class TipoImovelCadastroModal extends Dialog {
 
-    private com.vaadin.flow.component.textfield.TextField decricaoField;
-
     @Autowired
     TipoImovelService tipoImovelService;
-
     @Autowired
     @Lazy
     TipoImovelDiv tipoMidiaDiv;
+    UtilitySystemConfigService service;
+    private com.vaadin.flow.component.textfield.TextField decricaoField;
     private com.vaadin.flow.component.button.Button saveButton;
     private com.vaadin.flow.component.button.Button cancelButton;
-
 
 
     public TipoImovelCadastroModal() {
@@ -59,7 +57,6 @@ public class TipoImovelCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
         decricaoField = new TextField("Nome ou Descrição");
         FormLayout formLayout = new FormLayout();
@@ -69,9 +66,6 @@ public class TipoImovelCadastroModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -87,7 +81,7 @@ public class TipoImovelCadastroModal extends Dialog {
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

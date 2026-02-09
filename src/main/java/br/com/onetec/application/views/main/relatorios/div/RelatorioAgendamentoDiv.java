@@ -8,6 +8,7 @@ import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService
 import br.com.onetec.application.service.servicoorcamentos.ServicosOrcamentoService;
 import br.com.onetec.application.service.servicoservices.ServicoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
+import br.com.onetec.application.views.main.relatorios.service.AgendamentoPrintExportService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -17,7 +18,6 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -57,12 +57,6 @@ public class RelatorioAgendamentoDiv extends Div {
     private final DatePicker endDate = new DatePicker();
     private final ComboBox<String> tipoContrato = new ComboBox<>("Tipo");//tipo
     private final RadioButtonGroup abreviaradio = new RadioButtonGroup("Abreviar nome dos serviços ?");//abrevia ?
-    private Checkbox abreviarCheckbox;
-    private Button btnImprimir = new Button("Imprimir");//imprimir
-    private UtilitySystemConfigService service;
-    private Grid<SetContrato> grid;
-    private RelatorioAgendamentoDiv.Filter filter;
-    private UsuarioService usuarioService;
     private final OrcamentoService orcamentoService;
     private final ContratoService contratoService;
     private final FuncionarioService funcionarioService;
@@ -70,13 +64,21 @@ public class RelatorioAgendamentoDiv extends Div {
     private final OrdemServicoService ordemServicoService;
     private final ServicosOrcamentoService servicosOrcamentoService;
     private final ServicoService servicoService;
+    private final AgendamentoPrintExportService agendamentoPrintExportService;
+    private Checkbox abreviarCheckbox;
+    private Button btnImprimir = new Button("Imprimir");//imprimir
+    private UtilitySystemConfigService service;
+    private Grid<SetContrato> grid;
+    private RelatorioAgendamentoDiv.Filter filter;
+    private UsuarioService usuarioService;
     private boolean abreviaverificacao = false;
 
     @Autowired
     public RelatorioAgendamentoDiv(OrcamentoService orcamentoService1, ContratoService contratoService1,
                                    FuncionarioService funcionarioService1, ClientesService clientesService1,
                                    OrdemServicoService ordemServicoService1,
-                                   ServicosOrcamentoService servicosOrcamentoService1, ServicoService servicoService1) {
+                                   ServicosOrcamentoService servicosOrcamentoService1, ServicoService servicoService1,
+                                   AgendamentoPrintExportService agendamentoPrintExportService1) {
         this.orcamentoService = orcamentoService1;
         this.contratoService = contratoService1;
         this.funcionarioService = funcionarioService1;
@@ -84,9 +86,9 @@ public class RelatorioAgendamentoDiv extends Div {
         this.ordemServicoService = ordemServicoService1;
         this.servicosOrcamentoService = servicosOrcamentoService1;
         this.servicoService = servicoService1;
+        this.agendamentoPrintExportService = agendamentoPrintExportService1;
         UI.getCurrent().access(() -> {
             add(telaDiv());
-
         });
     }
 
@@ -152,7 +154,14 @@ public class RelatorioAgendamentoDiv extends Div {
 
         //departamentoService.list(null,null);
         grid = new Grid<>(SetContrato.class, false);
-        grid.addColumn(SetContrato::getDatainicio_execucao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getDatainicio_execucao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getDatainicio_execucao().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -257,6 +266,40 @@ public class RelatorioAgendamentoDiv extends Div {
         return grid;
     }
 
+    private void gerarPDFComItensFiltrados() {
+        List<SetContrato> itensFiltrados = grid.getListDataView().getItems().collect(Collectors.toList());
+
+        try {
+            String filePath = "caminho/para/arquivo.pdf";
+            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            Table table = new Table(4); // Número de colunas que você quiser
+
+            // Cabeçalho
+            table.addHeaderCell(new Cell().add(new Paragraph("Data")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+            table.addHeaderCell(new Cell().add(new Paragraph("Número Orçamento")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+            table.addHeaderCell(new Cell().add(new Paragraph("Número Contrato")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+            table.addHeaderCell(new Cell().add(new Paragraph("Nome Cliente")).setBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+            // Linhas
+            for (SetContrato contrato : itensFiltrados) {
+                //table.addCell(new Paragraph(UtilitySystemConfigService.getDataFormatada(contrato.getDatainicio_execucao().atStartOfDay())));
+                table.addCell(new Paragraph(String.valueOf(contrato.getId_orcamento())));
+                table.addCell(new Paragraph(String.valueOf(contrato.getId_contrato())));
+                SetCliente cliente = clientesService.findById(contrato.getId_cliente());
+                table.addCell(new Paragraph(cliente.getNome_cliente()));
+            }
+
+            document.add(table);
+            document.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public class Filter extends Div implements Specification<SetContrato> {
 
 
@@ -282,9 +325,10 @@ public class RelatorioAgendamentoDiv extends Div {
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
 
-            btnImprimir = new Button("Imprimir", click -> {
-                //exportGridToPDF("relatorio_agendamentos.pdf");
-            });
+            btnImprimir = new Button("Imprimir", e ->
+                    agendamentoPrintExportService.imprimirRelatorio(grid, e, abreviarCheckbox));
+
+
             btnImprimir.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
             abreviarCheckbox = new Checkbox("Abreviar nome dos serviços?");
@@ -387,58 +431,6 @@ public class RelatorioAgendamentoDiv extends Div {
         }
 
     }
-
-    public void exportGridToPDF(String filePath) {
-        try {
-            // Criação do documento PDF
-            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
-            PdfDocument pdfDocument = new PdfDocument(writer);
-            Document document = new Document(pdfDocument);
-
-            // Título do relatório
-            Paragraph title = new Paragraph("Relatório de Agendamentos")
-                    .setFontSize(16)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER);
-            document.add(title);
-
-            // Espaço após o título
-            document.add(new Paragraph("\n"));
-
-            // Configuração da tabela (baseada no número de colunas do grid)
-            Table table = new Table(grid.getColumns().size());
-            table.setWidth(100f);
-
-            // Adicionando cabeçalhos ao PDF
-            grid.getColumns().forEach(column -> {
-                table.addHeaderCell(new Cell()
-                        .add(new Paragraph(column.getHeaderText()))
-                        .setBackgroundColor(ColorConstants.LIGHT_GRAY)
-                        .setBold());
-            });
-
-            // Adicionando os dados do Grid ao PDF
-            grid.getDataProvider().fetch(new com.vaadin.flow.data.provider.Query<>())
-                    .forEach(item -> {
-                        grid.getColumns().forEach(column -> {
-                            // Exemplo simples, adaptado dependendo do seu modelo de dados
-                            Object value = item.getId_orcamento(); // ou algo similar para o seu item
-                            table.addCell(new Cell().add(new Paragraph(value != null ? value.toString() : "N/A")));
-                        });
-                    });
-
-            // Adicionando a tabela ao documento
-            document.add(table);
-
-            // Fechando o documento
-            document.close();
-
-            System.out.println("PDF gerado com sucesso em: " + filePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
 
 }

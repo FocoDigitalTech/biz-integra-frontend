@@ -20,7 +20,7 @@ public class FaturamentoService {
     private ISetFaturamentoRepository repository;
 
     @Autowired
-    public void initServices (ISetFaturamentoRepository repository1){
+    public void initServices(ISetFaturamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,7 +38,7 @@ public class FaturamentoService {
     public void save(SetFaturamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -52,7 +52,7 @@ public class FaturamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -63,7 +63,7 @@ public class FaturamentoService {
             SetFaturamento entity = optional.get();
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

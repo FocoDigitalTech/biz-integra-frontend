@@ -26,29 +26,19 @@ import java.time.LocalDateTime;
 @UIScope
 public class CondicaoPagamentoDetalhesModal extends Dialog {
 
-    private TextField descricao_condicaopagamento;
-    private NumberField quantidade_parcelas;
-    private NumberField prazo_dd;
-
     @Autowired
     CondicaoPagamentoService condicaoPagamentoService;
-
     @Autowired
     @Lazy
     CondicaoPagamentoDiv condicaoPagamentoDiv;
+    UtilitySystemConfigService service;
+    private TextField descricao_condicaopagamento;
+    private NumberField quantidade_parcelas;
+    private NumberField prazo_dd;
     private Button saveButton;
     private Button cancelButton;
     private Button excluirButton;
-
-    private void deleta(SetCondicaoPagamento item) {
-        try {
-            condicaoPagamentoService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            condicaoPagamentoDiv.refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
+    private SetCondicaoPagamento condicaoPagamento;
 
 
     public CondicaoPagamentoDetalhesModal() {
@@ -72,12 +62,22 @@ public class CondicaoPagamentoDetalhesModal extends Dialog {
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(excluirButton,saveButton, cancelButton);
+            getFooter().add(excluirButton, saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
     }
 
+    private void deleta(SetCondicaoPagamento item) {
+        try {
+            condicaoPagamentoService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            condicaoPagamentoDiv.refreshGrid();
+            close();
+        } catch (Exception e) {
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
 
     private Div createFormCadastroEmpresa() {
 
@@ -93,9 +93,6 @@ public class CondicaoPagamentoDetalhesModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -115,19 +112,17 @@ public class CondicaoPagamentoDetalhesModal extends Dialog {
             prazo_dd.clear();
             service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }
 
-    private SetCondicaoPagamento condicaoPagamento;
-
     public void setCondicaoPagamento(SetCondicaoPagamento item) {
         UI.getCurrent().access(() -> {
             this.condicaoPagamento = item;
-             descricao_condicaopagamento.setValue(item.getDescricao_condicaopagamento());
-             quantidade_parcelas.setValue(Double.valueOf(item.getQuantidade_parcelas()));
-             prazo_dd.setValue(Double.valueOf(item.getPrazo_dd()));
+            descricao_condicaopagamento.setValue(item.getDescricao_condicaopagamento());
+            quantidade_parcelas.setValue(Double.valueOf(item.getQuantidade_parcelas()));
+            prazo_dd.setValue(Double.valueOf(item.getPrazo_dd()));
         });
     }
 }

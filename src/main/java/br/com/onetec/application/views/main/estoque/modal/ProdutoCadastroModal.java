@@ -13,6 +13,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -32,17 +34,16 @@ public class ProdutoCadastroModal extends Dialog {
     @Autowired
     @Lazy
     ProdutosDiv produtosDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
-
     //private TextField id_classificacaoproduto;
     private TextField nome_produto;
     private TextField unidade_entrada;
     private TextField unidade_aplicacao;
-    private TextField fator_conversao;
-    private TextField quantidade_estoque;
-    private TextField quantidade_minima;
+    private IntegerField fator_conversao;
+    //private IntegerField quantidade_estoque;
+    private IntegerField quantidade_minima;
     private TextField valor_item;
     private TextField utimo_lote;
     private TextField grupo_quimico;
@@ -51,7 +52,6 @@ public class ProdutoCadastroModal extends Dialog {
     private TextField antidoto_nome;
     private TextField concentrado_nome;
     private TextField numero_registro;
-
 
 
     @Autowired
@@ -76,16 +76,15 @@ public class ProdutoCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
         //id_classificacaoproduto = new ComboBox<String>("Nome ou Descrição");
         nome_produto = new TextField("Nome ou Descrição");
         unidade_entrada = new TextField("Unidade Entrada");
         unidade_aplicacao = new TextField("Unidade Aplicação");
-        fator_conversao = new TextField("Fator de Conversão");
-        quantidade_estoque = new TextField("Quantidade em Estoque");
-        quantidade_minima = new TextField("Quantidade Minima");
+        fator_conversao = new IntegerField("Fator de Conversão");
+        // quantidade_estoque = new IntegerField("Quantidade em Estoque");
+        quantidade_minima = new IntegerField("Quantidade Minima");
         valor_item = new TextField("Valor do Item");
         utimo_lote = new TextField("Ultimo Lote");
         grupo_quimico = new TextField("Grupo Quimico");
@@ -95,66 +94,89 @@ public class ProdutoCadastroModal extends Dialog {
         concentrado_nome = new TextField("Concentrado");
         numero_registro = new TextField("N° Registro");
 
+        unidade_entrada.setRequired(true);
+        unidade_aplicacao.setRequired(true);
+        fator_conversao.setRequired(true);
+
+        fator_conversao.setValue(1);
+        fator_conversao.setStepButtonsVisible(true);
+        fator_conversao.setMin(1);
+
+
         valor_item.setValueChangeMode(ValueChangeMode.EAGER);
         valor_item.setPlaceholder("R$ 0,00");
         valor_item.addValueChangeListener(event -> service.formataMoedaBrasileira(valor_item));
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(nome_produto,unidade_entrada,
-                unidade_aplicacao,fator_conversao,quantidade_estoque,quantidade_minima,
-                valor_item,utimo_lote,grupo_quimico,principio_ativo,classificacao_nome,antidoto_nome,concentrado_nome,numero_registro);
+        formLayout.add(nome_produto, unidade_entrada,
+                unidade_aplicacao, fator_conversao, quantidade_minima,
+                valor_item, utimo_lote, grupo_quimico, principio_ativo, classificacao_nome, antidoto_nome, concentrado_nome, numero_registro);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
-        // Lógica para salvar o cadastro
-        SetProduto dto = new SetProduto();
-        dto.setNome_produto(nome_produto.getValue());
-        dto.setUnidade_entrada(unidade_entrada.getValue());
-        dto.setUnidade_aplicacao(unidade_aplicacao.getValue());
-        dto.setFator_conversao(fator_conversao.getValue());
-        dto.setQuantidade_estoque(quantidade_estoque.getValue());
-        dto.setQuantidade_minima(quantidade_minima.getValue());
-        dto.setValor_item(service.getValorBigDecimal(valor_item.getValue()));
-        dto.setUtimo_lote(utimo_lote.getValue());
-        dto.setGrupo_quimico(grupo_quimico.getValue());
-        dto.setPrincipio_ativo(principio_ativo.getValue());
-        dto.setClassificacao_nome(classificacao_nome.getValue());
-        dto.setAntidoto_nome(antidoto_nome.getValue());
-        dto.setConcentrado_nome(concentrado_nome.getValue());
-        dto.setNumero_registro(numero_registro.getValue());
-        dto.setAtivo("S");
-        dto.setData_inclusao(LocalDateTime.now());
-        dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        if (validacaoStringsObrigatorias(unidade_entrada.getValue()) ||
+                validacaoStringsObrigatorias(unidade_aplicacao.getValue()) ||
+                Objects.isNull(fator_conversao.getValue())) {
+            service.notificaErro("Preencha os campos obrigatórios !!");
 
-        try {
-            produtoService.save(dto);
-            produtosDiv.refreshGrid();
-            nome_produto.clear();
-            unidade_entrada.clear();
-            unidade_aplicacao.clear();
-            fator_conversao.clear();
-            quantidade_estoque.clear();
-            quantidade_minima.clear();
-            valor_item.clear();
-            utimo_lote.clear();
-            grupo_quimico.clear();
-            principio_ativo.clear();
-            classificacao_nome.clear();
-            antidoto_nome.clear();
-            concentrado_nome.clear();
-            numero_registro.clear();
-            service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
-            close();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_CREATE);
+        } else {
+            // Lógica para salvar o cadastro
+            SetProduto dto = new SetProduto();
+            dto.setNome_produto(nome_produto.getValue());
+            dto.setUnidade_entrada(unidade_entrada.getValue());//obrigatorio
+            dto.setUnidade_aplicacao(unidade_aplicacao.getValue());//obrigatorio
+            dto.setFator_conversao(fator_conversao.getValue());//obrigatorio
+            dto.setQuantidade_estoque(0);
+            dto.setQuantidade_minima(quantidade_minima.getValue());
+            dto.setValor_item(service.getValorBigDecimal(valor_item.getValue()));
+            dto.setUtimo_lote(utimo_lote.getValue());
+            dto.setGrupo_quimico(grupo_quimico.getValue());
+            dto.setPrincipio_ativo(principio_ativo.getValue());
+            dto.setClassificacao_nome(classificacao_nome.getValue());
+            dto.setAntidoto_nome(antidoto_nome.getValue());
+            dto.setConcentrado_nome(concentrado_nome.getValue());
+            dto.setNumero_registro(numero_registro.getValue());
+            dto.setAtivo("S");
+            dto.setData_inclusao(LocalDateTime.now());
+            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+
+            try {
+                produtoService.save(dto);
+                produtosDiv.refreshGrid();
+                nome_produto.clear();
+                unidade_entrada.clear();
+                unidade_aplicacao.clear();
+                fator_conversao.clear();
+                //quantidade_estoque.clear();
+                quantidade_minima.clear();
+                valor_item.clear();
+                utimo_lote.clear();
+                grupo_quimico.clear();
+                principio_ativo.clear();
+                classificacao_nome.clear();
+                antidoto_nome.clear();
+                concentrado_nome.clear();
+                numero_registro.clear();
+                service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+                close();
+            } catch (Exception e) {
+                service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            }
         }
+    }
+
+    private boolean validacaoStringsObrigatorias(String value) {
+        if (Objects.isNull(value)) {
+            return true;
+        }
+        if (value.isEmpty()) {
+            return true;
+        }
+        return value.isBlank();
     }
 }

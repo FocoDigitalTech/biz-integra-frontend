@@ -13,7 +13,7 @@ public class UsuarioAutenticadoConfig {
     }
 
     public static void setUser(SetUsuarios user) {
-        log.info("Usuario: " +user);
+        log.info("Usuario: " + user);
         UsuarioAutenticadoConfig.user = user;
     }
 }

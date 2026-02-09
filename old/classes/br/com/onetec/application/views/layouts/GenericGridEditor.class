@@ -1,0 +1,334 @@
+);
+            break;
+          case 0:
+            he(k, ie, _t);
+            break;
+        }
+      }
+      function z(k, ie, _t) {
+        Pv(`\${${_t.order}:`), ft(
+          k,
+          ie,
+          /*allowSnippets*/
+          false
+        ), Pv("}");
+      }
+      function he(k, ie, _t) {
+        E.assert(ie.kind === 242, `A tab stop cannot be attached to a node of kind ${E.formatSyntaxKind(ie.kind)}.`), E.assert(k !== 5, "A tab stop cannot be attached to an embedded statement."), Pv(`$${_t.order}`);
+      }
+      function q(k) {
+        (k.symbol ? I6 : Ae)(Zy(
+          k,
+          /*includeTrivia*/
+          false
+        ), k.symbol), yo(
+          k,
+          tS(k),
+          53776
+          /* TypeParameters */
+        );
+      }
+      function we(k) {
+        Ae(Zy(
+          k,
+          /*includeTrivia*/
+          false
+        ));
+      }
+      function _e(k) {
+        Te(k.left), hn("."), Yt(k.right);
+      }
+      function Te(k) {
+        k.kind === 80 ? $e(k) : Yt(k);
+      }
+      function dt(k) {
+        hn("["), $e(k.expression, jr.parenthesizeExpressionOfComputedPropertyName), hn("]");
+      }
+      function xt(k) {
+        L0(k, k.modifiers), Yt(k.name), k.constraint && (sn(), ns("extends"), sn(), Yt(k.constraint)), k.default && (sn(), k_("="), sn(), Yt(k.default));
+      }
+      function wt(k) {
+        xf(
+          k,
+          k.modifiers,
+          /*allowDecorators*/
+          true
+        ), Yt(k.dotDotDotToken), sd(k.name, Dv), Yt(k.questionToken), k.parent && k.parent.kind === 317 && !k.name ? Yt(k.type) : Ni(k.type), bn(k.initializer, k.type ? k.type.end : k.questionToken ? k.questionToken.end : k.name ? k.name.end : k.modifiers ? k.modifiers.end : k.pos, k, jr.parenthesizeExpressionForDisallowedComma);
+      }
+      function ir(k) {
+        hn("@"), $e(k.expression, jr.parenthesizeLeftSideOfAccess);
+      }
+      function br(k) {
+        L0(k, k.modifiers), sd(k.name, O6), Yt(k.questionToken), Ni(k.type), su();
+      }
+      function Lr(k) {
+        xf(
+          k,
+          k.modifiers,
+          /*allowDecorators*/
+          true
+        ), Yt(k.name), Yt(k.questionToken), Yt(k.exclamationToken), Ni(k.type), bn(k.initializer, k.type ? k.type.end : k.questionToken ? k.questionToken.end : k.name.end, k), su();
+      }
+      function en(k) {
+        L0(k, k.modifiers), Yt(k.name), Yt(k.questionToken), qf(k, t_, za);
+      }
+      function fr(k) {
+        xf(
+          k,
+          k.modifiers,
+          /*allowDecorators*/
+          true
+        ), Yt(k.asteriskToken), Yt(k.name), Yt(k.questionToken), qf(k, t_, of);
+      }
+      function mn(k) {
+        ns("static"), j0(k), Od(k.body), yp(k);
+      }
+      function Di(k) {
+        xf(
+          k,
+          k.modifiers,
+          /*allowDecorators*/
+          false
+        ), ns("constructor"), qf(k, t_, of);
+      }
+      function Fi(k) {
+        const ie = xf(
+          k,
+          k.modifiers,
+          /*allowDecorators*/
+          true
+        ), _t = k.kind === 177 ? 139 : 153;
+        ke(_t, ie, ns, k), sn(), Yt(k.name), qf(k, t_, of);
+      }
+      function ur(k) {
+        qf(k, t_, za);
+      }
+      function Mr(k) {
+        ns("new"), sn(), qf(k, t_, za);
+      }
+      function Or(k) {
+        xf(
+          k,
+          k.modifiers,
+          /*allowDecorators*/
+          false
+        ), $y(k, k.parameters), Ni(k.type), su();
+      }
+      function tn(k) {
+        Yt(k.type), Yt(k.literal);
+      }
+      function qt() {
+        su();
+      }
+      function ma(k) {
+        k.assertsModifier && (Yt(k.assertsModifier), sn()), Yt(k.parameterName), k.type && (sn(), ns("is"), sn(), Yt(k.type));
+      }
+      function Ga(k) {
+        Yt(k.typeName), Xg(k, k.typeArguments);
+      }
+      function Lo(k) {
+        qf(k, zo, hs);
+      }
+      function zo(k) {
+        M0(k, k.typeParameters), IS(k, k.parameters), sn(), hn("=>");
+      }
+      function hs(k) {
+        sn(), Yt(k.type);
+      }
+      function ga(k) {
+        ns("function"), xm(k, k.parameters), hn(":"), Yt(k.type);
+      }
+      function xo(k) {
+        hn("?"), Yt(k.type);
+      }
+      function Li(k) {
+        hn("!"), Yt(k.type);
+      }
+      function bi(k) {
+        Yt(k.type), hn("=");
+      }
+      function Al2(k) {
+        L0(k, k.modifiers), ns("new"), sn(), qf(k, zo, hs);
+      }
+      function Mo(k) {
+        ns("typeof"), sn(), Yt(k.exprName), Xg(k, k.typeArguments);
+      }
+      function Tu(k) {
+        j0(k), rr(k.members, bc), hn("{");
+        const ie = ua(k) & 1 ? 768 : 32897;
+        yo(
+          k,
+          k.members,
+          ie | 524288
+          /* NoSpaceIfEmpty */
+        ), hn("}"), yp(k);
+      }
+      function fc(k) {
+        Yt(k.elementType, jr.parenthesizeNonArrayTypeOfPostfixType), hn("["), hn("]");
+      }
+      function Hl2(k) {
+        hn("..."), Yt(k.type);
+      }
+      function ea(k) {
+        ke(23, k.pos, hn, k);
+        const ie = ua(k) & 1 ? 528 : 657;
+        yo(k, k.elements, ie | 524288, jr.parenthesizeElementTypeOfTupleType), ke(24, k.elements.end, hn, k);
+      }
+      function Do(k) {
+        Yt(k.dotDotDotToken), Yt(k.name), Yt(k.questionToken), ke(59, k.name.end, hn, k), sn(), Yt(k.type);
+      }
+      function Ya(k) {
+        Yt(k.type, jr.parenthesizeTypeOfOptionalType), hn("?");
+      }
+      function Fa(k) {
+        yo(k, k.types, 516, jr.parenthesizeConstituentTypeOfUnionType);
+      }
+      function Bt(k) {
+        yo(k, k.types, 520, jr.parenthesizeConstituentTypeOfIntersectionType);
+      }
+      function lc(k) {
+        Yt(k.checkType, jr.parenthesizeCheckTypeOfConditionalType), sn(), ns("extends"), sn(), Yt(k.extendsType, jr.parenthesizeExtendsTypeOfConditionalType), sn(), hn("?"), sn(), Yt(k.trueType), sn(), hn(":"), sn(), Yt(k.falseType);
+      }
+      function Fu(k) {
+        ns("infer"), sn(), Yt(k.typeParameter);
+      }
+      function Lu(k) {
+        hn("("), Yt(k.type), hn(")");
+      }
+      function y_() {
+        ns("this");
+      }
+      function Po(k) {
+        Qg(k.operator, ns), sn();
+        const ie = k.operator === 148 ? jr.parenthesizeOperandOfReadonlyTypeOperator : jr.parenthesizeOperandOfTypeOperator;
+        Yt(k.type, ie);
+      }
+      function Wo(k) {
+        Yt(k.objectType, jr.parenthesizeNonArrayTypeOfPostfixType), hn("["), Yt(k.indexType), hn("]");
+      }
+      function A(k) {
+        const ie = ua(k);
+        hn("{"), ie & 1 ? sn() : (Mu(), od()), k.readonlyToken && (Yt(k.readonlyToken), k.readonlyToken.kind !== 148 && ns("readonly"), sn()), hn("["), re(3, k.typeParameter), k.nameType && (sn(), ns("as"), sn(), Yt(k.nameType)), hn("]"), k.questionToken && (Yt(k.questionToken), k.questionToken.kind !== 58 && hn("?")), hn(":"), sn(), Yt(k.type), su(), ie & 1 ? sn() : (Mu(), hp()), yo(
+          k,
+          k.members,
+          2
+          /* PreserveLines */
+        ), hn("}");
+      }
+      function Me(k) {
+        $e(k.literal);
+      }
+      function it(k) {
+        Yt(k.head), yo(
+          k,
+          k.templateSpans,
+          262144
+          /* TemplateExpressionSpans */
+        );
+      }
+      function Ot(k) {
+        k.isTypeOf && (ns("typeof"), sn()), ns("import"), hn("("), Yt(k.argument), k.attributes && (hn(","), sn(), re(7, k.attributes)), hn(")"), k.qualifier && (hn("."), Yt(k.qualifier)), Xg(k, k.typeArguments);
+      }
+      function kr(k) {
+        hn("{"), yo(
+          k,
+          k.elements,
+          525136
+          /* ObjectBindingPatternElements */
+        ), hn("}");
+      }
+      function qn(k) {
+        hn("["), yo(
+          k,
+          k.elements,
+          524880
+          /* ArrayBindingPatternElements */
+        ), hn("]");
+      }
+      function Ht(k) {
+        Yt(k.dotDotDotToken), k.propertyName && (Yt(k.propertyName), hn(":"), sn()), Yt(k.name), bn(k.initializer, k.name.end, k, jr.parenthesizeExpressionForDisallowedComma);
+      }
+      function yn(k) {
+        const ie = k.elements, _t = k.multiLine ? 65536 : 0;
+        Fh(k, ie, 8914 | _t, jr.parenthesizeExpressionForDisallowedComma);
+      }
+      function li(k) {
+        j0(k), rr(k.properties, bc);
+        const ie = ua(k) & 131072;
+        ie && od();
+        const _t = k.multiLine ? 65536 : 0, Qt = O && O.languageVersion >= 1 && !Ap(O) ? 64 : 0;
+        yo(k, k.properties, 526226 | Qt | _t), ie && hp(), yp(k);
+      }
+      function _i(k) {
+        $e(k.expression, jr.parenthesizeLeftSideOfAccess);
+        const ie = k.questionDotToken || cm(N.createToken(
+          25
+          /* DotToken */
+        ), k.expression.end, k.name.pos), _t = Ld(k, k.expression, ie), Qt = Ld(k, ie, k.name);
+        ld(
+          _t,
+          /*writeSpaceIfNotIndenting*/
+          false
+        ), ie.kind !== 29 && Za(k.expression) && !ae.hasTrailingComment() && !ae.hasTrailingWhitespace() && hn("."), k.questionDotToken ? Yt(ie) : ke(ie.kind, k.expression.end, hn, k), ld(
+          Qt,
+          /*writeSpaceIfNotIndenting*/
+          false
+        ), Yt(k.name), R0(_t, Qt);
+      }
+      function Za(k) {
+        if (k = Xp(k), m_(k)) {
+          const ie = Lh(
+            k,
+            /*neverAsciiEscape*/
+            true,
+            /*jsxAttributeEscape*/
+            false
+          );
+          return !(k.numericLiteralFlags & 448) && !ie.includes(Ws(
+            25
+            /* DotToken */
+          )) && !ie.includes("E") && !ie.includes("e");
+        } else if (po(k)) {
+          const ie = Lee(k);
+          return typeof ie == "number" && isFinite(ie) && ie >= 0 && Math.floor(ie) === ie;
+        }
+      }
+      function Vo(k) {
+        $e(k.expression, jr.parenthesizeLeftSideOfAccess), Yt(k.questionDotToken), ke(23, k.expression.end, hn, k), $e(k.argumentExpression), ke(24, k.argumentExpression.end, hn, k);
+      }
+      function cl(k) {
+        const ie = Qp(k) & 16;
+        ie && (hn("("), FS("0"), hn(","), sn()), $e(k.expression, jr.parenthesizeLeftSideOfAccess), ie && hn(")"), Yt(k.questionDotToken), Xg(k, k.typeArguments), Fh(k, k.arguments, 2576, jr.parenthesizeExpressionForDisallowedComma);
+      }
+      function ho(k) {
+        ke(105, k.pos, ns, k), sn(), $e(k.expression, jr.parenthesizeExpressionOfNew), Xg(k, k.typeArguments), Fh(k, k.arguments, 18960, jr.parenthesizeExpressionForDisallowedComma);
+      }
+      function ll(k) {
+        const ie = Qp(k) & 16;
+        ie && (hn("("), FS("0"), hn(","), sn()), $e(k.tag, jr.parenthesizeLeftSideOfAccess), ie && hn(")"), Xg(k, k.typeArguments), sn(), $e(k.template);
+      }
+      function ko(k) {
+        hn("<"), Yt(k.type), hn(">"), $e(k.expression, jr.parenthesizeOperandOfPrefixUnary);
+      }
+      function hl(k) {
+        const ie = ke(21, k.pos, hn, k), _t = MS(k.expression, k);
+        $e(
+          k.expression,
+          /*parenthesizerRule*/
+          void 0
+        ), c22(k.expression, k), R0(_t), ke(22, k.expression ? k.expression.end : ie, hn, k);
+      }
+      function El(k) {
+        Ec(k.name), Hg(k);
+      }
+      function kc(k) {
+        L0(k, k.modifiers), qf(k, F_, zf);
+      }
+      function F_(k) {
+        M0(k, k.typeParameters), IS(k, k.parameters), Ni(k.type), sn(), Yt(k.equalsGreaterThanToken);
+      }
+      function zf(k) {
+        ms(k.body) ? Od(k.body) : (sn(), $e(k.body, jr.parenthesizeConciseBodyOfArrowFunction));
+      }
+      function Pe(k) {
+        ke(91, k.pos, ns

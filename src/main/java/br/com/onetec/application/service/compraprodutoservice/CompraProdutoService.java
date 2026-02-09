@@ -3,6 +3,7 @@ package br.com.onetec.application.service.compraprodutoservice;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetCompraProduto;
 import br.com.onetec.infra.db.repository.ISetCompraProdutoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,7 +41,7 @@ public class CompraProdutoService {
     public void save(SetCompraProduto dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +55,7 @@ public class CompraProdutoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Cliente excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -64,12 +66,32 @@ public class CompraProdutoService {
             SetCompraProduto entity = optional.get();
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     public List<SetCompraProduto> listAll() {
         return repository.listAll();
+    }
+
+    @SneakyThrows
+    public List<SetCompraProduto> findByIdCompra(Integer id_compra) {
+        try {
+            List<SetCompraProduto> optional = repository.findByIdCompra(id_compra);
+            return optional;
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    public List<SetCompraProduto> listAllByIdProduto(Integer id_produto) {
+        return repository.listAllByIdProduto(id_produto)
+                .stream()
+                .filter(produto -> produto.getNumerolote_compraproduto() != null &&
+                        !produto.getNumerolote_compraproduto().isBlank() &&
+                        !produto.getNumerolote_compraproduto().isEmpty() &&
+                        !produto.getNumerolote_compraproduto().equals(""))
+                .collect(Collectors.toList());
     }
 }

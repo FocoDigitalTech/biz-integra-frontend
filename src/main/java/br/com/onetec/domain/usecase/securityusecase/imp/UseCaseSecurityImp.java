@@ -12,7 +12,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class UseCaseSecurityImp  {
+public class UseCaseSecurityImp {
 
 
     private IUsuariosRepository repository;
@@ -43,9 +43,9 @@ public class UseCaseSecurityImp  {
 
     public User getUserByUserName(String username) {
         SetUsuarios u = repository.findByusername(username);
-       return (User) User.builder()
+        return (User) User.builder()
                 .username(u.getNome_usuario())
-               // .password(passwordEncoder().encode(u.getSenha_usuario()))
+                // .password(passwordEncoder().encode(u.getSenha_usuario()))
                 .roles(Roles.ADMIN)
                 .build();
     }

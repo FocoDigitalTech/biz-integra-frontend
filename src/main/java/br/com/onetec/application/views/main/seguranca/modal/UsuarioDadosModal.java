@@ -20,7 +20,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -31,8 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -50,19 +49,19 @@ public class UsuarioDadosModal extends Dialog {
     @Autowired
     @Lazy
     UsuariosDiv usuariosDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
     private Button deleteButton;
-
     private ComboBox<SetFuncionario> id_funcionario;
     private ComboBox<SetGrupoUsuario> id_grupousuario;
     private EmailField emailField;
     private PasswordField passwordField;
     private PasswordField entradaPassword;
     private TextField nome_usuario;
-
     private SetUsuarios setUsuarios;
+    private Span passwordStrengthText;
+    private Span usernameStrengthText;
 
     @Autowired
     public UsuarioDadosModal() {
@@ -85,46 +84,45 @@ public class UsuarioDadosModal extends Dialog {
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
             deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
 
-            getFooter().add(deleteButton,saveButton, cancelButton);
+            getFooter().add(deleteButton, saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
     }
+
     private void deleta(SetUsuarios item, Dialog dialog) {
         try {
             usuarioService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             dialog.close();
+            close();
             usuariosDiv.refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
     private void excluir(SetUsuarios setUsuarios) {
 
-            Dialog dialog = new Dialog();
+        Dialog dialog = new Dialog();
 
-            dialog.setHeaderTitle(
-                    String.format("Deletar usuário \"%s\"?", setUsuarios.getNome_usuario()));
-            dialog.add("Você tem certeza que deseja excluir este usuário permanentemente ?");
+        dialog.setHeaderTitle(
+                String.format("Deletar usuário \"%s\"?", setUsuarios.getNome_usuario()));
+        dialog.add("Você tem certeza que deseja excluir este usuário permanentemente ?");
 
-            // tag::snippet1[]
-            Button deleteButton = new Button("Delete", (e) -> deleta(setUsuarios,dialog));
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            deleteButton.getStyle().set("margin-right", "auto");
-            dialog.getFooter().add(deleteButton);
+        // tag::snippet1[]
+        Button deleteButton = new Button("Delete", (e) -> deleta(setUsuarios, dialog));
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
+        deleteButton.getStyle().set("margin-right", "auto");
+        dialog.getFooter().add(deleteButton);
 
-            Button cancelButton = new Button("Cancel", (e) -> dialog.close());
-            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            dialog.getFooter().add(cancelButton);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            dialog.open();
+        Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        dialog.getFooter().add(cancelButton);
+        // Verifica se existe um ClickListener registrado anteriormente e o remove
+        dialog.open();
     }
-
-    private Span passwordStrengthText;
-    private Span usernameStrengthText;
 
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
@@ -197,6 +195,9 @@ public class UsuarioDadosModal extends Dialog {
         id_funcionario.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
         id_grupousuario.setItems(grupoUsuarioService.listAll());
         id_grupousuario.setItemLabelGenerator(SetGrupoUsuario::getDescricao_grupousuario);
+        id_grupousuario.addFocusListener(event -> {
+            id_grupousuario.setItems(grupoUsuarioService.listAll());
+        });
 
 
         FormLayout formLayout = new FormLayout();
@@ -222,9 +223,6 @@ public class UsuarioDadosModal extends Dialog {
         }
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
         // Lógica para salvar o cadastro
@@ -234,7 +232,7 @@ public class UsuarioDadosModal extends Dialog {
         dto.setNome_usuario(nome_usuario.getValue());
 
         SetFuncionario funcionario = id_funcionario.getValue();
-        if (funcionario != null) {
+        if (Objects.nonNull(funcionario)) {
             dto.setId_funcionario(funcionario.getId_funcionario());
         }
         dto.setId_grupousuario(getIdGrupoUsuario());
@@ -267,7 +265,7 @@ public class UsuarioDadosModal extends Dialog {
 
     private int getIdGrupoUsuario() throws Exception {
         SetGrupoUsuario grupoUsuario = id_grupousuario.getValue();
-        if (grupoUsuario != null) {
+        if (Objects.nonNull(grupoUsuario)) {
             return grupoUsuario.getId_grupousuario();
         } else {
             service.notificaErro(ModalMessageConst.ERROR_USER_GROUP);

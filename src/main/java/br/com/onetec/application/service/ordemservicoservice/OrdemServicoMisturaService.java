@@ -2,9 +2,7 @@ package br.com.onetec.application.service.ordemservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrdemServicoMisturas;
-import br.com.onetec.infra.db.model.SetOrdemServicoPraga;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoMisturasRepository;
-import br.com.onetec.infra.db.repository.ISetOrdemServicoPragaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +21,7 @@ public class OrdemServicoMisturaService {
     private ISetOrdemServicoMisturasRepository repository;
 
     @Autowired
-    public void initServices (ISetOrdemServicoMisturasRepository repository1){
+    public void initServices(ISetOrdemServicoMisturasRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,7 +36,7 @@ public class OrdemServicoMisturaService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServicoMisturas> listAllByOrdemServicoId(Integer id){
+    public List<SetOrdemServicoMisturas> listAllByOrdemServicoId(Integer id) {
 
         return repository.listAllByOrdemServicoId(id);
     }
@@ -46,7 +44,7 @@ public class OrdemServicoMisturaService {
     public void save(SetOrdemServicoMisturas dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +58,7 @@ public class OrdemServicoMisturaService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -72,14 +70,14 @@ public class OrdemServicoMisturaService {
 
     public void update(SetOrdemServicoMisturas p) throws Exception {
         try {
-            Optional<SetOrdemServicoMisturas> optional = repository.findById(p.getId_ordemservico());
+            Optional<SetOrdemServicoMisturas> optional = repository.findById(p.getId_ordemservicomisturas());
             SetOrdemServicoMisturas entity = optional.get();
             entity = p;
             entity.setData_alteracao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
-            log.info("excluido !");
-        } catch (Exception e){
+            log.info("Alterado !");
+        } catch (Exception e) {
             throw new Exception();
         }
     }

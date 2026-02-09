@@ -19,11 +19,10 @@ import java.util.Optional;
 public class TipoMidiaService {
 
 
-
     private ITipoMidiaRepository repository;
 
     @Autowired
-    public void initServices (ITipoMidiaRepository repository1){
+    public void initServices(ITipoMidiaRepository repository1) {
         this.repository = repository1;
     }
 
@@ -41,7 +40,7 @@ public class TipoMidiaService {
     public void save(SetTipoMidia dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -55,7 +54,7 @@ public class TipoMidiaService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -74,7 +73,7 @@ public class TipoMidiaService {
             SetTipoMidia entity = optional.get();
             entity = dto;
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

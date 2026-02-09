@@ -2,6 +2,7 @@ package br.com.onetec.application.service.grupousuarioservice;
 
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
 import br.com.onetec.infra.db.repository.ISetGrupoUsuarioRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public class GrupoUsuarioService {
     private ISetGrupoUsuarioRepository repository;
 
     @Autowired
-    public void initServices (ISetGrupoUsuarioRepository repository1){
+    public void initServices(ISetGrupoUsuarioRepository repository1) {
         this.repository = repository1;
     }
 
@@ -35,7 +36,7 @@ public class GrupoUsuarioService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public SetGrupoUsuario findById (Integer idGrupoUsuario){
+    public SetGrupoUsuario findById(Integer idGrupoUsuario) {
         Optional<SetGrupoUsuario> optionalSetGrupoUsuario = repository.findById(idGrupoUsuario);
         return optionalSetGrupoUsuario.get();
     }
@@ -52,7 +53,7 @@ public class GrupoUsuarioService {
             entity.setData_exclusao(LocalDateTime.now());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +61,21 @@ public class GrupoUsuarioService {
     public SetGrupoUsuario save(SetGrupoUsuario dto) throws Exception {
         try {
             return repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public SetGrupoUsuario update(SetGrupoUsuario dto) {
+        try {
+            Optional<SetGrupoUsuario> optional = repository.findById(dto.getId_grupousuario());
+            SetGrupoUsuario entity = optional.get();
+            entity = dto;
+            repository.save(entity);
+            log.info("Atualizado !");
+            return entity;
+        } catch (Exception e) {
             throw new Exception();
         }
     }

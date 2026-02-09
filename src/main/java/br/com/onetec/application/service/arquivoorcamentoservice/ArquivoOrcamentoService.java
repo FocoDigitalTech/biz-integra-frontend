@@ -22,7 +22,7 @@ public class ArquivoOrcamentoService {
 
 
     @Autowired
-    public void initServices (ISetArquivoOrcamentoRepository repository1){
+    public void initServices(ISetArquivoOrcamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -44,7 +44,7 @@ public class ArquivoOrcamentoService {
         try {
 
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
         return dto;
@@ -59,7 +59,7 @@ public class ArquivoOrcamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

@@ -21,7 +21,7 @@ public class PragaService {
     private ISetPragaRepository repository;
 
     @Autowired
-    public void initServices (ISetPragaRepository repository1){
+    public void initServices(ISetPragaRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class PragaService {
     public void save(SetPraga dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class PragaService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -73,7 +73,7 @@ public class PragaService {
             SetPraga entity = optional.get();
             entity = dto;
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

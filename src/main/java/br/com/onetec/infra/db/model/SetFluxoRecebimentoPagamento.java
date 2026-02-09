@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -41,5 +42,7 @@ public class SetFluxoRecebimentoPagamento {
     private LocalDateTime data_alteracao;
     private LocalDateTime data_exclusao;
     private String ativo;
+    private String descricao_fluxorecebimentopagamento;
+    private LocalDate data_vencimento;
     private Integer id_usuario;
 }

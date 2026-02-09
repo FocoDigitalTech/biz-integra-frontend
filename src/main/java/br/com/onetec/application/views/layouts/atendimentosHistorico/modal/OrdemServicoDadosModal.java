@@ -4,6 +4,7 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.clientesservice.ResponsavelCobrancaService;
+import br.com.onetec.application.service.compraprodutoservice.CompraProdutoService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.dadosempresaservice.DadosEmpresaService;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
@@ -21,7 +22,6 @@ import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoS
 import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipomidiaservice.TipoMidiaService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
-import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ContatoModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.component.ServicoModal;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.div.OrcamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
@@ -31,7 +31,6 @@ import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -65,22 +64,40 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 @Component
 @UIScope
 public class OrdemServicoDadosModal extends Dialog {
 
+    final RadioButtonGroup<String> confirmado_ordemservico = new RadioButtonGroup<>("Confirmado ?");
     SetOrdemServico ordemServico;
-
+    List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocados;
+    List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocadosUpdate = new ArrayList<>();
+    List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServico;
+    List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoExcluir = new ArrayList<>();
+    List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
+    List<SetOrdemServicoMateriais> listaOrdemServicoMateriais;
+    List<SetOrdemServicoMateriais> listaOrdemServicoMateriaisUpdate = new ArrayList<>();
+    List<SetOrdemServicoMisturas> listaOrdemServicoMisturas;
+    List<SetOrdemServicoMisturas> listaOrdemServicoMisturasUpdate = new ArrayList<>();
+    List<SetOrdemServicoPraga> listaOrdemServicoPraga;
+    List<SetOrdemServicoPraga> listaOrdemServicoPragaUpdate = new ArrayList<>();
+    Tabs tabs = new Tabs();
+    @Autowired
+    @Lazy
+    OrcamentoDiv orcamentoDiv;
+    SetDadosEmpresa setDadosEmpresa;
     private Div cadastroOrcamantosDadosFinanceiros;
     private Button saveButton;
     private Button deleteButton;
     private Button cancelButton;
-
     // Formulario
     private TextField id_orcamento;
     private ComboBox<SetTipoAtendimento> id_tipoatendimento;
@@ -92,21 +109,13 @@ public class OrdemServicoDadosModal extends Dialog {
     private ComboBox<SetFuncionario> id_funcionariotecnico;
     private TextArea ocorrencias_ordemservico;
     private ComboBox<SetEnderecos> localTratamentoOrcamento;
-    final RadioButtonGroup<String> confirmado_ordemservico = new RadioButtonGroup<>("Confirmado ?");
-
     private UtilitySystemConfigService service;
-
-
     private SetCliente cliente;
-
     // Formulario OrdemServicoPraga
     private Div cadastroOrdemServicoFuncionarioAlocado;
     private ComboBox<SetFuncionario> id_funcionario;
     private TextArea descricao_ordemservicofuncionarioalocado;
     private Grid<SetOrdemServicoFuncionarioAlocado> funcionarioAlocadoGrid;
-    List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocados;
-    List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocadosUpdate = new ArrayList<>();
-
     // Formulario ordemServicoExecucaoServico
     private Div ordemServicoExecucaoServico;
     private ComboBox<SetExecucaoServico> id_execucaoservico;
@@ -114,22 +123,14 @@ public class OrdemServicoDadosModal extends Dialog {
     private TextField garantia_ordemservicoexecucaoservico;
     private TextArea descricao_ordemservicoexecucaoservico;
     private Grid<SetOrdemServicoExecucaoServico> ordemServicoExecucaoGrid;
-    List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServico;
-    List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
-
-
     // Formulario cadastroOrdemServicoMateriais
     private Div cadastroOrdemServicoMateriais;
     private ComboBox<SetProduto> id_produto;
-    private TextField numerolote_ordemservicomateriais;
+    private ComboBox<SetCompraProduto> numerolote_ordemservicomateriais;
     private IntegerField quantidadeprevista_ordemservicomateriais;
     private IntegerField quantidadeconsumida_ordemservicomateriais;
     private TextArea descricao_ordemservicomateriais;
-    List<SetOrdemServicoMateriais> listaOrdemServicoMateriais;
-    List<SetOrdemServicoMateriais> listaOrdemServicoMateriaisUpdate = new ArrayList<>();
     private Grid<SetOrdemServicoMateriais> ordemServicoMateriaisGrid;
-
-
     // Formulario cadastroOrdemServicoMistura
     private Div cadastroOrdemServicoMistura;
     private ComboBox<SetProduto> id_produtoMistura;
@@ -142,74 +143,65 @@ public class OrdemServicoDadosModal extends Dialog {
     private TextField unidademedidasolvente_ordemservicomisturas;
     private IntegerField quantidadeconsumidasolvente_ordemservicomisturas;
     private TextArea descricao_ordemservicomisturas;
-    List<SetOrdemServicoMisturas> listaOrdemServicoMisturas;
-    List<SetOrdemServicoMisturas> listaOrdemServicoMisturasUpdate = new ArrayList<>();
     private Grid<SetOrdemServicoMisturas> ordemServicoMisturasGrid;
-
-
     // Formulario cadastroOrdemServicoPraga
     private Div cadastroOrdemServicoPraga;
     private ComboBox<SetPraga> id_praga;
     private TextField nivelinfestacao_ordemservicopraga;
     private TextArea descricao_ordemservicopraga;
-    List<SetOrdemServicoPraga> listaOrdemServicoPraga;
-    List<SetOrdemServicoPraga> listaOrdemServicoPragaUpdate = new ArrayList<>();
     private Grid<SetOrdemServicoPraga> ordemServicoPragaGrid;
-
-
     @Autowired
     private ExecucaoServicoService execucaoServicoService;
-
     @Autowired
     private OrdemServicoExecucaoServicoService ordemServicoExecucaoServicoService;
-
     @Autowired
     private PragaService pragaService;
-
     @Autowired
     private OrdemServicoPragaService ordemServicoPragaService;
-
     @Autowired
     private OrdemServicoMisturaService ordemServicoMisturaService;
-
     @Autowired
     private OrdemServicoMateriaisService ordemServicoMateriaisService;
-
     @Autowired
     private OrdemServicoFuncionarioAlocadoService funcionarioAlocadoService;
-
     @Autowired
     private ProdutoService produtoService;
-
     @Autowired
     private EnderecoService enderecoService;
-
     @Autowired
     private FuncionarioService funcionarioService;
-
     @Autowired
     private TipoAtendimentoService tipoAtendimentoService;
-
     @Autowired
     private OrdemServicoService ordemServicoService;
-
     @Autowired
     private OrcamentoService orcamentoService;
-
-
     @Autowired
-    @Lazy
-    OrcamentoDiv orcamentoDiv;
-
-
-
-    public void initServices (){
-        UI.getCurrent().access(() -> {
-            //new OrdemServicoDadosModal();
-            cliente = SetClienteTransiction.getCliente();
-        });
-    }
-
+    private RegiaoService regiaoService;
+    @Autowired
+    private TipoMidiaService tipoMidiaService;
+    @Autowired
+    private ResponsavelCobrancaService responsavelCobrancaService;
+    @Autowired
+    private TipoImovelService tipoImovelService;
+    @Autowired
+    private OrcamentoContatoService orcamentoContatoService;
+    @Autowired
+    private OrcamentoPosVendasService orcamentoPosVendasService;
+    @Autowired
+    private ContratoService contratoService;
+    @Autowired
+    private EstadoService estadoService;
+    @Autowired
+    private ClientesService clientesService;
+    @Autowired
+    private CompraProdutoService compraProdutoService;
+    private TextField unidade_aplicacao;
+    private Anchor downloadLink;
+    private List<SetServico> servicosFilter;
+    private List<SetOrdemServicoExecucaoServico> listaservicosexecucaodetalhadas;
+    @Autowired
+    private DadosEmpresaService dadosEmpresaService;
 
     public OrdemServicoDadosModal() {
 
@@ -229,7 +221,7 @@ public class OrdemServicoDadosModal extends Dialog {
 
             botaoinspecao.setVisible(true);
 
-            Tabs tabs = new Tabs();
+
             Tab tab1 = new Tab("Dados Principais");
             Tab tab2 = new Tab("Funcionarios Alocados");
             Tab tab3 = new Tab("Materiais");
@@ -238,13 +230,13 @@ public class OrdemServicoDadosModal extends Dialog {
             Tab tab6 = new Tab("Serviços");
 
 
-            tabs.add(tab1,tab6,tab2,tab3,tab4,tab5);
+            tabs.add(tab1, tab6, tab2, tab3, tab4, tab5);
             // Formulario ordemServicoExecucaoServico
             cadastroOrcamantosDadosFinanceiros = createFormCadastroOrcamantosDadosFinanceiros();
             cadastroOrdemServicoFuncionarioAlocado = createFormcadastroOrdemServicoFuncionarioAlocado();
             cadastroOrdemServicoMateriais = createFormCadastroOrdemServicoMateriais();
-            cadastroOrdemServicoMistura =  createFormCadastroOrdemServicoMistura();
-            cadastroOrdemServicoPraga =  createFormCadastroOrdemServicoPraga();
+            cadastroOrdemServicoMistura = createFormCadastroOrdemServicoMistura();
+            cadastroOrdemServicoPraga = createFormCadastroOrdemServicoPraga();
             ordemServicoExecucaoServico = createFormCadastroOrdemServicoExecucaoServico();
 
 //            Div content = new Div(cadastroOrcamantosDadosFinanceiros, cadastroFornecedor);
@@ -297,8 +289,8 @@ public class OrdemServicoDadosModal extends Dialog {
             //getFooter().add(saveButton, cancelButton,deleteButton);
 
             getFooter().add(deleteButton); // Alinha à esquerda
-            HorizontalLayout rightButtons = new HorizontalLayout(botaoinspecao,saveButton, cancelButton);
-            getFooter().add(rightButtons,downloadLink); // Alinha à direita
+            HorizontalLayout rightButtons = new HorizontalLayout(botaoinspecao, saveButton, cancelButton);
+            getFooter().add(rightButtons, downloadLink); // Alinha à direita
 
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             H2 title = new H2("Dados Ordem de Serviço");
@@ -307,48 +299,16 @@ public class OrdemServicoDadosModal extends Dialog {
         });
     }
 
-    @Autowired
-    private RegiaoService regiaoService;
-
-    @Autowired
-    private TipoMidiaService tipoMidiaService;
-
-    @Autowired
-    private ResponsavelCobrancaService responsavelCobrancaService;
-
-    @Autowired
-    private TipoImovelService tipoImovelService;
-
-    @Autowired
-    private OrcamentoContatoService orcamentoContatoService;
-
-    @Autowired
-    private OrcamentoPosVendasService orcamentoPosVendasService;
-
-    @Autowired
-    private ContratoService contratoService;
-
-    @Autowired
-    private EstadoService estadoService;
-
-    @Autowired
-    private ClientesService clientesService;
-
-    private Anchor downloadLink;
-
-    private List<SetServico> servicosFilter;
-
-    private List<SetOrdemServicoExecucaoServico> listaservicosexecucaodetalhadas;
-
-    @Autowired
-    private DadosEmpresaService dadosEmpresaService;
-
-    SetDadosEmpresa setDadosEmpresa;
-
+    public void initServices() {
+        UI.getCurrent().access(() -> {
+            //new OrdemServicoDadosModal();
+            cliente = SetClienteTransiction.getCliente();
+        });
+    }
 
     private void gerarFichaOs() {
 
-       if (localTratamentoOrcamento.isEmpty()) {
+        if (localTratamentoOrcamento.isEmpty()) {
             localTratamentoOrcamento.setRequiredIndicatorVisible(true);
             localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
             localTratamentoOrcamento.setInvalid(true);
@@ -363,20 +323,20 @@ public class OrdemServicoDadosModal extends Dialog {
                 String hora = String.valueOf(LocalDateTime.now().getSecond());
                 String idorc = String.valueOf(ordemServico.getId_orcamento()).concat(String.valueOf(ordemServico.getId_cliente()));
                 String nameClien = cliente.getNome_cliente();
-                String compositeId = hora+idorc+nameClien;
+                String compositeId = hora + idorc + nameClien;
                 // Caminho do arquivo Word de entrada e dos arquivos de saída
                 String wordPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ordem_serviço.docx";
-                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_ordem_serviço"+compositeId+"ordem_serviço.docx";
-                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ordem_serviço"+compositeId+"ordem_serviço.pdf";
+                String updatedWordPath = "C:\\SYSTEM_files_NAGASAKI\\GENERATED_FILES\\matriz_ordem_serviço" + compositeId + "ordem_serviço.docx";
+                String pdfPath = "C:\\SYSTEM_files_NAGASAKI\\DOC_FILES\\matriz_ordem_serviço" + compositeId + "ordem_serviço.pdf";
                 String clientId = ordemServico.getId_orcamento().toString(); // Exemplo de ID do cliente a ser substituído
 
-                SetEnderecos enderecos = enderecoService.findAllById(ordemServico.getId_endereco());
+                SetEnderecos enderecos = enderecoService.findById(ordemServico.getId_endereco());
 
                 SetContrato contrato = contratoService.findByIdOrcamento(ordemServico.getId_orcamento());
                 // Edita o documento Word
                 SetRegiao regiao = regiaoService.findByIdRegiao(enderecos.getId_regiao());
-                SetTipoMidia midia = tipoMidiaService.findByIdMidia(cliente.getId_anuncio()
-                );
+                var orc = orcamentoService.findAllById(ordemServico.getId_orcamento());
+                SetTipoMidia midia = tipoMidiaService.findByIdMidia(orc.getId_anuncio());
                 SetResponsavelCobranca cobranca = responsavelCobrancaService.find(cliente.getId_cliente());
                 SetEstado uf = estadoService.findById(enderecos.getId_estado());
                 SetTipoImovel tipoImovel = tipoImovelService.findByIdImovel(enderecos.getId_tipoimovel());
@@ -393,11 +353,10 @@ public class OrdemServicoDadosModal extends Dialog {
                 setDadosEmpresa = dadosEmpresaService.getDados(1);
 
 
-
                 SetClienteTransiction.editWordFichaOrdemDocument(wordPath, updatedWordPath,
-                        "81038",ordemServico, cliente,
-                        enderecos,contrato,uf,cobranca,midia,funcionario,regiao,tipoImovel
-                ,diasemanainicio_ordemservico.getValue(),listaservicosexecucaodetalhadas,tipoordem,servicoList,
+                        "81038", ordemServico, cliente,
+                        enderecos, contrato, uf, cobranca, midia, funcionario, regiao, tipoImovel
+                        , diasemanainicio_ordemservico.getValue(), listaservicosexecucaodetalhadas, tipoordem, servicoList,
                         setDadosEmpresa.getNomequimico_dadosempresa());
 
                 // Converte o documento editado para PDF
@@ -426,7 +385,7 @@ public class OrdemServicoDadosModal extends Dialog {
                     downloadLink.setVisible(true);
 
                     // Exibe uma notificação de sucesso
-                    Notification.show("Documento Word disponível para download. : "+ updatedWordPath);
+                    Notification.show("Documento Word disponível para download. : " + updatedWordPath);
                     // Definir o alvo para abrir em nova aba
                     downloadLink.setTarget("_blank");
                 } else {
@@ -445,7 +404,7 @@ public class OrdemServicoDadosModal extends Dialog {
             service.notificaSucesso("Excluido com sucesso");
             orcamentoDiv.refreshGrid();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro("Erro ao excluir.");
         }
     }
@@ -463,7 +422,8 @@ public class OrdemServicoDadosModal extends Dialog {
         ordemServicoPragaGrid = new Grid<>(SetOrdemServicoPraga.class, false);
         ordemServicoPragaGrid.addColumn(praga -> {
             SetPraga praga1 = pragaService.findById(praga.getId_praga());
-            return praga1 != null ? praga1.getDescricao_praga() : "N/A"; })
+            return praga1 != null ? praga1.getDescricao_praga() : "N/A";
+        })
                 .setHeader("Praga")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -514,8 +474,8 @@ public class OrdemServicoDadosModal extends Dialog {
         formLayout.setWidthFull();
         formLayout.add(id_praga,
                 nivelinfestacao_ordemservicopraga,
-                descricao_ordemservicopraga,saveAdicionarButton);
-        Div div = new Div(formLayout,ordemServicoPragaGrid);
+                descricao_ordemservicopraga, saveAdicionarButton);
+        Div div = new Div(formLayout, ordemServicoPragaGrid);
         div.setSizeFull();
 
         return div;
@@ -532,7 +492,7 @@ public class OrdemServicoDadosModal extends Dialog {
         id_produtosolvente.setItems(produtoService.findAll());
         id_produtosolvente.setItemLabelGenerator(SetProduto::getNome_produto);
 
-        numerolote_ordemservicomisturas= new TextField("N° Lote");
+        numerolote_ordemservicomisturas = new TextField("N° Lote");
         quantidadeprevistaproduto_ordemservicomisturas = new IntegerField("Quantidade Prevista Produto");
         unidademedidaproduto_ordemservicomisturas = new TextField("Unidade Medida Produto");
         quantidadeconsumidaproduto_ordemservicomisturas = new IntegerField("Quantidade Consumida Produto");
@@ -551,13 +511,15 @@ public class OrdemServicoDadosModal extends Dialog {
         ordemServicoMisturasGrid = new Grid<>(SetOrdemServicoMisturas.class, false);
         ordemServicoMisturasGrid.addColumn(produto -> {
             SetProduto setProduto = produtoService.findById(produto.getId_produto());
-            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+            return setProduto != null ? setProduto.getNome_produto() : "N/A";
+        })
                 .setHeader("Produto")
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoMisturasGrid.addColumn(produto -> {
             SetProduto setProduto = produtoService.findById(produto.getId_produtosolvente());
-            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+            return setProduto != null ? setProduto.getNome_produto() : "N/A";
+        })
                 .setHeader("Solvente")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -578,6 +540,19 @@ public class OrdemServicoDadosModal extends Dialog {
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
+        // cria editor genérico
+//        GenericGridEditor<SetOrdemServicoMisturas> editor =
+//                new GenericGridEditor<>(SetOrdemServicoMisturas.class);
+//
+//        // vincula o grid ao editor
+//        editor.bind(ordemServicoMisturasGrid, item -> {
+//            // aqui você chama seu service para persistir
+//            try {
+//                ordemServicoMisturaService.update(item);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        });
 
         Button saveAdicionarButton = new Button("Adicionar", event -> {
             SetOrdemServicoMisturas dto = new SetOrdemServicoMisturas();
@@ -626,8 +601,8 @@ public class OrdemServicoDadosModal extends Dialog {
                 quantidadeprevistasolvente_ordemservicomisturas,
                 unidademedidasolvente_ordemservicomisturas,
                 quantidadeconsumidasolvente_ordemservicomisturas,
-                descricao_ordemservicomisturas,saveAdicionarButton);
-        Div div = new Div(formLayout,ordemServicoMisturasGrid);
+                descricao_ordemservicomisturas, saveAdicionarButton);
+        Div div = new Div(formLayout, ordemServicoMisturasGrid);
         div.setSizeFull();
 
         return div;
@@ -649,7 +624,8 @@ public class OrdemServicoDadosModal extends Dialog {
         ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
         ordemServicoExecucaoGrid.addColumn(produto -> {
             SetExecucaoServico setProduto = execucaoServicoService.findById(produto.getId_execucaoservico());
-            return setProduto != null ? setProduto.getNome_execucaoservico() : "N/A"; })
+            return setProduto != null ? setProduto.getNome_execucaoservico() : "N/A";
+        })
                 .setHeader("Serviço")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -674,7 +650,7 @@ public class OrdemServicoDadosModal extends Dialog {
         ordemServicoExecucaoGrid.addItemClickListener(event -> {
             if (Objects.nonNull(event.getItem())) {
                 if (Objects.nonNull(event.getItem().getId_ordemservicoexecucaoservico())) {
-                    ServicoModal.openServicoContato(event.getItem(),execucaoServicoService, service,ordemServicoExecucaoGrid,ordemServicoExecucaoServicoService);
+                    ServicoModal.openServicoContato(event.getItem(), execucaoServicoService, service, ordemServicoExecucaoGrid, ordemServicoExecucaoServicoService);
                 } else {
                     service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Serviço !");
                 }
@@ -703,6 +679,7 @@ public class OrdemServicoDadosModal extends Dialog {
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
                 listaOrdemServicoExecucaoServico.remove(arquivoOrcamento);
+                listaOrdemServicoExecucaoServicoExcluir.add(arquivoOrcamento);
                 // Atualiza os itens da grid
                 ordemServicoExecucaoGrid.setItems(listaOrdemServicoExecucaoServico);
                 // Feedback ao usuário
@@ -714,7 +691,7 @@ public class OrdemServicoDadosModal extends Dialog {
         }).setSortable(false).setAutoWidth(true);
 
         HorizontalLayout id_execucaoservicolayout =
-                new CustomizedComboBox().customizeExecucaoServico(id_execucaoservico,execucaoServicoService);
+                new CustomizedComboBox().customizeExecucaoServico(id_execucaoservico, execucaoServicoService);
         //id_execucaoservicolayout.setSizeFull();
 
         descricao_ordemservicoexecucaoservico.setWidth("1000px"); // Ajuste conforme necessário
@@ -733,23 +710,59 @@ public class OrdemServicoDadosModal extends Dialog {
 
         VerticalLayout design = new VerticalLayout(id_execucaoservicolayout,
                 horizontalLayout,
-                descricao_ordemservicoexecucaoservico,saveAdicionarButton);
+                descricao_ordemservicoexecucaoservico, saveAdicionarButton);
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(design);
-        Div div = new Div(formLayout,ordemServicoExecucaoGrid);
+        Div div = new Div(formLayout, ordemServicoExecucaoGrid);
         div.setSizeFull();
 
         return div;
 
     }
 
+
     private Div createFormCadastroOrdemServicoMateriais() {
         listaOrdemServicoMateriais = new ArrayList<>();
         id_produto = new ComboBox<>("Produto");
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
-        numerolote_ordemservicomateriais = new TextField("N° Lote");
+        id_produto.addValueChangeListener(event -> {
+            numerolote_ordemservicomateriais.setItems
+                    (compraProdutoService.listAllByIdProduto(event.getValue().getId_produto()));
+            quantidadeconsumida_ordemservicomateriais.setLabel("Quantidade Consumida (" + event.getValue().getUnidade_aplicacao() + ")");
+            quantidadeprevista_ordemservicomateriais.setLabel("Quantidade Prevista (" + event.getValue().getUnidade_aplicacao() + ")");
+        });
+        unidade_aplicacao = new TextField("Unidade Aplicação");
+        numerolote_ordemservicomateriais = new ComboBox<>("N° Lote");
+        numerolote_ordemservicomateriais.setItemLabelGenerator(item -> {
+            if (item.getData_compraproduto() == null) {
+                return item.getNumerolote_compraproduto(); // valor simples
+            } else {
+                return item.getNumerolote_compraproduto() + " comprado em: " + getDataCompraFormatada(item.getData_compraproduto());
+            }
+        });
+        numerolote_ordemservicomateriais.setPlaceholder("Selecione ou digite o lote ...");
+        numerolote_ordemservicomateriais.setAllowCustomValue(true);
+        // Lidar com valor customizado inserido pelo usuário
+        numerolote_ordemservicomateriais.addCustomValueSetListener(event -> {
+            String customValue = event.getDetail();
+
+            // Aqui você pode criar um objeto fictício ou placeholder para representar esse valor.
+            SetCompraProduto loteCustomizado = new SetCompraProduto();
+            loteCustomizado.setNumerolote_compraproduto(customValue);
+            loteCustomizado.setData_compraproduto(null); // ou defina uma data padrão
+
+            // Adicionar esse novo item na lista atual do ComboBox
+            List<SetCompraProduto> itensAtuais = new ArrayList<>(numerolote_ordemservicomateriais.getListDataView().getItems().toList());
+            itensAtuais.add(loteCustomizado);
+            numerolote_ordemservicomateriais.setItems(itensAtuais);
+
+            // Selecionar o item recém-adicionado
+            numerolote_ordemservicomateriais.setValue(loteCustomizado);
+        });
+
+
         quantidadeprevista_ordemservicomateriais = new IntegerField("Quantidade Prevista");
         quantidadeconsumida_ordemservicomateriais = new IntegerField("Quantidade Consumida");
         descricao_ordemservicomateriais = new TextArea("Observações");
@@ -762,7 +775,8 @@ public class OrdemServicoDadosModal extends Dialog {
         ordemServicoMateriaisGrid = new Grid<>(SetOrdemServicoMateriais.class, false);
         ordemServicoMateriaisGrid.addColumn(produto -> {
             SetProduto setProduto = produtoService.findById(produto.getId_produto());
-            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+            return setProduto != null ? setProduto.getNome_produto() : "N/A";
+        })
                 .setHeader("Produto")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -794,12 +808,11 @@ public class OrdemServicoDadosModal extends Dialog {
             dto.setDescricao_ordemservicomateriais(descricao_ordemservicomateriais.getValue());
             dto.setQuantidadeconsumida_ordemservicomateriais(quantidadeconsumida_ordemservicomateriais.getValue());
             dto.setQuantidadeprevista_ordemservicomateriais(quantidadeprevista_ordemservicomateriais.getValue());
-            dto.setNumerolote_ordemservicomateriais(numerolote_ordemservicomateriais.getValue());
+            dto.setNumerolote_ordemservicomateriais(numerolote_ordemservicomateriais.getValue().getNumerolote_compraproduto());
             dto.setData_inclusao(LocalDateTime.now());
             dto.setAtivo("S");
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             listaOrdemServicoMateriais.add(dto);
-            listaOrdemServicoMateriaisUpdate.add(dto);
             ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
         });
 
@@ -807,7 +820,14 @@ public class OrdemServicoDadosModal extends Dialog {
             // Cria o botão de deletar com um ícone de lixeira
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
+                try {
+                    ordemServicoMateriaisService.delete(arquivoOrcamento);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    service.notificaErro("ERRO AO EXCLUIR/ CONTATE O SUPORTE");
+                }
                 listaOrdemServicoMateriais.remove(arquivoOrcamento);
+
                 // Atualiza os itens da grid
                 ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
                 // Feedback ao usuário
@@ -825,11 +845,19 @@ public class OrdemServicoDadosModal extends Dialog {
                 numerolote_ordemservicomateriais,
                 quantidadeprevista_ordemservicomateriais,
                 quantidadeconsumida_ordemservicomateriais,
-                descricao_ordemservicomateriais,saveAdicionarButton);
-        Div div = new Div(formLayout,ordemServicoMateriaisGrid);
+                descricao_ordemservicomateriais, saveAdicionarButton);
+        Div div = new Div(formLayout, ordemServicoMateriaisGrid);
         div.setSizeFull();
 
         return div;
+    }
+
+    private String getDataCompraFormatada(LocalDate data_compraproduto) {
+        if (Objects.nonNull(data_compraproduto)) {
+            return UtilitySystemConfigService.getDataFormatada(data_compraproduto.atStartOfDay()).toString();
+        } else {
+            return "N/D";
+        }
     }
 
     private Div createFormcadastroOrdemServicoFuncionarioAlocado() {
@@ -842,7 +870,8 @@ public class OrdemServicoDadosModal extends Dialog {
         funcionarioAlocadoGrid = new Grid<>(SetOrdemServicoFuncionarioAlocado.class, false);
         funcionarioAlocadoGrid.addColumn(funcionarioAlocado -> {
             SetFuncionario funcionario = funcionarioService.findById(funcionarioAlocado.getId_funcionario());
-            return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
+            return funcionario != null ? funcionario.getNome_funcionario() : "N/A";
+        })
                 .setHeader("Funcionário")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -855,7 +884,6 @@ public class OrdemServicoDadosModal extends Dialog {
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         Button saveAdicionarButton = new Button("Adicionar Funcionario", event -> {
@@ -889,8 +917,8 @@ public class OrdemServicoDadosModal extends Dialog {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(id_funcionario,
-                descricao_ordemservicofuncionarioalocado,saveAdicionarButton);
-        Div div = new Div(formLayout,funcionarioAlocadoGrid);
+                descricao_ordemservicofuncionarioalocado, saveAdicionarButton);
+        Div div = new Div(formLayout, funcionarioAlocadoGrid);
         div.setSizeFull();
 
         return div;
@@ -961,7 +989,17 @@ public class OrdemServicoDadosModal extends Dialog {
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
 
-        confirmado_ordemservico.setItems(List.of("SIM","NÃO"));
+        confirmado_ordemservico.setItems(List.of("SIM", "NÃO"));
+
+        localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+        localTratamentoOrcamento.addValueChangeListener(event -> {
+            if (localTratamentoOrcamento.isEmpty()) {
+                localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+                localTratamentoOrcamento.setInvalid(true);
+            } else {
+                localTratamentoOrcamento.setInvalid(false);
+            }
+        });
 
 
         formLayout.add(localTratamentoOrcamento,
@@ -970,7 +1008,7 @@ public class OrdemServicoDadosModal extends Dialog {
                 diasemanainicio_ordemservico,
                 horarioinicio_ordemservico,
                 nome_pontofocal,
-                id_funcionarioassistente,id_funcionariotecnico,
+                id_funcionarioassistente, id_funcionariotecnico,
                 confirmado_ordemservico,
                 ocorrencias_ordemservico);
 
@@ -981,136 +1019,154 @@ public class OrdemServicoDadosModal extends Dialog {
     }
 
 
-
     private void save() {
         // Lógica para salvar o cadastro
         SetOrdemServico dto = ordemServico;
 
         try {
-            if (id_orcamento.getValue() != null) {
-                dto.setId_orcamento(Integer.valueOf(id_orcamento.getValue()));
-            }
-            if (id_funcionarioassistente.getValue() != null) {
-                dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
-            }
-            if (id_funcionariotecnico.getValue() != null) {
-                dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
-            }
-            if (id_tipoatendimento.getValue() != null) {
-                dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
-            }
-            if (localTratamentoOrcamento.getValue() != null) {
-                dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
-            }
-
-            dto.setId_cliente(dto.getId_cliente());
-            dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
-            dto.setDatainicio_ordemservico(datainicio_ordemservico.getValue());
-            dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
-            if(confirmado_ordemservico.getValue().equals("SIM")){
-                dto.setConfirmado_ordemservico("S");
-            } else if(confirmado_ordemservico.getValue().equals("NÃO")) {
-                dto.setConfirmado_ordemservico("N");
+            if (localTratamentoOrcamento.isEmpty()) {
+                localTratamentoOrcamento.setRequiredIndicatorVisible(true);
+                localTratamentoOrcamento.setErrorMessage("Campo obrigatório");
+                localTratamentoOrcamento.setInvalid(true);
+                service.notificaErro(ModalMessageConst.FIELD_ERROR);
             } else {
-                service.notificaErro("Necessário selecionar confimação SIM/NÃO");
-                return;
-            }
-            dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
-            dto.setNome_pontofocal(nome_pontofocal.getValue());
-            dto.setData_alteracao(LocalDateTime.now());
-            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-            dto.setAtivo("S");
-            service = new UtilitySystemConfigService();
-            ordemServicoService.update(dto);
-            if(listaOrdemServicoFuncionarioAlocadosUpdate.size() > 0){
-                listaOrdemServicoFuncionarioAlocadosUpdate.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        funcionarioAlocadoService.update(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-            if(listaOrdemServicoExecucaoServicoUpdate.size() > 0){
-                listaOrdemServicoExecucaoServicoUpdate.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    p.setData_inclusao(LocalDateTime.now());
-                    p.setAtivo("S");
-                    p.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    try {
-                        ordemServicoExecucaoServicoService.save(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                if (id_orcamento.getValue() != null) {
+                    dto.setId_orcamento(Integer.valueOf(id_orcamento.getValue()));
+                }
+                if (id_funcionarioassistente.getValue() != null) {
+                    dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
+                }
+                if (id_funcionariotecnico.getValue() != null) {
+                    dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
+                }
+                if (id_tipoatendimento.getValue() != null) {
+                    dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
+                }
+                if (localTratamentoOrcamento.getValue() != null) {
+                    dto.setId_endereco(localTratamentoOrcamento.getValue().getId_endereco());
+                }
 
-                });
+                dto.setId_cliente(dto.getId_cliente());
+                dto.setOcorrencias_ordemservico(ocorrencias_ordemservico.getValue());
+                dto.setDatainicio_ordemservico(datainicio_ordemservico.getValue());
+                dto.setHorarioinicio_ordemservico(horarioinicio_ordemservico.getValue());
+                if (confirmado_ordemservico.getValue().equals("SIM")) {
+                    dto.setConfirmado_ordemservico("S");
+                } else if (confirmado_ordemservico.getValue().equals("NÃO")) {
+                    dto.setConfirmado_ordemservico("N");
+                } else {
+                    service.notificaErro("Necessário selecionar confimação SIM/NÃO");
+                    return;
+                }
+                dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
+                dto.setNome_pontofocal(nome_pontofocal.getValue());
+                dto.setData_alteracao(LocalDateTime.now());
+                dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                dto.setAtivo("S");
+                service = new UtilitySystemConfigService();
+                ordemServicoService.update(dto);
+                if (listaOrdemServicoFuncionarioAlocadosUpdate.size() > 0) {
+                    listaOrdemServicoFuncionarioAlocadosUpdate.forEach(p -> {
+                        p.setId_cliente(dto.getId_cliente());
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_contrato(dto.getId_contrato());
+                        p.setId_ordemservico(dto.getId_ordemservico());
+                        try {
+                            funcionarioAlocadoService.update(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if (listaOrdemServicoExecucaoServicoUpdate.size() > 0) {
+                    listaOrdemServicoExecucaoServicoUpdate.forEach(p -> {
+                        p.setId_cliente(dto.getId_cliente());
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_contrato(dto.getId_contrato());
+                        p.setId_ordemservico(dto.getId_ordemservico());
+                        p.setData_inclusao(LocalDateTime.now());
+                        p.setAtivo("S");
+                        p.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                        try {
+                            ordemServicoExecucaoServicoService.save(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+                }
+                if (listaOrdemServicoExecucaoServicoExcluir.size() > 0) {
+                    listaOrdemServicoExecucaoServicoExcluir.forEach(setOrdemServicoExecucaoServico -> {
+                        try {
+                            ordemServicoExecucaoServicoService.delete(setOrdemServicoExecucaoServico);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if (listaOrdemServicoMateriais.size() > 0) {
+                    listaOrdemServicoMateriais.forEach(p -> {
+                        p.setId_cliente(dto.getId_cliente());
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_contrato(dto.getId_contrato());
+                        p.setId_ordemservico(dto.getId_ordemservico());
+                        p.setData_inclusao(LocalDateTime.now());
+                        p.setAtivo("S");
+                        try {
+                            ordemServicoMateriaisService.save(p);
+                            produtoService.updateQuantidadeEstoqueConsumida(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if (listaOrdemServicoMisturasUpdate.size() > 0) {
+                    listaOrdemServicoMisturasUpdate.forEach(p -> {
+                        p.setId_cliente(dto.getId_cliente());
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_contrato(dto.getId_contrato());
+                        p.setId_ordemservico(dto.getId_ordemservico());
+                        try {
+                            ordemServicoMisturaService.save(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                if (listaOrdemServicoPragaUpdate.size() > 0) {
+                    listaOrdemServicoPragaUpdate.forEach(p -> {
+                        p.setId_cliente(dto.getId_cliente());
+                        p.setId_orcamento(dto.getId_orcamento());
+                        p.setId_contrato(dto.getId_contrato());
+                        p.setId_ordemservico(dto.getId_ordemservico());
+                        try {
+                            ordemServicoPragaService.save(p);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+                orcamentoDiv.refreshGrid();
+                id_orcamento.clear();
+                //id_situacaoservico.clear();
+                // datainicio_ordemservico.clear();
+                diasemanainicio_ordemservico.clear();
+                ordemServicoExecucaoGrid.getDataProvider().refreshAll();
+                listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
+                listaOrdemServicoExecucaoServico = new ArrayList<>();
+                horarioinicio_ordemservico.clear();
+                nome_pontofocal.clear();
+                id_funcionarioassistente.clear();
+                id_funcionariotecnico.clear();
+                ocorrencias_ordemservico.clear();
+                localTratamentoOrcamento.clear();
+                id_funcionario.clear();
+                descricao_ordemservicofuncionarioalocado.clear();
+                listaOrdemServicoFuncionarioAlocados = new ArrayList<>();
+                service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
+                close();
             }
-            if(listaOrdemServicoMateriaisUpdate.size() > 0){
-                listaOrdemServicoMateriaisUpdate.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoMateriaisService.update(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-            if(listaOrdemServicoMisturasUpdate.size() > 0){
-                listaOrdemServicoMisturasUpdate.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoMisturaService.update(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-            if(listaOrdemServicoPragaUpdate.size() > 0){
-                listaOrdemServicoPragaUpdate.forEach(p ->{
-                    p.setId_cliente(dto.getId_cliente());
-                    p.setId_orcamento(dto.getId_orcamento());
-                    p.setId_contrato(dto.getId_contrato());
-                    p.setId_ordemservico(dto.getId_ordemservico());
-                    try {
-                        ordemServicoPragaService.update(p);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-            orcamentoDiv.refreshGrid();
-            id_orcamento.clear();
-            //id_situacaoservico.clear();
-            // datainicio_ordemservico.clear();
-            diasemanainicio_ordemservico.clear();
-            ordemServicoExecucaoGrid.getDataProvider().refreshAll();
-            listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
-            listaOrdemServicoExecucaoServico = new ArrayList<>();
-            horarioinicio_ordemservico.clear();
-            nome_pontofocal.clear();
-            id_funcionarioassistente.clear();
-            id_funcionariotecnico.clear();
-            ocorrencias_ordemservico.clear();
-            localTratamentoOrcamento.clear();
-            id_funcionario.clear();
-            descricao_ordemservicofuncionarioalocado.clear();
-            listaOrdemServicoFuncionarioAlocados = new ArrayList<>();
-            service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
-            close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
             System.out.println(e.getMessage().toString());
         }
@@ -1118,99 +1174,109 @@ public class OrdemServicoDadosModal extends Dialog {
     }
 
     public void setOrdemServico(SetOrdemServico item) {
-    this.ordemServico = item;
-    //this.id_orcamento = item.getId_orcamento();
-        open();
+        this.ordemServico = item;
+        //this.id_orcamento = item.getId_orcamento();
+
+        // ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
+        if (tabs != null && !tabs.getChildren().findAny().isEmpty()) {
+            tabs.setSelectedIndex(0);
+        }
+        ordemServicoExecucaoGrid.setItems(new ArrayList<>());
+        funcionarioAlocadoGrid.setItems(new ArrayList<>());
+        ordemServicoMateriaisGrid.setItems(new ArrayList<>());
+        ordemServicoMisturasGrid.setItems(new ArrayList<>());
+        ordemServicoPragaGrid.setItems(new ArrayList<>());
         UI.getCurrent().access(() -> {
-        List<SetTipoAtendimento> listasituacao = tipoAtendimentoService.listAll();
-        List<SetFuncionario> listafuncionario = funcionarioService.listAll();
-        List<SetEnderecos> enderecosList = enderecoService.findAllClienteId(item.getId_cliente());
+            List<SetTipoAtendimento> listasituacao = tipoAtendimentoService.listAll();
+            List<SetFuncionario> listafuncionario = funcionarioService.listAll();
+            List<SetEnderecos> enderecosList = enderecoService.findAllClienteId(item.getId_cliente());
             localTratamentoOrcamento.setItems
                     (enderecoService.findAllClienteId(item.getId_cliente()));
-          id_orcamento.setValue(String.valueOf(item.getId_orcamento()));
+            id_orcamento.setValue(String.valueOf(item.getId_orcamento()));
 
-        id_tipoatendimento.setValue(listasituacao.stream()
-                .filter(midia -> midia.getId_tipoatendimento().equals(ordemServico.getId_tipoatendimento()))
-                .findFirst().orElse(null));
-        id_funcionarioassistente.setValue(listafuncionario.stream()
-                .filter(midia -> midia.getId_funcionario().equals(ordemServico.getId_funcionarioassistente()))
-                .findFirst().orElse(null));
-        id_funcionariotecnico.setValue(listafuncionario.stream()
-                .filter(midia -> midia.getId_funcionario().equals(ordemServico.getId_funcionariotecnico()))
-                .findFirst().orElse(null));
+            id_tipoatendimento.setValue(listasituacao.stream()
+                    .filter(midia -> midia.getId_tipoatendimento().equals(ordemServico.getId_tipoatendimento()))
+                    .findFirst().orElse(null));
+            id_funcionarioassistente.setValue(listafuncionario.stream()
+                    .filter(midia -> midia.getId_funcionario().equals(ordemServico.getId_funcionarioassistente()))
+                    .findFirst().orElse(null));
+            id_funcionariotecnico.setValue(listafuncionario.stream()
+                    .filter(midia -> midia.getId_funcionario().equals(ordemServico.getId_funcionariotecnico()))
+                    .findFirst().orElse(null));
 
-        localTratamentoOrcamento.setItems(enderecosList);
-        localTratamentoOrcamento.setValue(enderecosList.stream()
-                .filter(end -> end.getId_endereco().equals(item.getId_endereco()))
-                .findFirst().orElse(null));
+            localTratamentoOrcamento.setItems(enderecosList);
+            localTratamentoOrcamento.setValue(enderecosList.stream()
+                    .filter(end -> end.getId_endereco().equals(item.getId_endereco()))
+                    .findFirst().orElse(null));
 
-        confirmado_ordemservico.setItems(List.of("SIM","NÃO"));
+            confirmado_ordemservico.setItems(List.of("SIM", "NÃO"));
 
-        if(ordemServico.getConfirmado_ordemservico().equals("S")){
-            confirmado_ordemservico.setValue(("SIM"));
-        } else if(ordemServico.getConfirmado_ordemservico().equals("N")) {
-            confirmado_ordemservico.setValue(("NÃO"));
-        }
+            if (ordemServico.getConfirmado_ordemservico().equals("S")) {
+                confirmado_ordemservico.setValue(("SIM"));
+            } else if (ordemServico.getConfirmado_ordemservico().equals("N")) {
+                confirmado_ordemservico.setValue(("NÃO"));
+            }
 
-        datainicio_ordemservico.setValue(ordemServico.getDatainicio_ordemservico());
-        diasemanainicio_ordemservico.setValue(ordemServico.getDiasemanainicio_ordemservico());
-        horarioinicio_ordemservico.setValue(ordemServico.getHorarioinicio_ordemservico());
-        nome_pontofocal.setValue(ordemServico.getNome_pontofocal());
-        ocorrencias_ordemservico.setValue(ordemServico.getOcorrencias_ordemservico());
+            datainicio_ordemservico.setValue(ordemServico.getDatainicio_ordemservico());
+            diasemanainicio_ordemservico.setValue(ordemServico.getDiasemanainicio_ordemservico());
+            horarioinicio_ordemservico.setValue(ordemServico.getHorarioinicio_ordemservico());
+            nome_pontofocal.setValue(ordemServico.getNome_pontofocal());
+            ocorrencias_ordemservico.setValue(ordemServico.getOcorrencias_ordemservico());
 
-        List<SetExecucaoServico> servicoList = execucaoServicoService.findAll();
-        ordemServicoExecucaoGrid.setItems(new ArrayList<>());
-        List<SetOrdemServicoExecucaoServico> ordemServicoExecucaoServicoList = ordemServicoExecucaoServicoService.
-                listAllByOrdemServicoId(item.getId_ordemservico());
-        if (ordemServicoExecucaoServicoList.size() > 0){
-            listaOrdemServicoExecucaoServico = ordemServicoExecucaoServicoList;
-            ordemServicoExecucaoGrid.setItems(listaOrdemServicoExecucaoServico);
-            valor_ordemservicoexecucaoservico.clear();
-            garantia_ordemservicoexecucaoservico.clear();
-            descricao_ordemservicoexecucaoservico.clear();
-        }
-        List<SetOrdemServicoFuncionarioAlocado> funcionarioAlocadoList = funcionarioAlocadoService.
-                listAllByOrdemServicoId(item.getId_ordemservico());
-        if (funcionarioAlocadoList.size() > 0) {
-            listaOrdemServicoFuncionarioAlocados = funcionarioAlocadoList;
-            funcionarioAlocadoGrid.setItems(listaOrdemServicoFuncionarioAlocados);
-            descricao_ordemservicofuncionarioalocado.clear();
-        }
+            List<SetOrdemServicoExecucaoServico> ordemServicoExecucaoServicoList = ordemServicoExecucaoServicoService.
+                    listAllByOrdemServicoId(item.getId_ordemservico());
+            if (ordemServicoExecucaoServicoList.size() > 0) {
+                listaOrdemServicoExecucaoServico = ordemServicoExecucaoServicoList;
+                ordemServicoExecucaoGrid.setItems(listaOrdemServicoExecucaoServico);
+                valor_ordemservicoexecucaoservico.clear();
+                garantia_ordemservicoexecucaoservico.clear();
+                descricao_ordemservicoexecucaoservico.clear();
+            }
+            List<SetOrdemServicoFuncionarioAlocado> funcionarioAlocadoList = funcionarioAlocadoService.
+                    listAllByOrdemServicoId(item.getId_ordemservico());
+            if (funcionarioAlocadoList.size() > 0) {
+                listaOrdemServicoFuncionarioAlocados = funcionarioAlocadoList;
+                funcionarioAlocadoGrid.setItems(listaOrdemServicoFuncionarioAlocados);
+                descricao_ordemservicofuncionarioalocado.clear();
+            }
 
-        List<SetOrdemServicoMateriais> ordemServicoMateriaisList = ordemServicoMateriaisService
-                .listAllByOrdemServicoId(item.getId_ordemservico());
-        if (ordemServicoMateriaisList.size() > 0){
-            listaOrdemServicoMateriais = ordemServicoMateriaisList;
-            ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
-            numerolote_ordemservicomateriais.clear();
-            quantidadeprevista_ordemservicomateriais.clear();
-            quantidadeconsumida_ordemservicomateriais.clear();
-            descricao_ordemservicomateriais.clear();
-        }
 
-        List<SetOrdemServicoMisturas> servicoMisturasList = ordemServicoMisturaService
-                .listAllByOrdemServicoId(item.getId_ordemservico());
-        if (servicoMisturasList.size() > 0) {
-            listaOrdemServicoMisturas = servicoMisturasList;
-            ordemServicoMisturasGrid.setItems(listaOrdemServicoMisturas);
-            numerolote_ordemservicomisturas.clear();
-            quantidadeprevistaproduto_ordemservicomisturas.clear();
-            unidademedidaproduto_ordemservicomisturas.clear();
-            quantidadeconsumidaproduto_ordemservicomisturas.clear();
-            quantidadeprevistasolvente_ordemservicomisturas.clear();
-            unidademedidasolvente_ordemservicomisturas.clear();
-            quantidadeconsumidasolvente_ordemservicomisturas.clear();
-            descricao_ordemservicomisturas.clear();
-        }
+            List<SetOrdemServicoMateriais> ordemServicoMateriaisList = ordemServicoMateriaisService
+                    .listAllByOrdemServicoId(item.getId_ordemservico());
+            if (ordemServicoMateriaisList.size() > 0) {
+                listaOrdemServicoMateriais = ordemServicoMateriaisList;
+                ordemServicoMateriaisGrid.setItems(listaOrdemServicoMateriais);
+                numerolote_ordemservicomateriais.clear();
+                quantidadeprevista_ordemservicomateriais.clear();
+                quantidadeconsumida_ordemservicomateriais.clear();
+                descricao_ordemservicomateriais.clear();
+            }
 
-        List<SetOrdemServicoPraga> ordemServicoPragaList = ordemServicoPragaService.listAllByOrdemServicoId(item.getId_ordemservico());
-        if (ordemServicoPragaList.size() > 0){
-            listaOrdemServicoPraga = ordemServicoPragaList;
-            ordemServicoPragaGrid.setItems(listaOrdemServicoPraga);
-            nivelinfestacao_ordemservicopraga.clear();
-            descricao_ordemservicopraga.clear();
-        }
-     });
+            List<SetOrdemServicoMisturas> servicoMisturasList = ordemServicoMisturaService
+                    .listAllByOrdemServicoId(item.getId_ordemservico());
+            if (servicoMisturasList.size() > 0) {
+                listaOrdemServicoMisturas = servicoMisturasList;
+                ordemServicoMisturasGrid.setItems(listaOrdemServicoMisturas);
+                numerolote_ordemservicomisturas.clear();
+                quantidadeprevistaproduto_ordemservicomisturas.clear();
+                unidademedidaproduto_ordemservicomisturas.clear();
+                quantidadeconsumidaproduto_ordemservicomisturas.clear();
+                quantidadeprevistasolvente_ordemservicomisturas.clear();
+                unidademedidasolvente_ordemservicomisturas.clear();
+                quantidadeconsumidasolvente_ordemservicomisturas.clear();
+                descricao_ordemservicomisturas.clear();
+            }
+
+            List<SetOrdemServicoPraga> ordemServicoPragaList = ordemServicoPragaService.listAllByOrdemServicoId(item.getId_ordemservico());
+            if (ordemServicoPragaList.size() > 0) {
+                listaOrdemServicoPraga = ordemServicoPragaList;
+                ordemServicoPragaGrid.setItems(listaOrdemServicoPraga);
+                nivelinfestacao_ordemservicopraga.clear();
+                descricao_ordemservicopraga.clear();
+            }
+
+            open();
+        });
     }
 
 }

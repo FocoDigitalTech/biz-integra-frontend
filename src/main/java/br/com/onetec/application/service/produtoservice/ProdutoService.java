@@ -1,9 +1,12 @@
 package br.com.onetec.application.service.produtoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.infra.db.model.SetCompraProduto;
+import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
 import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.repository.ISetProdutoRepository;
 import jakarta.transaction.Transactional;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,7 @@ public class ProdutoService {
     private ISetProdutoRepository repository;
 
     @Autowired
-    public void initServices (ISetProdutoRepository repository1){
+    public void initServices(ISetProdutoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -41,12 +44,13 @@ public class ProdutoService {
     public void save(SetProduto dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
-    public void delete(SetProduto item) throws Exception {
+    @SneakyThrows
+    public void delete(SetProduto item) {
         try {
             Optional<SetProduto> optional = repository.findById(item.getId_produto());
             SetProduto entity = optional.get();
@@ -55,7 +59,7 @@ public class ProdutoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -68,7 +72,7 @@ public class ProdutoService {
             // Copiando os valores do DTO para a entidade existente
             BeanUtils.copyProperties(dto, entity, "id_produto", "data_inclusao");
             repository.save(entity);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -77,13 +81,72 @@ public class ProdutoService {
         try {
             Optional<SetProduto> produtoOptional = repository.findById(id_produto);
             return produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
 
     public List<SetProduto> findAll() {
-            return repository.listAll();
+        return repository.listAll();
+    }
+
+    @SneakyThrows
+    @Transactional
+    public void updateQuantidadeEstoque(SetCompraProduto pedido) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(pedido.getId_produto());
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() + pedido.getQuantidadefator_compraproduto();
+            entity.setQuantidade_estoque(total);
+            repository.save(entity);
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateQuantidadeEstoqueConsumida(SetOrdemServicoMateriais p) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(p.getId_produto());
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() - p.getQuantidadeconsumida_ordemservicomateriais();
+            entity.setQuantidade_estoque(total);
+            repository.save(entity);
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateEstoqueQuantidade(Integer id_produto, String quantidade_consumida) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(id_produto);
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() - Integer.valueOf(quantidade_consumida);
+            entity.setQuantidade_estoque(total);
+            entity.setData_alteracao(LocalDateTime.now());
+            repository.save(entity);
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public void updateEstoqueQuantidadeAoDeletar(Integer id_produto, Integer quantidade_compraproduto) {
+        try {
+            Optional<SetProduto> produtoOptional = repository.findById(id_produto);
+            SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
+            // Copiando os valores do DTO para a entidade existente
+            int total = entity.getQuantidade_estoque() - quantidade_compraproduto;
+            entity.setQuantidade_estoque(total);
+            entity.setData_alteracao(LocalDateTime.now());
+            repository.save(entity);
+        } catch (Exception e) {
+            throw new Exception();
+        }
     }
 }

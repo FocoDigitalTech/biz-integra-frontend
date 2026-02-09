@@ -16,6 +16,7 @@ public class SetEventoFinanceiro {
     private Integer id_eventofinanceiro;
     private Integer id_grupoeventofinanceiro;
     private Integer id_tipooperacaofinanceira;
+    private Integer id_tipoeventofinanceiro;
     private String nome_eventofinanceiro;
     private String inform_diarecebimento;
     private String inform_mesrecebimento;

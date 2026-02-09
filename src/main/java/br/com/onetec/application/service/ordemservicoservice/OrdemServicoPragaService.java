@@ -1,10 +1,8 @@
 package br.com.onetec.application.service.ordemservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetOrdemServico;
 import br.com.onetec.infra.db.model.SetOrdemServicoPraga;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoPragaRepository;
-import br.com.onetec.infra.db.repository.ISetOrdemServicoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +21,7 @@ public class OrdemServicoPragaService {
     private ISetOrdemServicoPragaRepository repository;
 
     @Autowired
-    public void initServices (ISetOrdemServicoPragaRepository repository1){
+    public void initServices(ISetOrdemServicoPragaRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,7 +36,7 @@ public class OrdemServicoPragaService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServicoPraga> listAllByOrdemServicoId(Integer id){
+    public List<SetOrdemServicoPraga> listAllByOrdemServicoId(Integer id) {
 
         return repository.listAllByOrdemServicoId(id);
     }
@@ -46,7 +44,7 @@ public class OrdemServicoPragaService {
     public void save(SetOrdemServicoPraga dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +58,7 @@ public class OrdemServicoPragaService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -79,7 +77,7 @@ public class OrdemServicoPragaService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

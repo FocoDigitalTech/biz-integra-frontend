@@ -104,6 +104,10 @@ public class CadastroVeiculoModal extends Dialog {
         valorcompra_veiculo = new TextField("Valor Compra");
         renavam_veiculo = new TextField("Renavam");
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(datacompra_veiculo);
+        service.configuraCalendario(datavenda_veiculo);
+
         service.configuraCalendario(datacompra_veiculo);
         service.configuraCalendario(datavenda_veiculo);
         service.formataMoedaBrasileira(valorkm_veiculo);

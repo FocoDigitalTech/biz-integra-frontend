@@ -14,10 +14,10 @@ public class SetTipoAtendimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_tipoatendimento;
     private Integer codigo_tipoatendimento;
-    private String  descricao_tipoatendimento;
+    private String descricao_tipoatendimento;
     private LocalDateTime data_inclusao;
     private LocalDateTime data_alteracao;
     private LocalDateTime data_exclusao;
-    private String  ativo;
+    private String ativo;
     private Integer id_usuario;
 }

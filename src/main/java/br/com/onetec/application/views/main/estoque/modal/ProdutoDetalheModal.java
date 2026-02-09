@@ -13,6 +13,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -26,24 +27,23 @@ import java.time.LocalDateTime;
 @UIScope
 public class ProdutoDetalheModal extends Dialog {
 
-    private SetProduto entity;
     @Autowired
     ProdutoService produtoService;
-
     @Autowired
     @Lazy
     ProdutosDiv produtosDiv;
-
+    UtilitySystemConfigService service;
+    private SetProduto entity;
     private Button saveButton;
     private Button cancelButton;
-
+    private Button btnExcluir;
     //private TextField id_classificacaoproduto;
     private TextField nome_produto;
     private TextField unidade_entrada;
     private TextField unidade_aplicacao;
-    private TextField fator_conversao;
-    private TextField quantidade_estoque;
-    private TextField quantidade_minima;
+    private IntegerField fator_conversao;
+    private IntegerField quantidade_estoque;
+    private IntegerField quantidade_minima;
     private TextField valor_item;
     private TextField utimo_lote;
     private TextField grupo_quimico;
@@ -53,13 +53,11 @@ public class ProdutoDetalheModal extends Dialog {
     private TextField concentrado_nome;
     private TextField numero_registro;
 
-
-
     @Autowired
     public ProdutoDetalheModal(SetProduto produto) {
         UI.getCurrent().access(() -> {
             entity = produto;
-            Div contentTabs = new Div(createFormCadastro(entity));
+            Div contentTabs = new Div(createFormCadastro());
             saveButton = new com.vaadin.flow.component.button.Button("Atualizar", event -> {
                 try {
                     update();
@@ -69,25 +67,34 @@ public class ProdutoDetalheModal extends Dialog {
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
+            btnExcluir = new Button("Excluir", event -> {
+                deleta(entity);
+            });
+            btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_PRIMARY);
             contentTabs.setSizeFull();
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            getFooter().add(saveButton, cancelButton);
+            getFooter().add(saveButton, cancelButton, btnExcluir);
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
         });
     }
 
+    private void deleta(SetProduto entity) {
+        produtoService.delete(entity);
+        produtosDiv.refreshGrid();
+        close();
+    }
 
-    private Div createFormCadastro(SetProduto produto) {
+    private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
         //id_classificacaoproduto = new ComboBox<String>("Nome ou Descrição");
         nome_produto = new TextField("Nome ou Descrição");
         unidade_entrada = new TextField("Unidade Entrada");
         unidade_aplicacao = new TextField("Unidade Aplicação");
-        fator_conversao = new TextField("Fator de Conversão");
-        quantidade_estoque = new TextField("Quantidade em Estoque");
-        quantidade_minima = new TextField("Quantidade Minima");
+        fator_conversao = new IntegerField("Fator de Conversão");
+        quantidade_estoque = new IntegerField("Quantidade em Estoque");
+        quantidade_minima = new IntegerField("Quantidade Minima");
         valor_item = new TextField("Valor do Item");
         utimo_lote = new TextField("Ultimo Lote");
         grupo_quimico = new TextField("Grupo Quimico");
@@ -97,37 +104,28 @@ public class ProdutoDetalheModal extends Dialog {
         concentrado_nome = new TextField("Concentrado");
         numero_registro = new TextField("N° Registro");
 
+        fator_conversao.setStepButtonsVisible(true);
+        fator_conversao.setMin(1);
+
+        quantidade_estoque.setStepButtonsVisible(true);
+        quantidade_estoque.setMin(1);
+
+        quantidade_minima.setStepButtonsVisible(true);
+        quantidade_minima.setMin(1);
+
         valor_item.setValueChangeMode(ValueChangeMode.EAGER);
         valor_item.setPlaceholder("R$ 0,00");
         valor_item.addValueChangeListener(event -> service.formataMoedaBrasileira(valor_item));
 
-        nome_produto.setValue(produto.getNome_produto());
-        unidade_entrada.setValue(produto.getUnidade_entrada());
-        unidade_aplicacao.setValue(produto.getUnidade_aplicacao());
-        fator_conversao.setValue(produto.getFator_conversao());
-        quantidade_estoque.setValue(produto.getQuantidade_estoque());
-        quantidade_minima.setValue(produto.getQuantidade_minima());
-        valor_item.setValue(produto.getValor_item().toEngineeringString());
-        utimo_lote.setValue(produto.getUtimo_lote());
-        grupo_quimico.setValue(produto.getGrupo_quimico());
-        principio_ativo.setValue(produto.getPrincipio_ativo());
-        classificacao_nome.setValue(produto.getClassificacao_nome());
-        antidoto_nome.setValue(produto.getAntidoto_nome());
-        concentrado_nome.setValue(produto.getConcentrado_nome());
-        numero_registro.setValue(produto.getNumero_registro());
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(nome_produto,unidade_entrada,
-                unidade_aplicacao,fator_conversao,quantidade_estoque,quantidade_minima,
-                valor_item,utimo_lote,grupo_quimico,principio_ativo,classificacao_nome,antidoto_nome,concentrado_nome,numero_registro);
+        formLayout.add(nome_produto, unidade_entrada,
+                unidade_aplicacao, fator_conversao, quantidade_estoque, quantidade_minima,
+                valor_item, utimo_lote, grupo_quimico, principio_ativo, classificacao_nome, antidoto_nome, concentrado_nome, numero_registro);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void update() throws Exception {
         service = new UtilitySystemConfigService();
@@ -171,8 +169,28 @@ public class ProdutoDetalheModal extends Dialog {
             numero_registro.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
+    }
+
+    public void setProduto(SetProduto setProdutoEntity) {
+        UI.getCurrent().access(() -> {
+            this.entity = setProdutoEntity;
+            nome_produto.setValue(entity.getNome_produto());
+            unidade_entrada.setValue(entity.getUnidade_entrada());
+            unidade_aplicacao.setValue(entity.getUnidade_aplicacao());
+            fator_conversao.setValue(entity.getFator_conversao());
+            quantidade_estoque.setValue(entity.getQuantidade_estoque());
+            quantidade_minima.setValue(entity.getQuantidade_minima());
+            valor_item.setValue(entity.getValor_item().toEngineeringString());
+            utimo_lote.setValue(entity.getUtimo_lote());
+            grupo_quimico.setValue(entity.getGrupo_quimico());
+            principio_ativo.setValue(entity.getPrincipio_ativo());
+            classificacao_nome.setValue(entity.getClassificacao_nome());
+            antidoto_nome.setValue(entity.getAntidoto_nome());
+            concentrado_nome.setValue(entity.getConcentrado_nome());
+            numero_registro.setValue(entity.getNumero_registro());
+        });
     }
 }

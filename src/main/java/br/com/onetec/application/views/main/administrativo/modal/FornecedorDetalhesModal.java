@@ -5,11 +5,15 @@ import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorContatoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
+import br.com.onetec.application.views.layouts.GenericGridEditor;
 import br.com.onetec.application.views.main.administrativo.div.FornecedorDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetEstado;
+import br.com.onetec.infra.db.model.SetFornecedor;
+import br.com.onetec.infra.db.model.SetFornecedorContato;
+import br.com.onetec.infra.db.model.SetSetorAtuacao;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,10 +43,14 @@ import java.util.List;
 public class FornecedorDetalhesModal extends Dialog {
 
 
-
+    private static List<SetEstado> estadoList;
+    Button btnExcluir;
+    @Autowired
+    @Lazy
+    FornecedorDiv fornecedorDiv;
+    Tabs tabs = new Tabs();
     private Button saveButton;
-    private  Button cancelButton;
-
+    private Button cancelButton;
     //Cadastro Fornecedor
     private Div cadastroFornecedor;
     private DatePicker data_cadastro;
@@ -63,8 +71,6 @@ public class FornecedorDetalhesModal extends Dialog {
     private TextField cargocontato_fornecedor;
     private TextField inscicaoestadual_fornecedor;
     private TextArea observacao_fornecedor;
-
-
     //Cadastro Contatos Fornecedor
     private Div cadastroFornecedorContatos;
     private TextField nome_fornecedorcontato;
@@ -73,41 +79,14 @@ public class FornecedorDetalhesModal extends Dialog {
     private TextField telefone_fornecedorcontato;
     private TextField email_fornecedorcontato;
     private TextArea observacoes_fornecedorcontato;
-
-
-    private EstadoService estadoService ;
+    private EstadoService estadoService;
     private UtilitySystemConfigService service;
     private SetorAtuacaoService setorAtuacaoService;
     private FornecedorService fornecedorService;
     private FornecedorContatoService fornecedorContatoService;
-
     private List<SetFornecedorContato> listaContatosFornecedor;
-    private static List<SetEstado> estadoList;
-    Button btnExcluir;
-
-    @Autowired
-    @Lazy
-    FornecedorDiv fornecedorDiv;
-
     private SetFornecedor fornecedorModel = null;
-
-    @Autowired
-    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
-                             SetorAtuacaoService setorAtuacaoService1,
-                             FornecedorService fornecedorService1,
-                             FornecedorContatoService fornecedorContatoService1) {
-        this.estadoService = serviceEstado;
-        this.service = service;
-        this.fornecedorContatoService = fornecedorContatoService1;
-        this.fornecedorService = fornecedorService1;
-        this.setorAtuacaoService = setorAtuacaoService1;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configureCEPField(cep_fornecedor);
-            service.configureTelefoneResidencialField(telefone_fornecedor);
-            service.configuraCalendario(data_cadastro);
-        });
-    }
+    private Grid<SetFornecedorContato> gridContatos;
 
 
     @Autowired
@@ -132,11 +111,11 @@ public class FornecedorDetalhesModal extends Dialog {
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
 
-            btnExcluir = new Button("Excluir" ,eventbe -> deleta(fornecedorModel));
+            btnExcluir = new Button("Excluir", eventbe -> deleta(fornecedorModel));
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
 
-            Tabs tabs = new Tabs();
+
             Tab tab1 = new Tab("Dados Fornecedor");
             Tab tab2 = new Tab("Contatos");
 
@@ -171,9 +150,27 @@ public class FornecedorDetalhesModal extends Dialog {
 
             // Criando o layout do rodapé e ajustando o alinhamento dos botões
 
-            getFooter().add(btnExcluir,saveButton, cancelButton);
+            getFooter().add(btnExcluir, saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
+        });
+    }
+
+    @Autowired
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service,
+                             SetorAtuacaoService setorAtuacaoService1,
+                             FornecedorService fornecedorService1,
+                             FornecedorContatoService fornecedorContatoService1) {
+        this.estadoService = serviceEstado;
+        this.service = service;
+        this.fornecedorContatoService = fornecedorContatoService1;
+        this.fornecedorService = fornecedorService1;
+        this.setorAtuacaoService = setorAtuacaoService1;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_fornecedor);
+            service.configureTelefoneResidencialField(telefone_fornecedor);
+            service.configuraCalendario(data_cadastro);
         });
     }
 
@@ -181,7 +178,7 @@ public class FornecedorDetalhesModal extends Dialog {
 
         try {
 
-            if (listaContatosFornecedor.size() > 0){
+            if (listaContatosFornecedor.size() > 0) {
                 listaContatosFornecedor.forEach(setFornecedorContato -> {
                     setFornecedorContato.setData_inclusao(LocalDateTime.now());
                     setFornecedorContato.setAtivo("S");
@@ -198,23 +195,23 @@ public class FornecedorDetalhesModal extends Dialog {
                 id_estado.setRequiredIndicatorVisible(true);
                 id_estado.setErrorMessage("Campo obrigatório");
                 id_estado.setInvalid(true);
-            }else if (id_setoratuacao.isEmpty()) {
+            } else if (id_setoratuacao.isEmpty()) {
                 id_setoratuacao.setRequiredIndicatorVisible(true);
                 id_setoratuacao.setErrorMessage("Campo obrigatório");
                 id_setoratuacao.setInvalid(true);
-            }else if (data_cadastro.isEmpty()) {
+            } else if (data_cadastro.isEmpty()) {
                 data_cadastro.setRequiredIndicatorVisible(true);
                 data_cadastro.setErrorMessage("Campo obrigatório");
                 data_cadastro.setInvalid(true);
-            }else if  (tipo_naturezajuridica.isEmpty()) {
+            } else if (tipo_naturezajuridica.isEmpty()) {
                 tipo_naturezajuridica.setRequiredIndicatorVisible(true);
                 tipo_naturezajuridica.setErrorMessage("Campo obrigatório");
                 tipo_naturezajuridica.setInvalid(true);
-            }else if (numero_naturezajuridica.isEmpty()) {
+            } else if (numero_naturezajuridica.isEmpty()) {
                 numero_naturezajuridica.setRequiredIndicatorVisible(true);
                 numero_naturezajuridica.setErrorMessage("Campo obrigatório");
                 numero_naturezajuridica.setInvalid(true);
-            }else if (razaosocial_fornecedor.isEmpty()) {
+            } else if (razaosocial_fornecedor.isEmpty()) {
                 razaosocial_fornecedor.setRequiredIndicatorVisible(true);
                 razaosocial_fornecedor.setErrorMessage("Campo obrigatório");
                 razaosocial_fornecedor.setInvalid(true);
@@ -256,7 +253,7 @@ public class FornecedorDetalhesModal extends Dialog {
                 fornecedorDiv.refreshGrid();
                 close();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Notification.show("Erro ao Salvar");
         }
 
@@ -291,10 +288,17 @@ public class FornecedorDetalhesModal extends Dialog {
         id_estado.setItems(estadoService.listAll());
         id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(data_cadastro);
+
         id_setoratuacao.setItems(setorAtuacaoService.listAll());
         id_setoratuacao.setItemLabelGenerator(SetSetorAtuacao::getDescricao_setoratuacao);
 
-        tipo_naturezajuridica.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
+        id_setoratuacao.addFocusListener(event -> {
+            id_setoratuacao.setItems(setorAtuacaoService.listAll());
+        });
+
+        tipo_naturezajuridica.setItems(List.of("Pessoa Fisica", "Pessoa Juridica"));
         tipo_naturezajuridica.addValueChangeListener(event -> {
             if ("Pessoa Fisica".equals(event.getValue())) {
                 numero_naturezajuridica.clear();
@@ -337,9 +341,6 @@ public class FornecedorDetalhesModal extends Dialog {
         return div;
     }
 
-
-    private Grid<SetFornecedorContato> gridContatos;
-
     private Div createFormCadastroFornecedorContatos() {
         listaContatosFornecedor = new ArrayList<>();
 
@@ -360,6 +361,54 @@ public class FornecedorDetalhesModal extends Dialog {
                 .setHeader("Telefone")
                 .setSortable(true)
                 .setAutoWidth(true);
+        //cria editor genérico
+        GenericGridEditor<SetFornecedorContato> editor =
+                new GenericGridEditor<>(SetFornecedorContato.class);
+
+        // vincula o grid ao editor
+        editor.bind(gridContatos, item -> {
+            // aqui você chama seu service para persistir
+            try {
+                fornecedorContatoService.update(item);
+                var lista = fornecedorContatoService.listAllByFornecedorId(item.getId_fornecedor());
+                gridContatos.setItems(lista);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+//        gridContatos.addComponentColumn(e -> {
+//            // Cria o botão de deletar com um ícone de lixeira
+//            Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
+//                // Remove o item da lista
+//                if (Objects.nonNull(e.getId_compraproduto())){
+//                    deleta(e);
+//                } else {
+//                    //produtoList.add(e);
+//                }
+//                produtoList.remove(e);
+//                // Atualiza os itens da grid
+//                gridContatos.setItems(produtoList);
+//                // Feedback ao usuário
+//                Notification.show("Item removido ! " , 3000, Notification.Position.MIDDLE);
+//            });
+//            del.getElement().setAttribute("aria-label", "Delete");
+//            del.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_ERROR); // Estiliza o botão com variantes de ícone e erro
+//            return del;
+//        }).setSortable(false).setAutoWidth(true);
+//
+//        gridContatos.addItemClickListener(event -> {
+//            if (Objects.nonNull(event.getItem())) {
+//                if (Objects.nonNull(event.getItem().getId_compraproduto())) {
+//                    CompraProdutoModal.openModal
+//                            (event.getItem(),produtoService,
+//                                    compraProdutoService,service,grid);
+//                } else {
+//                    service.notificaErro("ERRO: Necessário clicar em atualizar antes de editar novo Contato !");
+//                }
+//            } else {
+//                service.notificaErro("ERRO INTERNO/ CONTATAR SUPORTE");
+//            }
+//        });
 
         nome_fornecedorcontato = new TextField("Nome");
         cargo_fornecedorcontato = new TextField("Cargo");
@@ -371,13 +420,12 @@ public class FornecedorDetalhesModal extends Dialog {
         service.configureTelefoneResidencialField(telefone_fornecedorcontato);
 
 
-
         Button saveButton = new Button("Adicionar Contato", event -> {
             if (nome_fornecedorcontato.isEmpty()) {
                 nome_fornecedorcontato.setRequiredIndicatorVisible(true);
                 nome_fornecedorcontato.setErrorMessage("Campo obrigatório");
                 nome_fornecedorcontato.setInvalid(true);
-            }else if (email_fornecedorcontato.isEmpty()) {
+            } else if (email_fornecedorcontato.isEmpty()) {
                 email_fornecedorcontato.setRequiredIndicatorVisible(true);
                 email_fornecedorcontato.setErrorMessage("Campo obrigatório");
                 email_fornecedorcontato.setInvalid(true);
@@ -415,7 +463,7 @@ public class FornecedorDetalhesModal extends Dialog {
                 departamento_fornecedorcontato,
                 telefone_fornecedorcontato,
                 email_fornecedorcontato,
-                observacoes_fornecedorcontato,saveButton);
+                observacoes_fornecedorcontato, saveButton);
 
         VerticalLayout layout = new VerticalLayout(formLayout, gridContatos);
         layout.setSizeFull();
@@ -439,7 +487,9 @@ public class FornecedorDetalhesModal extends Dialog {
 
     public void setFornecedorModel(SetFornecedor item) {
         UI.getCurrent().access(() -> {
+            tabs.setSelectedIndex(0);
             this.fornecedorModel = item;
+            listaContatosFornecedor = new ArrayList<>();
             gridContatos.setItems(new ArrayList<>());
 
             data_cadastro.setValue(item.getData_cadastro());
@@ -481,7 +531,7 @@ public class FornecedorDetalhesModal extends Dialog {
         try {
             fornecedorService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }

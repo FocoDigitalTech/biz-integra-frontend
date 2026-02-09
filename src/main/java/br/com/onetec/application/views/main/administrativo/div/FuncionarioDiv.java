@@ -32,26 +32,29 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @org.springframework.stereotype.Component
 @UIScope
 public class FuncionarioDiv extends Div {
 
     List<SetDepartamento> departamentoLista = new ArrayList<>();
+    Button btnExcluir;
     private Grid<SetFuncionario> funcionarioGrid;
-
     private FiltersFuncionario filtersFuncionario;
-
-    private  FuncionarioService funcionarioService;
-
-    private  DepartamentoService departamentoService;
-
-    private  FuncionarioCadastroModal funcionarioCadastroModal;
-
+    private FuncionarioService funcionarioService;
+    private DepartamentoService departamentoService;
+    private FuncionarioCadastroModal funcionarioCadastroModal;
     private FuncionarioDetalhesModal funcionarioDetalhesModal;
 
-    Button btnExcluir;
 
+    @Autowired
+    public FuncionarioDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
 
     @Autowired
     public void initServices(FuncionarioCadastroModal funcionarioCadastroModal,
@@ -66,15 +69,6 @@ public class FuncionarioDiv extends Div {
             // Código para atualizar a AdministrativoView
             refreshGridFuncionario();
         });
-    }
-
-
-    @Autowired
-    public FuncionarioDiv( ) {
-        UI.getCurrent().access(() -> {
-        add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -144,7 +138,14 @@ public class FuncionarioDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        funcionarioGrid.addColumn(SetFuncionario::getData_admissao)
+        funcionarioGrid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_admissao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_admissao().atStartOfDay());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Admissão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -173,15 +174,12 @@ public class FuncionarioDiv extends Div {
                 .setAutoWidth(true);
 
 
-
-
-
         // Adiciona o listener de clique nos itens da grade
         final Registration[] btnExcluirClickListenerRegistration = {null};
         funcionarioGrid.addItemClickListener(event -> {
             UI.getCurrent().access(() -> {
-            funcionarioDetalhesModal.setFuncionario(event.getItem());
-            funcionarioDetalhesModal.open();
+                funcionarioDetalhesModal.setFuncionario(event.getItem());
+                funcionarioDetalhesModal.open();
 //            // Torna o botão "Deletar" visível
 //            btnExcluir.setVisible(true);
 //            // Verifica se existe um ClickListener registrado anteriormente e o remove
@@ -208,6 +206,7 @@ public class FuncionarioDiv extends Div {
 
         return funcionarioGrid;
     }
+
     public void refreshGrid() {
         funcionarioGrid.getDataProvider().refreshAll();
     }
@@ -219,7 +218,7 @@ public class FuncionarioDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -230,7 +229,14 @@ public class FuncionarioDiv extends Div {
         btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR);
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
+        return cadastroButton;
+    }
 
+    private void openCadastroFuncionarioModal() {
+        funcionarioCadastroModal.open();
+    }
 
     public class FiltersFuncionario extends Div implements Specification<SetFuncionario> {
 
@@ -253,7 +259,6 @@ public class FuncionarioDiv extends Div {
             departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
 
 
-
             // Action buttons
             com.vaadin.flow.component.button.Button resetBtn = new com.vaadin.flow.component.button.Button("Limpar");
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -271,14 +276,12 @@ public class FuncionarioDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-
-            Div actions = new Div(btnExcluir,resetBtn, searchBtn,createBtn);
+            Div actions = new Div(btnExcluir, resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
             add(id, nome, departamento, actions);
         }
-
 
 
         @Override
@@ -336,15 +339,5 @@ public class FuncionarioDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroFuncionarioModal() {
-        funcionarioCadastroModal.open();
     }
 }

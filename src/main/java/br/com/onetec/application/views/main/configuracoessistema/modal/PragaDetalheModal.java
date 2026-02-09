@@ -25,18 +25,16 @@ import java.time.LocalDateTime;
 @UIScope
 public class PragaDetalheModal extends Dialog {
 
-    private com.vaadin.flow.component.textfield.TextField decricaoField;
-
     @Autowired
     PragaService regiaoService;
-
     @Autowired
     @Lazy
     PragasDiv regiaoDiv;
+    SetPraga setPraga;
+    UtilitySystemConfigService service;
+    private com.vaadin.flow.component.textfield.TextField decricaoField;
     private com.vaadin.flow.component.button.Button saveButton;
     private com.vaadin.flow.component.button.Button cancelButton;
-
-
 
     public PragaDetalheModal() {
         UI.getCurrent().access(() -> {
@@ -59,7 +57,6 @@ public class PragaDetalheModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
         decricaoField = new TextField("Nome ou Descrição");
         FormLayout formLayout = new FormLayout();
@@ -69,10 +66,6 @@ public class PragaDetalheModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-    SetPraga setPraga;
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -88,7 +81,7 @@ public class PragaDetalheModal extends Dialog {
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

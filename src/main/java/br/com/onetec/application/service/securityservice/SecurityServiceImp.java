@@ -7,7 +7,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SecurityServiceImp  {
+public class SecurityServiceImp {
 
 
     private UseCaseSecurityImp useCase;

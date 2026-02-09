@@ -35,16 +35,16 @@ public class AutoCrudSituacaoCadastroService {
         // Botão para salvar os dados
         Button saveButton = new Button("Salvar", event -> {
             try {
-                    SetSituacaoCadastro situacaoCadastro = new SetSituacaoCadastro();
-                    situacaoCadastro.setData_inclusao(LocalDateTime.now());
-                    situacaoCadastro.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-                    situacaoCadastro.setAtivo("S");
-                    situacaoCadastro.setDescricao_situacaocadastro(descricaoField.getValue());
-                    situacaoCadastroService.save(situacaoCadastro);
-                    servico.notificaSucesso("Tipo de Pagamento salvo: " + situacaoCadastro.getDescricao_situacaocadastro());
-                    List<SetSituacaoCadastro> novaLista = situacaoCadastroService.listAll();
-                    setSituacaoCadastroComboBox.setItems(novaLista);
-                    dialog.close();
+                SetSituacaoCadastro situacaoCadastro = new SetSituacaoCadastro();
+                situacaoCadastro.setData_inclusao(LocalDateTime.now());
+                situacaoCadastro.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+                situacaoCadastro.setAtivo("S");
+                situacaoCadastro.setDescricao_situacaocadastro(descricaoField.getValue());
+                situacaoCadastroService.save(situacaoCadastro);
+                servico.notificaSucesso("Tipo de Pagamento salvo: " + situacaoCadastro.getDescricao_situacaocadastro());
+                List<SetSituacaoCadastro> novaLista = situacaoCadastroService.listAll();
+                setSituacaoCadastroComboBox.setItems(novaLista);
+                dialog.close();
             } catch (Exception e) {
                 servico.notificaErro("Por favor, preencha todos os campos obrigatórios.");
                 e.printStackTrace();

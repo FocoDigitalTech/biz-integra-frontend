@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Component
@@ -31,25 +30,22 @@ import java.util.Objects;
 public class ContaCorrenteDetalheModal extends Dialog {
 
 
+    @Autowired
+    ContaCorrenteService contaCorrenteService;
+    @Autowired
+    @Lazy
+    CondicaoPagamentoDiv condicaoPagamentoDiv;
+    UtilitySystemConfigService service;
     private TextField nome_contacorrente;
     private TextField banco_contacorrente;
     private TextField agencia_contacorrente;
     private TextField numero_contacorrente;
     private NumberField limete_contacorrente;
     private DatePicker ultimolancamento_contacorrente;
-
-    @Autowired
-    ContaCorrenteService contaCorrenteService;
-
-    @Autowired
-    @Lazy
-    CondicaoPagamentoDiv condicaoPagamentoDiv;
     private Button saveButton;
     private Button cancelButton;
     private Button excluirButton;
-
     private SetContaCorrente contacorrente;
-
 
 
     public ContaCorrenteDetalheModal() {
@@ -78,7 +74,6 @@ public class ContaCorrenteDetalheModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
         service = new UtilitySystemConfigService();
 
@@ -88,6 +83,8 @@ public class ContaCorrenteDetalheModal extends Dialog {
         numero_contacorrente = new TextField("Numero");
         limete_contacorrente = new NumberField("Limite");
         ultimolancamento_contacorrente = new DatePicker("Ultimo Lançamento");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(ultimolancamento_contacorrente);
 
         limete_contacorrente.setValueChangeMode(ValueChangeMode.EAGER);
         limete_contacorrente.addValueChangeListener(event -> service.formataMoedaBrasileiraNumberField(limete_contacorrente));
@@ -108,9 +105,6 @@ public class ContaCorrenteDetalheModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
@@ -136,7 +130,7 @@ public class ContaCorrenteDetalheModal extends Dialog {
             ultimolancamento_contacorrente.clear();
             service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }
@@ -144,18 +138,18 @@ public class ContaCorrenteDetalheModal extends Dialog {
     public void setContaCorrente(SetContaCorrente item) {
         UI.getCurrent().access(() -> {
             this.contacorrente = item;
-            if(Objects.nonNull(item.getNome_contacorrente()))
-            nome_contacorrente.setValue(item.getNome_contacorrente());
-            if(Objects.nonNull(item.getBanco_contacorrente()))
-            banco_contacorrente.setValue(item.getBanco_contacorrente());
-            if(Objects.nonNull(item.getAgencia_contacorrente()))
-            agencia_contacorrente.setValue(item.getAgencia_contacorrente());
-            if(Objects.nonNull(item.getNumero_contacorrente()))
-            numero_contacorrente.setValue(item.getNumero_contacorrente());
-            if(Objects.nonNull(item.getLimete_contacorrente()))
-            limete_contacorrente.setValue(item.getLimete_contacorrente().doubleValue());
-            if(Objects.nonNull(item.getUltimolancamento_contacorrente()))
-            ultimolancamento_contacorrente.setValue(item.getUltimolancamento_contacorrente().toLocalDate());
+            if (Objects.nonNull(item.getNome_contacorrente()))
+                nome_contacorrente.setValue(item.getNome_contacorrente());
+            if (Objects.nonNull(item.getBanco_contacorrente()))
+                banco_contacorrente.setValue(item.getBanco_contacorrente());
+            if (Objects.nonNull(item.getAgencia_contacorrente()))
+                agencia_contacorrente.setValue(item.getAgencia_contacorrente());
+            if (Objects.nonNull(item.getNumero_contacorrente()))
+                numero_contacorrente.setValue(item.getNumero_contacorrente());
+            if (Objects.nonNull(item.getLimete_contacorrente()))
+                limete_contacorrente.setValue(item.getLimete_contacorrente().doubleValue());
+            if (Objects.nonNull(item.getUltimolancamento_contacorrente()))
+                ultimolancamento_contacorrente.setValue(item.getUltimolancamento_contacorrente().toLocalDate());
         });
     }
 
@@ -164,7 +158,8 @@ public class ContaCorrenteDetalheModal extends Dialog {
             contaCorrenteService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             condicaoPagamentoDiv.refreshGrid();
-        } catch (Exception e){
+            close();
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }

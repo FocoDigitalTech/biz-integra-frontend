@@ -22,7 +22,7 @@ public class ServicosOrcamentoService {
     private IServicosOrcamentoRepository repository;
 
     @Autowired
-    public void initServices (IServicosOrcamentoRepository repository1){
+    public void initServices(IServicosOrcamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -40,7 +40,7 @@ public class ServicosOrcamentoService {
     public void save(SetServicosOrcamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -54,7 +54,7 @@ public class ServicosOrcamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

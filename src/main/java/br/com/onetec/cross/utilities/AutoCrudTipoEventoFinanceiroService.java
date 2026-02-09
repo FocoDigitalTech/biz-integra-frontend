@@ -2,7 +2,6 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
-import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class AutoCrudTipoEventoFinanceiroService {
+
     public void openFormDialog(ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro,
                                TipoEventoFinanceiroService tipoEventoFinanceiroService) {
         UtilitySystemConfigService servico = new UtilitySystemConfigService();
@@ -31,7 +31,7 @@ public class AutoCrudTipoEventoFinanceiroService {
         TextField descricaoField = new TextField("Descrição");
 
         // Adiciona os campos ao layout do formulário
-        formLayout.add(nomeField,descricaoField);
+        formLayout.add(nomeField, descricaoField);
 
         // Botão para salvar os dados
         Button saveButton = new Button("Salvar", event -> {

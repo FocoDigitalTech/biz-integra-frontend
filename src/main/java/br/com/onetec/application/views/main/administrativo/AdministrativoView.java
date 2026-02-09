@@ -47,7 +47,7 @@ import java.util.List;
 @UIScope
 public class AdministrativoView extends Div {
 
-    private  FuncionarioDiv funcionarioDiv;
+    private FuncionarioDiv funcionarioDiv;
 
     private FornecedorDiv fornecedorDiv;
 
@@ -71,31 +71,13 @@ public class AdministrativoView extends Div {
     private DepartamentoDetalhesModal detalhesModal;
 
 
-
-    @Autowired
-    public void initServices(FuncionarioDiv funcionarioDiv,
-                             FornecedorDiv fornecedorDiv1,
-                             DepartamentoService departamentoService,
-                             FuncionarioService funcionarioService,
-                             DepartamentoCadastroModal departamentoCadastroModal,
-                             ComprasDiv comprasDiv1,DepartamentoDetalhesModal detalhesModal1) {
-        this.fornecedorDiv = fornecedorDiv1;
-        this.funcionarioDiv = funcionarioDiv;
-        this.departamentoService = departamentoService;
-        this.funcionarioService = funcionarioService;
-        this.departamentoCadastroModal = departamentoCadastroModal;
-        this.comprasDiv = comprasDiv1;
-        this.detalhesModal = detalhesModal1;
-    }
-
-
     @Autowired
     public AdministrativoView(FuncionarioDiv funcionarioDiv,
                               FornecedorDiv fornecedorDiv1,
                               DepartamentoService departamentoService,
                               FuncionarioService funcionarioService,
                               DepartamentoCadastroModal departamentoCadastroModal,
-                              ComprasDiv comprasDiv1,DepartamentoDetalhesModal detalhesModal1) {
+                              ComprasDiv comprasDiv1, DepartamentoDetalhesModal detalhesModal1) {
         this.fornecedorDiv = fornecedorDiv1;
         this.funcionarioDiv = funcionarioDiv;
         this.departamentoService = departamentoService;
@@ -104,23 +86,37 @@ public class AdministrativoView extends Div {
         this.comprasDiv = comprasDiv1;
         this.detalhesModal = detalhesModal1;
         UI.getCurrent().access(() -> {
-        setSizeFull();
-        TabSheet tabSheet = new TabSheet();
-        tabSheet.setSizeFull();
-        tabSheet.add("Departamentos",
-                departamentosDiv());
-        tabSheet.add("Funcionarios",
-                funcionarioDiv);
-        tabSheet.add("Fornecedores",
-                fornecedorDiv);
-        tabSheet.add("Pedidos de Compras",
-                comprasDiv);
-        tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-        add(tabSheet);
+            setSizeFull();
+            TabSheet tabSheet = new TabSheet();
+            tabSheet.setSizeFull();
+            tabSheet.add("Departamentos",
+                    departamentosDiv());
+            tabSheet.add("Funcionarios",
+                    funcionarioDiv);
+            tabSheet.add("Fornecedores",
+                    fornecedorDiv);
+            tabSheet.add("Pedidos de Compras",
+                    comprasDiv);
+            tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+            add(tabSheet);
         });
     }
 
-
+    @Autowired
+    public void initServices(FuncionarioDiv funcionarioDiv,
+                             FornecedorDiv fornecedorDiv1,
+                             DepartamentoService departamentoService,
+                             FuncionarioService funcionarioService,
+                             DepartamentoCadastroModal departamentoCadastroModal,
+                             ComprasDiv comprasDiv1, DepartamentoDetalhesModal detalhesModal1) {
+        this.fornecedorDiv = fornecedorDiv1;
+        this.funcionarioDiv = funcionarioDiv;
+        this.departamentoService = departamentoService;
+        this.funcionarioService = funcionarioService;
+        this.departamentoCadastroModal = departamentoCadastroModal;
+        this.comprasDiv = comprasDiv1;
+        this.detalhesModal = detalhesModal1;
+    }
 
     private Div departamentosDiv() {
         setSizeFull();
@@ -148,7 +144,6 @@ public class AdministrativoView extends Div {
     }
 
 
-
     private HorizontalLayout createMobileFilters() {
         // Mobile version
         HorizontalLayout mobileFilters = new HorizontalLayout();
@@ -172,8 +167,6 @@ public class AdministrativoView extends Div {
         });
         return mobileFilters;
     }
-
-
 
 
     private Component createGrid() {
@@ -200,7 +193,6 @@ public class AdministrativoView extends Div {
                 .setAutoWidth(true);
 
 
-
         // Adiciona o listener de clique nos itens da grade
         departamentoGrid.addItemClickListener(event -> openDetalhesClienteModal(event.getItem()));
 
@@ -217,14 +209,20 @@ public class AdministrativoView extends Div {
 
     private void openDetalhesClienteModal(SetDepartamento item) {
         UI.getCurrent().access(() -> {
-            UI.getCurrent().getSession().setAttribute("departamento",item);
+            UI.getCurrent().getSession().setAttribute("departamento", item);
             detalhesModal.setDepartamento(item);
             detalhesModal.open();
         });
     }
 
+    private com.vaadin.flow.component.button.Button createCadastroButton() {
+        com.vaadin.flow.component.button.Button cadastroButton = new com.vaadin.flow.component.button.Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
 
-
+    private void openCadastroModal() {
+        departamentoCadastroModal.open();
+    }
 
     public class FiltersDepartamento extends Div implements Specification<SetDepartamento> {
 
@@ -258,13 +256,12 @@ public class AdministrativoView extends Div {
             searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             searchBtn.addClickListener(e -> onSearch.run());
 
-            Div actions = new Div(resetBtn, searchBtn,createBtn);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
             add(name, phone, occupations, actions);
         }
-
 
 
         @Override
@@ -322,16 +319,6 @@ public class AdministrativoView extends Div {
             return expression;
         }
 
-    }
-
-    private com.vaadin.flow.component.button.Button createCadastroButton() {
-        com.vaadin.flow.component.button.Button cadastroButton = new com.vaadin.flow.component.button.Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        departamentoCadastroModal.open();
     }
 }
 

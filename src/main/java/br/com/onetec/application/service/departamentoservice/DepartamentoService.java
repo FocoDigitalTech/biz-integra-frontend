@@ -21,9 +21,9 @@ import java.util.Optional;
 @Service
 public class DepartamentoService {
 
-    private  IDepartamentoRepository repository;
+    private IDepartamentoRepository repository;
 
-    private  IFuncionarioRepository repositoryFuncionario;
+    private IFuncionarioRepository repositoryFuncionario;
 
     @Autowired
     public void initServices(IDepartamentoRepository repository1,
@@ -65,7 +65,7 @@ public class DepartamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Update !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
 
@@ -80,7 +80,7 @@ public class DepartamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -99,7 +99,6 @@ public class DepartamentoService {
     }
 
     public List<SetDepartamento> findAllDepartamento() {
-
         return repository.findAll();
     }
 }

@@ -49,10 +49,8 @@ import java.util.Optional;
 @PageTitle("Sistema Nagasaki")
 public class MainLayout extends AppLayout {
     private final AuthenticationContext authenticationContext;
-
+    private final IUsuariosRepository repository;
     private ISetPermissaoRepository setPermissaoRepository;
-
-
     private H2 viewTitle;
     private H2 titulo;
 
@@ -96,18 +94,15 @@ public class MainLayout extends AppLayout {
 
 
         titulo = new H2("Nagasaki App");
-        var header = new Header(toggle,titulo, viewTitle, menuBar);
+        var header = new Header(toggle, titulo, viewTitle, menuBar);
         //<theme-editor-local-classname>
         header.addClassName("main-layout-header-1");
         header.addClassNames(LumoUtility.AlignItems.CENTER, LumoUtility.Display.FLEX,
                 LumoUtility.Padding.End.MEDIUM, LumoUtility.Width.FULL);
 
 
-
         addToNavbar(false, header);
     }
-
-    private final IUsuariosRepository repository;
 
     private void configuraUsuarioCorrente(Optional<String> principalName) {
         SetUsuarios user = repository.findByusername(principalName.get());
@@ -138,7 +133,7 @@ public class MainLayout extends AppLayout {
         nav.addItem(createNavItem(MenuNavItemVerticalTitleConst.NAME_ESTOQUE, EstoqueView.class,
                 VaadinIcon.STORAGE));
         nav.addItem(createNavItem(MenuNavItemVerticalTitleConst.NAME_RELATÓRIOS, RelatoriosView.class,
-                    VaadinIcon.PAPERPLANE));
+                VaadinIcon.PAPERPLANE));
         nav.addItem(createNavItem(MenuNavItemVerticalTitleConst.NAME_SISTEMA, ConfiguracoesSistemaView.class,
                 VaadinIcon.COG_O));
         nav.addItem(createNavItem(MenuNavItemVerticalTitleConst.NAME_SEGURANCA, ConfiguracoesSegurancaView.class,
@@ -202,11 +197,10 @@ public class MainLayout extends AppLayout {
 
     private void handleClick(DomEvent event, Class<?> viewClass, String title) {
         System.out.println("Validando Acesso Para tela");
-        if(!validateAccess(title)){
+        if (!validateAccess(title)) {
             UI.getCurrent().getPage().setLocation("access-denied");
         }
     }
-
 
 
     private boolean validateAccess(String nomeTela) {
@@ -214,7 +208,7 @@ public class MainLayout extends AppLayout {
             List<SetPermissao> permissoes =
                     setPermissaoRepository.listAllById(UsuarioAutenticadoConfig.getUser().getId_grupousuario());
             for (SetPermissao permissao : permissoes) {
-                if (permissao.getTela_view().equals("all")){
+                if (permissao.getTela_view().equals("all")) {
                     return true;
                 }
                 if (permissao.getNome_tela().contains(nomeTela)) {
@@ -231,10 +225,10 @@ public class MainLayout extends AppLayout {
 
 
     private SideNavItem createNavItem(String title, Class<?> viewClass, VaadinIcon icon) {
-         Class<?> a = viewClass.getEnclosingClass();
+        Class<?> a = viewClass.getEnclosingClass();
         // Create SideNavItem with title and icon, and add the anchor
         SideNavItem item = new SideNavItem(title, (Class<? extends com.vaadin.flow.component.Component>) viewClass, icon.create());
-        item.getElement().addEventListener("click", event -> handleClick(event,viewClass,title));
+        item.getElement().addEventListener("click", event -> handleClick(event, viewClass, title));
         return item;
     }
 

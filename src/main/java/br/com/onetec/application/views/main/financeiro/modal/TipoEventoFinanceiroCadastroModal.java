@@ -25,19 +25,16 @@ import java.time.LocalDateTime;
 @UIScope
 public class TipoEventoFinanceiroCadastroModal extends Dialog {
 
-    private TextField nome_tipoeventofinanceiro;
-    private TextField descricao_tipoeventofinanceiro;
-
     @Autowired
     TipoEventoFinanceiroService tipoEventoFinanceiroService;
-
     @Autowired
     @Lazy
     TipoEventoFinanceiroDiv tipoPagamentoDiv;
-
+    UtilitySystemConfigService service;
+    private TextField nome_tipoeventofinanceiro;
+    private TextField descricao_tipoeventofinanceiro;
     private Button saveButton;
     private Button cancelButton;
-
 
 
     public TipoEventoFinanceiroCadastroModal() {
@@ -61,7 +58,6 @@ public class TipoEventoFinanceiroCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
 
         nome_tipoeventofinanceiro = new TextField("Nome");
@@ -74,9 +70,6 @@ public class TipoEventoFinanceiroCadastroModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -94,7 +87,7 @@ public class TipoEventoFinanceiroCadastroModal extends Dialog {
             descricao_tipoeventofinanceiro.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

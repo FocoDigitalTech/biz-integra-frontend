@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -55,6 +56,14 @@ public class SituacaoCadastroDiv extends Div {
     private SituacaoDetalhesModal situacaoDetalhesModal;
 
     @Autowired
+    public SituacaoCadastroDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(SituacaoCadastroService situacaoCadastroService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -65,14 +74,6 @@ public class SituacaoCadastroDiv extends Div {
         this.usuarioService = usuarioService1;
         this.situacaoCadastroModal = situacaoCadastroModal1;
         this.situacaoDetalhesModal = situacaoDetalhesModal1;
-    }
-
-    @Autowired
-    public SituacaoCadastroDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -138,7 +139,14 @@ public class SituacaoCadastroDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetSituacaoCadastro::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -150,7 +158,6 @@ public class SituacaoCadastroDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> situacaoCadastroService.list(
@@ -193,11 +200,21 @@ public class SituacaoCadastroDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            situacaoCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetSituacaoCadastro> {
 
@@ -213,8 +230,6 @@ public class SituacaoCadastroDiv extends Div {
             addClassNames(LumoUtility.Padding.Horizontal.LARGE, LumoUtility.Padding.Vertical.MEDIUM,
                     LumoUtility.BoxSizing.BORDER);
             id.setPlaceholder("Código");
-
-
 
 
             // Action buttons
@@ -235,15 +250,13 @@ public class SituacaoCadastroDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -290,17 +303,5 @@ public class SituacaoCadastroDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            situacaoCadastroModal.open();
-        });
     }
 }

@@ -25,14 +25,13 @@ import java.time.LocalDateTime;
 @UIScope
 public class TipoAtendimentoCadastroModal extends Dialog {
 
-    private TextField decricaoField;
-
     @Autowired
     TipoAtendimentoService tipoAtendimentoService;
-
     @Autowired
     @Lazy
     TipoAtendimentoDiv tipoAtendimentoDiv;
+    UtilitySystemConfigService service;
+    private TextField decricaoField;
     private Button saveButton;
     private Button cancelButton;
 
@@ -67,9 +66,6 @@ public class TipoAtendimentoCadastroModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         // Lógica para salvar o cadastro
         SetTipoAtendimento dto = new SetTipoAtendimento();
@@ -84,7 +80,7 @@ public class TipoAtendimentoCadastroModal extends Dialog {
             decricaoField.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

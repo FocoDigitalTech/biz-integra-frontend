@@ -4,5 +4,5 @@ import br.com.onetec.infra.rest.dto.Address;
 
 public interface IApiEnderecoGateway {
 
-    Address getAddressByCep (String cep);
+    Address getAddressByCep(String cep);
 }

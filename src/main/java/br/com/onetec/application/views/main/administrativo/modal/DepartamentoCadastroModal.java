@@ -3,7 +3,9 @@ package br.com.onetec.application.views.main.administrativo.modal;
 
 import br.com.onetec.application.model.Departamento;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetFuncionario;
 import com.vaadin.flow.component.UI;
@@ -20,39 +22,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @UIScope
 public class DepartamentoCadastroModal extends Dialog {
 
+    List<SetFuncionario> funcionarioList;
+    @Autowired
+    FuncionarioService funcionarioService;
+    @Autowired
+    DepartamentoService departamentoService;
+    @Autowired
+    @Lazy
+    AdministrativoView administrativoView;
+    UtilitySystemConfigService service;
     //cadastro empresa
     private TextField codigoField;
     private TextField decricaoField;
     private ComboBox<SetFuncionario> responsavelield;
-
     private Button saveButton;
     private Button cancelButton;
-
-
-    List<SetFuncionario> funcionarioList;
-
-
-    @Autowired
-    DepartamentoService departamentoService;
-
-    @Autowired
-    @Lazy
-    AdministrativoView administrativoView;
-
-    UtilitySystemConfigService service;
 
     public DepartamentoCadastroModal() {
         UI.getCurrent().access(() -> {
 
             service = new UtilitySystemConfigService();
-            addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
             addDialogCloseActionListener(event -> service.askForConfirmation(this));
@@ -74,14 +69,14 @@ public class DepartamentoCadastroModal extends Dialog {
         //codigoField = new TextField("Código Departamento");
         decricaoField = new TextField("Nome ou Descrição");
         responsavelield = new ComboBox<>("Responsável");
-
-        responsavelield.setItems(new ArrayList<>());
+        funcionarioList = funcionarioService.listAll();
+        responsavelield.setItems(funcionarioList);
         responsavelield.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
         formLayout.add(decricaoField,
-                       responsavelield);
+                responsavelield);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -90,8 +85,8 @@ public class DepartamentoCadastroModal extends Dialog {
     }
 
 
-
     private void save() {
+        service = new UtilitySystemConfigService();
         SetFuncionario selectedFuncionario = responsavelield.getValue();
         // Lógica para salvar o cadastro
         Departamento dto = new Departamento();
@@ -102,6 +97,7 @@ public class DepartamentoCadastroModal extends Dialog {
 
         departamentoService.cadastrar(dto);
         administrativoView.refreshGrid();
+        service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
         close();
     }
 }

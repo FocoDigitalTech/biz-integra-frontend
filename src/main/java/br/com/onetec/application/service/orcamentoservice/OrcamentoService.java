@@ -1,6 +1,13 @@
 package br.com.onetec.application.service.orcamentoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.service.comissoesservice.ComissoesService;
+import br.com.onetec.application.service.contratoservice.ContratoService;
+import br.com.onetec.application.service.notafiscalservice.NotaFiscalService;
+import br.com.onetec.application.service.orcamentocontatoservice.OrcamentoContatoService;
+import br.com.onetec.application.service.orcamentoposvendaservice.OrcamentoPosVendasService;
+import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
+import br.com.onetec.application.service.pagamentoservice.PagamentoService;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetOrcamento;
 import br.com.onetec.infra.db.repository.ISetOrcamentoRepository;
@@ -13,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -20,10 +28,30 @@ import java.util.Optional;
 public class OrcamentoService {
 
     private ISetOrcamentoRepository repository;
+    private OrdemServicoService ordemServicoService;
+    private OrcamentoPosVendasService orcamentoPosVendasService;
+    private OrcamentoContatoService orcamentoContatoService;
+    private NotaFiscalService notaFiscalService;
+    private PagamentoService pagamentoService;
+    private ComissoesService comissoesService;
+    private ContratoService contratoService;
+
+    public OrcamentoService(OrdemServicoService ordemServicoService, OrcamentoPosVendasService orcamentoPosVendasService,
+                            OrcamentoContatoService orcamentoContatoService, NotaFiscalService notaFiscalService,
+                            PagamentoService pagamentoService, ComissoesService comissoesService,
+                            ContratoService contratoService) {
+        this.ordemServicoService = ordemServicoService;
+        this.orcamentoPosVendasService = orcamentoPosVendasService;
+        this.orcamentoContatoService = orcamentoContatoService;
+        this.notaFiscalService = notaFiscalService;
+        this.pagamentoService = pagamentoService;
+        this.comissoesService = comissoesService;
+        this.contratoService = contratoService;
+    }
 
 
     @Autowired
-    public void initServices (ISetOrcamentoRepository repository1){
+    public void initServices(ISetOrcamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -55,7 +83,7 @@ public class OrcamentoService {
     public SetOrcamento save(SetOrcamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
         return dto;
@@ -70,7 +98,7 @@ public class OrcamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -99,7 +127,75 @@ public class OrcamentoService {
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
             return entity;
-        } catch (Exception e){
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    public void exclusaoLogica(SetOrcamento orcamento) throws Exception {
+        try {
+            delete(orcamento);
+            var ordemservicos = ordemServicoService.findAllByOrcamentoId(orcamento.getId_orcamento());
+            var posvenda = orcamentoPosVendasService.findAllByOrcamentoId(orcamento.getId_orcamento());
+            var contatos = orcamentoContatoService.findAllByOrcamentoId(orcamento.getId_orcamento());
+            var notafiscal = notaFiscalService.findAllByOrcamentoId(orcamento.getId_orcamento());
+            var pagamentos = pagamentoService.findAllByOrcamentoId(orcamento.getId_orcamento());
+            var contrati = contratoService.findByIdOrcamento(orcamento.getId_orcamento());
+            if (ordemservicos.size() > 0) {
+                ordemservicos.forEach(setOrdemServico -> {
+                    try {
+                        ordemServicoService.delete(setOrdemServico);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if (posvenda.size() > 0) {
+                posvenda.forEach(obj -> {
+                    try {
+                        orcamentoPosVendasService.delete(obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if (contatos.size() > 0) {
+                contatos.forEach(obj -> {
+                    try {
+                        orcamentoContatoService.delete(obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if (notafiscal.size() > 0) {
+                notafiscal.forEach(obj -> {
+                    try {
+                        notaFiscalService.delete(obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if (pagamentos.size() > 0) {
+                pagamentos.forEach(obj -> {
+                    try {
+                        pagamentoService.delete(obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            if (Objects.nonNull(contrati)) {
+                try {
+                    contratoService.delete(contrati);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } catch (Exception e) {
             throw new Exception();
         }
     }

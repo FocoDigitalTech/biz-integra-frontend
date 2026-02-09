@@ -33,15 +33,14 @@ public class CodigoNumeracaoModal extends Dialog {
     @Autowired
     @Lazy
     CodigoNumeracaoDiv regiaoDiv;
+    UtilitySystemConfigService service;
     private com.vaadin.flow.component.button.Button saveButton;
     private com.vaadin.flow.component.button.Button cancelButton;
-
     private SetCodigoNumeracao codigoNumeracao;
     private IntegerField orcamento_codigonumeracao;
     private IntegerField ordemservico_codigonumeracao;
     private IntegerField contrato_codigonumeracao;
     private IntegerField cliente_codigonumeracao;
-
 
 
     public CodigoNumeracaoModal() {
@@ -64,7 +63,6 @@ public class CodigoNumeracaoModal extends Dialog {
             add(layout);
         });
     }
-
 
     private Div createFormCadastroEmpresa() {
 
@@ -89,9 +87,6 @@ public class CodigoNumeracaoModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         // Lógica para salvar o cadastro
         codigoNumeracao.setOrcamento_codigonumeracao(BigInteger.valueOf(orcamento_codigonumeracao.getValue()));
@@ -111,11 +106,10 @@ public class CodigoNumeracaoModal extends Dialog {
             cliente_codigonumeracao.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }
-
 
 
     public void setCodigo(SetCodigoNumeracao item) {

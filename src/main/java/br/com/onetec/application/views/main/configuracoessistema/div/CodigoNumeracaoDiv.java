@@ -19,9 +19,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 @UIScope
-public class CodigoNumeracaoDiv extends Div{
+public class CodigoNumeracaoDiv extends Div {
 
     private Grid<SetCodigoNumeracao> grid;
 
@@ -36,6 +38,14 @@ public class CodigoNumeracaoDiv extends Div{
     private CodigoNumeracaoModal pragaCadastroModal;
 
     @Autowired
+    public CodigoNumeracaoDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(CodigoNumeracaoService pragaService1,
                              UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
@@ -44,15 +54,6 @@ public class CodigoNumeracaoDiv extends Div{
         this.service = service1;
         this.usuarioService = usuarioService1;
         this.pragaCadastroModal = pragaCadastroModal1;
-    }
-
-
-    @Autowired
-    public CodigoNumeracaoDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -88,7 +89,7 @@ public class CodigoNumeracaoDiv extends Div{
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -119,7 +120,14 @@ public class CodigoNumeracaoDiv extends Div{
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetCodigoNumeracao::getData_alteracao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_alteracao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_alteracao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Alteração")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -131,7 +139,6 @@ public class CodigoNumeracaoDiv extends Div{
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(pragaService.findAll());

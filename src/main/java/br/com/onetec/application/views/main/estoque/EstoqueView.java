@@ -37,15 +37,6 @@ public class EstoqueView extends VerticalLayout implements BeforeEnterListener {
 
 
     @Autowired
-    public void initServices(ProdutosDiv produtosDiv1,MovimentoDiv movimentoDiv1,VeiculosDiv veiculosDiv1,
-    UtilitySystemConfigService systemConfigService1){
-        this.produtosDiv = produtosDiv1;
-        this.movimentoDiv = movimentoDiv1;
-        this.systemConfigService = systemConfigService1;
-        this.veiculosDiv = veiculosDiv1;
-    }
-
-    @Autowired
     public EstoqueView(UtilitySystemConfigService systemConfigService1) {
 
         UI.getCurrent().access(() -> {
@@ -61,6 +52,15 @@ public class EstoqueView extends VerticalLayout implements BeforeEnterListener {
             add(tabSheet);
         });
 
+    }
+
+    @Autowired
+    public void initServices(ProdutosDiv produtosDiv1, MovimentoDiv movimentoDiv1, VeiculosDiv veiculosDiv1,
+                             UtilitySystemConfigService systemConfigService1) {
+        this.produtosDiv = produtosDiv1;
+        this.movimentoDiv = movimentoDiv1;
+        this.systemConfigService = systemConfigService1;
+        this.veiculosDiv = veiculosDiv1;
     }
 
     @Override

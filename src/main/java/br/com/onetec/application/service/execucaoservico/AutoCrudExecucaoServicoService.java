@@ -3,7 +3,6 @@ package br.com.onetec.application.service.execucaoservico;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetExecucaoServico;
-import br.com.onetec.infra.db.model.SetTipoPagamento;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;

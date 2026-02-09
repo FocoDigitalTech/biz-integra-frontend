@@ -2,12 +2,12 @@ package br.com.onetec.application.views.main.financeiro.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
-import br.com.onetec.application.service.grupofinanceiroservice.GrupoFinanceiroService;
+import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
 import br.com.onetec.application.views.main.financeiro.div.EventoFinanceiroDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
-import br.com.onetec.infra.db.model.SetGrupoFinanceiro;
+import br.com.onetec.infra.db.model.SetTipoEventoFinanceiro;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,25 +29,21 @@ import java.util.Objects;
 @UIScope
 public class EventoFinanceiroDetalhesModal extends Dialog {
 
-    private ComboBox<SetGrupoFinanceiro> id_grupoeventofinanceiro;
-    private TextField nome_eventofinanceiro;
-    private TextField observacoes_eventofinanceiro;
-
     @Autowired
     EventoFinanceiroService eventoFinanceiroService;
-
     @Autowired
-    GrupoFinanceiroService grupoFinanceiroService;
-
+    TipoEventoFinanceiroService tipoEventoFinanceiroService;
     @Autowired
     @Lazy
     EventoFinanceiroDiv eventoFinanceiroDiv;
+    UtilitySystemConfigService service;
+    private ComboBox<SetTipoEventoFinanceiro> id_tipoeventofinanceiro;
+    private TextField nome_eventofinanceiro;
+    private TextField observacoes_eventofinanceiro;
     private Button saveButton;
     private Button cancelButton;
     private Button excluirButton;
-
     private SetEventoFinanceiro eventoFinanceiro;
-
 
     public EventoFinanceiroDetalhesModal() {
         UI.getCurrent().access(() -> {
@@ -81,24 +76,27 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
             eventoFinanceiroService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             eventoFinanceiroDiv.refreshGrid();
-        } catch (Exception e){
+            close();
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
-
     private Div createFormCadastroEmpresa() {
 
-        id_grupoeventofinanceiro = new ComboBox<>("Grupo Financeiro (Planos)");
+        id_tipoeventofinanceiro = new ComboBox<>("Tipo Evento Financeiro (Contas)");
         nome_eventofinanceiro = new TextField("Nome");
         observacoes_eventofinanceiro = new TextField("Descrição");
 
-        id_grupoeventofinanceiro.setItems(grupoFinanceiroService.findAll());
-        id_grupoeventofinanceiro.setItemLabelGenerator(SetGrupoFinanceiro::getNome_grupoeventofinanceiro);
+        id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
+        id_tipoeventofinanceiro.setItemLabelGenerator(SetTipoEventoFinanceiro::getNome_tipoeventofinanceiro);
+        id_tipoeventofinanceiro.addFocusListener(event -> {
+            id_tipoeventofinanceiro.setItems(tipoEventoFinanceiroService.findAll());
+        });
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_grupoeventofinanceiro,
+        formLayout.add(id_tipoeventofinanceiro,
                 nome_eventofinanceiro,
                 observacoes_eventofinanceiro);
         Div div = new Div(formLayout);
@@ -106,50 +104,54 @@ public class EventoFinanceiroDetalhesModal extends Dialog {
         return div;
     }
 
-
-    UtilitySystemConfigService service;
-
     private void save() throws Exception {
         SetEventoFinanceiro dto = eventoFinanceiro;
-        SetGrupoFinanceiro setGrupoFinanceiro = id_grupoeventofinanceiro.getValue();
+        SetTipoEventoFinanceiro setGrupoFinanceiro = id_tipoeventofinanceiro.getValue();
         if (setGrupoFinanceiro == null) {
-            service.notificaErro("Grupo financeiro não pode ser vazio !");
-            throw new Exception();
-        }
-        dto.setId_grupoeventofinanceiro(setGrupoFinanceiro.getId_grupoeventofinanceiro());
-        // Lógica para salvar o cadastro
+            service.notificaErro("Tipo de evento financeiro (Contas) não pode ser vazio !");
+        } else {
+            dto.setId_tipoeventofinanceiro(setGrupoFinanceiro.getId_tipoeventofinanceiro());
+            // Lógica para salvar o cadastro
 
-        dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
-        dto.setObservacoes_eventofinanceiro(observacoes_eventofinanceiro.getValue());
-        dto.setAtivo("S");
-        dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
-        service = new UtilitySystemConfigService();
-        try {
-            eventoFinanceiroService.update(dto);
-            eventoFinanceiroDiv.refreshGrid();
-            id_grupoeventofinanceiro.clear();
-            nome_eventofinanceiro.clear();
-            observacoes_eventofinanceiro.clear();
-            service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
-            close();
-        } catch (Exception e) {
-            service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            dto.setNome_eventofinanceiro(nome_eventofinanceiro.getValue());
+            dto.setObservacoes_eventofinanceiro(observacoes_eventofinanceiro.getValue());
+            dto.setAtivo("S");
+            dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+            service = new UtilitySystemConfigService();
+            try {
+                eventoFinanceiroService.update(dto);
+                eventoFinanceiroDiv.refreshGrid();
+                id_tipoeventofinanceiro.clear();
+                nome_eventofinanceiro.clear();
+                observacoes_eventofinanceiro.clear();
+                service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
+                close();
+            } catch (Exception e) {
+                service.notificaErro(ModalMessageConst.ERROR_CREATE);
+            }
         }
     }
 
     public void setEventoFinanceiro(SetEventoFinanceiro item) {
         UI.getCurrent().access(() -> {
             this.eventoFinanceiro = item;
-            List<SetGrupoFinanceiro> grupofinanceirolista = grupoFinanceiroService.findAll();
-            if (Objects.nonNull(item.getId_grupoeventofinanceiro())) {
-                id_grupoeventofinanceiro.setValue(grupofinanceirolista.stream()
-                        .filter(objeto -> objeto.getId_grupoeventofinanceiro().equals(item.getId_grupoeventofinanceiro()))
-                        .findFirst().orElse(null));
+            List<SetTipoEventoFinanceiro> grupofinanceirolista = tipoEventoFinanceiroService.findAll();
+            if (Objects.nonNull(item.getId_tipoeventofinanceiro())) {
+                id_tipoeventofinanceiro.setValue(grupofinanceirolista.stream()
+                        .filter(objeto -> objeto.getId_tipoeventofinanceiro().equals(item.getId_tipoeventofinanceiro()))
+                        .findFirst().orElse(getUndefinedClassEntity()));
             }
             if (Objects.nonNull(item.getNome_eventofinanceiro()))
                 nome_eventofinanceiro.setValue(item.getNome_eventofinanceiro());
             if (Objects.nonNull(item.getObservacoes_eventofinanceiro()))
                 observacoes_eventofinanceiro.setValue(item.getObservacoes_eventofinanceiro());
         });
+    }
+
+    private SetTipoEventoFinanceiro getUndefinedClassEntity() {
+        SetTipoEventoFinanceiro result = new SetTipoEventoFinanceiro();
+        result.setId_tipoeventofinanceiro(0);
+        result.setNome_tipoeventofinanceiro("Excluido");
+        return result;
     }
 }

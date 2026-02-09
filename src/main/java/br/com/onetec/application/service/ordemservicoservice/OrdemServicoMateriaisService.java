@@ -2,9 +2,10 @@ package br.com.onetec.application.service.ordemservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
-import br.com.onetec.infra.db.model.SetOrdemServicoMisturas;
+import br.com.onetec.infra.db.model.SetProduto;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoMateriaisRepository;
-import br.com.onetec.infra.db.repository.ISetOrdemServicoMisturasRepository;
+import br.com.onetec.infra.db.repository.ISetProdutoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,9 +23,12 @@ public class OrdemServicoMateriaisService {
 
     private ISetOrdemServicoMateriaisRepository repository;
 
+    private ISetProdutoRepository iSetEstoqueRepository;
+
     @Autowired
-    public void initServices (ISetOrdemServicoMateriaisRepository repository1){
+    public void initServices(ISetOrdemServicoMateriaisRepository repository1, ISetProdutoRepository iSetEstoqueRepository1) {
         this.repository = repository1;
+        this.iSetEstoqueRepository = iSetEstoqueRepository1;
     }
 
     public Page<SetOrdemServicoMateriais> list(Pageable pageable, Specification<SetOrdemServicoMateriais> filter) {
@@ -38,7 +42,7 @@ public class OrdemServicoMateriaisService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServicoMateriais> listAllByOrdemServicoId(Integer id){
+    public List<SetOrdemServicoMateriais> listAllByOrdemServicoId(Integer id) {
 
         return repository.listAllByOrdemServicoId(id);
     }
@@ -46,7 +50,26 @@ public class OrdemServicoMateriaisService {
     public void save(SetOrdemServicoMateriais dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+            atualizaEstoque(dto);
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+
+    @SneakyThrows
+    private void atualizaEstoque(SetOrdemServicoMateriais dto) {
+        try {
+            Optional<SetProduto> optional = iSetEstoqueRepository.findById(dto.getId_produto());
+            SetProduto entity = optional.get();
+            entity.setData_alteracao(LocalDateTime.now());
+            entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+//            var saldo = Integer.parseInt(entity.getQuantidade_estoque())
+//                    - dto.getQuantidadeconsumida_ordemservicomateriais();
+//            entity.setQuantidade_estoque(String.valueOf(saldo));
+            iSetEstoqueRepository.save(entity);
+            log.info("excluido !");
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +83,7 @@ public class OrdemServicoMateriaisService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -79,7 +102,7 @@ public class OrdemServicoMateriaisService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

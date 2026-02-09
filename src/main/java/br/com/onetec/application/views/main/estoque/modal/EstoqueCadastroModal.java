@@ -2,14 +2,14 @@ package br.com.onetec.application.views.main.estoque.modal;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.estoqueservice.EstoqueService;
+import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
-import br.com.onetec.application.service.tecnicoassistenteservice.TecnicoAssistenteService;
 import br.com.onetec.application.views.main.estoque.div.MovimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
+import br.com.onetec.infra.db.model.SetFuncionario;
 import br.com.onetec.infra.db.model.SetProduto;
-import br.com.onetec.infra.db.model.SetTecnicoAssistente;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -37,7 +37,8 @@ public class EstoqueCadastroModal extends Dialog {
     EstoqueService estoqueService;
 
     @Autowired
-    TecnicoAssistenteService tecnicoAssistenteService;
+    FuncionarioService funcionarioService;
+    // TecnicoAssistenteService tecnicoAssistenteService;
 
     @Autowired
     ProdutoService produtoService;
@@ -45,12 +46,11 @@ public class EstoqueCadastroModal extends Dialog {
     @Autowired
     @Lazy
     MovimentoDiv movimentoDiv;
-
+    UtilitySystemConfigService service;
     private Button saveButton;
     private Button cancelButton;
-
-    private ComboBox <SetProduto> id_produto;
-    private ComboBox <SetTecnicoAssistente> id_tecnicosassistentes;
+    private ComboBox<SetProduto> id_produto;
+    private ComboBox<SetFuncionario> funcionarioComboBox;
     private Checkbox saida_controleproduto;
     private DatePicker data_controle;
     private IntegerField quantidade_enviada;
@@ -60,14 +60,14 @@ public class EstoqueCadastroModal extends Dialog {
     private TextField numero_lote;
 
 
-
-
     @Autowired
     public EstoqueCadastroModal() {
         UI.getCurrent().access(() -> {
             saveButton = new com.vaadin.flow.component.button.Button("Salvar", eventbe -> {
-                try { save();}
-                catch (Exception e) {}
+                try {
+                    save();
+                } catch (Exception e) {
+                }
             });
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -81,7 +81,6 @@ public class EstoqueCadastroModal extends Dialog {
             add(layout);
         });
     }
-
 
     private Div createFormCadastro() {
         service = new UtilitySystemConfigService();
@@ -104,7 +103,7 @@ public class EstoqueCadastroModal extends Dialog {
         quantidade_devolvida.setStepButtonsVisible(true);
 
         quantidade_consumida = new IntegerField();
-        quantidade_consumida.setLabel("Quantidade Enviada");
+        quantidade_consumida.setLabel("Quantidade Consumida");
         quantidade_consumida.setMin(0);
         quantidade_consumida.setMax(1000);
         quantidade_consumida.setValue(0);
@@ -112,30 +111,32 @@ public class EstoqueCadastroModal extends Dialog {
 
 
         id_produto = new ComboBox<>("Nome Produto");
-        id_tecnicosassistentes = new ComboBox<>("Tecnico/Assistente");
+        funcionarioComboBox = new ComboBox<>("Funcionario");
         saida_controleproduto = new Checkbox("Saida Estoque ?");
         data_controle = new DatePicker("Data");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(data_controle);
 
         numero_lote = new TextField("Numero do Lote");
+        unidade_entrada.setReadOnly(true);
 
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
-        id_tecnicosassistentes.setItems(tecnicoAssistenteService.findAll());
-        id_tecnicosassistentes.setItemLabelGenerator(SetTecnicoAssistente::getNome_tecnicoassistente);
-
+        id_produto.addValueChangeListener(event -> {
+            unidade_entrada.setValue(event.getValue().getUnidade_entrada());
+        });
+        funcionarioComboBox.setItems(funcionarioService.listAll());
+        funcionarioComboBox.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
 
 
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_produto, id_tecnicosassistentes, saida_controleproduto, data_controle, quantidade_enviada,
+        formLayout.add(id_produto, funcionarioComboBox, saida_controleproduto, data_controle, quantidade_enviada,
                 quantidade_devolvida, quantidade_consumida, unidade_entrada, numero_lote);
         Div div = new Div(formLayout);
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
@@ -153,29 +154,33 @@ public class EstoqueCadastroModal extends Dialog {
         if (produto != null) {
             dto.setId_produto(produto.getId_produto());
         }
-        SetTecnicoAssistente tecnicoAssistente = id_tecnicosassistentes.getValue();
-        if (tecnicoAssistente != null){
-            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_tecnicoassistente());
+        var tecnicoAssistente = funcionarioComboBox.getValue();
+        if (tecnicoAssistente != null) {
+            dto.setId_tecnicosassistentes(tecnicoAssistente.getId_funcionario());
         }
         dto.setAtivo("S");
         dto.setData_inclusao(LocalDateTime.now());
         dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
+        dto.setSaida_controleproduto(saida_controleproduto.getValue());
 
         try {
             estoqueService.save(dto);
             movimentoDiv.refreshGrid();
-            id_produto.clear();
-            id_tecnicosassistentes.clear();
-            saida_controleproduto.clear();
+//            id_produto.clear();
+//            id_tecnicosassistentes.clear();
+//            saida_controleproduto.clear();
             data_controle.clear();
             quantidade_enviada.clear();
             quantidade_devolvida.clear();
             quantidade_consumida.clear();
             unidade_entrada.clear();
             numero_lote.clear();
+            if (saida_controleproduto.getValue()) {
+                produtoService.updateEstoqueQuantidade(dto.getId_produto(), dto.getQuantidade_consumida());
+            }
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

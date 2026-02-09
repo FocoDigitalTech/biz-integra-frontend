@@ -21,7 +21,7 @@ public class FornecedorContatoService {
     private ISetFornecedorContatoRepository repository;
 
     @Autowired
-    public void initServices (ISetFornecedorContatoRepository repository1){
+    public void initServices(ISetFornecedorContatoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class FornecedorContatoService {
     public void save(SetFornecedorContato dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class FornecedorContatoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -62,9 +62,10 @@ public class FornecedorContatoService {
         try {
             Optional<SetFornecedorContato> optional = repository.findById(item.getId_fornecedorcontato());
             SetFornecedorContato entity = optional.get();
+            entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

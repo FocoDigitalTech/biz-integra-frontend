@@ -21,7 +21,7 @@ public class RegiaoService {
     private IRegiaoRepository repository;
 
     @Autowired
-    public void initServices (IRegiaoRepository repository1){
+    public void initServices(IRegiaoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class RegiaoService {
     public void save(SetRegiao dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class RegiaoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -73,7 +73,7 @@ public class RegiaoService {
             SetRegiao entity = optional.get();
             entity = dto;
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

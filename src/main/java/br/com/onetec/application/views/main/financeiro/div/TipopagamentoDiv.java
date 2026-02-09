@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -54,6 +55,13 @@ public class TipopagamentoDiv extends Div {
     private Button btnExcluir;
 
     @Autowired
+    public TipopagamentoDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+    }
+
+    @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              TipoPagamentoService tipoEventoFinanceiroService1,
@@ -64,14 +72,6 @@ public class TipopagamentoDiv extends Div {
         this.usuarioService = usuarioService1;
         this.tipoPagamentoCadastroModal = tipoPagamentoCadastroModal1;
         this.tipoPagamentoDetalheModal = tipoPagamentoDetalheModal1;
-    }
-
-
-    @Autowired
-    public TipopagamentoDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
     }
 
     private Div telaDiv() {
@@ -143,7 +143,14 @@ public class TipopagamentoDiv extends Div {
                 .setHeader("Descrição")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetTipoPagamento::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -154,7 +161,6 @@ public class TipopagamentoDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> tipoPagamentoService.list(
@@ -204,11 +210,21 @@ public class TipopagamentoDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            tipoPagamentoCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetTipoPagamento> {
 
@@ -242,15 +258,13 @@ public class TipopagamentoDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -297,17 +311,5 @@ public class TipopagamentoDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            tipoPagamentoCadastroModal.open();
-        });
     }
 }

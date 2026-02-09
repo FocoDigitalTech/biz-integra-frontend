@@ -1,9 +1,7 @@
 package br.com.onetec.application.service.execucaoservico;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.model.SetExecucaoServico;
-import br.com.onetec.infra.db.repository.ISetEventoFinanceiroRepository;
 import br.com.onetec.infra.db.repository.ISetExecucaoServicoRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,7 @@ public class ExecucaoServicoService {
     private ISetExecucaoServicoRepository repository;
 
     @Autowired
-    public void initServices (ISetExecucaoServicoRepository repository1){
+    public void initServices(ISetExecucaoServicoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -42,7 +40,7 @@ public class ExecucaoServicoService {
     public void save(SetExecucaoServico dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -56,7 +54,7 @@ public class ExecucaoServicoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -78,7 +76,7 @@ public class ExecucaoServicoService {
             entity = dto;
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

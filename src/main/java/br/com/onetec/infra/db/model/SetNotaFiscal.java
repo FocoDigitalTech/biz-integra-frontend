@@ -22,6 +22,7 @@ public class SetNotaFiscal {
     private String serie_notafiscal;
     private String chaveacesso_notafiscal;
     private LocalDate dataemissao_notafiscal;
+    private LocalDate datavencimento_notafiscal;
     private String natureza_notafiscal;
     private String unidade_notafiscal;
     private String quantidade_notafiscal;

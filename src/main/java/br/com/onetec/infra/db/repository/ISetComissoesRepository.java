@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface ISetComissoesRepository  extends CrudRepository<SetComissoes, Integer>
+public interface ISetComissoesRepository extends CrudRepository<SetComissoes, Integer>
         , JpaSpecificationExecutor<SetComissoes> {
 
     @Query(value = "SELECT * FROM tb_comissoes where id_orcamento = ?1 and ativo = 'S'", nativeQuery = true)

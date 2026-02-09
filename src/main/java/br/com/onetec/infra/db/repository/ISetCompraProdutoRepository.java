@@ -10,6 +10,12 @@ import java.util.List;
 public interface ISetCompraProdutoRepository extends CrudRepository<SetCompraProduto, Integer>
         , JpaSpecificationExecutor<SetCompraProduto> {
 
-    @Query(value = "SELECT * FROM tb_compra where ativo = 'S'", nativeQuery = true)
+    @Query(value = "SELECT * FROM tb_compraproduto where ativo = 'S'", nativeQuery = true)
     List<SetCompraProduto> listAll();
+
+    @Query(value = "SELECT * FROM tb_compraproduto where id_compra = ?1 and ativo = 'S'", nativeQuery = true)
+    List<SetCompraProduto> findByIdCompra(Integer id_compra);
+
+    @Query(value = "SELECT * FROM tb_compraproduto where id_produto = ?1 and ativo = 'S'", nativeQuery = true)
+    List<SetCompraProduto> listAllByIdProduto(Integer id_produto);
 }

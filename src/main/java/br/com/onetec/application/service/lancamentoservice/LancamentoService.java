@@ -21,7 +21,7 @@ public class LancamentoService {
     private ISetFuxoRecebimentoPagamentoRepository repository;
 
     @Autowired
-    public void initServices (ISetFuxoRecebimentoPagamentoRepository repository1){
+    public void initServices(ISetFuxoRecebimentoPagamentoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class LancamentoService {
     public void save(SetFluxoRecebimentoPagamento dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class LancamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -67,7 +67,7 @@ public class LancamentoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

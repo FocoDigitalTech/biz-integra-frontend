@@ -4,6 +4,7 @@ import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.grupousuarioservice.GrupoUsuarioService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.seguranca.modal.GrupoUsuarioCadastroModal;
+import br.com.onetec.application.views.main.seguranca.modal.GrupoUsuarioDetalhesModal;
 import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetGrupoUsuario;
@@ -31,10 +32,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
-public class GrupoUsuariosDiv extends Div{
+public class GrupoUsuariosDiv extends Div {
 
     private Grid<SetGrupoUsuario> grid;
 
@@ -48,29 +50,33 @@ public class GrupoUsuariosDiv extends Div{
 
     private GrupoUsuarioCadastroModal grupoUsuarioCadastroModal;
 
+    private GrupoUsuarioDetalhesModal grupoUsuarioDetalhesModal;
+
     private FuncionarioService funcionarioService;
 
     private GrupoUsuarioService grupoUsuarioService;
-
-    @Autowired
-    public void initServices(UtilitySystemConfigService service1,
-                             UsuarioService usuarioService1,
-                             GrupoUsuarioCadastroModal grupoUsuarioCadastroModal1,
-                             FuncionarioService funcionarioService1,
-                             GrupoUsuarioService grupoUsuarioService1) {
-        ;
-        this.service = service1;
-        this.usuarioService = usuarioService1;
-        this.grupoUsuarioCadastroModal = grupoUsuarioCadastroModal1;
-        this.funcionarioService = funcionarioService1;
-        this.grupoUsuarioService = grupoUsuarioService1;
-    }
 
     @Autowired
     public GrupoUsuariosDiv() {
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
+    }
+
+    @Autowired
+    public void initServices(UtilitySystemConfigService service1,
+                             UsuarioService usuarioService1,
+                             GrupoUsuarioCadastroModal grupoUsuarioCadastroModal1,
+                             FuncionarioService funcionarioService1,
+                             GrupoUsuarioService grupoUsuarioService1,
+                             GrupoUsuarioDetalhesModal grupoUsuarioDetalhesModal1) {
+        ;
+        this.service = service1;
+        this.usuarioService = usuarioService1;
+        this.grupoUsuarioCadastroModal = grupoUsuarioCadastroModal1;
+        this.funcionarioService = funcionarioService1;
+        this.grupoUsuarioService = grupoUsuarioService1;
+        this.grupoUsuarioDetalhesModal = grupoUsuarioDetalhesModal1;
     }
 
     private Div telaDiv() {
@@ -98,7 +104,6 @@ public class GrupoUsuariosDiv extends Div{
     }
 
 
-
     private com.vaadin.flow.component.Component createGrid() {
 
         //departamentoService.list(null,null);
@@ -114,7 +119,14 @@ public class GrupoUsuariosDiv extends Div{
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(SetGrupoUsuario::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -125,44 +137,69 @@ public class GrupoUsuariosDiv extends Div{
                 filter).stream());
 
 
-
         final Registration[] btnExcluirClickListenerRegistration = {null};
-        grid.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            Dialog dialog = new Dialog();
-
-            dialog.setHeaderTitle(
-                    String.format("Delete user \"%s\"?", event.getItem().getDescricao_grupousuario()));
-            dialog.add("Are you sure you want to delete this user permanently?");
-
-            // tag::snippet1[]
-            Button deleteButton = new Button("Delete", (e) -> deleta(event.getItem(),dialog));
-            deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            deleteButton.getStyle().set("margin-right", "auto");
-            dialog.getFooter().add(deleteButton);
-
-            Button cancelButton = new Button("Cancel", (e) -> dialog.close());
-            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            dialog.getFooter().add(cancelButton);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                dialog.open();
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
-            });
-        });
+        grid.addItemClickListener(event ->
+                {
+                    grupoUsuarioDetalhesModal.SetGrupo(event.getItem());
+                    grupoUsuarioDetalhesModal.open();
+                }
+        );
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
         return grid;
+    }
+
+    public void refreshGrid() {
+        grid.getDataProvider().refreshAll();
+    }
+
+    private HorizontalLayout createMobileFiltersFuncionario() {
+        // Mobile version
+        HorizontalLayout mobileFilters = new HorizontalLayout();
+        mobileFilters.setWidthFull();
+        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
+                LumoUtility.AlignItems.CENTER);
+        mobileFilters.addClassName("mobile-filters");
+
+        Icon mobileIcon = new Icon("lumo", "plus");
+        Span filtersHeading = new Span("Filters");
+        mobileFilters.add(mobileIcon, filtersHeading);
+        mobileFilters.setFlexGrow(1, filtersHeading);
+        mobileFilters.addClickListener(e -> {
+            if (filter.getClassNames().contains("visible")) {
+                filter.removeClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
+            } else {
+                filter.addClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
+            }
+        });
+        return mobileFilters;
+    }
+
+    private void deleta(SetGrupoUsuario item, Dialog dialog) {
+        try {
+            grupoUsuarioService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            dialog.close();
+            refreshGrid();
+        } catch (Exception e) {
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
+    private Button createUsuarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            grupoUsuarioCadastroModal.open();
+        });
     }
 
     public class Filter extends Div implements Specification<SetGrupoUsuario> {
@@ -252,57 +289,5 @@ public class GrupoUsuariosDiv extends Div{
             return expression;
         }
 
-    }
-
-    public void refreshGrid() {
-        grid.getDataProvider().refreshAll();
-    }
-
-    private HorizontalLayout createMobileFiltersFuncionario() {
-        // Mobile version
-        HorizontalLayout mobileFilters = new HorizontalLayout();
-        mobileFilters.setWidthFull();
-        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
-                LumoUtility.AlignItems.CENTER);
-        mobileFilters.addClassName("mobile-filters");
-
-        Icon mobileIcon = new Icon("lumo", "plus");
-        Span filtersHeading = new Span("Filters");
-        mobileFilters.add(mobileIcon, filtersHeading);
-        mobileFilters.setFlexGrow(1, filtersHeading);
-        mobileFilters.addClickListener(e -> {
-            if (filter.getClassNames().contains("visible")) {
-                filter.removeClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
-            } else {
-                filter.addClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
-            }
-        });
-        return mobileFilters;
-    }
-
-    private void deleta(SetGrupoUsuario item, Dialog dialog) {
-        try {
-            grupoUsuarioService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            dialog.close();
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
-
-    private Button createUsuarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            grupoUsuarioCadastroModal.open();
-        });
     }
 }

@@ -1,6 +1,5 @@
 package br.com.onetec.application.views.main.seguranca.div;
 
-import br.com.onetec.application.model.Endereco;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.dadosempresaservice.DadosEmpresaService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
@@ -11,7 +10,8 @@ import br.com.onetec.application.views.main.seguranca.modal.GrupoUsuarioCadastro
 import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
-import br.com.onetec.infra.db.model.*;
+import br.com.onetec.infra.db.model.SetDadosEmpresa;
+import br.com.onetec.infra.db.model.SetEstado;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -19,8 +19,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -28,16 +26,14 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 @Component
 @UIScope
 public class DadosEmpresaDiv extends Div {
 
+    SetDadosEmpresa setDadosEmpresa;
     private UtilitySystemConfigService service;
     private UsuarioService usuarioService;
     private GrupoUsuarioCadastroModal grupoUsuarioCadastroModal;
@@ -45,11 +41,9 @@ public class DadosEmpresaDiv extends Div {
     private GrupoUsuarioService grupoUsuarioService;
     private DadosEmpresaService dadosEmpresaService;
     private EstadoService estadoService;
-
     //controles
     private Button btnExcluir;
     private Button btnSalvar;
-
     //formulario
     private TextField nome_dadosempresa;
     private TextField endereco_dadosempresa;
@@ -67,10 +61,16 @@ public class DadosEmpresaDiv extends Div {
     private TextField telefonequimico_dadosempresa;
     private TextField celularquimico_dadosempresa;
     private TextField emailquimico_dadosempresa;
-
     private List<SetEstado> estadoList = new ArrayList<>();
-    SetDadosEmpresa setDadosEmpresa;
     private ApiEnderecoService enderecoService;
+
+    @Autowired
+    public DadosEmpresaDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+            configuraTela();
+        });
+    }
 
     @Autowired
     public void initServices(UtilitySystemConfigService service1,
@@ -94,16 +94,6 @@ public class DadosEmpresaDiv extends Div {
         estadoList = estadoService.listAll();
 
     }
-
-    @Autowired
-    public DadosEmpresaDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-            configuraTela();
-        });
-    }
-
-
 
     private Div telaDiv() {
         /* constuir a tela funcionarios*/
@@ -142,7 +132,7 @@ public class DadosEmpresaDiv extends Div {
 
         Button buscaEnderecosCEPButton = new Button("Buscar CEP", e -> buscarCep());
         HorizontalLayout fieldEnderecosCEPCustomized =
-                new CustomizedComboBox().customizeEnderecosCEP(cep_dadosempresa,buscaEnderecosCEPButton);
+                new CustomizedComboBox().customizeEnderecosCEP(cep_dadosempresa, buscaEnderecosCEPButton);
 
 
         // Botão para salvar o endereço
@@ -162,6 +152,7 @@ public class DadosEmpresaDiv extends Div {
             setDadosEmpresa.setTelefonequimico_dadosempresa(telefonequimico_dadosempresa.getValue());
             setDadosEmpresa.setCelularquimico_dadosempresa(celularquimico_dadosempresa.getValue());
             setDadosEmpresa.setEmailquimico_dadosempresa(emailquimico_dadosempresa.getValue());
+            setDadosEmpresa.setEstado_dadosempresa(estado_dadosempresa.getValue().getUf_estado());
 
             try {
                 dadosEmpresaService.update(setDadosEmpresa);
@@ -171,7 +162,7 @@ public class DadosEmpresaDiv extends Div {
             }
 
         });
-        FormLayout formLayout =  new FormLayout( nome_dadosempresa,
+        FormLayout formLayout = new FormLayout(nome_dadosempresa,
                 endereco_dadosempresa,
                 bairro_dadosempresa,
                 fieldEnderecosCEPCustomized,
@@ -197,14 +188,14 @@ public class DadosEmpresaDiv extends Div {
         layout.setSpacing(false);
 
 
-        HorizontalLayout footerLayout = new HorizontalLayout();
+        VerticalLayout footerLayout = new VerticalLayout();
         footerLayout.setWidthFull();
-        footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 
         HorizontalLayout rightButtons = new HorizontalLayout(saveButton);
         footerLayout.add(rightButtons); // Alinha à direita
+        layout.add(footerLayout);
 
-        div.add(layout,footerLayout);
+        div.add(layout);
         div.setSizeFull();
         return div;
     }
@@ -213,12 +204,12 @@ public class DadosEmpresaDiv extends Div {
         try {
             estadoList = estadoService.listAll();
             service = new UtilitySystemConfigService();
-            EApiEnderecoResponse response = service.buscarCepTeste(cep_dadosempresa,enderecoService);
+            EApiEnderecoResponse response = service.buscarCepTeste(cep_dadosempresa, enderecoService);
             endereco_dadosempresa.setValue(response.getLogradouro());
             bairro_dadosempresa.setValue(response.getBairro());
             cidade_dadosempresa.setValue(response.getLocalidade());
             estado_dadosempresa.setValue(service.configuraUF(estadoList, response.getUf()));
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro("CEP NÃO ENCONTRADO !");
         }
     }
@@ -226,6 +217,11 @@ public class DadosEmpresaDiv extends Div {
     private void configuraTela() {
         setDadosEmpresa = dadosEmpresaService.getDados(1);
         SetDadosEmpresa item = setDadosEmpresa;
+        var listaEstado = estadoService.listAll();
+        estado_dadosempresa.setValue(listaEstado.stream()
+                .filter(objeto -> objeto.getUf_estado().equals(item.getEstado_dadosempresa()))
+                .findFirst().orElse(null));
+
         nome_dadosempresa.setValue(item.getNome_dadosempresa());
         endereco_dadosempresa.setValue(item.getEndereco_dadosempresa());
         bairro_dadosempresa.setValue(item.getBairro_dadosempresa());

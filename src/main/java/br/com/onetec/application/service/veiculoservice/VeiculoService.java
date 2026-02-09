@@ -3,6 +3,7 @@ package br.com.onetec.application.service.veiculoservice;
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetVeiculo;
 import br.com.onetec.infra.db.repository.ISetVeiculoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public class VeiculoService {
     private ISetVeiculoRepository repository;
 
     @Autowired
-    public void initServices (ISetVeiculoRepository repository1){
+    public void initServices(ISetVeiculoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,12 +39,13 @@ public class VeiculoService {
     public void save(SetVeiculo dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
-    public void delete(SetVeiculo item) throws Exception {
+    @SneakyThrows
+    public void delete(SetVeiculo item) {
         try {
             Optional<SetVeiculo> optional = repository.findById(item.getId_veiculo());
             SetVeiculo entity = optional.get();
@@ -52,7 +54,7 @@ public class VeiculoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -63,7 +65,7 @@ public class VeiculoService {
             SetVeiculo entity = optional.get();
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

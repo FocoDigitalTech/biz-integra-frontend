@@ -21,7 +21,7 @@ public class ServicoService {
     private ISetServicoRepository repository;
 
     @Autowired
-    public void initServices (ISetServicoRepository repository1){
+    public void initServices(ISetServicoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class ServicoService {
     public void save(SetServico dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class ServicoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -68,7 +68,7 @@ public class ServicoService {
             SetServico entity = optional.get();
             entity = dto;
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

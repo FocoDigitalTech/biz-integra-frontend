@@ -2,9 +2,7 @@ package br.com.onetec.application.service.ordemservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrdemServicoFuncionarioAlocado;
-import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoFuncionarioAlocadoRepository;
-import br.com.onetec.infra.db.repository.ISetOrdemServicoMateriaisRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +21,7 @@ public class OrdemServicoFuncionarioAlocadoService {
     private ISetOrdemServicoFuncionarioAlocadoRepository repository;
 
     @Autowired
-    public void initServices (ISetOrdemServicoFuncionarioAlocadoRepository repository1){
+    public void initServices(ISetOrdemServicoFuncionarioAlocadoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,7 +36,7 @@ public class OrdemServicoFuncionarioAlocadoService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServicoFuncionarioAlocado> listAllByOrdemServicoId(Integer id){
+    public List<SetOrdemServicoFuncionarioAlocado> listAllByOrdemServicoId(Integer id) {
 
         return repository.listAllByOrdemServicoId(id);
     }
@@ -46,7 +44,7 @@ public class OrdemServicoFuncionarioAlocadoService {
     public void save(SetOrdemServicoFuncionarioAlocado dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +58,7 @@ public class OrdemServicoFuncionarioAlocadoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -79,7 +77,7 @@ public class OrdemServicoFuncionarioAlocadoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

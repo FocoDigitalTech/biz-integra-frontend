@@ -55,6 +55,12 @@ import java.util.Objects;
 @UIScope
 public class DadosClienteModal extends Dialog {
 
+    Button buscaEnderecosCEPButton;
+    Button atendimentoButton;
+    Button excluirBtn;
+    @Autowired
+    @Lazy
+    ClientesView clienteView;
     //cadastro empresa
     private TextField nomeField;
     private TextField telefoneField;
@@ -62,8 +68,6 @@ public class DadosClienteModal extends Dialog {
     private DatePicker dataField;
     private TimePicker horaField;
     private TextField contatoField;
-    private ComboBox <SetTipoMidia>tipoMidia;
-    private TextField midiaAntigaField;
     private EmailField internetEmailField;
     private ComboBox<String> FJField;
     private TextField CGCCPFField;
@@ -92,8 +96,7 @@ public class DadosClienteModal extends Dialog {
     private TextArea observacaoCobrancaField;
     //Enderecos
     private TextField fieldEnderecosCEP;
-    Button buscaEnderecosCEPButton;
-    private ComboBox <SetTipoImovel> comboEnderecosTipoImovel;
+    private ComboBox<SetTipoImovel> comboEnderecosTipoImovel;
     private TextField fieldEnderecosArea;
     private TextField fieldEnderecosEndereço;
     private TextField fieldEnderecosNumero;
@@ -104,11 +107,8 @@ public class DadosClienteModal extends Dialog {
     private TextField fieldEnderecosTelefone;
     private TextField fieldEnderecosPagGuia;
     private TextField fieldEnderecosReponsavel;
-    private ComboBox <SetRegiao> comboEnderecosRegiao;
+    private ComboBox<SetRegiao> comboEnderecosRegiao;
     private TextField fieldEnderecosPontodeReferencia;
-    Button atendimentoButton;
-    Button excluirBtn;
-
     private Tabs tabs;
     private Div cadastroEmpresa;
     private Div cadastroAgendamento;
@@ -117,45 +117,120 @@ public class DadosClienteModal extends Dialog {
     private Div cadastroEnderecos;
     private Button saveButton;
     private Button cancelButton;
-
     private ClientesService clientesService;
     private EstadoService estadoService;
     private UsuarioService usuarioService;
     private EnderecoService enderecoService;
     private UtilitySystemConfigService service;
-
     private ResponsavelCobrancaService responsavelCobrancaService;
     private ResponsavelAgendamentoService responsavelAgendamentoService;
     private ResponsavelAprovacaoService responsavelAprovacaoService;
     private TipoMidiaService tipomidiaService;
-
     private TipoImovelService tipoimovelService;
     private RegiaoService regiaoService;
     private ApiEnderecoService apiEnderecoService;
     private List<SetEstado> estadoList = new ArrayList<>();
     private SetCliente cliente;
-    private List<SetTipoMidia> listamidia;
-
     private SetResponsavelCobranca setResponsavelCobranca;
     private SetResponsavelAprovacao setResponsavelAprovacao;
     private SetResponsavelAgendamento setResponsavelAgendamento;
+    private AutoExclusaoProceduralService autoExclusaoProceduralService;
+    private final List<Endereco> enderecos = new ArrayList<>();
+    private List<SetEnderecos> enderecosLista = new ArrayList<>();
+    private final Grid<SetEnderecos> grid = new Grid<>(SetEnderecos.class, false);
+    private List<Endereco> enderecosAtualizados = new ArrayList<>();
 
     @Autowired
-    @Lazy
-    ClientesView clienteView;
+    public DadosClienteModal() {
+
+        UI.getCurrent().access(() -> {
+
+            saveButton = new Button("Atualizar", eventbe -> save());
+            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
+            atendimentoButton = new Button("Atendimento e Histórico", event -> atendimentoAbrir(cliente));
+            excluirBtn = new Button("Excluir", event -> excluirCliente(cliente));
+            addDialogCloseActionListener(event -> service.askForConfirmation(this));
+
+            tabs = new Tabs();
+            Tab tab1 = new Tab("Cadastro Empresa");
+            Tab tab2 = new Tab("Agendamento");
+            Tab tab3 = new Tab("Aprovação");
+            Tab tab4 = new Tab("Cobrança");
+            Tab tab5 = new Tab("Endereços");
+
+            tabs.add(tab1, tab2, tab3, tab4, tab5);
+
+            cadastroEmpresa = createFormCadastroEmpresa();
+            cadastroAgendamento = createFormCadastroAgendamento();
+            cadastroAprovacao = createFormCadastroAprovacao();
+            cadastroEnderecos = createFormEnderecos();
+            cadastroCobranca = createFormCadastroCobranca();
+
+            Div content = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos);
+            content.setSizeFull();
+            cadastroEmpresa.setVisible(true);
+            cadastroAgendamento.setVisible(false);
+            cadastroAprovacao.setVisible(false);
+            cadastroEnderecos.setVisible(false);
+            cadastroCobranca.setVisible(false);
+
+            tabs.addSelectedChangeListener(event -> {
+                cadastroEmpresa.setVisible(false);
+                cadastroAgendamento.setVisible(false);
+                cadastroAprovacao.setVisible(false);
+                cadastroEnderecos.setVisible(false);
+                cadastroCobranca.setVisible(false);
+
+                Tab selectedTab = tabs.getSelectedTab();
+                if (selectedTab.equals(tab1)) {
+                    cadastroEmpresa.setVisible(true);
+                } else if (selectedTab.equals(tab2)) {
+                    cadastroAgendamento.setVisible(true);
+                } else if (selectedTab.equals(tab3)) {
+                    cadastroAprovacao.setVisible(true);
+                } else if (selectedTab.equals(tab4)) {
+                    cadastroCobranca.setVisible(true);
+                } else if (selectedTab.equals(tab5)) {
+                    cadastroEnderecos.setVisible(true);
+                }
+            });
+
+            Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos, cadastroCobranca);
+            contentTabs.setSizeFull();
+
+            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            atendimentoButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            excluirBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+
+            // Criando o layout do rodapé e ajustando o alinhamento dos botões
+            HorizontalLayout footerLayout = new HorizontalLayout();
+            footerLayout.setWidthFull();
+            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);// Alinha o conteúdo
+
+            // Adiciona o botão "Excluir" ao lado esquerdo e os outros ao lado direito
+            footerLayout.add(excluirBtn); // Alinha à esquerda
+            HorizontalLayout rightButtons = new HorizontalLayout(saveButton, atendimentoButton, cancelButton);
+            footerLayout.add(rightButtons); // Alinha à direita
+
+            getFooter().add(footerLayout);
+            VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
+            add(layout);
+        });
+    }
 
     public void setCliente(SetCliente cliente1) {
         this.cliente = cliente1;
 
         UI.getCurrent().access(() -> {
-            nomeCobrancaField = new TextField("Nome Cobrança");
-            nomesocialCobrancaField = new TextField("Nome Social");
-            telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
-            celularCobrancaField = new TextField("Celular Cobrança");
-            internetEmailCobrancaField = new EmailField("E-mail Cobrança");
-            observacaoCobrancaField = new TextArea("Observação Cobrança");
+//            nomeCobrancaField = new TextField("Nome Cobrança");
+//            nomesocialCobrancaField = new TextField("Nome Social");
+//            telefoneCobrancaField = new TextField("Telefone de Contato Cobrança");
+//            celularCobrancaField = new TextField("Celular Cobrança");
+//            internetEmailCobrancaField = new EmailField("E-mail Cobrança");
+//            observacaoCobrancaField = new TextArea("Observação Cobrança");
 
-            tipoMidia.setValue(null);
+
             nomeField.clear();
             telefoneField.clear();
             celularField.clear();
@@ -206,9 +281,7 @@ public class DadosClienteModal extends Dialog {
             dataField.setValue(cliente.getData_inclusao().toLocalDate());
             horaField.setValue(cliente.getHora_ligacao_cliente());
             contatoField.setValue(cliente.getNome_contato_cliente());
-            tipoMidia.setValue(listamidia.stream()
-                    .filter(midia -> midia.getId_tipomidia().equals(cliente.getId_anuncio()))
-                    .findFirst().orElse(null));
+
             //midiaAntigaField.setValue();
             internetEmailField.setValue(cliente.getEmail_cliente());
             FJField.setValue(cliente.getTipo_naturezajuridica());
@@ -294,17 +367,17 @@ public class DadosClienteModal extends Dialog {
     }
 
     @Autowired
-    public void initServices (ClientesService clientesService,
-                              EstadoService estadoService,
-                              UsuarioService usuarioService,
-                              EnderecoService enderecoService,
-                              ResponsavelCobrancaService responsavelCobrancaService,
-                              ResponsavelAgendamentoService responsavelAgendamentoService,
-                              ResponsavelAprovacaoService responsavelAprovacaoService,
-                              UtilitySystemConfigService service1, TipoMidiaService tipomidiaService1,
-                              TipoImovelService tipoimovelService1,
-                              RegiaoService regiaoService1,
-                              ApiEnderecoService enderecoService1) {
+    public void initServices(ClientesService clientesService,
+                             EstadoService estadoService,
+                             UsuarioService usuarioService,
+                             EnderecoService enderecoService,
+                             ResponsavelCobrancaService responsavelCobrancaService,
+                             ResponsavelAgendamentoService responsavelAgendamentoService,
+                             ResponsavelAprovacaoService responsavelAprovacaoService,
+                             UtilitySystemConfigService service1, TipoMidiaService tipomidiaService1,
+                             TipoImovelService tipoimovelService1,
+                             RegiaoService regiaoService1,
+                             ApiEnderecoService enderecoService1, AutoExclusaoProceduralService autoExclusaoProceduralService1) {
         this.clientesService = clientesService;
         this.estadoService = estadoService;
         this.usuarioService = usuarioService;
@@ -317,6 +390,7 @@ public class DadosClienteModal extends Dialog {
         this.tipoimovelService = tipoimovelService1;
         this.regiaoService = regiaoService1;
         this.apiEnderecoService = enderecoService1;
+        this.autoExclusaoProceduralService = autoExclusaoProceduralService1;
         UI.getCurrent().access(() -> {
             service.configureCEPField(fieldEnderecosCEP);
             service.configureCelularField(celularField);
@@ -339,11 +413,8 @@ public class DadosClienteModal extends Dialog {
                 }
             });
 
-            buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
-            listamidia = tipomidiaService.findAllMidia();
+            buscaEnderecosCEPButton = new Button("Buscar CEP", e -> buscarCep());
             estadoList = estadoService.listAll();
-            tipoMidia.setItems(tipomidiaService.findAllMidia());
-            tipoMidia.setItemLabelGenerator(SetTipoMidia::getDescricao_tipomidia);
             comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
             comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
             comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
@@ -356,137 +427,51 @@ public class DadosClienteModal extends Dialog {
     private void buscarCep() {
         try {
             service = new UtilitySystemConfigService();
-            EApiEnderecoResponse response = service.buscarCepTeste(fieldEnderecosCEP,apiEnderecoService);
+            EApiEnderecoResponse response = service.buscarCepTeste(fieldEnderecosCEP, apiEnderecoService);
             fieldEnderecosEndereço.setValue(response.getLogradouro());
             //complemento_funcionario.setValue(response.get);
             fieldEnderecosBairro.setValue(response.getBairro());
             fieldEnderecosCidade.setValue(response.getLocalidade());
             comboEnderecosUF.setValue(service.configuraUF(estadoList, response.getUf()));
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro("CEP NÃO ENCONTRADO !");
         }
     }
 
-    @Autowired
-    public DadosClienteModal() {
-
-        UI.getCurrent().access(() -> {
-            addClassName("cadastro-modal");
-
-            saveButton = new Button("Atualizar", eventbe -> save());
-            cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
-            atendimentoButton = new Button("Atendimento e Histórico", event -> atendimentoAbrir(cliente));
-            excluirBtn = new Button("Excluir", event -> excluirCliente(cliente));
-            addDialogCloseActionListener(event -> service.askForConfirmation(this));
-
-            tabs = new Tabs();
-            Tab tab1 = new Tab("Cadastro Empresa");
-            Tab tab2 = new Tab("Agendamento");
-            Tab tab3 = new Tab("Aprovação");
-            Tab tab4 = new Tab("Cobrança");
-            Tab tab5 = new Tab("Endereços");
-
-            tabs.add(tab1, tab2, tab3, tab4, tab5);
-
-            cadastroEmpresa = createFormCadastroEmpresa();
-            cadastroAgendamento = createFormCadastroAgendamento();
-            cadastroAprovacao = createFormCadastroAprovacao();
-            cadastroEnderecos = createFormEnderecos();
-            cadastroCobranca = createFormCadastroCobranca();
-
-            Div content = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos);
-            content.setSizeFull();
-            cadastroEmpresa.setVisible(true);
-            cadastroAgendamento.setVisible(false);
-            cadastroAprovacao.setVisible(false);
-            cadastroEnderecos.setVisible(false);
-            cadastroCobranca.setVisible(false);
-
-            tabs.addSelectedChangeListener(event -> {
-                cadastroEmpresa.setVisible(false);
-                cadastroAgendamento.setVisible(false);
-                cadastroAprovacao.setVisible(false);
-                cadastroEnderecos.setVisible(false);
-                cadastroCobranca.setVisible(false);
-
-                Tab selectedTab = tabs.getSelectedTab();
-                if (selectedTab.equals(tab1)) {
-                    cadastroEmpresa.setVisible(true);
-                } else if (selectedTab.equals(tab2)) {
-                    cadastroAgendamento.setVisible(true);
-                } else if (selectedTab.equals(tab3)) {
-                    cadastroAprovacao.setVisible(true);
-                } else if (selectedTab.equals(tab4)) {
-                    cadastroCobranca.setVisible(true);
-                } else if (selectedTab.equals(tab5)) {
-                    cadastroEnderecos.setVisible(true);
-                }
-            });
-
-            Div contentTabs = new Div(cadastroEmpresa, cadastroAgendamento, cadastroAprovacao, cadastroEnderecos, cadastroCobranca);
-            contentTabs.setSizeFull();
-
-            saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            atendimentoButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-            excluirBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-
-            // Criando o layout do rodapé e ajustando o alinhamento dos botões
-            HorizontalLayout footerLayout = new HorizontalLayout();
-            footerLayout.setWidthFull();
-            footerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);// Alinha o conteúdo
-
-            // Adiciona o botão "Excluir" ao lado esquerdo e os outros ao lado direito
-            footerLayout.add(excluirBtn); // Alinha à esquerda
-            HorizontalLayout rightButtons = new HorizontalLayout(saveButton, atendimentoButton, cancelButton);
-            footerLayout.add(rightButtons); // Alinha à direita
-
-            getFooter().add(footerLayout);
-            VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
-            add(layout);
-        });
-    }
-
     private void excluirCliente(SetCliente cliente) {
         try {
-            clientesService.logicalDelete(cliente,UsuarioAutenticadoConfig.getUser());
+            clientesService.logicalDelete(cliente, UsuarioAutenticadoConfig.getUser());
             service.notificaSucesso("Excluido com sucesso");
             clienteView.refreshGrid();
+            autoExclusaoProceduralService.executeProcessClienteExclude(cliente.getId_cliente());
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro("Erro ao excluir.");
         }
     }
-
-    private List<Endereco> enderecos = new ArrayList<>();
-    private List<SetEnderecos> enderecosLista = new ArrayList<>();
-    private Grid<SetEnderecos> grid = new Grid<>(SetEnderecos.class, false);
-
-
-    private List<Endereco> enderecosAtualizados = new ArrayList<>();
 
     private Div createFormEnderecos() {
         Div div = new Div();
 
         fieldEnderecosCEP = new TextField("CEP");
-        comboEnderecosTipoImovel  = new ComboBox("Tipo de Imóvel");
+        comboEnderecosTipoImovel = new ComboBox("Tipo de Imóvel");
         fieldEnderecosArea = new TextField("Area");
         fieldEnderecosEndereço = new TextField("Endereço");
         fieldEnderecosNumero = new TextField("Número");
         fieldEnderecosComplemento = new TextField("Complemento");
         fieldEnderecosBairro = new TextField("Bairro");
         fieldEnderecosCidade = new TextField("Cidade");
-        comboEnderecosUF  = new ComboBox("UF");
+        comboEnderecosUF = new ComboBox("UF");
         //comboEnderecosUF.setItems(getUFList());
         fieldEnderecosTelefone = new TextField("Telefone do Local");
         fieldEnderecosPagGuia = new TextField("Pag. Guia");
         fieldEnderecosReponsavel = new TextField("Responsável");
-        comboEnderecosRegiao  = new ComboBox("Região");
+        comboEnderecosRegiao = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
-        buscaEnderecosCEPButton = new Button("Buscar CEP",e -> buscarCep());
+        buscaEnderecosCEPButton = new Button("Buscar CEP", e -> buscarCep());
         HorizontalLayout fieldEnderecosCEPCustomized =
-                new CustomizedComboBox().customizeEnderecosCEP(fieldEnderecosCEP,buscaEnderecosCEPButton);
+                new CustomizedComboBox().customizeEnderecosCEP(fieldEnderecosCEP, buscaEnderecosCEPButton);
 
         comboEnderecosRegiao.setRequiredIndicatorVisible(true);
 
@@ -586,14 +571,11 @@ public class DadosClienteModal extends Dialog {
             String PontodeReferencia = fieldEnderecosPontodeReferencia.getValue();
 
 
-
-
-
             if (!fieldEnderecosCEP.isEmpty()) {
                 Endereco endereco =
-                        new Endereco(CEP,TipoImovel,Area,Endereço,Numero,Complemento,Bairro,Cidade,UF,Telefone,PagGuia,Reponsavel,Regiao,PontodeReferencia);
+                        new Endereco(CEP, TipoImovel, Area, Endereço, Numero, Complemento, Bairro, Cidade, UF, Telefone, PagGuia, Reponsavel, Regiao, PontodeReferencia);
                 enderecos.add(endereco);
-               // grid.setItems(enderecos);
+                // grid.setItems(enderecos);
                 SetEnderecos et = new SetEnderecos();
                 et.setAtivo("S");
                 et.setId_regiao(endereco.getComboEnderecosRegiao().getId_regiao());
@@ -642,12 +624,11 @@ public class DadosClienteModal extends Dialog {
         });
 
 
-
-        FormLayout formLayout =  new FormLayout(fieldEnderecosCEPCustomized,
-                comboEnderecosTipoImovel,fieldEnderecosArea,fieldEnderecosEndereço,
-                fieldEnderecosNumero,fieldEnderecosComplemento,fieldEnderecosBairro,
-                fieldEnderecosCidade,comboEnderecosUF,fieldEnderecosTelefone,
-                fieldEnderecosPagGuia,fieldEnderecosReponsavel,comboEnderecosRegiao,
+        FormLayout formLayout = new FormLayout(fieldEnderecosCEPCustomized,
+                comboEnderecosTipoImovel, fieldEnderecosArea, fieldEnderecosEndereço,
+                fieldEnderecosNumero, fieldEnderecosComplemento, fieldEnderecosBairro,
+                fieldEnderecosCidade, comboEnderecosUF, fieldEnderecosTelefone,
+                fieldEnderecosPagGuia, fieldEnderecosReponsavel, comboEnderecosRegiao,
                 fieldEnderecosPontodeReferencia
                 , saveButton);
         formLayout.setWidthFull();
@@ -678,18 +659,18 @@ public class DadosClienteModal extends Dialog {
 
         //formulario
         TextField enderecosCEP = new TextField("CEP");
-        ComboBox<SetTipoImovel> enderecosTipoImovel  = new ComboBox("Tipo de Imóvel");
+        ComboBox<SetTipoImovel> enderecosTipoImovel = new ComboBox("Tipo de Imóvel");
         TextField enderecosArea = new TextField("Area");
         TextField enderecosEndereço = new TextField("Endereço");
         TextField enderecosNumero = new TextField("Número");
         TextField enderecosComplemento = new TextField("Complemento");
         TextField enderecosBairro = new TextField("Bairro");
         TextField enderecosCidade = new TextField("Cidade");
-        ComboBox<SetEstado> enderecosUF  = new ComboBox("UF");
+        ComboBox<SetEstado> enderecosUF = new ComboBox("UF");
         TextField enderecosTelefone = new TextField("Telefone do Local");
         TextField enderecosPagGuia = new TextField("Pag. Guia");
         TextField enderecosReponsavel = new TextField("Responsável");
-        ComboBox<SetRegiao> enderecosRegiao  = new ComboBox ("Região");
+        ComboBox<SetRegiao> enderecosRegiao = new ComboBox("Região");
         TextField enderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
         //config form
@@ -766,7 +747,7 @@ public class DadosClienteModal extends Dialog {
             item.setTelefone_local(enderecosTelefone.getValue());
             item.setPagina_guia(enderecosPagGuia.getValue());
             item.setNome_responsavel(enderecosReponsavel.getValue());
-            if (Objects.nonNull(enderecosRegiao.getValue().getId_regiao())){
+            if (Objects.nonNull(enderecosRegiao.getValue().getId_regiao())) {
                 item.setId_regiao(enderecosRegiao.getValue().getId_regiao());
             }
 
@@ -818,19 +799,19 @@ public class DadosClienteModal extends Dialog {
         endereco.addDialogCloseActionListener(event -> service.askForConfirmation(endereco));
 
         formEndereco.add(enderecosCEP
-                ,enderecosTipoImovel
-                ,enderecosArea
-                ,enderecosEndereço
-                ,enderecosNumero
-                ,enderecosComplemento
-                ,enderecosBairro
-                ,enderecosCidade
-                ,enderecosUF
-                ,enderecosTelefone
-                ,enderecosPagGuia
-                ,enderecosReponsavel
-                ,enderecosRegiao
-                ,enderecosPontodeReferencia);
+                , enderecosTipoImovel
+                , enderecosArea
+                , enderecosEndereço
+                , enderecosNumero
+                , enderecosComplemento
+                , enderecosBairro
+                , enderecosCidade
+                , enderecosUF
+                , enderecosTelefone
+                , enderecosPagGuia
+                , enderecosReponsavel
+                , enderecosRegiao
+                , enderecosPontodeReferencia);
         endereco.add(formEndereco);
         endereco.getFooter().add(saveBtn, cancelBtn, deleteBtn);
 
@@ -840,12 +821,12 @@ public class DadosClienteModal extends Dialog {
 
     private Div createFormCadastroEmpresa() {
         dataField = new DatePicker("Data Cadastro");
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(dataField);
         dataField.setValue(LocalDate.now());
         nomeField = new TextField("Nome");
         contatoField = new TextField("Contato");
-        tipoMidia = new ComboBox<SetTipoMidia>("Tipo de Midia");
         horaField = new TimePicker("Hora Ligação");
-        midiaAntigaField = new TextField("Midia Antiga");
 
 
         telefoneField = new TextField("Telefone de Contato");
@@ -887,10 +868,8 @@ public class DadosClienteModal extends Dialog {
         service.configureTelefoneResidencialField(telefoneField);
 
 
-
-
         FJField = new ComboBox<>("Natureza Juridica");
-        FJField.setItems(List.of("Pessoa Fisica","Pessoa Juridica"));
+        FJField.setItems(List.of("Pessoa Fisica", "Pessoa Juridica"));
         FJField.addValueChangeListener(event -> {
             if ("Pessoa Fisica".equals(event.getValue())) {
                 CGCCPFField.clear();
@@ -909,12 +888,9 @@ public class DadosClienteModal extends Dialog {
         observacaoField = new TextArea("Observação");
 
 
-
-
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(dataField,nomeField,contatoField,tipoMidia,horaField, midiaAntigaField,telefoneField,celularField,internetEmailField,FJField,CGCCPFField,inscEstatualField,observacaoField);
+        formLayout.add(dataField, nomeField, contatoField, horaField, telefoneField, celularField, internetEmailField, FJField, CGCCPFField, inscEstatualField, observacaoField);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -968,7 +944,7 @@ public class DadosClienteModal extends Dialog {
         service.configureTelefoneResidencialField(telefoneAgendamentoField);
 
         formLayout.setWidthFull();
-        formLayout.add(nomeAgendamentoField, nomesocialAgendamentoField,telefoneAgendamentoField,celularAgendamentoField,internetEmailAgendamentoField,observacaoAgendamentoField);
+        formLayout.add(nomeAgendamentoField, nomesocialAgendamentoField, telefoneAgendamentoField, celularAgendamentoField, internetEmailAgendamentoField, observacaoAgendamentoField);
 
 
         div.setSizeFull();
@@ -1058,7 +1034,7 @@ public class DadosClienteModal extends Dialog {
         service.configureTelefoneResidencialField(telefoneAprovacaoField);
 
         formLayout.setWidthFull();
-        formLayout.add(nomeAprovacaoField, nomesocialAprovacaoField,telefoneAprovacaoField,celularAprovacaoField,internetEmailAprovacaoField,observacaoAprovacaoField);
+        formLayout.add(nomeAprovacaoField, nomesocialAprovacaoField, telefoneAprovacaoField, celularAprovacaoField, internetEmailAprovacaoField, observacaoAprovacaoField);
 
         section.add(titleLayout, formLayout);
 
@@ -1123,12 +1099,13 @@ public class DadosClienteModal extends Dialog {
         service.configureTelefoneResidencialField(telefoneCobrancaField);
 
         formLayout.setWidthFull();
-        formLayout.add(nomeCobrancaField, nomesocialCobrancaField,telefoneCobrancaField,celularCobrancaField,internetEmailCobrancaField,observacaoCobrancaField);
+        formLayout.add(nomeCobrancaField, nomesocialCobrancaField, telefoneCobrancaField, celularCobrancaField, internetEmailCobrancaField, observacaoCobrancaField);
 
         section.add(titleLayout, formLayout);
 
         return section;
     }
+
     private List<String> getItemsAdministradora() {
         List<String> lista = new ArrayList<>();
         lista.add("N/D");
@@ -1172,7 +1149,7 @@ public class DadosClienteModal extends Dialog {
         cobranca.setObservacao(observacaoCobrancaField.getValue());
         cobranca.setValor_cobranca(BigDecimal.TEN);
         cobranca.setId_cliente(id_cliente);
-        cobranca.setData_inclusao(LocalDateTime.now());
+        cobranca.setData_alteracao(LocalDateTime.now());
         cobranca.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
         cobranca.setAtivo("S");
         return cobranca;
@@ -1218,8 +1195,6 @@ public class DadosClienteModal extends Dialog {
         cliente.setDataField(dataField.getValue());
         cliente.setHoraField(horaField.getValue());
         cliente.setContatoField(contatoField.getValue());
-        cliente.setTipoMidia(tipoMidia.getValue().getId_tipomidia());
-        cliente.setNomeIndicacaoField(midiaAntigaField.getValue());
         cliente.setInternetEmailField(internetEmailField.getValue());
         cliente.setFJField(FJField.getValue());
         cliente.setCGCCPFField(service.removeMascara(CGCCPFField.getValue()));

@@ -14,4 +14,5 @@ public interface ISetPermissaoRepository extends CrudRepository<SetPermissao, In
 
     @Query(value = "SELECT * FROM tb_permissao where id_grupousuario = ?1 ", nativeQuery = true)
     List<SetPermissao> listAllById(Integer id_grupousuario);
+
 }

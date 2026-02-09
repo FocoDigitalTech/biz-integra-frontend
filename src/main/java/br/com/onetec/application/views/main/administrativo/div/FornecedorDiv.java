@@ -39,22 +39,23 @@ import java.util.List;
 public class FornecedorDiv extends Div {
 
     List<SetDepartamento> departamentoLista = new ArrayList<>();
+    Button btnExcluir;
     private Grid<SetFornecedor> gridFornecedor;
-
     private FiltersFornecedor filtersFornecedor;
-
     private FornecedorService fornecedorService;
-
     private UtilitySystemConfigService service;
-
     private DepartamentoService departamentoService;
-
     private FornecedorCadastroModal fornecedorCadastroModal;
-
     private FornecedorDetalhesModal fornecedorDetalhesModal;
 
-    Button btnExcluir;
 
+    @Autowired
+    public FornecedorDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
 
     @Autowired
     public void initServices(FornecedorCadastroModal fornecedorCadastroModal1,
@@ -69,15 +70,6 @@ public class FornecedorDiv extends Div {
         this.service = service1;
     }
 
-
-    @Autowired
-    public FornecedorDiv( ) {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
-    }
-
     public void refreshGrid() {
         gridFornecedor.getDataProvider().refreshAll();
     }
@@ -89,7 +81,7 @@ public class FornecedorDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -190,9 +182,6 @@ public class FornecedorDiv extends Div {
 //                .setAutoWidth(true);
 
 
-
-
-
         // Adiciona o listener de clique nos itens da grade
         final Registration[] btnExcluirClickListenerRegistration = {null};
         gridFornecedor.addItemClickListener(event -> {
@@ -226,13 +215,21 @@ public class FornecedorDiv extends Div {
 
         return gridFornecedor;
     }
+
     private void openDetalhesFornecedorModal(SetFornecedor item) {
         btnExcluir = new Button();
         btnExcluir.setVisible(true);
         btnExcluir.addThemeVariants(ButtonVariant.LUMO_ERROR);
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
+        return cadastroButton;
+    }
 
+    private void openCadastroFuncionarioModal() {
+        fornecedorCadastroModal.open();
+    }
 
     public class FiltersFornecedor extends Div implements Specification<SetFornecedor> {
 
@@ -255,7 +252,6 @@ public class FornecedorDiv extends Div {
             departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
 
 
-
             // Action buttons
             com.vaadin.flow.component.button.Button resetBtn = new com.vaadin.flow.component.button.Button("Limpar");
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -275,14 +271,12 @@ public class FornecedorDiv extends Div {
                     ButtonVariant.LUMO_ERROR);
 
 
-
-            Div actions = new Div(btnExcluir,resetBtn, searchBtn,createBtn);
+            Div actions = new Div(btnExcluir, resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
             add(id, nome, departamento, actions);
         }
-
 
 
         @Override
@@ -340,15 +334,5 @@ public class FornecedorDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroFuncionarioModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroFuncionarioModal() {
-        fornecedorCadastroModal.open();
     }
 }

@@ -2,10 +2,13 @@ package br.com.onetec.cross.utilities;
 
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.utilservices.ApiEnderecoService;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.domain.usecase.apienderecousecase.IApiEnderecoUseCase;
 import br.com.onetec.infra.db.model.SetEstado;
 import br.com.onetec.infra.db.model.SetUsuarios;
+import com.vaadin.flow.component.HasValidation;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -23,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -32,10 +36,35 @@ import java.util.Locale;
 @Service
 public class UtilitySystemConfigService {
 
-    private EstadoService estadoService ;
-
+    private static final Locale LOCALE_BR = new Locale("pt", "BR");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(LOCALE_BR));
+    private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#,##0.00'%'");
+    IApiEnderecoUseCase useCase;
+    private EstadoService estadoService;
     private ApiEnderecoService cepApiService;
 
+    public static Object getDataFormatada(LocalDateTime data_inclusao) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        var data = data_inclusao.format(formatter);
+        return data;
+    }
+
+    public static Object getDataFormatadaLocalDate(LocalDate data_inclusao) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        var data = data_inclusao.format(formatter);
+        return data;
+    }
+
+    public <T extends HasValue<?, ?> & HasValidation> void setRequiredField(T field) {
+        field.setErrorMessage(ModalMessageConst.FIELD_REQUIRED);
+        field.setInvalid(true); // Exibe a mensagem de erro inicialmente
+
+        // Listener para remover a mensagem de erro quando o campo for preenchido
+        field.addValueChangeListener(event -> {
+            boolean isEmpty = event.getValue() == null || event.getValue().toString().trim().isEmpty();
+            field.setInvalid(isEmpty);
+        });
+    }
 
     @Autowired
     public void initServices(EstadoService serviceEstado, ApiEnderecoService cepApiService) {
@@ -61,7 +90,7 @@ public class UtilitySystemConfigService {
         return valor.replaceAll("[^\\d]", "");
     }
 
-    public DatePicker configuraCalendario (DatePicker date){
+    public DatePicker configuraCalendario(DatePicker date) {
         DatePicker.DatePickerI18n datePickerI18n = new DatePicker.DatePickerI18n()
                 .setMonthNames(Arrays.asList("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
                 .setWeekdays(Arrays.asList("Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"))
@@ -74,16 +103,12 @@ public class UtilitySystemConfigService {
         return date;
     }
 
-
-
-    IApiEnderecoUseCase useCase;
-
     public EApiEnderecoResponse buscarCep(TextField cepField) {
         String cep = cepField.getValue().replaceAll("\\D", "");// Exemplo: limpa caracteres não numéricos
         if (cep.length() == 8) { // Verifica se o CEP tem 8 dígitos
             EApiEnderecoResponse response = cepApiService.get(cep);
             if (response != null) {
-                    return response;
+                return response;
             } else {
                 // Handle case where address is not found
                 notificaErro("Endereço não encontrado !");
@@ -95,16 +120,16 @@ public class UtilitySystemConfigService {
             return null;
         }
     }
-   public void notificaSucesso (String MESSAGE){
-       Notification notification = Notification.show(MESSAGE);
-       notification.addClassName("success-notification");
-   }
 
-    public void notificaErro (String MESSAGE){
+    public void notificaSucesso(String MESSAGE) {
+        Notification notification = Notification.show(MESSAGE);
+        notification.addClassName("success-notification");
+    }
+
+    public void notificaErro(String MESSAGE) {
         Notification notification = Notification.show(MESSAGE);
         notification.addClassName("error-notification");
     }
-
 
     public TextField configureCNPJTextField(TextField textField) {
         textField.setMaxLength(18); // Limita ao formato "00.000.000/0000-00"
@@ -223,10 +248,6 @@ public class UtilitySystemConfigService {
         return cepField;
     }
 
-    private static final Locale LOCALE_BR = new Locale("pt", "BR");
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(LOCALE_BR));
-
-
     public TextField formataMoedaBrasileira(TextField valor_item) {
         String value = valor_item.getValue().replaceAll("[^\\d]", ""); // Remove caracteres não numéricos
 
@@ -270,7 +291,6 @@ public class UtilitySystemConfigService {
         }
     }
 
-
     public NumberField formataMoedaBrasileiraNumberField(NumberField valorItem) {
         // Obtém o valor como um número
         Double valorNumerico = valorItem.getValue();
@@ -291,7 +311,7 @@ public class UtilitySystemConfigService {
     public void askForConfirmation(Dialog modal) {
 
         Dialog confirmationDialog = new Dialog();
-        confirmationDialog.add("Você realmente deseja sair sem salvar as alterações?");
+        confirmationDialog.add("Você realmente deseja sair dessa tela ?");
 
         Button confirmButton = new Button("Sim", event -> {
             confirmationDialog.close();
@@ -317,8 +337,6 @@ public class UtilitySystemConfigService {
         internetEmailField.setClearButtonVisible(true);
     }
 
-    private static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#,##0.00'%'");
-
     public TextField formataPorcentagem(TextField valor_item) {
         // Remove caracteres não numéricos, exceto o ponto decimal
         String value = valor_item.getValue().replaceAll("[^\\d.]", "");
@@ -342,12 +360,6 @@ public class UtilitySystemConfigService {
         return valorPorcentagem;
     }
 
-    public static Object getDataFormatada(LocalDateTime data_inclusao) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        var data = data_inclusao.format(formatter);
-        return data;
-    }
-
     public EApiEnderecoResponse buscarCepTeste(TextField fieldEnderecosCEP, ApiEnderecoService apiEnderecoService) {
         String cep = fieldEnderecosCEP.getValue().replaceAll("\\D", "");// Exemplo: limpa caracteres não numéricos
         if (cep.length() == 8) { // Verifica se o CEP tem 8 dígitos
@@ -365,4 +377,25 @@ public class UtilitySystemConfigService {
             return null;
         }
     }
+
+    public BigDecimal removeFormatoMoeda(String value) {
+        if (value == null || value.isBlank()) {
+            return BigDecimal.ZERO;
+        }
+
+        try {
+            // Remove "R$", espaços e pontos, e troca vírgula por ponto
+            String numeric = value
+                    .replace("R$", "")
+                    .replace(" ", "")
+                    .replace(".", "")
+                    .replace(",", ".");
+
+            return new BigDecimal(numeric);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return BigDecimal.ZERO;
+        }
+    }
+
 }

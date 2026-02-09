@@ -2,9 +2,7 @@ package br.com.onetec.application.service.ordemservicoexecucaoservicoservice;
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrdemServicoExecucaoServico;
-import br.com.onetec.infra.db.model.SetOrdemServicoFuncionarioAlocado;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoExecucaoServicoRepository;
-import br.com.onetec.infra.db.repository.ISetOrdemServicoFuncionarioAlocadoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +21,7 @@ public class OrdemServicoExecucaoServicoService {
     private ISetOrdemServicoExecucaoServicoRepository repository;
 
     @Autowired
-    public void initServices (ISetOrdemServicoExecucaoServicoRepository repository1){
+    public void initServices(ISetOrdemServicoExecucaoServicoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -38,28 +36,28 @@ public class OrdemServicoExecucaoServicoService {
         return repository.findAll(filtroComCondicao, pageable);
     }
 
-    public List<SetOrdemServicoExecucaoServico> listAllByOrdemServicoId(Integer id){
+    public List<SetOrdemServicoExecucaoServico> listAllByOrdemServicoId(Integer id) {
         return repository.listAllByOrdemServicoId(id);
     }
 
     public void save(SetOrdemServicoExecucaoServico dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
     public void delete(SetOrdemServicoExecucaoServico item) throws Exception {
         try {
-            Optional<SetOrdemServicoExecucaoServico> optional = repository.findById(item.getId_ordemservico());
+            Optional<SetOrdemServicoExecucaoServico> optional = repository.findById(item.getId_ordemservicoexecucaoservico());
             SetOrdemServicoExecucaoServico entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -78,7 +76,7 @@ public class OrdemServicoExecucaoServicoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Atualizado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

@@ -2,9 +2,7 @@ package br.com.onetec.application.service.orcamentoposvendaservice;
 
 
 import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
-import br.com.onetec.infra.db.model.SetOrcamentoContato;
 import br.com.onetec.infra.db.model.SetOrcamentoPosVenda;
-import br.com.onetec.infra.db.repository.ISetOrcamentoContatoRepository;
 import br.com.onetec.infra.db.repository.ISetOrcamentoPosVendaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,7 @@ public class OrcamentoPosVendasService {
     private ISetOrcamentoPosVendaRepository repository;
 
     @Autowired
-    public void initServices (ISetOrcamentoPosVendaRepository repository1){
+    public void initServices(ISetOrcamentoPosVendaRepository repository1) {
         this.repository = repository1;
     }
 
@@ -46,7 +44,7 @@ public class OrcamentoPosVendasService {
             dto.setAtivo("S");
             dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -60,7 +58,7 @@ public class OrcamentoPosVendasService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -72,7 +70,7 @@ public class OrcamentoPosVendasService {
             entity = item;
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

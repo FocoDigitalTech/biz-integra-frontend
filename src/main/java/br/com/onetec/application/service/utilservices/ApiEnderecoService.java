@@ -15,7 +15,7 @@ public class ApiEnderecoService {
         this.useCase = useCase;
     }
 
-    public EApiEnderecoResponse get (String cep) {
+    public EApiEnderecoResponse get(String cep) {
         return useCase.get(cep);
     }
 }

@@ -3,6 +3,8 @@ package br.com.onetec.application.model;
 public class Departamento {
 
     Integer codigo;
+    String descricao;
+    Integer responsavel;
 
     public Integer getCodigo() {
         return codigo;
@@ -20,10 +22,6 @@ public class Departamento {
         this.descricao = descricao;
     }
 
-
-
-    String descricao;
-
     public Integer getResponsavel() {
         return responsavel;
     }
@@ -31,6 +29,4 @@ public class Departamento {
     public void setResponsavel(Integer responsavel) {
         this.responsavel = responsavel;
     }
-
-    Integer responsavel;
 }

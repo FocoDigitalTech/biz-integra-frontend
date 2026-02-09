@@ -12,8 +12,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -22,7 +20,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 public class ComissoesModal {
 
@@ -79,8 +76,8 @@ public class ComissoesModal {
 
         //config form
         id_funcionario.setValue(funcionarioService.listAll().stream()
-                        .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
-                        .findFirst().orElse(null));
+                .filter(objeto -> objeto.getId_funcionario().equals(item.getId_funcionario()))
+                .findFirst().orElse(null));
         parcelas_comissoes.setValue(item.getParcelas_comissoes());
         porcentagem_comissoes.setValue(String.valueOf(item.getPorcentagem_comissoes()));
         data_comissao.setValue(item.getData_comissao());

@@ -24,7 +24,7 @@ public class FuncionarioService {
         this.repository = repository;
     }
 
-    public List<SetFuncionario> listAll (){
+    public List<SetFuncionario> listAll() {
         return repository.findAll();
     }
 
@@ -60,7 +60,7 @@ public class FuncionarioService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -75,7 +75,7 @@ public class FuncionarioService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

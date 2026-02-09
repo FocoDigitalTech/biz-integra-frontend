@@ -4,6 +4,8 @@ import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.departamentoservice.DepartamentoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
+import br.com.onetec.application.views.main.administrativo.div.FuncionarioDiv;
+import br.com.onetec.cross.constants.ModalMessageConst;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.domain.entity.EApiEnderecoResponse;
 import br.com.onetec.infra.db.model.SetDepartamento;
@@ -22,6 +24,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -33,11 +36,14 @@ import java.util.List;
 public class FuncionarioCadastroModal extends Dialog {
 
 
+    private static List<SetEstado> estadoList;
     private final FuncionarioService funcionarioService;
     private final DepartamentoService departamentoService;
-
-    private  Button saveButton;
-    private  Button cancelButton;
+    @Autowired
+    @Lazy
+    FuncionarioDiv funcionarioDiv;
+    private Button saveButton;
+    private Button cancelButton;
     private ComboBox<SetDepartamento> id_departamento;
     private TextField nome_funcionario;
     private TextField nome_carteira;
@@ -59,28 +65,8 @@ public class FuncionarioCadastroModal extends Dialog {
     private TextField numero_imovel;
     private DatePicker vencimento_cnh;
     private DatePicker data_admissao;
-
-
-    private EstadoService estadoService ;
-
+    private EstadoService estadoService;
     private UtilitySystemConfigService service;
-
-    private static List<SetEstado> estadoList;
-
-    @Autowired
-    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
-        this.estadoService = serviceEstado;
-        this.service = service;
-        //configurações dos fields:
-        UI.getCurrent().access(() -> {
-            service.configureCEPField(cep_funcionario);
-            service.configureCelularField(celular_funcionario);
-            service.configureCPFField(cpf_funcionario);
-            service.configuraCalendario(data_admissao);
-            service.configuraCalendario(vencimento_cnh);
-        });
-    }
-
 
     @Autowired
     public FuncionarioCadastroModal(FuncionarioService funcionarioService, DepartamentoService departamentoService,
@@ -93,8 +79,6 @@ public class FuncionarioCadastroModal extends Dialog {
             id_estado.setItems(getUFList());
             id_estado.setItemLabelGenerator(SetEstado::getUf_estado);
 
-
-            addClassName("cadastro-modal");
             saveButton = new Button("Salvar", eventbe -> save());
             service = new UtilitySystemConfigService();
             cancelButton = new Button("Cancelar", event -> service.askForConfirmation(this));
@@ -110,6 +94,20 @@ public class FuncionarioCadastroModal extends Dialog {
 
             VerticalLayout layout = new VerticalLayout(contentTabs);
             add(layout);
+        });
+    }
+
+    @Autowired
+    public void initServices(EstadoService serviceEstado, UtilitySystemConfigService service) {
+        this.estadoService = serviceEstado;
+        this.service = service;
+        //configurações dos fields:
+        UI.getCurrent().access(() -> {
+            service.configureCEPField(cep_funcionario);
+            service.configureCelularField(celular_funcionario);
+            service.configureCPFField(cpf_funcionario);
+            service.configuraCalendario(data_admissao);
+            service.configuraCalendario(vencimento_cnh);
         });
     }
 
@@ -147,13 +145,13 @@ public class FuncionarioCadastroModal extends Dialog {
             funcionario.setData_admissao(data_admissao.getValue());
             funcionario.setNumeroimovel_funcionario(numero_imovel.getValue());
             funcionario.setData_inclusao(LocalDateTime.now());
-            funcionario.setId_funcionario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             funcionario.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             funcionario.setAtivo("S");
             funcionarioService.save(funcionario);
-            Notification.show("Salvo com sucesso");
+            service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
+            funcionarioDiv.refreshGridFuncionario();
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             Notification.show("Erro ao Salvar");
         }
 
@@ -166,9 +164,13 @@ public class FuncionarioCadastroModal extends Dialog {
     }
 
     private Div createFormCadastroFuncionario() {
-        id_departamento = new ComboBox<SetDepartamento>("Departamento");
+        id_departamento = new ComboBox<>("Departamento");
         id_departamento.setItems(departamentoService.findAllDepartamento());
         id_departamento.setItemLabelGenerator(SetDepartamento::getDescricao_departamento);
+        // Adiciona um listener para atualizar os itens antes da lista abrir
+        id_departamento.addFocusListener(event -> {
+            id_departamento.setItems(departamentoService.findAllDepartamento());
+        });
 
         nome_funcionario = new TextField("Nome");
         nome_carteira = new TextField("Carteira");
@@ -185,6 +187,10 @@ public class FuncionarioCadastroModal extends Dialog {
         vencimento_cnh = new DatePicker("Vencimento");
         data_admissao = new DatePicker("Data Admissão");
 
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(vencimento_cnh);
+        service.configuraCalendario(data_admissao);
+
 
         endereco_funcionario = new TextField("Endereço");
         complemento_funcionario = new TextField("Complemento");
@@ -197,17 +203,14 @@ public class FuncionarioCadastroModal extends Dialog {
         numero_imovel = new TextField("N° Residencia");
 
 
-
-
-
-
         FormLayout formLayout = new FormLayout();
         formLayout.setWidthFull();
-        formLayout.add(id_departamento,nome_funcionario,
-                nome_carteira,celular_funcionario,rg_funcionario,
-                cpf_funcionario,titulo_eleitor,reservista_militar,numero_ctps,serie_ctps,
-                pis_funcionario,cnh_funcionario,vencimento_cnh,data_admissao,cep_funcionario,endereco_funcionario,numero_imovel,complemento_funcionario,bairro_funcionario,
-                cidade_funcionario,id_estado);
+        formLayout.add(id_departamento, nome_funcionario,
+                nome_carteira, celular_funcionario, rg_funcionario,
+                cpf_funcionario, titulo_eleitor, reservista_militar, numero_ctps, serie_ctps,
+                pis_funcionario, cnh_funcionario, vencimento_cnh, data_admissao, cep_funcionario, endereco_funcionario,
+                numero_imovel, complemento_funcionario, bairro_funcionario,
+                cidade_funcionario, id_estado);
 
         Div div = new Div(formLayout);
         div.setSizeFull();
@@ -218,16 +221,12 @@ public class FuncionarioCadastroModal extends Dialog {
 
     private void buscarCep() {
         EApiEnderecoResponse response = service.buscarCep(cep_funcionario);
-            endereco_funcionario.setValue(response.getLogradouro());
-            //complemento_funcionario.setValue(response.get);
-            bairro_funcionario.setValue(response.getBairro());
-            cidade_funcionario.setValue(response.getLocalidade());
-            id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
+        endereco_funcionario.setValue(response.getLogradouro());
+        //complemento_funcionario.setValue(response.get);
+        bairro_funcionario.setValue(response.getBairro());
+        cidade_funcionario.setValue(response.getLocalidade());
+        id_estado.setValue(service.configuraUF(estadoList, response.getUf()));
     }
-
-
-
-
 
 
 }

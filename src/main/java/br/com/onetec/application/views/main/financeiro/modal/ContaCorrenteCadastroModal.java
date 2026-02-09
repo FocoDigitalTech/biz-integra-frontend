@@ -31,22 +31,20 @@ import java.time.LocalDateTime;
 public class ContaCorrenteCadastroModal extends Dialog {
 
 
+    @Autowired
+    ContaCorrenteService contaCorrenteService;
+    @Autowired
+    @Lazy
+    CondicaoPagamentoDiv condicaoPagamentoDiv;
+    UtilitySystemConfigService service;
     private TextField nome_contacorrente;
     private TextField banco_contacorrente;
     private TextField agencia_contacorrente;
     private TextField numero_contacorrente;
     private NumberField limete_contacorrente;
     private DatePicker ultimolancamento_contacorrente;
-
-    @Autowired
-    ContaCorrenteService contaCorrenteService;
-
-    @Autowired
-    @Lazy
-    CondicaoPagamentoDiv condicaoPagamentoDiv;
     private Button saveButton;
     private Button cancelButton;
-
 
 
     public ContaCorrenteCadastroModal() {
@@ -70,7 +68,6 @@ public class ContaCorrenteCadastroModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
         service = new UtilitySystemConfigService();
 
@@ -80,6 +77,9 @@ public class ContaCorrenteCadastroModal extends Dialog {
         numero_contacorrente = new TextField("Numero");
         limete_contacorrente = new NumberField("Limite");
         ultimolancamento_contacorrente = new DatePicker("Ultimo Lançamento");
+
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(ultimolancamento_contacorrente);
 
         limete_contacorrente.setValueChangeMode(ValueChangeMode.EAGER);
         limete_contacorrente.addValueChangeListener(event -> service.formataMoedaBrasileiraNumberField(limete_contacorrente));
@@ -100,9 +100,6 @@ public class ContaCorrenteCadastroModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         service = new UtilitySystemConfigService();
@@ -129,7 +126,7 @@ public class ContaCorrenteCadastroModal extends Dialog {
             ultimolancamento_contacorrente.clear();
             service.notificaSucesso(ModalMessageConst.CREATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }

@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -55,6 +56,14 @@ public class ContaCorrenteDiv extends Div {
     private Button btnExcluir;
 
     @Autowired
+    public ContaCorrenteDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+
+    }
+
+    @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              ApplicationContext applicationContext1,
@@ -66,15 +75,6 @@ public class ContaCorrenteDiv extends Div {
         this.usuarioService = usuarioService1;
         this.contaCorrenteCadastroModal = contaCorrenteCadastroModal1;
         this.contaCorrenteDetalheModalModal = contaCorrenteDetalheModalModal1;
-    }
-
-
-    @Autowired
-    public ContaCorrenteDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
-
     }
 
     private Div telaDiv() {
@@ -146,7 +146,14 @@ public class ContaCorrenteDiv extends Div {
                 .setHeader("Banco")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetContaCorrente::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -157,7 +164,6 @@ public class ContaCorrenteDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> contaCorrenteService.list(
@@ -183,7 +189,7 @@ public class ContaCorrenteDiv extends Div {
 //            }
 //            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
 //            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                //deleta(event.getItem());
+            //deleta(event.getItem());
 //                // Torna o botão "Deletar" invisível após a ação ser concluída
 //                btnExcluir.setVisible(false);
 //            });
@@ -207,11 +213,21 @@ public class ContaCorrenteDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            contaCorrenteCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetContaCorrente> {
 
@@ -245,15 +261,13 @@ public class ContaCorrenteDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -300,17 +314,5 @@ public class ContaCorrenteDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            contaCorrenteCadastroModal.open();
-        });
     }
 }

@@ -4,7 +4,7 @@ import br.com.onetec.application.service.estoqueservice.EstoqueService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.main.estoque.modal.EstoqueCadastroModal;
-import br.com.onetec.cross.constants.ModalMessageConst;
+import br.com.onetec.application.views.main.estoque.modal.EstoqueDadosModal;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.model.SetProduto;
@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -51,27 +52,11 @@ public class MovimentoDiv extends Div {
 
     private UsuarioService usuarioService;
 
-    private Button btnExcluir;
+    private EstoqueDadosModal estoqueDadosModal;
 
     private EstoqueCadastroModal estoqueCadastroModal;
 
     private ApplicationContext applicationContext;
-
-    @Autowired
-    public void initServices(ProdutoService produtoService1,
-                             UtilitySystemConfigService service1,
-                             UsuarioService usuarioService1,
-                             EstoqueCadastroModal estoqueCadastroModal1,
-                             ApplicationContext applicationContext1,
-                             EstoqueService estoqueService1) {
-        this.estoqueService = estoqueService1;
-        this.produtoService = produtoService1;
-        this.service = service1;
-        this.usuarioService = usuarioService1;
-        this.estoqueCadastroModal = estoqueCadastroModal1;
-        this.applicationContext = applicationContext1;
-    }
-
 
     @Autowired
     public MovimentoDiv() {
@@ -79,6 +64,23 @@ public class MovimentoDiv extends Div {
             add(telaDiv());
         });
 
+    }
+
+    @Autowired
+    public void initServices(ProdutoService produtoService1,
+                             UtilitySystemConfigService service1,
+                             UsuarioService usuarioService1,
+                             EstoqueCadastroModal estoqueCadastroModal1,
+                             ApplicationContext applicationContext1,
+                             EstoqueService estoqueService1,
+                             EstoqueDadosModal estoqueDadosModal1) {
+        this.estoqueService = estoqueService1;
+        this.produtoService = produtoService1;
+        this.service = service1;
+        this.usuarioService = usuarioService1;
+        this.estoqueCadastroModal = estoqueCadastroModal1;
+        this.applicationContext = applicationContext1;
+        this.estoqueDadosModal = estoqueDadosModal1;
     }
 
     private Div telaDiv() {
@@ -157,7 +159,14 @@ public class MovimentoDiv extends Div {
                 .setHeader("Quantidade Devolvida")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetEstoque::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -168,7 +177,6 @@ public class MovimentoDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> estoqueService.list(
@@ -184,18 +192,9 @@ public class MovimentoDiv extends Div {
 
         final Registration[] btnExcluirClickListenerRegistration = {null};
         grid.addItemClickListener(event -> {
-            // Torna o botão "Deletar" visível
-            btnExcluir.setVisible(true);
-            // Verifica se existe um ClickListener registrado anteriormente e o remove
-            if (btnExcluirClickListenerRegistration[0] != null) {
-                btnExcluirClickListenerRegistration[0].remove();
-                btnExcluirClickListenerRegistration[0] = null;
-            }
-            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
-            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                deleta(event.getItem());
-                // Torna o botão "Deletar" invisível após a ação ser concluída
-                btnExcluir.setVisible(false);
+            UI.getCurrent().access(() -> {
+                estoqueDadosModal.setFuncionario(event.getItem());
+                estoqueDadosModal.open();
             });
         });
 
@@ -207,21 +206,20 @@ public class MovimentoDiv extends Div {
 
     private void abrirDetalhesDoEstoque(SetEstoque estoque) {
         //  lógica para abrir modal
-       // ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
+        // ProdutoDetalheModal dialog = applicationContext.getBean(ProdutoDetalheModal.class, produto);
         //dialog.open();
     }
 
-    private void deleta(SetEstoque item) {
-        try {
-            estoqueService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
     }
 
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            estoqueCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetEstoque> {
 
@@ -239,8 +237,6 @@ public class MovimentoDiv extends Div {
             id.setPlaceholder("Código");
 
 
-
-
             // Action buttons
             com.vaadin.flow.component.button.Button resetBtn = new com.vaadin.flow.component.button.Button("Limpar");
             resetBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -255,19 +251,17 @@ public class MovimentoDiv extends Div {
             searchBtn.addClickListener(e -> onSearch.run());
 
 
-            btnExcluir = new Button("Excluir");
-            btnExcluir.setVisible(false);
-            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                    ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+//            btnExcluir = new Button("Excluir");
+//            btnExcluir.setVisible(false);
+//            btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+//                    ButtonVariant.LUMO_ERROR);
+            Div actions = new Div(resetBtn, searchBtn, createBtn);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -314,18 +308,6 @@ public class MovimentoDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            estoqueCadastroModal.open();
-        });
     }
 }
 

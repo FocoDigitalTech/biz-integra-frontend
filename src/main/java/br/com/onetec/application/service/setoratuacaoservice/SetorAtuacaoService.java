@@ -21,7 +21,7 @@ public class SetorAtuacaoService {
     private ISetSetorAtuacaoRepository repository;
 
     @Autowired
-    public void initServices (ISetSetorAtuacaoRepository repository1){
+    public void initServices(ISetSetorAtuacaoRepository repository1) {
         this.repository = repository1;
     }
 
@@ -39,7 +39,7 @@ public class SetorAtuacaoService {
     public void save(SetSetorAtuacao dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -53,7 +53,7 @@ public class SetorAtuacaoService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -68,7 +68,7 @@ public class SetorAtuacaoService {
             SetSetorAtuacao entity = optional.get();
             entity = dto;
             repository.save(entity);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }

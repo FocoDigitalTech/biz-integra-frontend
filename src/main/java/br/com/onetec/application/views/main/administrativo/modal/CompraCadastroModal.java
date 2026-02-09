@@ -39,16 +39,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @UIScope
 public class CompraCadastroModal extends Dialog {
 
 
-
+    @Autowired
+    @Lazy
+    ComprasDiv comprasDiv;
     private Button saveButton;
-    private  Button cancelButton;
-
+    private Button cancelButton;
     //Cadastro Fornecedor
     private Div cadastroCompra;
     private ComboBox<SetFornecedor> id_fornecedor;
@@ -68,8 +71,6 @@ public class CompraCadastroModal extends Dialog {
     private TimePicker horario_compra;
     private DatePicker datavalidate_compra;
     private DatePicker data_compra;
-
-
     //Cadastro Contatos Fornecedor
     private Div cadastroComprasPedidos;
     private ComboBox<SetProduto> id_produto;
@@ -81,47 +82,17 @@ public class CompraCadastroModal extends Dialog {
     private DatePicker datavalidade_compraproduto;
     private DatePicker datarecebimento_compraproduto;
     private TextField responsavelrecebimento_compraproduto;
-
-
     private UtilitySystemConfigService service;
     private FornecedorService fornecedorService;
     private CondicaoPagamentoService condicaoPagamentoService;
     private ContaCorrenteService contaCorrenteService;
-
     private List<SetCompraProduto> produtoList;
-
     private Grid<SetCompraProduto> grid;
-
     private ProdutoService produtoService;
-
     private CompraProdutoService compraProdutoService;
-
     private CompraService compraService;
-
-    @Autowired
-    @Lazy
-    ComprasDiv comprasDiv;
-
-    @Autowired
-    public void initServices(UtilitySystemConfigService service,
-                             FornecedorService fornecedorService1,
-                             CondicaoPagamentoService condicaoPagamentoService1,
-                             ContaCorrenteService contaCorrenteService1,
-                             ProdutoService produtoService1,
-                             CompraProdutoService compraProdutoService1,
-                             CompraService compraService1) {
-        this.contaCorrenteService = contaCorrenteService1;
-        this.condicaoPagamentoService = condicaoPagamentoService1;
-        this.service = service;
-        this.fornecedorService = fornecedorService1;
-        this.produtoService = produtoService1;
-        this.compraProdutoService = compraProdutoService1;
-        this.compraService = compraService1;
-        UI.getCurrent().access(() -> {
-
-        });
-    }
-
+    private TextField totalEstoque;
+    private BigDecimal valorTotalItems = BigDecimal.ZERO;
 
 
     @Autowired
@@ -189,9 +160,29 @@ public class CompraCadastroModal extends Dialog {
 
             HorizontalLayout rightButtons = new HorizontalLayout(valortotal_compra);
             footerLayout.add(rightButtons); // Alinha à direita
-            getFooter().add(footerLayout,saveButton, cancelButton);
+            getFooter().add(footerLayout, saveButton, cancelButton);
             VerticalLayout layout = new VerticalLayout(tabs, contentTabs);
             add(layout);
+        });
+    }
+
+    @Autowired
+    public void initServices(UtilitySystemConfigService service,
+                             FornecedorService fornecedorService1,
+                             CondicaoPagamentoService condicaoPagamentoService1,
+                             ContaCorrenteService contaCorrenteService1,
+                             ProdutoService produtoService1,
+                             CompraProdutoService compraProdutoService1,
+                             CompraService compraService1) {
+        this.contaCorrenteService = contaCorrenteService1;
+        this.condicaoPagamentoService = condicaoPagamentoService1;
+        this.service = service;
+        this.fornecedorService = fornecedorService1;
+        this.produtoService = produtoService1;
+        this.compraProdutoService = compraProdutoService1;
+        this.compraService = compraService1;
+        UI.getCurrent().access(() -> {
+
         });
     }
 
@@ -204,24 +195,17 @@ public class CompraCadastroModal extends Dialog {
                 id_fornecedor.setRequiredIndicatorVisible(true);
                 id_fornecedor.setErrorMessage("Campo obrigatório");
                 id_fornecedor.setInvalid(true);
-            }else if (id_condicaopagamento.isEmpty()) {
+            } else if (id_condicaopagamento.isEmpty()) {
                 id_condicaopagamento.setRequiredIndicatorVisible(true);
                 id_condicaopagamento.setErrorMessage("Campo obrigatório");
                 id_condicaopagamento.setInvalid(true);
-            }else if (valoritemstotal_compra.isEmpty()) {
-                valoritemstotal_compra.setRequiredIndicatorVisible(true);
-                valoritemstotal_compra.setErrorMessage("Campo obrigatório");
-                valoritemstotal_compra.setInvalid(true);
-            }else if  (valortotal_compra.isEmpty()) {
-                valortotal_compra.setRequiredIndicatorVisible(true);
-                valortotal_compra.setErrorMessage("Campo obrigatório");
-                valortotal_compra.setInvalid(true);
             } else {
                 // Define os valores dos campos no objeto SetFuncionario
                 compra.setId_fornecedor(id_fornecedor.getValue().getId_fornecedor());
                 compra.setId_condicaopagamento(id_condicaopagamento.getValue().getId_condicaopagamento());
                 compra.setId_contacorrente(id_contacorrente.getValue().getId_contacorrente());
                 compra.setNumeronotafiscal_compra(numeronotafiscal_compra.getValue());
+                compra.setNotafiscal_compra(notafiscal_compra.getValue());
                 compra.setDatanotafiscal_compra(datanotafiscal_compra.getValue());
                 compra.setDatapagamento_compra(datapagamento_compra.getValue());
                 compra.setValoritemstotal_compra(service.getValorBigDecimal(valoritemstotal_compra.getValue()));
@@ -242,7 +226,9 @@ public class CompraCadastroModal extends Dialog {
                     produtoList.forEach(pedido -> {
                         try {
                             pedido.setId_compra(compra.getId_compra());
+                            pedido.setData_compraproduto(data_compra.getValue());
                             compraProdutoService.save(pedido);
+                            produtoService.updateQuantidadeEstoque(pedido);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -252,7 +238,7 @@ public class CompraCadastroModal extends Dialog {
                 comprasDiv.refreshGrid();
                 close();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro("Erro ao Salvar");
         }
 
@@ -270,6 +256,7 @@ public class CompraCadastroModal extends Dialog {
         valoritemstotal_compra = new TextField("Valor Total Items");
         valorfrete_compra = new TextField("Valor Frete");
         valordesconto_compra = new TextField("Valor Desconto");
+
 
         valoritemstotal_compra.addValueChangeListener(this::valueChanged);
         valordesconto_compra.addValueChangeListener(this::valueChanged);
@@ -341,8 +328,6 @@ public class CompraCadastroModal extends Dialog {
         return div;
     }
 
-
-
     private Div createFormCadastroFornecedorContatos() {
         produtoList = new ArrayList<>();
         id_produto = new ComboBox<>("Produto");
@@ -354,19 +339,40 @@ public class CompraCadastroModal extends Dialog {
         datavalidade_compraproduto = new DatePicker("Data Validade");
         datarecebimento_compraproduto = new DatePicker("Data Recebimento");
         responsavelrecebimento_compraproduto = new TextField("Responsável Recebimento");
+        AtomicInteger fatorConversao = new AtomicInteger();
+        AtomicReference<String> unidadeEntrada = new AtomicReference<>();
+        totalEstoque = new TextField("Quantidade que sera adicionada em estoque :");
+        totalEstoque.setReadOnly(true);
+        totalEstoque.setVisible(false);
+
+        service = new UtilitySystemConfigService();
+        service.configuraCalendario(datavalidade_compraproduto);
+        service.configuraCalendario(datarecebimento_compraproduto);
+        service.configuraCalendario(datafabricacao_compraproduto);
+
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
+        id_produto.addValueChangeListener(event -> {
+            var produto = event.getValue();
+            valorunitario_compraproduto.setValue(produto.getValor_item().toString());
+            fatorConversao.set(produto.getFator_conversao());
+            unidadeEntrada.set(produto.getUnidade_aplicacao());
+        });
 
         valorunitario_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
         });
 
         quantidade_compraproduto.addValueChangeListener(event -> {
-            BigDecimal valorQuantidade  = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
+            BigDecimal valorQuantidade = service.getValorBigDecimal(valorunitario_compraproduto.getValue())
                     .multiply(BigDecimal.valueOf(quantidade_compraproduto.getValue()));
             valortotal_compraproduto.setValue(valorQuantidade.toString());
+            int totalSoma = quantidade_compraproduto.getValue() * fatorConversao.get();
+            String frase = totalSoma + " " + unidadeEntrada.get();
+            totalEstoque.setValue(frase);
+            totalEstoque.setVisible(true);
         });
         valorunitario_compraproduto.setValueChangeMode(ValueChangeMode.EAGER);
         valorunitario_compraproduto.addValueChangeListener(event -> service.
@@ -409,7 +415,7 @@ public class CompraCadastroModal extends Dialog {
                 id_produto.setRequiredIndicatorVisible(true);
                 id_produto.setErrorMessage("Campo obrigatório");
                 id_produto.setInvalid(true);
-            }else if (quantidade_compraproduto.isEmpty()) {
+            } else if (quantidade_compraproduto.isEmpty()) {
                 quantidade_compraproduto.setRequiredIndicatorVisible(true);
                 quantidade_compraproduto.setErrorMessage("Campo obrigatório");
                 quantidade_compraproduto.setInvalid(true);
@@ -418,10 +424,12 @@ public class CompraCadastroModal extends Dialog {
                 valorunitario_compraproduto.setErrorMessage("Campo obrigatório");
                 valorunitario_compraproduto.setInvalid(true);
             } else {
+                int totalSoma = quantidade_compraproduto.getValue() * fatorConversao.get();
 
                 SetCompraProduto produto = new SetCompraProduto();
                 produto.setId_produto(id_produto.getValue().getId_produto());
                 produto.setQuantidade_compraproduto(quantidade_compraproduto.getValue());
+                produto.setQuantidadefator_compraproduto(totalSoma);
                 produto.setValorunitario_compraproduto(service.getValorBigDecimal(valorunitario_compraproduto.getValue()));
                 produto.setValortotal_compraproduto(service.getValorBigDecimal(valortotal_compraproduto.getValue()));
                 produto.setNumerolote_compraproduto(numerolote_compraproduto.getValue());
@@ -461,7 +469,7 @@ public class CompraCadastroModal extends Dialog {
                 datafabricacao_compraproduto,
                 datavalidade_compraproduto,
                 datarecebimento_compraproduto,
-                responsavelrecebimento_compraproduto,saveButton);
+                responsavelrecebimento_compraproduto, totalEstoque, saveButton);
 
         VerticalLayout layout = new VerticalLayout(formLayout, grid);
         layout.setSizeFull();
@@ -472,8 +480,6 @@ public class CompraCadastroModal extends Dialog {
 
         return div;
     }
-
-    private BigDecimal valorTotalItems = BigDecimal.ZERO;
 
     private void calculoTotalCompra(SetCompraProduto produto) {
         // Adiciona o valor ao total e armazena o resultado em valorTotalItems

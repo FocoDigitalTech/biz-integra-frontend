@@ -5,6 +5,8 @@ import br.com.onetec.application.views.MainLayout;
 import br.com.onetec.application.views.main.configuracoessistema.div.*;
 import br.com.onetec.cross.constants.ViewsTitleConst;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.tabs.TabSheetVariant;
@@ -18,93 +20,94 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PageTitle(ViewsTitleConst.CONFIGURATION_NAV_TITLE)
 @PermitAll
 @UIScope
+@Uses(Icon.class)
+@org.springframework.stereotype.Component
 public class ConfiguracoesSistemaView extends VerticalLayout {
 
 
-        private TipoMidiaDiv tipomidiaDiv;
-        private TipoImovelDiv tipoimovelDiv;
-        private RegiaoDiv regiaoDiv;
-        private TipoAtendimentoDiv tipoAtendimentoDiv;
-        private SituacaoCadastroDiv situacaoCadastroDiv;
-        private SetorAtuacaoDiv setorAtuacaoDiv;
-        private ServicoDiv servicoDiv;
-        private PragasDiv pragasDiv;
-        private CodigoNumeracaoDiv codigoNumeracaoDiv;
-        private ExecucaoServicoDiv execucaoServicoDiv;
+    private TipoMidiaDiv tipomidiaDiv;
+    private TipoImovelDiv tipoimovelDiv;
+    private RegiaoDiv regiaoDiv;
+    private TipoAtendimentoDiv tipoAtendimentoDiv;
+    private SituacaoCadastroDiv situacaoCadastroDiv;
+    private SetorAtuacaoDiv setorAtuacaoDiv;
+    private ServicoDiv servicoDiv;
+    private PragasDiv pragasDiv;
+    private CodigoNumeracaoDiv codigoNumeracaoDiv;
+    private ExecucaoServicoDiv execucaoServicoDiv;
 
 
-        @Autowired
-        public void initServices(TipoMidiaDiv tipomidiaDiv1,
-                                 TipoImovelDiv tipoimovelDiv1,
-                                 RegiaoDiv regiaoDiv1,
-                                 TipoAtendimentoDiv tipoAtendimentoDiv1,
-                                 SituacaoCadastroDiv situacaoCadastroDiv1,
-                                 SetorAtuacaoDiv setorAtuacaoDiv1,
-                                 ServicoDiv servicoDiv1,
-                                 PragasDiv pragasDiv,
-                                 CodigoNumeracaoDiv codigoNumeracaoDiv1,
-                                 ExecucaoServicoDiv execucaoServicoDiv1) {
-            this.execucaoServicoDiv = execucaoServicoDiv1;
-            this.tipomidiaDiv = tipomidiaDiv1;
-            this.tipoimovelDiv = tipoimovelDiv1;
-            this.regiaoDiv = regiaoDiv1;
-            this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
-            this.situacaoCadastroDiv = situacaoCadastroDiv1;
-            this.setorAtuacaoDiv = setorAtuacaoDiv1;
-            this.servicoDiv = servicoDiv1;
-            this.pragasDiv = pragasDiv;
-            this.codigoNumeracaoDiv = codigoNumeracaoDiv1;
-        }
+    @Autowired
+    public ConfiguracoesSistemaView(TipoMidiaDiv tipomidiaDiv1,
+                                    TipoImovelDiv tipoimovelDiv1,
+                                    RegiaoDiv regiaoDiv1,
+                                    TipoAtendimentoDiv tipoAtendimentoDiv1,
+                                    SituacaoCadastroDiv situacaoCadastroDiv1,
+                                    SetorAtuacaoDiv setorAtuacaoDiv1,
+                                    ServicoDiv servicoDiv1,
+                                    PragasDiv pragasDiv,
+                                    CodigoNumeracaoDiv codigoNumeracaoDiv1,
+                                    ExecucaoServicoDiv execucaoServicoDiv1) {
+        this.execucaoServicoDiv = execucaoServicoDiv1;
+        this.tipomidiaDiv = tipomidiaDiv1;
+        this.tipoimovelDiv = tipoimovelDiv1;
+        this.regiaoDiv = regiaoDiv1;
+        this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
+        this.situacaoCadastroDiv = situacaoCadastroDiv1;
+        this.setorAtuacaoDiv = setorAtuacaoDiv1;
+        this.servicoDiv = servicoDiv1;
+        this.pragasDiv = pragasDiv;
+        this.codigoNumeracaoDiv = codigoNumeracaoDiv1;
+        UI.getCurrent().access(() -> {
+            setSizeFull();
+            TabSheet tabSheet = new TabSheet();
+            tabSheet.setSizeFull();
+            tabSheet.add("Tipos de Midia",
+                    tipomidiaDiv);
+            tabSheet.add("Tipos de Imóvel",
+                    tipoimovelDiv);
+            tabSheet.add("Serviços OS",
+                    execucaoServicoDiv);
+            tabSheet.add("Códigos e Numeração",
+                    codigoNumeracaoDiv);
+            tabSheet.add("Regiões",
+                    regiaoDiv);
+            tabSheet.add("Tipo de Atendimento",
+                    tipoAtendimentoDiv);
+            tabSheet.add("Situação Cadastro",
+                    situacaoCadastroDiv);
+            tabSheet.add("Ramo Atividade",
+                    setorAtuacaoDiv);
+            tabSheet.add("Serviços",
+                    servicoDiv);
+            tabSheet.add("Pragas",
+                    pragasDiv);
+            tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+            add(tabSheet);
+        });
+    }
 
-
-        @Autowired
-        public ConfiguracoesSistemaView (TipoMidiaDiv tipomidiaDiv1,
-                                         TipoImovelDiv tipoimovelDiv1,
-                                         RegiaoDiv regiaoDiv1,
-                                         TipoAtendimentoDiv tipoAtendimentoDiv1,
-                                         SituacaoCadastroDiv situacaoCadastroDiv1,
-                                         SetorAtuacaoDiv setorAtuacaoDiv1,
-                                         ServicoDiv servicoDiv1,
-                                         PragasDiv pragasDiv,
-                                         CodigoNumeracaoDiv codigoNumeracaoDiv1,
-                                         ExecucaoServicoDiv execucaoServicoDiv1) {
-            this.execucaoServicoDiv = execucaoServicoDiv1;
-            this.tipomidiaDiv = tipomidiaDiv1;
-            this.tipoimovelDiv = tipoimovelDiv1;
-            this.regiaoDiv = regiaoDiv1;
-            this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
-            this.situacaoCadastroDiv = situacaoCadastroDiv1;
-            this.setorAtuacaoDiv = setorAtuacaoDiv1;
-            this.servicoDiv = servicoDiv1;
-            this.pragasDiv = pragasDiv;
-            this.codigoNumeracaoDiv = codigoNumeracaoDiv1;
-            UI.getCurrent().access(() -> {
-                setSizeFull();
-                TabSheet tabSheet = new TabSheet();
-                tabSheet.setSizeFull();
-                tabSheet.add("Tipos de Midia",
-                        tipomidiaDiv);
-                tabSheet.add("Tipos de Imóvel",
-                        tipoimovelDiv);
-                tabSheet.add("Serviços OS",
-                        execucaoServicoDiv);
-                tabSheet.add("Códigos e Numeração",
-                        codigoNumeracaoDiv);
-                tabSheet.add("Regiões",
-                        regiaoDiv);
-                tabSheet.add("Tipo de Atendimento",
-                        tipoAtendimentoDiv);
-                tabSheet.add("Situação Cadastro",
-                        situacaoCadastroDiv);
-                tabSheet.add("Ramo Atividade",
-                        setorAtuacaoDiv);
-                tabSheet.add("Serviços",
-                        servicoDiv);
-                tabSheet.add("Pragas",
-                        pragasDiv);
-                tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
-                add(tabSheet);
-            });
-        }
+    @Autowired
+    public void initServices(TipoMidiaDiv tipomidiaDiv1,
+                             TipoImovelDiv tipoimovelDiv1,
+                             RegiaoDiv regiaoDiv1,
+                             TipoAtendimentoDiv tipoAtendimentoDiv1,
+                             SituacaoCadastroDiv situacaoCadastroDiv1,
+                             SetorAtuacaoDiv setorAtuacaoDiv1,
+                             ServicoDiv servicoDiv1,
+                             PragasDiv pragasDiv,
+                             CodigoNumeracaoDiv codigoNumeracaoDiv1,
+                             ExecucaoServicoDiv execucaoServicoDiv1) {
+        this.execucaoServicoDiv = execucaoServicoDiv1;
+        this.tipomidiaDiv = tipomidiaDiv1;
+        this.tipoimovelDiv = tipoimovelDiv1;
+        this.regiaoDiv = regiaoDiv1;
+        this.tipoAtendimentoDiv = tipoAtendimentoDiv1;
+        this.situacaoCadastroDiv = situacaoCadastroDiv1;
+        this.setorAtuacaoDiv = setorAtuacaoDiv1;
+        this.servicoDiv = servicoDiv1;
+        this.pragasDiv = pragasDiv;
+        this.codigoNumeracaoDiv = codigoNumeracaoDiv1;
+    }
 
 }

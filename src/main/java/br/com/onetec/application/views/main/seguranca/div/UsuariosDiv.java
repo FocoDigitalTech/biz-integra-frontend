@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -58,6 +59,13 @@ public class UsuariosDiv extends Div {
     private UsuarioDadosModal usuarioDadosModal;
 
     @Autowired
+    public UsuariosDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+    }
+
+    @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              UsuarioDadosModal usuarioDadosModal1,
@@ -70,14 +78,7 @@ public class UsuariosDiv extends Div {
         this.usuarioCadastroModal = usuarioCadastroModal1;
         this.funcionarioService = funcionarioService1;
         this.grupoUsuarioService = grupoUsuarioService1;
-        this.usuarioDadosModal =usuarioDadosModal1;
-    }
-
-    @Autowired
-    public UsuariosDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
+        this.usuarioDadosModal = usuarioDadosModal1;
     }
 
     private Div telaDiv() {
@@ -103,7 +104,6 @@ public class UsuariosDiv extends Div {
 
         return div;
     }
-
 
 
     private com.vaadin.flow.component.Component createGrid() {
@@ -139,7 +139,14 @@ public class UsuariosDiv extends Div {
                 .setHeader("Grupo de Usuarios")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetUsuarios::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -193,6 +200,57 @@ public class UsuariosDiv extends Div {
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
 
         return grid;
+    }
+
+    public void refreshGrid() {
+        grid.getDataProvider().refreshAll();
+    }
+
+    private HorizontalLayout createMobileFiltersFuncionario() {
+        // Mobile version
+        HorizontalLayout mobileFilters = new HorizontalLayout();
+        mobileFilters.setWidthFull();
+        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
+                LumoUtility.AlignItems.CENTER);
+        mobileFilters.addClassName("mobile-filters");
+
+        Icon mobileIcon = new Icon("lumo", "plus");
+        Span filtersHeading = new Span("Filters");
+        mobileFilters.add(mobileIcon, filtersHeading);
+        mobileFilters.setFlexGrow(1, filtersHeading);
+        mobileFilters.addClickListener(e -> {
+            if (filter.getClassNames().contains("visible")) {
+                filter.removeClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
+            } else {
+                filter.addClassName("visible");
+                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
+            }
+        });
+        return mobileFilters;
+    }
+
+    private void deleta(SetUsuarios item, Dialog dialog) {
+        try {
+            usuarioService.delete(item);
+            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            btnExcluir.setVisible(false);
+            dialog.close();
+            refreshGrid();
+        } catch (Exception e) {
+            service.notificaErro(ModalMessageConst.ERROR_DELETE);
+        }
+    }
+
+    private Button createUsuarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            usuarioCadastroModal.open();
+        });
     }
 
     public class Filter extends Div implements Specification<SetUsuarios> {
@@ -282,57 +340,5 @@ public class UsuariosDiv extends Div {
             return expression;
         }
 
-    }
-
-    public void refreshGrid() {
-        grid.getDataProvider().refreshAll();
-    }
-
-    private HorizontalLayout createMobileFiltersFuncionario() {
-        // Mobile version
-        HorizontalLayout mobileFilters = new HorizontalLayout();
-        mobileFilters.setWidthFull();
-        mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER,
-                LumoUtility.AlignItems.CENTER);
-        mobileFilters.addClassName("mobile-filters");
-
-        Icon mobileIcon = new Icon("lumo", "plus");
-        Span filtersHeading = new Span("Filters");
-        mobileFilters.add(mobileIcon, filtersHeading);
-        mobileFilters.setFlexGrow(1, filtersHeading);
-        mobileFilters.addClickListener(e -> {
-            if (filter.getClassNames().contains("visible")) {
-                filter.removeClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:plus");
-            } else {
-                filter.addClassName("visible");
-                mobileIcon.getElement().setAttribute("icon", "lumo:minus");
-            }
-        });
-        return mobileFilters;
-    }
-
-    private void deleta(SetUsuarios item, Dialog dialog) {
-        try {
-            usuarioService.delete(item);
-            service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
-            btnExcluir.setVisible(false);
-            dialog.close();
-            refreshGrid();
-        } catch (Exception e){
-            service.notificaErro(ModalMessageConst.ERROR_DELETE);
-        }
-    }
-
-    private Button createUsuarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            usuarioCadastroModal.open();
-        });
     }
 }

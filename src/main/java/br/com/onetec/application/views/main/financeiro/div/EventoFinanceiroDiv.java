@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @UIScope
@@ -53,6 +54,13 @@ public class EventoFinanceiroDiv extends Div {
     private Button btnExcluir;
 
     @Autowired
+    public EventoFinanceiroDiv() {
+        UI.getCurrent().access(() -> {
+            add(telaDiv());
+        });
+    }
+
+    @Autowired
     public void initServices(UtilitySystemConfigService service1,
                              UsuarioService usuarioService1,
                              EventoFinanceiroService eventoFinanceiroService1,
@@ -63,14 +71,6 @@ public class EventoFinanceiroDiv extends Div {
         this.usuarioService = usuarioService1;
         this.eventoFinanceiroCadastroModal = eventoFinanceiroCadastroModal1;
         this.eventoFinanceiroDetalhesModal = eventoFinanceiroDetalhesModal1;
-    }
-
-
-    @Autowired
-    public EventoFinanceiroDiv() {
-        UI.getCurrent().access(() -> {
-            add(telaDiv());
-        });
     }
 
     private Div telaDiv() {
@@ -142,7 +142,14 @@ public class EventoFinanceiroDiv extends Div {
                 .setHeader("Descrição")
                 .setSortable(true)
                 .setAutoWidth(true);
-        grid.addColumn(SetEventoFinanceiro::getData_inclusao)
+        grid.addColumn(data -> {
+            if (Objects.nonNull(data.getData_inclusao())) {
+                return UtilitySystemConfigService.
+                        getDataFormatada(data.getData_inclusao());
+            } else {
+                return "";
+            }
+        })
                 .setHeader("Data de Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -153,7 +160,6 @@ public class EventoFinanceiroDiv extends Div {
                 .setHeader("Usuario")
                 .setSortable(true)
                 .setAutoWidth(true);
-
 
 
         grid.setItems(query -> eventoFinanceiroService.list(
@@ -179,7 +185,7 @@ public class EventoFinanceiroDiv extends Div {
 //            }
 //            // Adiciona um novo ClickListener e armazena o Registration para remoção futura
 //            btnExcluirClickListenerRegistration[0] = btnExcluir.addClickListener(event1 -> {
-                //deleta(event.getItem());
+            //deleta(event.getItem());
 //                // Torna o botão "Deletar" invisível após a ação ser concluída
 //                btnExcluir.setVisible(false);
 //            });
@@ -203,11 +209,21 @@ public class EventoFinanceiroDiv extends Div {
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             btnExcluir.setVisible(false);
             refreshGrid();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
 
+    private Button createFuncionarioCadastroButton() {
+        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
+        return cadastroButton;
+    }
+
+    private void openCadastroModal() {
+        UI.getCurrent().access(() -> {
+            eventoFinanceiroCadastroModal.open();
+        });
+    }
 
     public class Filter extends Div implements Specification<SetEventoFinanceiro> {
 
@@ -241,15 +257,13 @@ public class EventoFinanceiroDiv extends Div {
             btnExcluir.setVisible(false);
             btnExcluir.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                     ButtonVariant.LUMO_ERROR);
-            Div actions = new Div(resetBtn, searchBtn,createBtn,btnExcluir);
+            Div actions = new Div(resetBtn, searchBtn, createBtn, btnExcluir);
             actions.addClassName(LumoUtility.Gap.SMALL);
             actions.addClassName("actions");
 
 
-
             add(id, nome, actions);
         }
-
 
 
         @Override
@@ -296,17 +310,5 @@ public class EventoFinanceiroDiv extends Div {
             return expression;
         }
 
-    }
-
-    private Button createFuncionarioCadastroButton() {
-        Button cadastroButton = new Button("Cadastrar", event -> openCadastroModal());
-        return cadastroButton;
-    }
-
-
-    private void openCadastroModal() {
-        UI.getCurrent().access(() -> {
-            eventoFinanceiroCadastroModal.open();
-        });
     }
 }

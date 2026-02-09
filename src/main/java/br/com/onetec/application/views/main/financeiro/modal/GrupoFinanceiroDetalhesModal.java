@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 
@@ -27,22 +26,18 @@ import java.util.Objects;
 @UIScope
 public class GrupoFinanceiroDetalhesModal extends Dialog {
 
-    private TextField nome_grupoeventofinanceiro;
-    private TextField descricao_grupoeventofinanceiro;
-
     @Autowired
     GrupoFinanceiroService grupoFinanceiroService;
-
     @Autowired
     @Lazy
     GrupoFinanceiroDiv grupoFinanceiroDiv;
-
+    UtilitySystemConfigService service;
+    private TextField nome_grupoeventofinanceiro;
+    private TextField descricao_grupoeventofinanceiro;
     private Button saveButton;
     private Button cancelButton;
     private Button excluirButton;
-
     private SetGrupoFinanceiro grupoFinanceiro;
-
 
 
     public GrupoFinanceiroDetalhesModal() {
@@ -71,7 +66,6 @@ public class GrupoFinanceiroDetalhesModal extends Dialog {
         });
     }
 
-
     private Div createFormCadastroEmpresa() {
 
         nome_grupoeventofinanceiro = new TextField("Nome");
@@ -84,9 +78,6 @@ public class GrupoFinanceiroDetalhesModal extends Dialog {
         div.setSizeFull();
         return div;
     }
-
-
-    UtilitySystemConfigService service;
 
     private void save() throws Exception {
         // Lógica para salvar o cadastro
@@ -103,7 +94,7 @@ public class GrupoFinanceiroDetalhesModal extends Dialog {
             descricao_grupoeventofinanceiro.clear();
             service.notificaSucesso(ModalMessageConst.UPDATE_SUCCESS);
             close();
-        } catch (Exception e){
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_CREATE);
         }
     }
@@ -113,7 +104,8 @@ public class GrupoFinanceiroDetalhesModal extends Dialog {
             grupoFinanceiroService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
             grupoFinanceiroDiv.refreshGrid();
-        } catch (Exception e){
+            close();
+        } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
     }
@@ -122,10 +114,10 @@ public class GrupoFinanceiroDetalhesModal extends Dialog {
     public void setGrupoFinanceiro(SetGrupoFinanceiro item) {
         UI.getCurrent().access(() -> {
             this.grupoFinanceiro = item;
-            if(Objects.nonNull(item.getNome_grupoeventofinanceiro()))
-            nome_grupoeventofinanceiro.setValue(item.getNome_grupoeventofinanceiro());
-            if(Objects.nonNull(item.getDescricao_grupoeventofinanceiro()))
-            descricao_grupoeventofinanceiro.setValue(item.getDescricao_grupoeventofinanceiro());
+            if (Objects.nonNull(item.getNome_grupoeventofinanceiro()))
+                nome_grupoeventofinanceiro.setValue(item.getNome_grupoeventofinanceiro());
+            if (Objects.nonNull(item.getDescricao_grupoeventofinanceiro()))
+                descricao_grupoeventofinanceiro.setValue(item.getDescricao_grupoeventofinanceiro());
         });
     }
 }

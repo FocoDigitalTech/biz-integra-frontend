@@ -15,6 +15,6 @@ public interface IResponsavelAgendamentoRepository extends CrudRepository<SetRes
     List<SetResponsavelAgendamento> findAll();
 
     @Query(value = "SELECT * FROM tb_responsavelagendamento where id_cliente = ?1", nativeQuery = true)
-    SetResponsavelAgendamento findByCliente (Integer id_cliente);
+    SetResponsavelAgendamento findByCliente(Integer id_cliente);
 
 }

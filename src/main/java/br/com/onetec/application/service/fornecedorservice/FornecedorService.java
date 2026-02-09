@@ -49,7 +49,7 @@ public class FornecedorService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("excluido !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
@@ -57,15 +57,15 @@ public class FornecedorService {
     public void save(SetFornecedor dto) throws Exception {
         try {
             repository.save(dto);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
 
-        public SetFornecedor findById(Integer id_usuario) {
-            Optional<SetFornecedor> optionalSetFornecedor = repository.findById(id_usuario);
-            return optionalSetFornecedor.get();
-        }
+    public SetFornecedor findById(Integer id_usuario) {
+        Optional<SetFornecedor> optionalSetFornecedor = repository.findById(id_usuario);
+        return optionalSetFornecedor.get();
+    }
 
     public void update(SetFornecedor fornecedor) throws Exception {
         try {
@@ -76,7 +76,7 @@ public class FornecedorService {
             entity.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
             repository.save(entity);
             log.info("Alterado !");
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception();
         }
     }
