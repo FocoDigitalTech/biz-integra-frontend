@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.arquivoorcamentoservice.ArquivoOrcamentoService;
 import br.com.onetec.application.service.clientesservice.AutoExclusaoProceduralService;
 import br.com.onetec.application.service.clientesservice.EstadoService;

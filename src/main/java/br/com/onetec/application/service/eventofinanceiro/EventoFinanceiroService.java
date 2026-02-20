@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.eventofinanceiro;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetEventoFinanceiro;
 import br.com.onetec.infra.db.repository.ISetEventoFinanceiroRepository;
 import lombok.extern.slf4j.Slf4j;

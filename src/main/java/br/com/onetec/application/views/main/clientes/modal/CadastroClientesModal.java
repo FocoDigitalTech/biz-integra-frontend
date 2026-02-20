@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.clientes.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Cliente;
 import br.com.onetec.application.model.Endereco;
 import br.com.onetec.application.service.clientesservice.*;
@@ -243,6 +243,11 @@ public class CadastroClientesModal extends Dialog {
             estadoList = estadoService.listAll();
             comboEnderecosTipoImovel.setItems(tipoimovelService.findAllImovel());
             comboEnderecosTipoImovel.setItemLabelGenerator(SetTipoImovel::getDescricao_tipoimovel);
+
+
+
+
+
             comboEnderecosRegiao.setItems(regiaoService.findAllRegiao());
             comboEnderecosRegiao.setItemLabelGenerator(SetRegiao::getDescricao_regiao);
             comboEnderecosUF.setItems(estadoList);
@@ -393,8 +398,18 @@ public class CadastroClientesModal extends Dialog {
                 //estadoError.setVisible(true);
             }
         });
+
+        HorizontalLayout tipoImovellayout =
+                new CustomizedComboBox().customizeTipoImovel(comboEnderecosTipoImovel,tipoimovelService);
+
+        HorizontalLayout comboEnderecosRegiaoLayout =
+                new CustomizedComboBox().customizeRegiao(comboEnderecosRegiao,regiaoService);
+
         FormLayout formLayout = new FormLayout(fieldEnderecosCEPCustomized,
-                comboEnderecosTipoImovel, fieldEnderecosArea, fieldEnderecosEndereço, fieldEnderecosNumero, fieldEnderecosComplemento, fieldEnderecosBairro, fieldEnderecosCidade, comboEnderecosUF, fieldEnderecosTelefone, fieldEnderecosPagGuia, fieldEnderecosReponsavel, comboEnderecosRegiao, fieldEnderecosPontodeReferencia
+                tipoImovellayout, fieldEnderecosArea, fieldEnderecosEndereço, fieldEnderecosNumero,
+                fieldEnderecosComplemento, fieldEnderecosBairro, fieldEnderecosCidade, comboEnderecosUF,
+                fieldEnderecosTelefone, fieldEnderecosPagGuia, fieldEnderecosReponsavel, comboEnderecosRegiaoLayout,
+                fieldEnderecosPontodeReferencia
                 , saveButton);
         formLayout.setWidthFull();
         //formLayout.set(FlexComponent.Alignment.AUTO);

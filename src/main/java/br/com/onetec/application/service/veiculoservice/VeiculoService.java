@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.veiculoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetVeiculo;
 import br.com.onetec.infra.db.repository.ISetVeiculoRepository;
 import lombok.SneakyThrows;

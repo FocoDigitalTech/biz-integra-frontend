@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.financeiro.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.condicaopagamentoservice.CondicaoPagamentoService;
 import br.com.onetec.application.views.main.financeiro.div.CondicaoPagamentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;

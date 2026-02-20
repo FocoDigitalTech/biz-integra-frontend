@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorContatoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
@@ -22,6 +22,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -270,7 +271,6 @@ public class FornecedorCadastroModal extends Dialog {
 
         id_setoratuacao.setItems(setorAtuacaoService.listAll());
         id_setoratuacao.setItemLabelGenerator(SetSetorAtuacao::getDescricao_setoratuacao);
-
         id_setoratuacao.addFocusListener(event -> {
             id_setoratuacao.setItems(setorAtuacaoService.listAll());
         });

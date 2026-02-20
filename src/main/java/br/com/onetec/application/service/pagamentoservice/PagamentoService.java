@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.pagamentoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetPagamento;
 import br.com.onetec.infra.db.repository.ISetPagamentoRepository;
 import lombok.extern.slf4j.Slf4j;

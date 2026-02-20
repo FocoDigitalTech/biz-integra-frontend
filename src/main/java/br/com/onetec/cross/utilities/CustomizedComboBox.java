@@ -10,6 +10,8 @@ import br.com.onetec.application.service.execucaoservico.AutoCrudExecucaoServico
 import br.com.onetec.application.service.execucaoservico.AutoCrudTipoAtendimentoService;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
+import br.com.onetec.application.service.regiaoservice.AutoCrudRegiaoService;
+import br.com.onetec.application.service.regiaoservice.RegiaoService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;
 import br.com.onetec.application.service.situacaocadastroservice.AutoCrudSituacaoCadastroService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
@@ -17,6 +19,8 @@ import br.com.onetec.application.service.situacaopagamentoservice.AutoCrudSituac
 import br.com.onetec.application.service.situacaopagamentoservice.SituacaoPagamentoService;
 import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.service.tipoeventofinanceiroservice.TipoEventoFinanceiroService;
+import br.com.onetec.application.service.tipoimovelservice.AutoCrudTipoImovelService;
+import br.com.onetec.application.service.tipoimovelservice.TipoImovelService;
 import br.com.onetec.application.service.tipopagamentoservice.AutoCrudTipoPagamentoService;
 import br.com.onetec.application.service.tipopagamentoservice.TipoPagamentoService;
 import br.com.onetec.application.service.utilservices.AutoCrudEventoFinanceiroService;
@@ -51,6 +55,10 @@ public class CustomizedComboBox {
     private AutoCrudTipoAtendimentoService autoCrudTipoAtendimentoService;
 
     private AutoCrudFornecedorService autoCrudFornecedorService;
+
+    private AutoCrudTipoImovelService autoCrudTipoImovelService;
+
+    private AutoCrudRegiaoService autoCrudRegiaoService;
 
 
     public HorizontalLayout customizeSituacaoCadastro
@@ -214,6 +222,38 @@ public class CustomizedComboBox {
         id_fornecedor.getStyle().set("word-wrap", "break-word");
         addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
         HorizontalLayout horizontalLayout = new HorizontalLayout(id_fornecedor, addButtonTipoPagamento);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeTipoImovel(ComboBox<SetTipoImovel> comboEnderecosTipoImovel, TipoImovelService tipoimovelService) {
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudTipoImovelService = new AutoCrudTipoImovelService();
+            autoCrudTipoImovelService.openFormDialog(comboEnderecosTipoImovel, tipoimovelService);
+        });
+        comboEnderecosTipoImovel.setWidth("900px"); // Ajuste conforme necessário
+        comboEnderecosTipoImovel.getStyle().set("max-width", "900px");
+        comboEnderecosTipoImovel.getStyle().set("white-space", "normal");
+        comboEnderecosTipoImovel.getStyle().set("word-wrap", "break-word");
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(comboEnderecosTipoImovel, addButtonTipoPagamento);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
+        return horizontalLayout;
+    }
+
+    public HorizontalLayout customizeRegiao(ComboBox<SetRegiao> comboEnderecosRegiao, RegiaoService regiaoService) {
+        Button addButtonTipoPagamento = new Button(new Icon(VaadinIcon.PLUS));
+        addButtonTipoPagamento.addClickListener(event -> {
+            autoCrudRegiaoService = new AutoCrudRegiaoService();
+            autoCrudRegiaoService.openFormDialog(comboEnderecosRegiao, regiaoService);
+        });
+        comboEnderecosRegiao.setWidth("900px"); // Ajuste conforme necessário
+        comboEnderecosRegiao.getStyle().set("max-width", "900px");
+        comboEnderecosRegiao.getStyle().set("white-space", "normal");
+        comboEnderecosRegiao.getStyle().set("word-wrap", "break-word");
+        addButtonTipoPagamento.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(comboEnderecosRegiao, addButtonTipoPagamento);
         horizontalLayout.setAlignItems(FlexComponent.Alignment.END);
         return horizontalLayout;
     }
