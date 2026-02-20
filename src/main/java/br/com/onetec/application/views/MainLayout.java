@@ -1,6 +1,6 @@
 package br.com.onetec.application.views;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.views.main.administrativo.AdministrativoView;
 import br.com.onetec.application.views.main.clientes.ClientesView;
 import br.com.onetec.application.views.main.configuracoessistema.ConfiguracoesSistemaView;

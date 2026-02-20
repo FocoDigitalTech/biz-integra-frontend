@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.produtoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetCompraProduto;
 import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
 import br.com.onetec.infra.db.model.SetProduto;

@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.administrativo.component;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.compraprodutoservice.CompraProdutoService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;

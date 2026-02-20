@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.enderecoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Endereco;
 import br.com.onetec.application.service.clientesservice.ClientesService;
 import br.com.onetec.infra.db.model.SetCliente;

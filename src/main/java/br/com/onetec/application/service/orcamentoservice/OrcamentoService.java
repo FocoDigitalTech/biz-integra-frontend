@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.orcamentoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.comissoesservice.ComissoesService;
 import br.com.onetec.application.service.contratoservice.ContratoService;
 import br.com.onetec.application.service.notafiscalservice.NotaFiscalService;

@@ -1,9 +1,0 @@
-vaadin-scroller[slot="drawer"] {
-  background-color: #f7f7f7;
-  padding: var(--lumo-space-s);
-}
-
-vaadin-side-nav-item vaadin-icon {
-  padding: 0;
-}
-

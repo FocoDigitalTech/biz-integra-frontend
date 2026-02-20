@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.clientes.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Cliente;
 import br.com.onetec.application.model.Endereco;
 import br.com.onetec.application.service.clientesservice.*;
@@ -624,11 +624,17 @@ public class DadosClienteModal extends Dialog {
         });
 
 
+        HorizontalLayout tipoImovellayout =
+                new CustomizedComboBox().customizeTipoImovel(comboEnderecosTipoImovel,tipoimovelService);
+
+        HorizontalLayout comboEnderecosRegiaoLayout =
+                new CustomizedComboBox().customizeRegiao(comboEnderecosRegiao,regiaoService);
+
         FormLayout formLayout = new FormLayout(fieldEnderecosCEPCustomized,
-                comboEnderecosTipoImovel, fieldEnderecosArea, fieldEnderecosEndereço,
+                tipoImovellayout, fieldEnderecosArea, fieldEnderecosEndereço,
                 fieldEnderecosNumero, fieldEnderecosComplemento, fieldEnderecosBairro,
                 fieldEnderecosCidade, comboEnderecosUF, fieldEnderecosTelefone,
-                fieldEnderecosPagGuia, fieldEnderecosReponsavel, comboEnderecosRegiao,
+                fieldEnderecosPagGuia, fieldEnderecosReponsavel, comboEnderecosRegiaoLayout,
                 fieldEnderecosPontodeReferencia
                 , saveButton);
         formLayout.setWidthFull();

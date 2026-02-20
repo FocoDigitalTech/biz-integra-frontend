@@ -1,7 +1,7 @@
 package br.com.onetec.application.service.orcamentoposvendaservice;
 
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrcamentoPosVenda;
 import br.com.onetec.infra.db.repository.ISetOrcamentoPosVendaRepository;
 import lombok.extern.slf4j.Slf4j;
