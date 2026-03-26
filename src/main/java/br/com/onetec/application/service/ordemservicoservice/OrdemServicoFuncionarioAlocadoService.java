@@ -70,7 +70,7 @@ public class OrdemServicoFuncionarioAlocadoService {
 
     public void update(SetOrdemServicoFuncionarioAlocado p) throws Exception {
         try {
-            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(p.getId_ordemservico());
+            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(p.getId_ordemservicofuncionarioalocado());
             SetOrdemServicoFuncionarioAlocado entity = optional.get();
             entity = p;
             entity.setData_alteracao(LocalDateTime.now());

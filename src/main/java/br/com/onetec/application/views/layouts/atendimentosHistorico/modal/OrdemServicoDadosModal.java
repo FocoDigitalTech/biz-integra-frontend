@@ -1033,12 +1033,6 @@ public class OrdemServicoDadosModal extends Dialog {
                 if (id_orcamento.getValue() != null) {
                     dto.setId_orcamento(Integer.valueOf(id_orcamento.getValue()));
                 }
-                if (id_funcionarioassistente.getValue() != null) {
-                    dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
-                }
-                if (id_funcionariotecnico.getValue() != null) {
-                    dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
-                }
                 if (id_tipoatendimento.getValue() != null) {
                     dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());
                 }
@@ -1072,7 +1066,7 @@ public class OrdemServicoDadosModal extends Dialog {
                         p.setId_contrato(dto.getId_contrato());
                         p.setId_ordemservico(dto.getId_ordemservico());
                         try {
-                            funcionarioAlocadoService.update(p);
+                            funcionarioAlocadoService.save(p);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
