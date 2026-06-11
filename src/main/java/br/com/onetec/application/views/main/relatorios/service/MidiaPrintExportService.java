@@ -14,6 +14,8 @@ import br.com.onetec.infra.db.model.*;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +58,7 @@ public class MidiaPrintExportService {
         this.situacaoService = situacaoService;
     }
 
-    public void imprimirRelatorio(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox) {
+    public void imprimirRelatorio(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox, DatePicker startDate, DatePicker endDate, ComboBox<SetTipoMidia> tipoMidia) {
 
         // 1) coleta o que está filtrado
         List<SetOrcamento> contratos = grid.getGenericDataView()
@@ -64,7 +67,7 @@ public class MidiaPrintExportService {
         boolean abreviar = abreviarCheckbox.getValue();
 
         // 2) monta o HTML
-        String html = montarHtmlDeImpressao(contratos, abreviar);
+        String html = montarHtmlDeImpressao(contratos, abreviar,startDate,endDate,tipoMidia);
 
         // 3) cria o StreamResource
         StreamResource resource = new StreamResource("relatorio.html", () ->
@@ -85,8 +88,26 @@ public class MidiaPrintExportService {
 
     }
 
-    private String montarHtmlDeImpressao(List<SetOrcamento> contratos, boolean abreviar) {
+    private String montarHtmlDeImpressao(List<SetOrcamento> contratos, boolean abreviar, DatePicker startDate, DatePicker endDate, ComboBox<SetTipoMidia> tipoMidia) {
         StringBuilder html = new StringBuilder();
+        DateTimeFormatter formatoBR = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .withLocale(new Locale("pt", "BR"));
+
+
+        String midia = "Todas";
+        String dataInicio = "N/D";
+        String dataFim = "N/D";
+        if (tipoMidia.getValue() != null){
+            midia = tipoMidia.getValue().getDescricao_tipomidia();
+        }
+
+        if (startDate.getValue() != null){
+            dataInicio = startDate.getValue().format(formatoBR);
+        }
+        if (endDate.getValue() != null) {
+            dataFim = endDate.getValue().format(formatoBR);
+        }
+
         html.append("<!DOCTYPE html><html><head><meta charset='utf-8'>")
                 // impressão paisagem
                 .append("<style>@media print{@page{size: landscape;}}")
@@ -97,7 +118,13 @@ public class MidiaPrintExportService {
                 .append("</style></head>")
                 // onload dispara a caixa de diálogo
                 .append("<body onload='window.print()'>")
-                .append("<h2>Relatório de Mídias</h2>")
+                .append("<h2>Relatório de Mídias - Selecionada: ")
+                .append(midia+"                     -")
+                .append("Periodo entre: ")
+                .append(dataInicio)
+                .append(" até ")
+                .append(dataFim)
+                .append("</h2>")
                 .append("<table><thead><tr>")
                 .append("<th>Cliente</th><th>Cidade</th><th>Bairro</th>")
                 .append("<th>Numero Proposta</th><th>Data</th><th>Serviços</th>")

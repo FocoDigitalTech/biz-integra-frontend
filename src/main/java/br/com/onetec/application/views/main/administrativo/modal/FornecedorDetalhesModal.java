@@ -532,6 +532,8 @@ public class FornecedorDetalhesModal extends Dialog {
         try {
             fornecedorService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            fornecedorDiv.refreshGrid();
+            close();
         } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }
