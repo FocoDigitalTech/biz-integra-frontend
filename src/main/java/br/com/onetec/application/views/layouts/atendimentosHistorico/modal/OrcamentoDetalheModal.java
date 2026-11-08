@@ -2986,7 +2986,7 @@ public class OrcamentoDetalheModal extends Dialog {
                 data_venda.setValue(contrato.getData_venda());
                 tipo_cobranca.setValue(contrato.getTipo_cobranca());
                 id_condicaopagamento.setValue(listaCondicaoPagamento.stream()
-                        .filter(objeto -> objeto.getId_condicaopagamento().equals(item.getId_condicaopagamento()))
+                        .filter(objeto -> objeto.getId_condicaopagamento().equals(contrato.getId_condicaopagamento()))
                         .findFirst().orElse(null));
                 datainicio_execucao.setValue(contrato.getDatainicio_execucao());
                 datainicio_vencimento.setValue(contrato.getDatainicio_vencimento());

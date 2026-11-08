@@ -288,9 +288,10 @@ public class CadastroClientesModal extends Dialog {
         comboEnderecosRegiao = new ComboBox("Região");
         fieldEnderecosPontodeReferencia = new TextField("Ponto de Referencia");
 
-        comboEnderecosRegiao.setRequiredIndicatorVisible(true);
-        comboEnderecosTipoImovel.setRequiredIndicatorVisible(true);
-        fieldEnderecosCEP.setRequiredIndicatorVisible(true);
+        comboEnderecosRegiao.setRequiredIndicatorVisible(false);
+        comboEnderecosTipoImovel.setRequiredIndicatorVisible(false);
+        fieldEnderecosCEP.setRequiredIndicatorVisible(false);
+        comboEnderecosUF.setRequired(true);
 
         buscaEnderecosCEPButton = new Button("Buscar CEP", e -> buscarCep());
         HorizontalLayout fieldEnderecosCEPCustomized =

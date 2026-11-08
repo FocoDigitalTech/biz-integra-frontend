@@ -14,17 +14,17 @@ public class SetFluxoRecebimentoPagamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_fluxorecebimentopagamento;
+    private Integer idFluxorecebimentopagamento;
     private Integer id_tipoeventofinanceiro;
     private Integer id_eventofinanceiro;
     private Integer id_contacorrente;
     private Integer id_fornecedor;
     private Integer id_tipopagamento;
-    private String nome_fluxorecebimentopagamento;
+    private String nomeFluxorecebimentopagamento;
     private String quantidade_parcelas;
     private String quantidade_intervalo;
     private LocalDateTime data_lancamento;
-    private BigDecimal valor_lancamento;
+    private BigDecimal valorLancamento;
     private LocalDateTime data_contabil;
     private BigDecimal valor_contabil;
     private LocalDateTime data_pagamento;
@@ -37,12 +37,12 @@ public class SetFluxoRecebimentoPagamento {
     private BigDecimal valor_baixa;
     private Integer id_funcionariolancamento;
     private Integer id_funcionariobaixa;
-    private String status_pagamento;
+    private String statusPagamento;
     private LocalDateTime data_inclusao;
     private LocalDateTime data_alteracao;
     private LocalDateTime data_exclusao;
     private String ativo;
     private String descricao_fluxorecebimentopagamento;
-    private LocalDate data_vencimento;
+    private LocalDate dataVencimento;
     private Integer id_usuario;
 }

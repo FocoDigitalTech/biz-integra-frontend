@@ -49,6 +49,10 @@ public class CompraProdutoModal {
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
 
+        if (item.getId_produto() != null) {
+            id_produto.setValue(produtoService.findById(item.getId_produto()));
+        }
+
         quantidade_compraproduto.setValue(item.getQuantidade_compraproduto());
         valorunitario_compraproduto.setValue(String.valueOf(item.getValorunitario_compraproduto()));
         valortotal_compraproduto.setValue(String.valueOf(item.getValortotal_compraproduto()));

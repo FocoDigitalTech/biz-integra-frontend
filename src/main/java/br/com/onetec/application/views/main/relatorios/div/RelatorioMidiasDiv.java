@@ -311,7 +311,7 @@ public class RelatorioMidiasDiv extends Div {
             // Itens do submenu
             contextMenu.addItem("Resumido", e -> {
                 midiaPrintExportService.
-                        imprimirGrafico(grid, abreviarCheckbox);
+                        imprimirGrafico(grid, abreviarCheckbox,startDate,endDate,tipoMidia);
             });
             contextMenu.addItem("Detalhado", e -> {
                 midiaPrintExportService.

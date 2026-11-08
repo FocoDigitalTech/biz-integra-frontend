@@ -46,7 +46,7 @@ public class LancamentoService {
 
     public void delete(SetFluxoRecebimentoPagamento item) throws Exception {
         try {
-            Optional<SetFluxoRecebimentoPagamento> optional = repository.findById(item.getId_fluxorecebimentopagamento());
+            Optional<SetFluxoRecebimentoPagamento> optional = repository.findById(item.getIdFluxorecebimentopagamento());
             SetFluxoRecebimentoPagamento entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());
@@ -60,7 +60,7 @@ public class LancamentoService {
 
     public void update(SetFluxoRecebimentoPagamento dto) throws Exception {
         try {
-            Optional<SetFluxoRecebimentoPagamento> optional = repository.findById(dto.getId_fluxorecebimentopagamento());
+            Optional<SetFluxoRecebimentoPagamento> optional = repository.findById(dto.getIdFluxorecebimentopagamento());
             SetFluxoRecebimentoPagamento entity = optional.get();
             entity = dto;
             entity.setData_alteracao(LocalDateTime.now());

@@ -29,6 +29,7 @@ import br.com.onetec.cross.utilities.CustomizedComboBox;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.*;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -80,6 +81,7 @@ public class OrdemServicoDadosModal extends Dialog {
     SetOrdemServico ordemServico;
     List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocados;
     List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocadosUpdate = new ArrayList<>();
+    List<SetOrdemServicoFuncionarioAlocado> listaOrdemServicoFuncionarioAlocadosDelete = new ArrayList<>();
     List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServico;
     List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoExcluir = new ArrayList<>();
     List<SetOrdemServicoExecucaoServico> listaOrdemServicoExecucaoServicoUpdate = new ArrayList<>();
@@ -202,6 +204,7 @@ public class OrdemServicoDadosModal extends Dialog {
     private List<SetOrdemServicoExecucaoServico> listaservicosexecucaodetalhadas;
     @Autowired
     private DadosEmpresaService dadosEmpresaService;
+    private List<SetOrdemServicoMisturas> listaOrdemServicoMisturasExluir;
 
     public OrdemServicoDadosModal() {
 
@@ -483,6 +486,8 @@ public class OrdemServicoDadosModal extends Dialog {
 
     private Div createFormCadastroOrdemServicoMistura() {
 
+        listaOrdemServicoMisturasExluir = new ArrayList<>();
+
         service = new UtilitySystemConfigService();
         id_produtoMistura = new ComboBox<>("Produto");
         id_produtoMistura.setItems(produtoService.findAll());
@@ -579,6 +584,7 @@ public class OrdemServicoDadosModal extends Dialog {
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
                 listaOrdemServicoMisturas.remove(arquivoOrcamento);
+                listaOrdemServicoMisturasExluir.add(arquivoOrcamento);
                 // Atualiza os itens da grid
                 ordemServicoMisturasGrid.setItems(listaOrdemServicoMisturas);
                 // Feedback ao usuário
@@ -862,6 +868,7 @@ public class OrdemServicoDadosModal extends Dialog {
 
     private Div createFormcadastroOrdemServicoFuncionarioAlocado() {
         listaOrdemServicoFuncionarioAlocados = new ArrayList<>();
+        listaOrdemServicoFuncionarioAlocadosDelete = new ArrayList<>();
         id_funcionario = new ComboBox<>("Funcionario");
         id_funcionario.setItems(funcionarioService.listAll());
         id_funcionario.setItemLabelGenerator(SetFuncionario::getNome_funcionario);
@@ -902,6 +909,9 @@ public class OrdemServicoDadosModal extends Dialog {
             // Cria o botão de deletar com um ícone de lixeira
             Button del = new Button(new Icon(VaadinIcon.TRASH), event -> {
                 // Remove o item da lista
+                if (arquivoOrcamento.getId_ordemservicofuncionarioalocado() != null) {
+                    listaOrdemServicoFuncionarioAlocadosDelete.add(arquivoOrcamento);
+                }
                 listaOrdemServicoFuncionarioAlocados.remove(arquivoOrcamento);
                 // Atualiza os itens da grid
                 funcionarioAlocadoGrid.setItems(listaOrdemServicoFuncionarioAlocados);
@@ -1054,6 +1064,12 @@ public class OrdemServicoDadosModal extends Dialog {
                 }
                 dto.setDiasemanainicio_ordemservico(diasemanainicio_ordemservico.getValue());
                 dto.setNome_pontofocal(nome_pontofocal.getValue());
+                if (id_funcionariotecnico.getValue() != null) {
+                    dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
+                }
+                if (id_funcionarioassistente.getValue() != null) {
+                    dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
+                }
                 dto.setData_alteracao(LocalDateTime.now());
                 dto.setId_usuario(UsuarioAutenticadoConfig.getUser().getId_usuario());
                 dto.setAtivo("S");
@@ -1127,6 +1143,15 @@ public class OrdemServicoDadosModal extends Dialog {
                         }
                     });
                 }
+                if (listaOrdemServicoMisturasExluir.size() > 0){
+                    listaOrdemServicoMisturasExluir.forEach(setOrdemServicoMisturas -> {
+                        try {
+                            ordemServicoMisturaService.delete(setOrdemServicoMisturas);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
                 if (listaOrdemServicoPragaUpdate.size() > 0) {
                     listaOrdemServicoPragaUpdate.forEach(p -> {
                         p.setId_cliente(dto.getId_cliente());
@@ -1139,6 +1164,17 @@ public class OrdemServicoDadosModal extends Dialog {
                             e.printStackTrace();
                         }
                     });
+                }
+
+                if (listaOrdemServicoFuncionarioAlocadosDelete.size() > 0){
+                    listaOrdemServicoFuncionarioAlocadosDelete.forEach(setOrdemServicoFuncionarioAlocado -> {
+                        try {
+                            funcionarioAlocadoService.delete(setOrdemServicoFuncionarioAlocado);
+                        } catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    });
+
                 }
                 orcamentoDiv.refreshGrid();
                 id_orcamento.clear();

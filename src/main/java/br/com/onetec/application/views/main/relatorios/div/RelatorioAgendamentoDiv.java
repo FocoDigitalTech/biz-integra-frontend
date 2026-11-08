@@ -35,6 +35,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
@@ -194,9 +195,7 @@ public class RelatorioAgendamentoDiv extends Div {
                 .setSortable(true)
                 .setAutoWidth(true);
 
-        grid.addColumn(contrato ->
-                contrato.getAplicacoes_periodicas().equals("SIM") ?
-                        "Aplicações Periodicas" : "Suporte")
+        grid.addColumn(getSetContratoObjectValueProvider())
                 .setHeader("Tipo")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -264,6 +263,20 @@ public class RelatorioAgendamentoDiv extends Div {
 
 
         return grid;
+    }
+
+    private ValueProvider<SetContrato, Object> getSetContratoObjectValueProvider() {
+        return contrato -> {
+            if (contrato == null || contrato.getAplicacoes_periodicas() == null) {
+                return "Suporte";
+            }
+
+            String aplicacoesPeriodicas = contrato.getAplicacoes_periodicas();
+
+            return "SIM".equals(aplicacoesPeriodicas)
+                    ? "Aplicações Periódicas"
+                    : "Suporte";
+        };
     }
 
     private void gerarPDFComItensFiltrados() {

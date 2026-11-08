@@ -24,6 +24,7 @@
     "chart.js": "^4.4.7",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
+    "leaflet": "1.9.4",
     "lit": "3.1.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -71,6 +72,7 @@
       "@vaadin/vaadin-usage-statistics": "2.1.2",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
+      "leaflet": "1.9.4",
       "lit": "3.1.4",
       "react": "18.3.1",
       "react-dom": "18.3.1",
@@ -96,7 +98,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "0600a3f2a1b91289e5a3ad43816d6c3ff0a5dcdb5498b0c6f765fa13515ada02"
+    "hash": "e261f4895c4f779fc1b1ae3a7a57fc7b34b5578d36cb1bbab5c3ef1525234018"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -123,6 +125,7 @@
     "@vaadin/charts": "$@vaadin/charts",
     "@vaadin/grid-pro": "$@vaadin/grid-pro",
     "@vaadin/vaadin-shrinkwrap": "$@vaadin/vaadin-shrinkwrap",
-    "chart.js": "$chart.js"
+    "chart.js": "$chart.js",
+    "leaflet": "$leaflet"
   }
 }

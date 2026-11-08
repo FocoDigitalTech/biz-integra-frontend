@@ -138,7 +138,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
 
     private Dialog carregaBaixaPagamento() {
         service = new UtilitySystemConfigService();
-        if (fluxoRecebimentoPagamento.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
+        if (fluxoRecebimentoPagamento.getStatusPagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
             Dialog modalPagamento = new Dialog();
             TextField valorLancado = new TextField("Valor do Lançamento");
             DatePicker dataVencimentoParcela = new DatePicker("Vencimento Pagamento");
@@ -154,7 +154,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             service.configuraCalendario(dataVencimentoParcela);
             service.configuraCalendario(dataPagamentomodal);
 
-            valorLancado.setValue(fluxoRecebimentoPagamento.getValor_lancamento().toString());  // Valor inicial sem máscara
+            valorLancado.setValue(fluxoRecebimentoPagamento.getValorLancamento().toString());  // Valor inicial sem máscara
 
             service.formataMoedaBrasileira(valorLancado);  // Formatar como moeda brasileira
 
@@ -163,7 +163,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             valorPagamentoModal.setValue(fluxoRecebimentoPagamento.getValor_baixa().toString());
             service.formataMoedaBrasileira(valorPagamentoModal);
 
-            dataVencimentoParcela.setValue(fluxoRecebimentoPagamento.getData_vencimento());
+            dataVencimentoParcela.setValue(fluxoRecebimentoPagamento.getDataVencimento());
 
             valorLancado.setValueChangeMode(ValueChangeMode.EAGER);
             valorLancado.setPlaceholder("R$ 0,00");
@@ -175,7 +175,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             Button pagamentoButon = new Button("Cancelar Baixa ?", event -> {
                 try {
                     BigDecimal valorTots = service.getValorBigDecimal(valorPagamentoModal.getValue());  // Converter o valor total para BigDecimal
-                    fluxoRecebimentoPagamento.setStatus_pagamento(FinanceiroDataConst.STATUS_REAL.getValor());
+                    fluxoRecebimentoPagamento.setStatusPagamento(FinanceiroDataConst.STATUS_REAL.getValor());
                     fluxoRecebimentoPagamento.setData_pagamento(null);
                     fluxoRecebimentoPagamento.setValor_pagamento(null);
                     fluxoRecebimentoPagamento.setDatahora_baixa(null);
@@ -239,7 +239,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             Button pagamentoButon = new Button("Confirmar Baixa de Pagamento", event -> {
                 try {
                     BigDecimal valorTots = service.getValorBigDecimal(valorPagamentoModal.getValue());  // Converter o valor total para BigDecimal
-                    fluxoRecebimentoPagamento.setStatus_pagamento(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor());
+                    fluxoRecebimentoPagamento.setStatusPagamento(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor());
                     fluxoRecebimentoPagamento.setData_pagamento(dataPagamentomodal.getValue().atStartOfDay());
                     fluxoRecebimentoPagamento.setValor_pagamento(valorTots);
                     fluxoRecebimentoPagamento.setDatahora_baixa(LocalDateTime.now());
@@ -409,9 +409,9 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
             }
 
 
-            dto.setNome_fluxorecebimentopagamento(nome_fluxorecebimentopagamento.getValue());
-            dto.setData_vencimento(data_lancamento.getValue());
-            dto.setValor_lancamento(service.getValorBigDecimal(valor_lancamento.getValue()));
+            dto.setNomeFluxorecebimentopagamento(nome_fluxorecebimentopagamento.getValue());
+            dto.setDataVencimento(data_lancamento.getValue());
+            dto.setValorLancamento(service.getValorBigDecimal(valor_lancamento.getValue()));
             if (Objects.nonNull(data_pagamento.getValue())) {
                 dto.setData_pagamento(data_pagamento.getValue().atStartOfDay());
             }
@@ -457,7 +457,7 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
         UI.getCurrent().access(() -> {
             this.fluxoRecebimentoPagamento = item;
 
-            if (fluxoRecebimentoPagamento.getStatus_pagamento().equals
+            if (fluxoRecebimentoPagamento.getStatusPagamento().equals
                     (FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
                 baixaButton.setText("Cancelar Baixa");
             } else {
@@ -482,8 +482,8 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
                         .filter(objeto -> objeto.getId_fornecedor().equals(item.getId_fornecedor()))
                         .findFirst().orElse(null));
             }
-            if (Objects.nonNull(item.getStatus_pagamento())) {
-                status_pagamento.setValue(item.getStatus_pagamento());
+            if (Objects.nonNull(item.getStatusPagamento())) {
+                status_pagamento.setValue(item.getStatusPagamento());
             }
 
             if (Objects.nonNull(item.getId_funcionariolancamento())) {
@@ -495,12 +495,12 @@ public class LancamentoFinanceiroDetalhesModal extends Dialog {
                 numero_parcela.setValue(item.getNumero_parcela() + "/" + item.getQuantidade_parcelas());
             }
 
-            if (Objects.nonNull(item.getNome_fluxorecebimentopagamento()))
-                nome_fluxorecebimentopagamento.setValue(item.getNome_fluxorecebimentopagamento());
-            if (Objects.nonNull(item.getData_vencimento()))
-                data_lancamento.setValue(LocalDate.from(item.getData_vencimento()));
-            if (Objects.nonNull(item.getValor_lancamento()))
-                valor_lancamento.setValue(item.getValor_lancamento().toString());
+            if (Objects.nonNull(item.getNomeFluxorecebimentopagamento()))
+                nome_fluxorecebimentopagamento.setValue(item.getNomeFluxorecebimentopagamento());
+            if (Objects.nonNull(item.getDataVencimento()))
+                data_lancamento.setValue(LocalDate.from(item.getDataVencimento()));
+            if (Objects.nonNull(item.getValorLancamento()))
+                valor_lancamento.setValue(item.getValorLancamento().toString());
             if (Objects.nonNull(item.getData_pagamento()))
                 data_pagamento.setValue(LocalDate.from(item.getData_pagamento()));
             if (Objects.nonNull(item.getValor_pagamento()))

@@ -479,6 +479,8 @@ public class DadosClienteModal extends Dialog {
 
         fieldEnderecosCEP.setRequiredIndicatorVisible(true);
 
+        comboEnderecosUF.setRequired(true);
+
         // Configurar o Grid
         //grid.setItems(enderecos);
 //        grid.addColumn(endereco -> {

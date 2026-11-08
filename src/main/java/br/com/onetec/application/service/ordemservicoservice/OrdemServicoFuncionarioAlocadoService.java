@@ -51,7 +51,7 @@ public class OrdemServicoFuncionarioAlocadoService {
 
     public void delete(SetOrdemServicoFuncionarioAlocado item) throws Exception {
         try {
-            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(item.getId_ordemservico());
+            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(item.getId_ordemservicofuncionarioalocado());
             SetOrdemServicoFuncionarioAlocado entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());

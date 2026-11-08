@@ -28,12 +28,19 @@ public class ContratoService {
     public Page<SetContrato> list(Pageable pageable, Specification<SetContrato> filter) {
         log.info("Pageable: {}", pageable);
         Page<SetContrato> page = repository.findAll(filter, pageable);
-        Specification<SetContrato> novaCondicao = (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("ativo"), "S");
-        // Combina a nova condição com o filtro existente usando and()
-        Specification<SetContrato> filtroComCondicao = filter.and(novaCondicao);
-        // Executa a consulta com o filtro combinado
-        return repository.findAll(filtroComCondicao, pageable);
+        if (page.getSize() > 0) {
+            Specification<SetContrato> novaCondicao = (root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("ativo"), "S");
+            // Combina a nova condição com o filtro existente usando and()
+            Specification<SetContrato> filtroComCondicao = filter.and(novaCondicao);
+            // Executa a consulta com o filtro combinado
+            var reponse= repository.findAll(filtroComCondicao, pageable);
+            if (reponse.getSize() > 0){
+                return reponse;
+            }
+            return null;
+        }
+        return null;
     }
 
     public void save(SetContrato dto) throws Exception {
