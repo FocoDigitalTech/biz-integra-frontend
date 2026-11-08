@@ -376,13 +376,26 @@ public class ClientesView extends Div {
                 predicates.add(criteriaBuilder.or(firstNameMatch));
             }
             if (!razaosocial.isEmpty()) {
-                String lowerCaseFilter = razaosocial.getValue();
+
+                String lowerCaseFilter = razaosocial.getValue().toLowerCase();
+                lowerCaseFilter = lowerCaseFilter.replaceAll("[- ()]", "");
+
                 String ignore = "- ()";
+
+                Expression<String> campoTratado = ignoreCharacters(
+                        ignore,
+                        criteriaBuilder,
+                        criteriaBuilder.lower(root.get("nome_fantasia_cliente"))
+                );
+
                 Predicate firstNameMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get("nome_fantasia_cliente"))),
-                        "%" + lowerCaseFilter + "%");
-                predicates.add(criteriaBuilder.or(firstNameMatch));
+                        campoTratado,
+                        "%" + lowerCaseFilter + "%"
+                );
+
+                predicates.add(firstNameMatch);
             }
+
             if (!telefone.isEmpty()) {
                 String lowerCaseFilter = service.removeMascara(telefone.getValue());
                 String ignore = "- ()";

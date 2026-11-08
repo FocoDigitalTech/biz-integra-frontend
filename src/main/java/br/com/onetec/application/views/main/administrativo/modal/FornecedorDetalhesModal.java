@@ -1,6 +1,7 @@
 package br.com.onetec.application.views.main.administrativo.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorcontatoservice.FornecedorContatoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
@@ -531,6 +532,8 @@ public class FornecedorDetalhesModal extends Dialog {
         try {
             fornecedorService.delete(item);
             service.notificaSucesso(ModalMessageConst.DELETE_SUCCESS);
+            fornecedorDiv.refreshGrid();
+            close();
         } catch (Exception e) {
             service.notificaErro(ModalMessageConst.ERROR_DELETE);
         }

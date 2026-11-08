@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.estoqueservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetEstoque;
 import br.com.onetec.infra.db.repository.ISetEstoqueRepository;
 import lombok.SneakyThrows;

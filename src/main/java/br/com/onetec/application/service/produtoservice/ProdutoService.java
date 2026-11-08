@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.produtoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetCompraProduto;
 import br.com.onetec.infra.db.model.SetOrdemServicoMateriais;
 import br.com.onetec.infra.db.model.SetProduto;
@@ -141,7 +141,14 @@ public class ProdutoService {
             Optional<SetProduto> produtoOptional = repository.findById(id_produto);
             SetProduto entity = produtoOptional.orElseThrow(() -> new Exception("Produto não encontrado"));
             // Copiando os valores do DTO para a entidade existente
-            int total = entity.getQuantidade_estoque() - quantidade_compraproduto;
+            Integer estoqueAtual = 0;
+            if (quantidade_compraproduto.equals(null)){
+                quantidade_compraproduto = 0;
+            }
+            if (entity.getQuantidade_estoque() != null){
+                estoqueAtual = entity.getQuantidade_estoque();
+            }
+            int total = estoqueAtual - quantidade_compraproduto;
             entity.setQuantidade_estoque(total);
             entity.setData_alteracao(LocalDateTime.now());
             repository.save(entity);

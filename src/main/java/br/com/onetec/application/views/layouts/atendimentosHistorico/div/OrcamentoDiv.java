@@ -7,6 +7,7 @@ import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.orcamentoservice.OrcamentoService;
 import br.com.onetec.application.service.ordemservicoservice.OrdemServicoService;
 import br.com.onetec.application.service.situacaocadastroservice.SituacaoCadastroService;
+import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.service.userservice.UsuarioService;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.SetClienteTransiction;
 import br.com.onetec.application.views.layouts.atendimentosHistorico.modal.OrcamentoCadastroModal;
@@ -86,6 +87,8 @@ public class OrcamentoDiv extends Div {
 
     private EnderecoService enderecoService;
 
+    private TipoAtendimentoService tipoAtendimentoService;
+
     private ApplicationContext applicationContext;
 
     private String possuiContrato;
@@ -107,7 +110,8 @@ public class OrcamentoDiv extends Div {
                         CondicaoPagamentoService condicaoPagamentoService1,
                         EnderecoService enderecoService1,
                         ContratoService contratoService1,
-                        AutoExclusaoProceduralService autoExclusaoProceduralService1) {
+                        AutoExclusaoProceduralService autoExclusaoProceduralService1,
+                        TipoAtendimentoService tipoAtendimentoService1) {
         this.orcamentoService = orcamentoService1;
         this.service = service1;
         this.usuarioService = usuarioService1;
@@ -122,6 +126,7 @@ public class OrcamentoDiv extends Div {
         this.contratoService = contratoService1;
         this.applicationContext = applicationContext1;
         this.autoExclusaoProceduralService = autoExclusaoProceduralService1;
+        this.tipoAtendimentoService = tipoAtendimentoService1;
         UI.getCurrent().access(() -> {
             add(telaDiv());
         });
@@ -379,11 +384,6 @@ public class OrcamentoDiv extends Div {
                     .setSortable(true)
                     .setResizable(true)
                     .setAutoWidth(true);
-            gridOrdemServico.addColumn(SetOrdemServico::getNome_pontofocal)
-                    .setHeader("Ponto Focal")
-                    .setSortable(true)
-                    .setResizable(true)
-                    .setAutoWidth(true);
             gridOrdemServico.addColumn(data -> {
                 if (Objects.nonNull(data.getDatainicio_ordemservico())) {
                     return UtilitySystemConfigService.
@@ -393,6 +393,18 @@ public class OrcamentoDiv extends Div {
                 }
             })
                     .setHeader("Data Atendimento")
+                    .setSortable(true)
+                    .setResizable(true)
+                    .setAutoWidth(true);
+            gridOrdemServico.addColumn(SetOrdemServico::getHorarioinicio_ordemservico)
+                    .setHeader("Hora Atendimento")
+                    .setSortable(true)
+                    .setResizable(true)
+                    .setAutoWidth(true);
+            gridOrdemServico.addColumn(s -> {
+                SetTipoAtendimento situacaoCadastro = tipoAtendimentoService.fidById(s.getId_tipoatendimento());
+                return situacaoCadastro == null ? "N/A" : situacaoCadastro.getDescricao_tipoatendimento();
+            }).setHeader("Tipo")
                     .setSortable(true)
                     .setResizable(true)
                     .setAutoWidth(true);

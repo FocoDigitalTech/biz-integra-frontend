@@ -44,7 +44,7 @@ public class RelatoriosView extends VerticalLayout {
             tabSheet.setSizeFull();
 
             // Corrigir a adição da MetricsView retornando um componente
-            tabSheet.add("Overview", MetricsView());
+            //tabSheet.add("Overview", MetricsView());
 
             // Adicionar o overviewDiv na aba de Clientes
             tabSheet.add("Agendamentos", agendamentoDiv);

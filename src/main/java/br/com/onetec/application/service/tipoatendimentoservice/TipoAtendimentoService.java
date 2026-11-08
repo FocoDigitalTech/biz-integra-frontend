@@ -1,8 +1,9 @@
 package br.com.onetec.application.service.tipoatendimentoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetTipoAtendimento;
 import br.com.onetec.infra.db.repository.ISetTipoAtendimentoRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -68,6 +69,16 @@ public class TipoAtendimentoService {
             SetTipoAtendimento entity = optional.get();
             entity = dto;
             repository.save(entity);
+        } catch (Exception e) {
+            throw new Exception();
+        }
+    }
+
+    @SneakyThrows
+    public SetTipoAtendimento fidById(Integer id_tipoatendimento) {
+        try {
+            Optional<SetTipoAtendimento> optional = repository.findById(id_tipoatendimento);
+            return optional.orElseThrow();
         } catch (Exception e) {
             throw new Exception();
         }

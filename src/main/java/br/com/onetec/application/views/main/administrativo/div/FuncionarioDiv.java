@@ -300,9 +300,17 @@ public class FuncionarioDiv extends Div {
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
+
+                Expression<String> campoTratado = ignoreCharacters(
+                        ignore,
+                        criteriaBuilder,
+                        criteriaBuilder.lower(root.get(databaseColumn))
+                );
+
                 Predicate phoneMatch = criteriaBuilder.like(
-                        ignoreCharacters(ignore, criteriaBuilder, criteriaBuilder.lower(root.get(databaseColumn))),
-                        "%" + lowerCaseFilter + "%");
+                        campoTratado,
+                        "%" + lowerCaseFilter + "%"
+                );
                 predicates.add(phoneMatch);
 
             }

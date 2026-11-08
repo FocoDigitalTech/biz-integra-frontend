@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.situacaopagamentoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetSituacaoPagamento;
 import com.vaadin.flow.component.button.Button;

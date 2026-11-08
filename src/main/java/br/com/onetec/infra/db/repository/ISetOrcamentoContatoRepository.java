@@ -13,6 +13,6 @@ public interface ISetOrcamentoContatoRepository extends CrudRepository<SetOrcame
     @Query(value = "SELECT * FROM tb_orcamentocontato where ativo = 'S'", nativeQuery = true)
     List<SetOrcamentoContato> listAll();
 
-    @Query(value = "SELECT * FROM tb_orcamentocontato where id_orcamento = ?1 and ativo = 'S'", nativeQuery = true)
+    @Query(value = "SELECT * FROM tb_orcamentocontato where id_orcamento = ?1 and ativo = 'S' order by dataretorno_orcamentocontato desc", nativeQuery = true)
     List<SetOrcamentoContato> listAllByOrcamentoId(Integer id_orcamento);
 }

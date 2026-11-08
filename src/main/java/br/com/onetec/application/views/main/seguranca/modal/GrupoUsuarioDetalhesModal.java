@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.seguranca.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.grupousuarioservice.GrupoUsuarioService;
 import br.com.onetec.application.service.permissaoservice.PermissaoService;
 import br.com.onetec.application.views.main.seguranca.div.GrupoUsuariosDiv;

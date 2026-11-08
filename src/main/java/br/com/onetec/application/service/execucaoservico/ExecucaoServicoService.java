@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.execucaoservico;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetExecucaoServico;
 import br.com.onetec.infra.db.repository.ISetExecucaoServicoRepository;
 import lombok.SneakyThrows;

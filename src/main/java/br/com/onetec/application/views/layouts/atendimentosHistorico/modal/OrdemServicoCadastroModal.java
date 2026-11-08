@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.enderecoservice.EnderecoService;
 import br.com.onetec.application.service.execucaoservico.ExecucaoServicoService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
@@ -45,18 +45,14 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Text;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -287,8 +283,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoPragaGrid = new Grid<>(SetOrdemServicoPraga.class, false);
         ordemServicoPragaGrid.addColumn(praga -> {
-                    SetPraga praga1 = pragaService.findById(praga.getId_praga());
-                    return praga1 != null ? praga1.getDescricao_praga() : "N/A"; })
+            SetPraga praga1 = pragaService.findById(praga.getId_praga());
+            return praga1 != null ? praga1.getDescricao_praga() : "N/A"; })
                 .setHeader("Praga")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -301,7 +297,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoPragaGrid.addColumn(data -> UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao()))
+                getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -374,14 +370,14 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoMisturasGrid = new Grid<>(SetOrdemServicoMisturas.class, false);
         ordemServicoMisturasGrid.addColumn(produto -> {
-                    SetProduto setProduto = produtoService.findById(produto.getId_produto());
-                    return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+            SetProduto setProduto = produtoService.findById(produto.getId_produto());
+            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
                 .setHeader("Produto")
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoMisturasGrid.addColumn(produto -> {
-                    SetProduto setProduto = produtoService.findById(produto.getId_produtosolvente());
-                    return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+            SetProduto setProduto = produtoService.findById(produto.getId_produtosolvente());
+            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
                 .setHeader("Solvente")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -398,7 +394,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoMisturasGrid.addColumn(data -> UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao()))
+                getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -471,8 +467,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoExecucaoGrid = new Grid<>(SetOrdemServicoExecucaoServico.class, false);
         ordemServicoExecucaoGrid.addColumn(produto -> {
-                    SetExecucaoServico setProduto = execucaoServicoService.findById(produto.getId_execucaoservico());
-                    return setProduto != null ? setProduto.getNome_execucaoservico() : "N/A"; })
+            SetExecucaoServico setProduto = execucaoServicoService.findById(produto.getId_execucaoservico());
+            return setProduto != null ? setProduto.getNome_execucaoservico() : "N/A"; })
                 .setHeader("Serviço")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -489,7 +485,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoExecucaoGrid.addColumn(data -> UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao()))
+                getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -556,8 +552,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         ordemServicoMateriaisGrid = new Grid<>(SetOrdemServicoMateriais.class, false);
         ordemServicoMateriaisGrid.addColumn(produto -> {
-                    SetProduto setProduto = produtoService.findById(produto.getId_produto());
-                    return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
+            SetProduto setProduto = produtoService.findById(produto.getId_produto());
+            return setProduto != null ? setProduto.getNome_produto() : "N/A"; })
                 .setHeader("Produto")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -578,7 +574,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         ordemServicoMateriaisGrid.addColumn(data -> UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao()))
+                getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -635,8 +631,8 @@ public class OrdemServicoCadastroModal extends Dialog {
 
         funcionarioAlocadoGrid = new Grid<>(SetOrdemServicoFuncionarioAlocado.class, false);
         funcionarioAlocadoGrid.addColumn(funcionarioAlocado -> {
-                    SetFuncionario funcionario = funcionarioService.findById(funcionarioAlocado.getId_funcionario());
-                    return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
+            SetFuncionario funcionario = funcionarioService.findById(funcionarioAlocado.getId_funcionario());
+            return funcionario != null ? funcionario.getNome_funcionario() : "N/A"; })
                 .setHeader("Funcionário")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -645,7 +641,7 @@ public class OrdemServicoCadastroModal extends Dialog {
                 .setSortable(true)
                 .setAutoWidth(true);
         funcionarioAlocadoGrid.addColumn(data -> UtilitySystemConfigService.
-                        getDataFormatada(data.getData_inclusao()))
+                getDataFormatada(data.getData_inclusao()))
                 .setHeader("Data Inclusão")
                 .setSortable(true)
                 .setAutoWidth(true);
@@ -843,12 +839,6 @@ public class OrdemServicoCadastroModal extends Dialog {
                             dto.setConfirmado_ordemservico("S");
                         } else if (confirmado_ordemservico.getValue().equals("NÃO")) {
                             dto.setConfirmado_ordemservico("N");
-                        }
-                        if (id_funcionarioassistente.getValue() != null) {
-                            dto.setId_funcionarioassistente(id_funcionarioassistente.getValue().getId_funcionario());
-                        }
-                        if (id_funcionariotecnico.getValue() != null) {
-                            dto.setId_funcionariotecnico(id_funcionariotecnico.getValue().getId_funcionario());
                         }
                         if (id_tipoatendimento.getValue() != null) {
                             dto.setId_tipoatendimento(id_tipoatendimento.getValue().getId_tipoatendimento());

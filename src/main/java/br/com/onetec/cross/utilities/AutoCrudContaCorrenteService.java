@@ -1,6 +1,6 @@
 package br.com.onetec.cross.utilities;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.infra.db.model.SetContaCorrente;
 import com.vaadin.flow.component.button.Button;

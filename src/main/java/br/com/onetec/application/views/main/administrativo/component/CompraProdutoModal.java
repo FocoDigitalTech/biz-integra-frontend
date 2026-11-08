@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.administrativo.component;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.compraprodutoservice.CompraProdutoService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
@@ -48,6 +48,10 @@ public class CompraProdutoModal {
 
         id_produto.setItems(produtoService.findAll());
         id_produto.setItemLabelGenerator(SetProduto::getNome_produto);
+
+        if (item.getId_produto() != null) {
+            id_produto.setValue(produtoService.findById(item.getId_produto()));
+        }
 
         quantidade_compraproduto.setValue(item.getQuantidade_compraproduto());
         valorunitario_compraproduto.setValue(String.valueOf(item.getValorunitario_compraproduto()));

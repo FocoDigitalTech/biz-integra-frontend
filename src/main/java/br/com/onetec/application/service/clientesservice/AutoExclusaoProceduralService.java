@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.clientesservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetContrato;
 import br.com.onetec.infra.db.model.SetEnderecos;
 import br.com.onetec.infra.db.model.SetOrcamento;

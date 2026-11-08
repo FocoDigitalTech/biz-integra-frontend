@@ -14,6 +14,8 @@ import br.com.onetec.infra.db.model.*;
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinSession;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +58,7 @@ public class MidiaPrintExportService {
         this.situacaoService = situacaoService;
     }
 
-    public void imprimirRelatorio(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox) {
+    public void imprimirRelatorio(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox, DatePicker startDate, DatePicker endDate, ComboBox<SetTipoMidia> tipoMidia) {
 
         // 1) coleta o que está filtrado
         List<SetOrcamento> contratos = grid.getGenericDataView()
@@ -64,7 +67,7 @@ public class MidiaPrintExportService {
         boolean abreviar = abreviarCheckbox.getValue();
 
         // 2) monta o HTML
-        String html = montarHtmlDeImpressao(contratos, abreviar);
+        String html = montarHtmlDeImpressao(contratos, abreviar,startDate,endDate,tipoMidia);
 
         // 3) cria o StreamResource
         StreamResource resource = new StreamResource("relatorio.html", () ->
@@ -85,8 +88,26 @@ public class MidiaPrintExportService {
 
     }
 
-    private String montarHtmlDeImpressao(List<SetOrcamento> contratos, boolean abreviar) {
+    private String montarHtmlDeImpressao(List<SetOrcamento> contratos, boolean abreviar, DatePicker startDate, DatePicker endDate, ComboBox<SetTipoMidia> tipoMidia) {
         StringBuilder html = new StringBuilder();
+        DateTimeFormatter formatoBR = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .withLocale(new Locale("pt", "BR"));
+
+
+        String midia = "Todas";
+        String dataInicio = "N/D";
+        String dataFim = "N/D";
+        if (tipoMidia.getValue() != null){
+            midia = tipoMidia.getValue().getDescricao_tipomidia();
+        }
+
+        if (startDate.getValue() != null){
+            dataInicio = startDate.getValue().format(formatoBR);
+        }
+        if (endDate.getValue() != null) {
+            dataFim = endDate.getValue().format(formatoBR);
+        }
+
         html.append("<!DOCTYPE html><html><head><meta charset='utf-8'>")
                 // impressão paisagem
                 .append("<style>@media print{@page{size: landscape;}}")
@@ -97,7 +118,13 @@ public class MidiaPrintExportService {
                 .append("</style></head>")
                 // onload dispara a caixa de diálogo
                 .append("<body onload='window.print()'>")
-                .append("<h2>Relatório de Mídias</h2>")
+                .append("<h2>Relatório de Mídias &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mídia: ")
+                .append(midia+"&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;")
+                .append("Periodo entre: ")
+                .append(dataInicio)
+                .append(" até ")
+                .append(dataFim)
+                .append("</h2>")
                 .append("<table><thead><tr>")
                 .append("<th>Cliente</th><th>Cidade</th><th>Bairro</th>")
                 .append("<th>Numero Proposta</th><th>Data</th><th>Serviços</th>")
@@ -108,24 +135,24 @@ public class MidiaPrintExportService {
             html.append("<tr>");
             // Nome cliente
             SetCliente cl = clientesService.findById(c.getId_cliente());
-            html.append("<td>")
+            html.append("<td style=\"font-size: 11px;\">")
                     .append(cl != null ? cl.getNome_cliente() : "")
                     .append("</td>");
             // Cidade
             SetEnderecos ed = enderecoService.findById(c.getId_endereco());
-            html.append("<td>")
+            html.append("<td style=\"font-size: 11px;\">")
                     .append(cl != null ? ed.getCidade_imovel() : "")
                     .append("</td>");
             // bairro
-            html.append("<td>")
+            html.append("<td style=\"font-size: 11px;\">")
                     .append(cl != null ? ed.getBairro_imovel() : "")
                     .append("</td>");
-            html.append("<td>").append(c.getId_orcamento()).append("</td>");
+            html.append("<td style=\"font-size: 11px;\">").append(c.getId_orcamento()).append("</td>");
             // Data formatada
             String data = c.getData_orcamento() != null
                     ? UtilitySystemConfigService.getDataFormatada(c.getData_orcamento().atStartOfDay()).toString()
                     : "";
-            html.append("<td>").append(data).append("</td>");
+            html.append("<td style=\"font-size: 11px;\">").append(data).append("</td>");
             // Serviços
             Set<Integer> ids = servicosOrcamentoService.listByOrcamento(c.getId_orcamento())
                     .stream().map(SetServicosOrcamento::getId_servico).collect(Collectors.toSet());
@@ -143,13 +170,13 @@ public class MidiaPrintExportService {
                             sj.add(desc);
                         }
                     });
-            html.append("<td>").append(sj.toString()).append("</td>");
+            html.append("<td style=\"font-size: 11px;\">").append(sj.toString()).append("</td>");
             // Tipo
             SetSituacaoCadastro tipo = situacaoService.fidById(c.getId_situacao());
-            html.append("<td>").append(tipo.getDescricao_situacaocadastro()).append("</td>");
+            html.append("<td style=\"font-size: 11px;\">").append(tipo.getDescricao_situacaocadastro()).append("</td>");
 
             // Horário
-            html.append("<td>").append(c.getHorario_inspecao()).append("</td>");
+            html.append("<td style=\"font-size: 11px;\">").append(c.getHorario_inspecao()).append("</td>");
 
 
             html.append("</tr>");
@@ -160,8 +187,26 @@ public class MidiaPrintExportService {
     }
 
 
-    private String montarHtmlDeGrafico(List<SetOrcamento> contratos) {
+    private String montarHtmlDeGrafico(List<SetOrcamento> contratos, DatePicker startDate, DatePicker endDate, ComboBox<SetTipoMidia> tipoMidia) {
         Map<SetSituacaoCadastro, Map<String, Integer>> resultado = new LinkedHashMap<>();
+
+        DateTimeFormatter formatoBR = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                .withLocale(new Locale("pt", "BR"));
+
+
+        String midia = "Todas";
+        String dataInicio = "N/D";
+        String dataFim = "N/D";
+        if (tipoMidia.getValue() != null){
+            midia = tipoMidia.getValue().getDescricao_tipomidia();
+        }
+
+        if (startDate.getValue() != null){
+            dataInicio = startDate.getValue().format(formatoBR);
+        }
+        if (endDate.getValue() != null) {
+            dataFim = endDate.getValue().format(formatoBR);
+        }
 
         for (SetOrcamento orc : contratos) {
             SetSituacaoCadastro situacao = situacaoService.fidById(orc.getId_situacao());
@@ -189,7 +234,12 @@ public class MidiaPrintExportService {
         html.append("<!DOCTYPE html><html><head><meta charset='utf-8'>")
                 .append("<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>")
                 .append("<style>body{font-family:sans-serif;padding:20px} table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:6px}</style>")
-                .append("</head><body><h1>Relatório Resumido</h1>");
+                .append("</head><body><h1>Relatório Resumido &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mídia: ")
+                .append(midia+"&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;")
+                .append("Periodo entre: ")
+                .append(dataInicio)
+                .append(" até ")
+                .append(dataFim);
 
         List<String> chartLabels = new ArrayList<>();
         List<Integer> chartData = new ArrayList<>();
@@ -276,7 +326,7 @@ public class MidiaPrintExportService {
         return html.toString();
     }
 
-    public void imprimirGrafico(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox) {
+    public void imprimirGrafico(Grid<SetOrcamento> grid, Checkbox abreviarCheckbox, DatePicker startDate, DatePicker endDate, ComboBox<SetTipoMidia> tipoMidia) {
 
         // 1) coleta o que está filtrado
         List<SetOrcamento> contratos = grid.getGenericDataView()
@@ -285,7 +335,7 @@ public class MidiaPrintExportService {
         boolean abreviar = abreviarCheckbox.getValue();
 
         // 2) monta o HTML
-        String html = montarHtmlDeGrafico(contratos);
+        String html = montarHtmlDeGrafico(contratos,startDate,endDate,tipoMidia);
 
         // 3) cria o StreamResource
         StreamResource resource = new StreamResource("relatorio.html", () ->

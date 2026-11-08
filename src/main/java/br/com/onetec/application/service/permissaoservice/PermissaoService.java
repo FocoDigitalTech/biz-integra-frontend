@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.permissaoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetPermissao;
 import br.com.onetec.infra.db.repository.ISetPermissaoRepository;
 import lombok.SneakyThrows;

@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.estoque.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.estoqueservice.EstoqueService;
 import br.com.onetec.application.service.funcionarioservice.FuncionarioService;
 import br.com.onetec.application.service.produtoservice.ProdutoService;

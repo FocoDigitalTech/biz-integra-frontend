@@ -311,11 +311,11 @@ public class RelatorioMidiasDiv extends Div {
             // Itens do submenu
             contextMenu.addItem("Resumido", e -> {
                 midiaPrintExportService.
-                        imprimirGrafico(grid, abreviarCheckbox);
+                        imprimirGrafico(grid, abreviarCheckbox,startDate,endDate,tipoMidia);
             });
             contextMenu.addItem("Detalhado", e -> {
                 midiaPrintExportService.
-                        imprimirRelatorio(grid, abreviarCheckbox);
+                        imprimirRelatorio(grid, abreviarCheckbox,startDate,endDate,tipoMidia);
             });
 
 
@@ -369,12 +369,12 @@ public class RelatorioMidiasDiv extends Div {
 
 
             if (startDate.getValue() != null) {
-                String databaseColumn = "datainicio_execucao";
+                String databaseColumn = "data_orcamento";
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
                         criteriaBuilder.literal(startDate.getValue())));
             }
             if (endDate.getValue() != null) {
-                String databaseColumn = "datainicio_execucao";
+                String databaseColumn = "data_orcamento";
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
                         root.get(databaseColumn)));
             }

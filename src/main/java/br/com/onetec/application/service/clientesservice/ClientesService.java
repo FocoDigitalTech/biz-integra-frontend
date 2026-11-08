@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.clientesservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.model.Cliente;
 import br.com.onetec.infra.db.model.SetCliente;
 import br.com.onetec.infra.db.model.SetUsuarios;

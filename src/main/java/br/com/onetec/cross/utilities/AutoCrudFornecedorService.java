@@ -1,6 +1,6 @@
 package br.com.onetec.cross.utilities;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.fornecedorservice.FornecedorService;
 import br.com.onetec.application.service.setoratuacaoservice.SetorAtuacaoService;

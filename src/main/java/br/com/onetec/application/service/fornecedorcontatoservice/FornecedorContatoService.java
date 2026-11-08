@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.fornecedorcontatoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetFornecedorContato;
 import br.com.onetec.infra.db.repository.ISetFornecedorContatoRepository;
 import lombok.extern.slf4j.Slf4j;

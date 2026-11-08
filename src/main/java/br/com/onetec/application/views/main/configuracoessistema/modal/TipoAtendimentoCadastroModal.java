@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.configuracoessistema.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.tipoatendimentoservice.TipoAtendimentoService;
 import br.com.onetec.application.views.main.configuracoessistema.div.TipoAtendimentoDiv;
 import br.com.onetec.cross.constants.ModalMessageConst;

@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.layouts.atendimentosHistorico.component;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.notafiscalservice.NotaFiscalService;
 import br.com.onetec.cross.utilities.UtilitySystemConfigService;
 import br.com.onetec.infra.db.model.SetNotaFiscal;

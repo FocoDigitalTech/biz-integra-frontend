@@ -1,6 +1,6 @@
 package br.com.onetec.application.service.ordemservicoservice;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.infra.db.model.SetOrdemServicoFuncionarioAlocado;
 import br.com.onetec.infra.db.repository.ISetOrdemServicoFuncionarioAlocadoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ public class OrdemServicoFuncionarioAlocadoService {
 
     public void delete(SetOrdemServicoFuncionarioAlocado item) throws Exception {
         try {
-            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(item.getId_ordemservico());
+            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(item.getId_ordemservicofuncionarioalocado());
             SetOrdemServicoFuncionarioAlocado entity = optional.get();
             entity.setAtivo("N");
             entity.setData_exclusao(LocalDateTime.now());
@@ -70,7 +70,7 @@ public class OrdemServicoFuncionarioAlocadoService {
 
     public void update(SetOrdemServicoFuncionarioAlocado p) throws Exception {
         try {
-            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(p.getId_ordemservico());
+            Optional<SetOrdemServicoFuncionarioAlocado> optional = repository.findById(p.getId_ordemservicofuncionarioalocado());
             SetOrdemServicoFuncionarioAlocado entity = optional.get();
             entity = p;
             entity.setData_alteracao(LocalDateTime.now());

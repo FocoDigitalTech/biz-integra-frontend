@@ -1,6 +1,6 @@
 package br.com.onetec.application.views.main.financeiro.modal;
 
-import br.com.onetec.application.configuration.UsuarioAutenticadoConfig;
+import br.com.onetec.application.security.UsuarioAutenticadoConfig;
 import br.com.onetec.application.service.clientesservice.EstadoService;
 import br.com.onetec.application.service.contacorrenteservice.ContaCorrenteService;
 import br.com.onetec.application.service.eventofinanceiro.EventoFinanceiroService;
@@ -293,7 +293,7 @@ public class LancamentoFinanceiroModal extends Dialog {
                             dto.setId_tipoeventofinanceiro(id_tipoeventofinanceiro.getValue().getId_tipoeventofinanceiro());
                         }
                         if (Objects.nonNull(status_pagamento.getValue())) {
-                            dto.setStatus_pagamento(status_pagamento.getValue());
+                            dto.setStatusPagamento(status_pagamento.getValue());
                         }
                         /*if (Objects.nonNull(id_contacorrente.getValue().getId_contacorrente())) {
                             dto.setId_contacorrente(id_contacorrente.getValue().getId_contacorrente());
@@ -304,14 +304,14 @@ public class LancamentoFinanceiroModal extends Dialog {
                         if (Objects.nonNull(funcionario)) {
                             dto.setId_funcionariolancamento(funcionario.getId_funcionario());
                         }
-                        dto.setData_vencimento(datacorrente);
+                        dto.setDataVencimento(datacorrente);
                         datacorrente = datacorrente.plusDays(quantidade_intervalo.getValue());
 
-                        dto.setNome_fluxorecebimentopagamento(nome_fluxorecebimentopagamento.getValue());
+                        dto.setNomeFluxorecebimentopagamento(nome_fluxorecebimentopagamento.getValue());
                         dto.setQuantidade_parcelas(String.valueOf(quantidade_parcelas.getValue()));
                         dto.setQuantidade_intervalo(String.valueOf(quantidade_intervalo.getValue()));
                         dto.setData_lancamento(data_lancamento.getValue().atStartOfDay());
-                        dto.setValor_lancamento(service.getValorBigDecimal(valor_lancamento.getValue()));
+                        dto.setValorLancamento(service.getValorBigDecimal(valor_lancamento.getValue()));
                         dto.setNumero_parcela(String.valueOf(parcela));
                         //dto.setData_contabil(data_contabil.getValue().atStartOfDay());
                         /*dto.setValor_contabil(service.getValorBigDecimal(valor_contabil.getValue()));

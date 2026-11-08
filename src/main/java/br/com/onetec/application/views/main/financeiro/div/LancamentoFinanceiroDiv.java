@@ -152,30 +152,31 @@ public class LancamentoFinanceiroDiv extends Div {
 
         //departamentoService.list(null,null);
         grid = new Grid<>(SetFluxoRecebimentoPagamento.class, false);
-        grid.addColumn(SetFluxoRecebimentoPagamento::getId_fluxorecebimentopagamento)
+        grid.addColumn(SetFluxoRecebimentoPagamento::getIdFluxorecebimentopagamento)
                 .setHeader("Id")
                 .setSortable(true)
+                .setSortProperty("idFluxorecebimentopagamento")
                 .setAutoWidth(true);
         grid.addColumn(new ComponentRenderer<>(orc -> {
             String abreviacao = null;
-            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_PREVISTO.getValor())) {
+            if (orc.getStatusPagamento().equals(FinanceiroDataConst.STATUS_PREVISTO.getValor())) {
                 abreviacao = FinanceiroDataConst.STATUS_PREVISTO.getAbreviacao();
             }
-            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_REAL.getValor())) {
+            if (orc.getStatusPagamento().equals(FinanceiroDataConst.STATUS_REAL.getValor())) {
                 abreviacao = FinanceiroDataConst.STATUS_REAL.getAbreviacao();
             }
-            if (orc.getStatus_pagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
+            if (orc.getStatusPagamento().equals(FinanceiroDataConst.STATUS_CONSOLIDADO.getValor())) {
                 abreviacao = FinanceiroDataConst.STATUS_CONSOLIDADO.getAbreviacao();
             }
             if (abreviaverificacao) {
                 situation = abreviacao;
             } else {
-                situation = orc.getStatus_pagamento();
+                situation = orc.getStatusPagamento();
             }
             Span span = new Span(situation);
-            if ("Previsão (P)".equals(orc.getStatus_pagamento())) {
+            if ("Previsão (P)".equals(orc.getStatusPagamento())) {
                 span.getStyle().set("color", "red");
-            } else if ("Real (R)".equals(orc.getStatus_pagamento())) {
+            } else if ("Real (R)".equals(orc.getStatusPagamento())) {
                 span.getStyle().set("color", "blue");
             } else {
                 span.getStyle().set("color", "green");
@@ -185,42 +186,43 @@ public class LancamentoFinanceiroDiv extends Div {
         }))
                 .setHeader("Status (P/R/C)")
                 .setSortable(true)
+                .setSortProperty("statusPagamento")
                 .setResizable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
-            if (Objects.nonNull(data.getData_vencimento())) {
+            if (Objects.nonNull(data.getDataVencimento())) {
                 return UtilitySystemConfigService.
-                        getDataFormatada(data.getData_vencimento().atStartOfDay());
+                        getDataFormatada(data.getDataVencimento().atStartOfDay());
             } else {
                 return "";
             }
         })
                 .setHeader("Data Vencimento")
                 .setSortable(true)
+                .setSortProperty("dataVencimento")
                 .setAutoWidth(true);
-        grid.addColumn(SetFluxoRecebimentoPagamento::getNome_fluxorecebimentopagamento)
+        grid.addColumn(SetFluxoRecebimentoPagamento::getNomeFluxorecebimentopagamento)
                 .setHeader("Nome Lançamento (Histórico)")
                 .setSortable(true)
+                .setSortProperty("nomeFluxorecebimentopagamento")
                 .setAutoWidth(true);
-        grid.addColumn(SetFluxoRecebimentoPagamento::getValor_lancamento)
+        grid.addColumn(SetFluxoRecebimentoPagamento::getValorLancamento)
                 .setHeader("Valor")
                 .setSortable(true)
+                .setSortProperty("valorLancamento")
                 .setAutoWidth(true);
         grid.addColumn(event -> {
             SetTipoEventoFinanceiro dto = tipoEventoFinanceiroService.findById(event.getId_tipoeventofinanceiro());
             return dto == null ? "N/A" : dto.getNome_tipoeventofinanceiro();
         })
                 .setHeader("Nome da Conta (Tipo Evento Financeiro)")
-                .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(SetFluxoRecebimentoPagamento::getNumero_documento)
                 .setHeader("N° DOCTO")
-                .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(event -> Objects.isNull(event.getNumero_parcela()) || Objects.isNull(event.getQuantidade_parcelas())
                 ? "N/A" : event.getNumero_parcela() + "/" + event.getQuantidade_parcelas())
                 .setHeader("NumParc")
-                .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(data -> {
             if (Objects.nonNull(data.getData_lancamento())) {
@@ -231,14 +233,12 @@ public class LancamentoFinanceiroDiv extends Div {
             }
         })
                 .setHeader("Data de Lançamento")
-                .setSortable(true)
                 .setAutoWidth(true);
         grid.addColumn(midia -> {
-            SetUsuarios usuarios = usuarioService.findById(midia.getId_funcionariolancamento());
+            SetUsuarios usuarios = usuarioService.findById(midia.getId_usuario());
             return usuarios == null ? "N/A" : usuarios.getNome_usuario();
         })
                 .setHeader("Usuario Lançamento")
-                .setSortable(true)
                 .setAutoWidth(true);
 
 
@@ -270,6 +270,7 @@ public class LancamentoFinanceiroDiv extends Div {
 //                btnExcluir.setVisible(false);
 //            });
         });
+
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
@@ -382,16 +383,16 @@ public class LancamentoFinanceiroDiv extends Div {
         public Predicate toPredicate(Root<SetFluxoRecebimentoPagamento> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
             List<Predicate> predicates = new ArrayList<>();
 
-            query.orderBy(criteriaBuilder.desc(root.get("data_vencimento")));
+            query.orderBy(criteriaBuilder.desc(root.get("dataVencimento")));
 
             if (!id.isEmpty()) {
                 Integer lowerCaseFilter = Integer.valueOf(id.getValue().toLowerCase());
-                Predicate idMatch = criteriaBuilder.equal(root.get("id_fluxorecebimentopagamento"), lowerCaseFilter);
+                Predicate idMatch = criteriaBuilder.equal(root.get("idFluxorecebimentopagamento"), lowerCaseFilter);
                 predicates.add(criteriaBuilder.or(idMatch));
             }
 
             if (!nome.isEmpty()) {
-                String databaseColumn = "nome_fluxorecebimentopagamento";
+                String databaseColumn = "nomeFluxorecebimentopagamento";
                 String ignore = "- ()";
 
                 String lowerCaseFilter = ignoreCharacters(ignore, nome.getValue().toLowerCase());
@@ -402,12 +403,12 @@ public class LancamentoFinanceiroDiv extends Div {
 
             }
             if (startDate.getValue() != null) {
-                String databaseColumn = "data_vencimento";
+                String databaseColumn = "dataVencimento";
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(databaseColumn),
                         criteriaBuilder.literal(startDate.getValue())));
             }
             if (endDate.getValue() != null) {
-                String databaseColumn = "data_vencimento";
+                String databaseColumn = "dataVencimento";
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.literal(endDate.getValue()),
                         root.get(databaseColumn)));
             }
